@@ -22,6 +22,8 @@ export class RoleHarvester {
             }
             else {
                 creep.memory.idle = true;
+                // get creep out of the way if idle
+                creep.moveTo(Game.spawns['Spawn1'], { visualizePathStyle: { stroke: '#ff0000' } });
             }
         }
     }
