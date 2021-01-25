@@ -1,9 +1,8 @@
+import { RoleBuilder } from "role.builder";
+import { RoleHarvester } from "role.harvester";
+import { RoleSpawner } from "role.spawner";
+import { RoleUpgrader } from "role.upgrader";
 import { ErrorMapper } from "utils/ErrorMapper";
-
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-var roleBuilder = require('role.builder');
-var roleSpawner = require('role.spawner');
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -11,34 +10,59 @@ export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
 
   cleanupDeadCreepNames();
-  breedNewCreeps();
+  breedNewCreeps(6);
   runCreeps();
 });
 
 function runCreeps() {
-  for (var name in Game.creeps) {
-      var creep = Game.creeps[name];
-      if (creep.memory.role == 'harvester') {
-          roleHarvester.run(creep);
-      }
-      if (creep.memory.role == 'upgrader') {
-          roleUpgrader.run(creep);
-      }
-      if (creep.memory.role == 'builder') {
-          roleBuilder.run(creep);
-      }
+  for (let name in Game.creeps) {
+    let creep = Game.creeps[name];
+    balanceRoles(creep);
+
+    if (creep.memory.role == 'harvester') {
+      RoleHarvester.run(creep);
+    }
+    if (creep.memory.role == 'upgrader') {
+      RoleUpgrader.run(creep);
+    }
+    if (creep.memory.role == 'builder') {
+      RoleBuilder.run(creep);
+    }
   }
 }
 
-function breedNewCreeps() {
-  var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-  roleSpawner.breed(harvesters, 'harvester', 2);
+function balanceRoles(creep: Creep) {
+  let targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+  if (targets.length > 0) {
+    
+  }
+  if (creep.memory.idle == true) {
+    let oldRole = creep.memory.role;
+    if (oldRole == 'harvester') {
+      creep.memory.role = 'builder';
+    }
+    if (oldRole == 'builder') {
+      creep.memory.role = 'upgrader';
+    }
+    if (oldRole == 'upgrader') {
+      creep.memory.role = 'harvester';
+    }
+    console.log(`Reassigning idle ${oldRole} to: ${creep.memory.role}`);
+    creep.memory.idle = false;
+  }
+}
 
-  var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-  roleSpawner.breed(upgraders, 'upgrader', 2);
+function breedNewCreeps(maxCreeps: number) {
+  if(_.size(Game.creeps) < maxCreeps) {
+    let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+    RoleSpawner.breed(harvesters, 'harvester', 2);
 
-  var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-  roleSpawner.breed(builders, 'builder', 2);
+    let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+    RoleSpawner.breed(upgraders, 'upgrader', 2);
+
+    let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
+    RoleSpawner.breed(builders, 'builder', 0);
+  }
 }
 
 function cleanupDeadCreepNames() {

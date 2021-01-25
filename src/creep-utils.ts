@@ -1,11 +1,11 @@
-var creepUtils = {
-
-    harvest: function(creep: Creep) {
+export class CreepUtils {
+    public static harvest(creep: Creep): void {
         var sources = creep.room.find(FIND_SOURCES);
-        if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#ffaa00'}});
+        if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
         }
     }
+}
 
     // harvestQueue: function(creep: Creep) {
     //     console.log('##START HARVEST: ' + creep.name);
@@ -54,6 +54,3 @@ var creepUtils = {
 
     //     queue.remove(creep);
     // }
-}
-
-module.exports = creepUtils;
