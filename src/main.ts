@@ -58,7 +58,7 @@ function breedNewCreeps(maxCreeps: number) {
     RoleSpawner.breed(harvesters, 'harvester', 1);
 
     let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-    RoleSpawner.breed(upgraders, 'upgrader', 4);
+    RoleSpawner.breed(upgraders, 'upgrader', 6);
 
     let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
     RoleSpawner.breed(builders, 'builder', 1);
