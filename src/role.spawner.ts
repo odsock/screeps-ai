@@ -3,8 +3,8 @@ export class RoleSpawner {
     if (creeps.length < maxCount) {
       let newName = 'creep' + Game.time;
       console.log(role + ': ' + creeps.length + '/' + maxCount + '. Spawning:' + newName);
-      let result = Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE, CARRY, MOVE], newName, { memory: { role: role } });
-      console.log('Result: ' + result.toString());
+      let result = Game.spawns['Spawn1'].spawnCreep([WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY], newName, { memory: { role: role } });
+      console.log('Result: ' + result);
     }
 
     if (Game.spawns['Spawn1'].spawning) {

@@ -2,11 +2,13 @@ import { CreepUtils } from "creep-utils";
 
 export class RoleWorker {
   public static run(creep: Creep): void {
-    if (creep.room.find(FIND_CONSTRUCTION_SITES)) {
-      this.build(creep);
-    }
-    else if (creep.room.energyCapacityAvailable > 0) {
+    console.log(`energy capacity: ${creep.room.energyAvailable}/${creep.room.energyCapacityAvailable}`);
+    if (creep.room.energyAvailable < creep.room.energyCapacityAvailable) {
+      console.log('harvesting');
       this.harvest(creep);
+    }
+    else if (creep.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+      this.build(creep);
     }
     else {
       this.upgrade(creep);
@@ -14,6 +16,10 @@ export class RoleWorker {
   }
 
   private static upgrade(creep: Creep): void {
+    if(creep.memory.job != 'upgrading') {
+      creep.memory.job = 'upgrading';
+      creep.say('upgrader');
+    }
 
     if (creep.memory.upgrading && creep.store[RESOURCE_ENERGY] == 0) {
       creep.memory.upgrading = false;
@@ -36,6 +42,11 @@ export class RoleWorker {
   }
 
   private static build(creep: Creep): void {
+    if(creep.memory.job != 'building') {
+      creep.memory.job = 'building';
+      creep.say('builder');
+    }
+
     if (creep.memory.building && creep.store[RESOURCE_ENERGY] == 0) {
       creep.memory.building = false;
       creep.say('🔄 harvest');
@@ -48,7 +59,6 @@ export class RoleWorker {
     if (creep.memory.building) {
       let targets = creep.room.find(FIND_CONSTRUCTION_SITES);
       if (targets.length) {
-        creep.memory.idle = false;
         if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
           creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
         }
@@ -60,14 +70,20 @@ export class RoleWorker {
   }
 
   private static harvest(creep: Creep): void {
+    if(creep.memory.job != 'harvester') {
+      creep.memory.job = 'harvester';
+      creep.say('harvester');
+    }
+    let freeCapacity = creep.store.getFreeCapacity();
+    console.log(`free cap: ${freeCapacity}`);
     if (creep.store.getFreeCapacity() > 0) {
-      creep.say('🔄 harvest');
+      console.log('creep empty');
       CreepUtils.harvest(creep);
     }
     else {
+      console.log('searching');
       var targets = RoleWorker.findEnergyStorage(creep);
       if (targets.length > 0) {
-        creep.say('⚡ transfer');
         if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
         }
