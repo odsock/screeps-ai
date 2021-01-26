@@ -2,6 +2,7 @@ import { RoleBuilder } from "role.builder";
 import { RoleHarvester } from "role.harvester";
 import { RoleSpawner } from "role.spawner";
 import { RoleUpgrader } from "role.upgrader";
+import { RoleWorker } from "role.worker";
 import { ErrorMapper } from "utils/ErrorMapper";
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
@@ -19,6 +20,9 @@ function runCreeps() {
     let creep = Game.creeps[name];
     // balanceRoles(creep);
 
+    if (creep.memory.role == 'worker') {
+      RoleWorker.run(creep);
+    }
     if (creep.memory.role == 'harvester') {
       RoleHarvester.run(creep);
     }
@@ -54,14 +58,17 @@ function balanceRoles(creep: Creep) {
 
 function breedNewCreeps(maxCreeps: number) {
   if(_.size(Game.creeps) < maxCreeps) {
-    let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    RoleSpawner.breed(harvesters, 'harvester', 1);
+    let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
+    RoleSpawner.breed(workers, 'worker', 8);
 
-    let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-    RoleSpawner.breed(upgraders, 'upgrader', 6);
+    // let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+    // RoleSpawner.breed(harvesters, 'harvester', 1);
 
-    let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-    RoleSpawner.breed(builders, 'builder', 1);
+    // let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+    // RoleSpawner.breed(upgraders, 'upgrader', 6);
+
+    // let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
+    // RoleSpawner.breed(builders, 'builder', 1);
   }
 }
 
