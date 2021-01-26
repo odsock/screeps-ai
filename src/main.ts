@@ -10,7 +10,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
 
   cleanupDeadCreepNames();
-  breedNewCreeps(6);
+  breedNewCreeps(8);
   runCreeps();
 });
 
