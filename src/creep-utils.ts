@@ -1,10 +1,10 @@
 export class CreepUtils {
-    public static harvest(creep: Creep): void {
-        var sources = creep.room.find(FIND_SOURCES);
-        if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
-        }
+  public static harvest(creep: Creep): void {
+    var sources = creep.room.find(FIND_SOURCES);
+    if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+      creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
     }
+  }
 }
 
     // harvestQueue: function(creep: Creep) {

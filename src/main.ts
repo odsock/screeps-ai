@@ -10,14 +10,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
 
   cleanupDeadCreepNames();
-  breedNewCreeps(6);
+  breedNewCreeps(8);
   runCreeps();
 });
 
 function runCreeps() {
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
-    balanceRoles(creep);
+    // balanceRoles(creep);
 
     if (creep.memory.role == 'harvester') {
       RoleHarvester.run(creep);
@@ -34,7 +34,7 @@ function runCreeps() {
 function balanceRoles(creep: Creep) {
   let targets = creep.room.find(FIND_CONSTRUCTION_SITES);
   if (targets.length > 0) {
-    
+
   }
   if (creep.memory.idle == true) {
     let oldRole = creep.memory.role;
@@ -55,13 +55,13 @@ function balanceRoles(creep: Creep) {
 function breedNewCreeps(maxCreeps: number) {
   if(_.size(Game.creeps) < maxCreeps) {
     let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    RoleSpawner.breed(harvesters, 'harvester', 2);
+    RoleSpawner.breed(harvesters, 'harvester', 1);
 
     let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-    RoleSpawner.breed(upgraders, 'upgrader', 2);
+    RoleSpawner.breed(upgraders, 'upgrader', 6);
 
     let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-    RoleSpawner.breed(builders, 'builder', 0);
+    RoleSpawner.breed(builders, 'builder', 1);
   }
 }
 
