@@ -6,7 +6,6 @@ export class RoleWorker {
   public static run(creep: Creep): void {
     // harvest if any capacity in room
     if (creep.room.energyAvailable < creep.room.energyCapacityAvailable) {
-      console.log('harvesting');
       this.harvest(creep);
     }
     // build if anything to build

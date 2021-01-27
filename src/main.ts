@@ -17,7 +17,6 @@ function runCreeps() {
     let creep = Game.creeps[name];
 
     if (creep.memory.role == 'worker') {
-      console.log(`worker: ${creep.name}`);
       RoleWorker.run(creep);
     }
     else {
