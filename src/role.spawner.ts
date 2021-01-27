@@ -1,10 +1,20 @@
+import config from "./constants";
+
+// TODO: avoid using literal 'Spawn1'
 export class RoleSpawner {
-  public static breed(creeps: Creep[], role: string, maxCount: number) {
-    if (creeps.length < maxCount) {
-      let newName = 'creep' + Game.time;
-      console.log(role + ': ' + creeps.length + '/' + maxCount + '. Spawning:' + newName);
-      let result = Game.spawns['Spawn1'].spawnCreep([WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY], newName, { memory: { role: role } });
-      console.log('Result: ' + result);
+  public static spawnCreeps() {
+    if(_.size(Game.creeps) < config.MAX_CREEPS) {
+      // let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
+      RoleSpawner.spawnWorker();
+
+      // let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+      // RoleSpawner.breed(harvesters, 'harvester', 1);
+
+      // let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+      // RoleSpawner.breed(upgraders, 'upgrader', 6);
+
+      // let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
+      // RoleSpawner.breed(builders, 'builder', 1);
     }
 
     if (Game.spawns['Spawn1'].spawning) {
@@ -15,5 +25,14 @@ export class RoleSpawner {
         Game.spawns['Spawn1'].pos.y,
         { align: 'left', opacity: 0.8 });
     }
+  }
+
+  private static spawnWorker() {
+    this.spawnCreep(config.BODY_WORKER, 'worker');
+  }
+
+  private static spawnCreep(body: BodyPartConstant[], role: string): ScreepsReturnCode {
+    let newName = 'creep' + Game.time;
+    return Game.spawns['Spawn1'].spawnCreep(body, newName, { memory: { role: role } });
   }
 }
