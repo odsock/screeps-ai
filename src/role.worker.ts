@@ -15,6 +15,7 @@ export class RoleWorker {
     }
   }
 
+  // TODO: harvest if not full and closer to the energy source than the controller
   private static upgrade(creep: Creep): void {
     if(creep.memory.job != 'upgrading') {
       creep.memory.job = 'upgrading';
@@ -69,6 +70,7 @@ export class RoleWorker {
     }
   }
 
+  // TODO: transfer if not empty, but harvest until full (need flag probably)
   private static harvest(creep: Creep): void {
     if(creep.memory.job != 'harvester') {
       creep.memory.job = 'harvester';
@@ -76,7 +78,7 @@ export class RoleWorker {
     }
     let freeCapacity = creep.store.getFreeCapacity();
     console.log(`free cap: ${freeCapacity}`);
-    if (creep.store.getFreeCapacity() > 0) {
+    if (freeCapacity > 0) {
       console.log('creep empty');
       CreepUtils.harvest(creep);
     }
