@@ -12,6 +12,10 @@ export class RoleWorker {
     else if (creep.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
       this.build(creep);
     }
+    // repair if anything to repair
+    else if (creep.room.find(FIND_STRUCTURES).filter((structure) => structure.hits < structure.hitsMax).length > 0) {
+      this.repair(creep);
+    }
     // otherwise upgrade
     else {
       this.upgrade(creep);
@@ -31,7 +35,6 @@ export class RoleWorker {
     });
   }
 
-  // TODO: builder should repair too
   private static build(creep: Creep): void {
     this.updateJob(creep, 'building');
     this.stopWorkingIfEmpty(creep);
@@ -41,6 +44,20 @@ export class RoleWorker {
       if (targets.length) {
         if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
           creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+        }
+      }
+    });
+  }
+
+  private static repair(creep: Creep): void {
+    this.updateJob(creep, 'repairing');
+    this.stopWorkingIfEmpty(creep);
+    this.startWorkingIfFull(creep, '🚧 repair');
+    this.workOrHarvest(creep, function () {
+      let repairSites = creep.room.find(FIND_STRUCTURES).filter((structure) => structure.hits < structure.hitsMax);
+      if (repairSites.length) {
+        if (creep.repair(repairSites[0]) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(repairSites[0], { visualizePathStyle: { stroke: '#ffffff' } });
         }
       }
     });
