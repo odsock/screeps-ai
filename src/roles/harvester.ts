@@ -7,7 +7,7 @@ export class Harvester {
 
   public run() {
     let myContainer = this.getMyContainer();
-    if(myContainer) {
+    if (myContainer) {
       this.fillContainer(myContainer);
     }
     else {
@@ -29,7 +29,7 @@ export class Harvester {
   }
 
   private moveToUnoccupiedContainer() {
-    let containers = this.creep.room.find(FIND_STRUCTURES).filter((structure) => structure.structureType == STRUCTURE_CONTAINER);
+    let containers = this.creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_CONTAINER });
     let unoccupiedContainers = containers.filter((container) => container.room.lookForAt(LOOK_CREEPS, container.pos).length == 0);
     if (unoccupiedContainers) {
       this.creep.moveTo(unoccupiedContainers[0], { visualizePathStyle: { stroke: '#ffaa00' } });

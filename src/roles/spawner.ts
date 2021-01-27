@@ -20,8 +20,8 @@ export class Spawner {
     // spawn harvester for each container
     for (const spawnName in Game.spawns) {
       let spawn = Game.spawns[spawnName];
-      let harvesters = spawn.room.find(FIND_MY_CREEPS).filter((c) => c.memory.role == 'harvester');
-      let containers = spawn.room.find(FIND_STRUCTURES).filter((s) => s.structureType == STRUCTURE_CONTAINER);
+      let harvesters = spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'harvester' });
+      let containers = spawn.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
       if (harvesters.length < containers.length) {
         this.spawnHarvester();
       }

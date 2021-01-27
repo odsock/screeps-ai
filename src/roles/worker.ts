@@ -13,7 +13,7 @@ export class Worker {
       this.build(creep);
     }
     // repair if anything to repair
-    else if (creep.room.find(FIND_STRUCTURES).filter((structure) => structure.hits < structure.hitsMax).length > 0) {
+    else if (creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax }).length > 0) {
       this.repair(creep);
     }
     // otherwise upgrade
@@ -55,7 +55,7 @@ export class Worker {
     this.stopWorkingIfEmpty(creep);
     this.startWorkingIfFull(creep, '🚧 repair');
     this.workOrHarvest(creep, function () {
-      let repairSites = creep.room.find(FIND_STRUCTURES).filter((structure) => structure.hits < structure.hitsMax);
+      let repairSites = creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax });
       if (repairSites.length) {
         if (creep.repair(repairSites[0]) == ERR_NOT_IN_RANGE) {
           creep.moveTo(repairSites[0], { visualizePathStyle: { stroke: '#ffffff' } });
