@@ -4,14 +4,16 @@ import { CreepUtils } from "creep-utils";
 // TODO: specialized harvester dropping energy in container with better access around it
 export class RoleWorker {
   public static run(creep: Creep): void {
-    console.log(`energy capacity: ${creep.room.energyAvailable}/${creep.room.energyCapacityAvailable}`);
+    // harvest if any capacity in room
     if (creep.room.energyAvailable < creep.room.energyCapacityAvailable) {
       console.log('harvesting');
       this.harvest(creep);
     }
+    // build if anything to build
     else if (creep.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
       this.build(creep);
     }
+    // otherwise upgrade
     else {
       this.upgrade(creep);
     }
@@ -21,21 +23,26 @@ export class RoleWorker {
   private static upgrade(creep: Creep): void {
     this.updateJob(creep, 'upgrading');
 
-    if (creep.memory.upgrading && creep.store[RESOURCE_ENERGY] == 0) {
-      creep.memory.upgrading = false;
+    // working and empty
+    if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
+      creep.memory.working = false;
       creep.say('🔄 harvest');
     }
-    if (!creep.memory.upgrading && creep.store.getFreeCapacity() == 0) {
-      creep.memory.upgrading = true;
+
+    // not working and full
+    if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
+      creep.memory.working = true;
       creep.say('⚡ upgrade');
     }
 
-    if (creep.memory.upgrading) {
+    // working and not empty
+    if (creep.memory.working) {
       const controller = creep.room.controller;
       if (controller && creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
         creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
       }
     }
+    // not working and not full
     else {
       CreepUtils.harvest(creep);
     }
@@ -45,16 +52,20 @@ export class RoleWorker {
   private static build(creep: Creep): void {
     this.updateJob(creep, 'building');
 
-    if (creep.memory.building && creep.store[RESOURCE_ENERGY] == 0) {
-      creep.memory.building = false;
+    // working and empty
+    if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
+      creep.memory.working = false;
       creep.say('🔄 harvest');
     }
-    if (!creep.memory.building && creep.store.getFreeCapacity() == 0) {
-      creep.memory.building = true;
+
+    // not working and full
+    if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
+      creep.memory.working = true;
       creep.say('🚧 build');
     }
 
-    if (creep.memory.building) {
+    // working and not empty
+    if (creep.memory.working) {
       let targets = creep.room.find(FIND_CONSTRUCTION_SITES);
       if (targets.length) {
         if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
@@ -62,29 +73,39 @@ export class RoleWorker {
         }
       }
     }
+    // not working and not full
     else {
       CreepUtils.harvest(creep);
     }
   }
 
-  // TODO: transfer if not empty, but harvest until full (need flag probably)
   private static harvest(creep: Creep): void {
     this.updateJob(creep, 'harvesting');
 
-    let freeCapacity = creep.store.getFreeCapacity();
-    console.log(`free cap: ${freeCapacity}`);
-    if (freeCapacity > 0) {
-      console.log('creep empty');
-      CreepUtils.harvest(creep);
+    // working and empty
+    if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
+      creep.memory.working = false;
+      creep.say('🔄 harvest');
     }
-    else {
-      console.log('searching');
+
+    // not working and full
+    if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
+      creep.memory.working = true;
+      creep.say('⚡ transfer');
+    }
+
+    // working and not empty
+    if (creep.memory.working) {
       var targets = RoleWorker.findEnergyStorage(creep);
       if (targets.length > 0) {
         if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
         }
       }
+    }
+    // not working and not full
+    else {
+      CreepUtils.harvest(creep);
     }
   }
 
