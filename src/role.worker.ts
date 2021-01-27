@@ -1,5 +1,7 @@
 import { CreepUtils } from "creep-utils";
 
+// TODO: pick up energy from tombstones and ruins
+// TODO: specialized harvester dropping energy in container with better access around it
 export class RoleWorker {
   public static run(creep: Creep): void {
     console.log(`energy capacity: ${creep.room.energyAvailable}/${creep.room.energyCapacityAvailable}`);
@@ -42,6 +44,7 @@ export class RoleWorker {
     }
   }
 
+  // TODO: builder should repair too
   private static build(creep: Creep): void {
     if(creep.memory.job != 'building') {
       creep.memory.job = 'building';
