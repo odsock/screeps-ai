@@ -19,10 +19,7 @@ export class RoleWorker {
 
   // TODO: harvest if not full and closer to the energy source than the controller
   private static upgrade(creep: Creep): void {
-    if(creep.memory.job != 'upgrading') {
-      creep.memory.job = 'upgrading';
-      creep.say('upgrader');
-    }
+    this.updateJob(creep, 'upgrading');
 
     if (creep.memory.upgrading && creep.store[RESOURCE_ENERGY] == 0) {
       creep.memory.upgrading = false;
@@ -46,10 +43,7 @@ export class RoleWorker {
 
   // TODO: builder should repair too
   private static build(creep: Creep): void {
-    if(creep.memory.job != 'building') {
-      creep.memory.job = 'building';
-      creep.say('builder');
-    }
+    this.updateJob(creep, 'building');
 
     if (creep.memory.building && creep.store[RESOURCE_ENERGY] == 0) {
       creep.memory.building = false;
@@ -75,10 +69,8 @@ export class RoleWorker {
 
   // TODO: transfer if not empty, but harvest until full (need flag probably)
   private static harvest(creep: Creep): void {
-    if(creep.memory.job != 'harvester') {
-      creep.memory.job = 'harvester';
-      creep.say('harvester');
-    }
+    this.updateJob(creep, 'harvesting');
+
     let freeCapacity = creep.store.getFreeCapacity();
     console.log(`free cap: ${freeCapacity}`);
     if (freeCapacity > 0) {
@@ -93,6 +85,13 @@ export class RoleWorker {
           creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
         }
       }
+    }
+  }
+
+  private static updateJob(creep: Creep, job: string) {
+    if (creep.memory.job != job) {
+      creep.memory.job = job;
+      creep.say(job);
     }
   }
 
