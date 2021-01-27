@@ -1,11 +1,11 @@
-import config from "./constants";
+import config from "../constants";
 
 // TODO: avoid using literal 'Spawn1'
-export class RoleSpawner {
+export class Spawner {
   public static spawnCreeps() {
     if(_.size(Game.creeps) < config.MAX_CREEPS) {
       // let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
-      RoleSpawner.spawnWorker();
+      this.spawnWorker();
 
       // let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
       // RoleSpawner.breed(harvesters, 'harvester', 1);
@@ -15,6 +15,16 @@ export class RoleSpawner {
 
       // let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
       // RoleSpawner.breed(builders, 'builder', 1);
+    }
+
+    // spawn harvester for each container
+    for (const spawnName in Game.spawns) {
+      let spawn = Game.spawns[spawnName];
+      let harvesters = spawn.room.find(FIND_MY_CREEPS).filter((c) => c.memory.role == 'harvester');
+      let containers = spawn.room.find(FIND_STRUCTURES).filter((s) => s.structureType == STRUCTURE_CONTAINER);
+      if (harvesters.length < containers.length) {
+        this.spawnHarvester();
+      }
     }
 
     if (Game.spawns['Spawn1'].spawning) {
@@ -29,6 +39,10 @@ export class RoleSpawner {
 
   private static spawnWorker() {
     this.spawnCreep(config.BODY_WORKER, 'worker');
+  }
+
+  private static spawnHarvester() {
+    this.spawnCreep(config.BODY_HARVESTER, 'harvester');
   }
 
   private static spawnCreep(body: BodyPartConstant[], role: string): ScreepsReturnCode {

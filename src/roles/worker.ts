@@ -2,7 +2,7 @@ import { CreepUtils } from "creep-utils";
 
 // TODO: pick up energy from tombstones and ruins
 // TODO: specialized harvester dropping energy in container with better access around it
-export class RoleWorker {
+export class Worker {
   public static run(creep: Creep): void {
     // harvest if any capacity in room
     if (creep.room.energyAvailable < creep.room.energyCapacityAvailable) {
@@ -68,7 +68,7 @@ export class RoleWorker {
     this.stopWorkingIfEmpty(creep);
     this.startWorkingIfFull(creep, '⚡ transfer');
     this.workOrHarvest(creep, function () {
-      var targets = RoleWorker.findEnergyStorage(creep);
+      var targets = Worker.findEnergyStorage(creep);
       if (targets.length > 0) {
         if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });

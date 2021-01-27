@@ -1,5 +1,6 @@
-import { RoleSpawner } from "role.spawner";
-import { RoleWorker } from "role.worker";
+import { Harvester } from "roles/harvester";
+import { Spawner } from "roles/spawner";
+import { Worker } from "roles/worker";
 import { ErrorMapper } from "utils/ErrorMapper";
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
@@ -8,7 +9,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
 
   cleanupDeadCreepNames();
-  RoleSpawner.spawnCreeps();
+  Spawner.spawnCreeps();
   runCreeps();
 });
 
@@ -17,7 +18,11 @@ function runCreeps() {
     let creep = Game.creeps[name];
 
     if (creep.memory.role == 'worker') {
-      RoleWorker.run(creep);
+      Worker.run(creep);
+    }
+    else if(creep.memory.role == 'harvester') {
+      let harvester = new Harvester(creep);
+      harvester.run();
     }
     else {
       console.log(`unknown role: ${creep.memory.role}`);
