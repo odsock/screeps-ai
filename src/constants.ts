@@ -1,5 +1,5 @@
 class Constants {
-  static readonly MAX_CREEPS: number = 6;
+  static readonly MAX_CREEPS: number = 8;
   static readonly BODY_WORKER: BodyPartConstant[] = [
     WORK, WORK, WORK, WORK,
     MOVE, MOVE, MOVE, MOVE,
