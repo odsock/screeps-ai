@@ -3,19 +3,19 @@ import config from "../constants";
 // TODO: avoid using literal 'Spawn1'
 export class Spawner {
   public static spawnCreeps() {
-    if(_.size(Game.creeps) < config.MAX_CREEPS) {
-      // let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
+    let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
+    if (workers.length < config.MAX_CREEPS) {
       this.spawnWorker();
-
-      // let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-      // RoleSpawner.breed(harvesters, 'harvester', 1);
-
-      // let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-      // RoleSpawner.breed(upgraders, 'upgrader', 6);
-
-      // let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-      // RoleSpawner.breed(builders, 'builder', 1);
     }
+
+    // let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+    // RoleSpawner.breed(harvesters, 'harvester', 1);
+
+    // let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+    // RoleSpawner.breed(upgraders, 'upgrader', 6);
+
+    // let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
+    // RoleSpawner.breed(builders, 'builder', 1);
 
     // spawn harvester for each container
     for (const spawnName in Game.spawns) {

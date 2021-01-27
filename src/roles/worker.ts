@@ -35,6 +35,7 @@ export class Worker {
     });
   }
 
+  // TODO: make builder move away from energy source if working
   private static build(creep: Creep): void {
     this.updateJob(creep, 'building');
     this.stopWorkingIfEmpty(creep);
