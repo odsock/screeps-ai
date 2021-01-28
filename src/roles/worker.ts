@@ -90,6 +90,7 @@ export class Worker {
   private static updateJob(creep: Creep, job: string) {
     if (creep.memory.job != job) {
       creep.memory.job = job;
+      creep.memory.working = false;
       creep.say(job);
     }
   }
