@@ -2,10 +2,17 @@ import { result } from "lodash";
 
 export class CreepUtils {
   public static harvest(creep: Creep): void {
-    if (!CreepUtils.harvestFromTombstones(creep)) {
-      if (!CreepUtils.harvestFromRuins(creep)) {
-        if (!CreepUtils.harvestFromContainer(creep)) {
-          CreepUtils.harvestFromSource(creep);
+    let result = CreepUtils.harvestFromTombstones(creep);
+    console.log(result);
+    if (result != 0) {
+      let result = CreepUtils.harvestFromRuins(creep);
+      console.log(result);
+      if (result != 0) {
+        let result = CreepUtils.harvestFromContainer(creep);
+        console.log(result);
+        if (result != 0) {
+          let result = CreepUtils.harvestFromSource(creep);
+          console.log(result);
         }
       }
     }

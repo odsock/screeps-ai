@@ -1,6 +1,7 @@
 import config from "../constants";
 
 // TODO: avoid using literal 'Spawn1'
+// TODO: dynamic body size with ratios of parts instead of full list constant
 export class Spawner {
   public static spawnCreeps() {
     let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
