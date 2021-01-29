@@ -1,5 +1,3 @@
-import { result } from "lodash";
-
 export class CreepUtils {
   public static harvest(creep: Creep): void {
     let result = CreepUtils.harvestFromTombstones(creep);
