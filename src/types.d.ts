@@ -6,9 +6,6 @@ interface CreepMemory {
   role: string;
   room?: string;
   working?: boolean;
-  building?: boolean;
-  idle?: boolean;
-  upgrading?: boolean;
 }
 
 interface Memory {
