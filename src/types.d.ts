@@ -8,6 +8,10 @@ interface CreepMemory {
   working?: boolean;
 }
 
+interface RoomMemory {
+  controllerRoadsComplete: boolean;
+}
+
 interface Memory {
   uuid: number;
   log: any;
