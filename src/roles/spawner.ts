@@ -13,15 +13,6 @@ export class Spawner {
       this.spawnWorker();
     }
 
-    // let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    // RoleSpawner.breed(harvesters, 'harvester', 1);
-
-    // let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-    // RoleSpawner.breed(upgraders, 'upgrader', 6);
-
-    // let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-    // RoleSpawner.breed(builders, 'builder', 1);
-
     // spawn harvester for each container
     for (const spawnName in Game.spawns) {
       let spawn = Game.spawns[spawnName];
@@ -39,21 +30,32 @@ export class Spawner {
         this.spawn.pos.x + 1,
         this.spawn.pos.y,
         { align: 'left', opacity: 0.8 });
-      }
     }
+  }
 
-    // TODO: dynamic body size with ratios of parts instead of full list constant
-    private spawnWorker() {
-      let body = config.BODY_WORKER;
-      this.spawnCreep(body, 'worker');
+  private spawnWorker() {
+    const profile = config.BODY_PROFILE_WORKER;
+    let body: BodyPartConstant[] = this.maximizeBody(profile);
+    this.spawnCreep(body, 'worker');
+  }
+
+  private maximizeBody(profile: BodyPartConstant[]) {
+    let body: BodyPartConstant[] = profile.slice();
+    let finalBody: BodyPartConstant[] = [];
+    while (this.spawn.spawnCreep(body, '', { dryRun: true })) {
+      finalBody = body;
+      body.concat(profile);
     }
+    return finalBody;
+  }
 
-    private spawnHarvester() {
-      this.spawnCreep(config.BODY_HARVESTER, 'harvester');
-    }
+  // TODO: dynamic body size with ratios of parts instead of full list constant
+  private spawnHarvester() {
+    this.spawnCreep(config.BODY_HARVESTER, 'harvester');
+  }
 
-    private spawnCreep(body: BodyPartConstant[], role: string): ScreepsReturnCode {
-      let newName = 'creep' + Game.time;
-      return this.spawn.spawnCreep(body, newName, { memory: { role: role } });
+  private spawnCreep(body: BodyPartConstant[], role: string): ScreepsReturnCode {
+    let newName = 'creep' + Game.time;
+    return this.spawn.spawnCreep(body, newName, { memory: { role: role } });
   }
 }
