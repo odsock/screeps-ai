@@ -28,11 +28,10 @@ export class Planner {
                         return result;
                     }
                 }
-                this.room.memory.controllerRoadsComplete = true;
-                return OK;
             }
-            return OK;
         }
+
+        this.room.memory.controllerRoadsComplete = true;
         return OK;
     }
 }
