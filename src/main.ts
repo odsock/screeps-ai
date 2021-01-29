@@ -7,9 +7,13 @@ import { ErrorMapper } from "utils/ErrorMapper";
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
-
   cleanupDeadCreepNames();
-  Spawner.spawnCreeps();
+
+  for (const spawn in Game.spawns) {
+    let spawner = new Spawner(Game.spawns[spawn]);
+    spawner.spawnCreeps();
+  };
+
   runCreeps();
 });
 

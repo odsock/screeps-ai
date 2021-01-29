@@ -1,9 +1,13 @@
 import config from "../constants";
 
-// TODO: avoid using literal 'Spawn1'
-// TODO: dynamic body size with ratios of parts instead of full list constant
 export class Spawner {
-  public static spawnCreeps() {
+  private spawn: StructureSpawn;
+
+  constructor(spawn: StructureSpawn) {
+    this.spawn = spawn;
+  }
+
+  public spawnCreeps() {
     let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
     if (workers.length < config.MAX_CREEPS) {
       this.spawnWorker();
@@ -28,26 +32,28 @@ export class Spawner {
       }
     }
 
-    if (Game.spawns['Spawn1'].spawning) {
-      let spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
-      Game.spawns['Spawn1'].room.visual.text(
+    if (this.spawn.spawning) {
+      let spawningCreep = Game.creeps[this.spawn.spawning.name];
+      this.spawn.room.visual.text(
         '🛠️' + spawningCreep.memory.role,
-        Game.spawns['Spawn1'].pos.x + 1,
-        Game.spawns['Spawn1'].pos.y,
+        this.spawn.pos.x + 1,
+        this.spawn.pos.y,
         { align: 'left', opacity: 0.8 });
+      }
     }
-  }
 
-  private static spawnWorker() {
-    this.spawnCreep(config.BODY_WORKER, 'worker');
-  }
+    // TODO: dynamic body size with ratios of parts instead of full list constant
+    private spawnWorker() {
+      let body = config.BODY_WORKER;
+      this.spawnCreep(body, 'worker');
+    }
 
-  private static spawnHarvester() {
-    this.spawnCreep(config.BODY_HARVESTER, 'harvester');
-  }
+    private spawnHarvester() {
+      this.spawnCreep(config.BODY_HARVESTER, 'harvester');
+    }
 
-  private static spawnCreep(body: BodyPartConstant[], role: string): ScreepsReturnCode {
-    let newName = 'creep' + Game.time;
-    return Game.spawns['Spawn1'].spawnCreep(body, newName, { memory: { role: role } });
+    private spawnCreep(body: BodyPartConstant[], role: string): ScreepsReturnCode {
+      let newName = 'creep' + Game.time;
+      return this.spawn.spawnCreep(body, newName, { memory: { role: role } });
   }
 }
