@@ -1,7 +1,5 @@
 import { CreepUtils } from "creep-utils";
 
-// TODO: pick up energy from tombstones and ruins
-// TODO: specialized harvester dropping energy in container with better access around it
 export class Worker {
   public static run(creep: Creep): void {
     // harvest if any capacity in room
