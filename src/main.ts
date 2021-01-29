@@ -1,3 +1,4 @@
+import { Planner } from "planner";
 import { Harvester } from "roles/harvester";
 import { Spawner } from "roles/spawner";
 import { Worker } from "roles/worker";
@@ -14,7 +15,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
     spawner.spawnCreeps();
   };
 
+  let planner = new Planner(Game.spawns['Spawn1'].room);
+  planner.planControllerRoads();
   runCreeps();
+  
 });
 
 function runCreeps() {
