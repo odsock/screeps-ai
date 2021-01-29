@@ -39,23 +39,32 @@ export class Spawner {
     this.spawnCreep(body, 'worker');
   }
 
-  private maximizeBody(profile: BodyPartConstant[]) {
-    let body: BodyPartConstant[] = profile.slice();
-    let finalBody: BodyPartConstant[] = [];
-    while (this.spawn.spawnCreep(body, '', { dryRun: true })) {
-      finalBody = body;
-      body.concat(profile);
-    }
-    return finalBody;
-  }
-
   // TODO: dynamic body size with ratios of parts instead of full list constant
   private spawnHarvester() {
-    this.spawnCreep(config.BODY_HARVESTER, 'harvester');
+    const profile = config.BODY_PROFILE_HARVESTER;
+    let body: BodyPartConstant[] = this.maximizeBody(profile, [MOVE]);
+    this.spawnCreep(body, 'harvester');
   }
 
   private spawnCreep(body: BodyPartConstant[], role: string): ScreepsReturnCode {
     let newName = 'creep' + Game.time;
-    return this.spawn.spawnCreep(body, newName, { memory: { role: role } });
+    let result = this.spawn.spawnCreep(body, newName, { memory: { role: role } });
+    console.log(`spawn result: ${result}`);
+    return result;
+  }
+
+  private maximizeBody(profile: BodyPartConstant[], seed: BodyPartConstant[] = []) {
+    let body: BodyPartConstant[] = seed.slice();
+    let finalBody: BodyPartConstant[] = [];
+    let result: ScreepsReturnCode;
+    do {
+      finalBody = body.slice();
+      body = body.concat(profile);
+      console.log(`testing body: ${body}`);
+      result = this.spawn.spawnCreep(body, 'maximizeBody', { dryRun: true });
+      console.log(`test result: ${result}`);
+    } while (result == 0);
+    console.log(`final body: ${finalBody}`);
+    return finalBody;
   }
 }
