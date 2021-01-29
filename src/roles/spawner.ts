@@ -14,10 +14,9 @@ export class Spawner {
     }
 
     // spawn harvester for each container
-    for (const spawnName in Game.spawns) {
-      let spawn = Game.spawns[spawnName];
-      let harvesters = spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'harvester' });
-      let containers = spawn.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
+    if (!this.spawn.spawning) {
+      let harvesters = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'harvester' });
+      let containers = this.spawn.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
       if (harvesters.length < containers.length) {
         this.spawnHarvester();
       }
@@ -39,7 +38,6 @@ export class Spawner {
     this.spawnCreep(body, 'worker');
   }
 
-  // TODO: dynamic body size with ratios of parts instead of full list constant
   private spawnHarvester() {
     const profile = config.BODY_PROFILE_HARVESTER;
     let body: BodyPartConstant[] = this.maximizeBody(profile, [MOVE]);
