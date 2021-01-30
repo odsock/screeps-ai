@@ -9,8 +9,11 @@ export class Spawner {
 
   public spawnCreeps() {
     let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
-    if (workers.length < config.MAX_CREEPS) {
+    if (workers.length <= 1) {
       this.spawnWorker();
+    }
+    else if (workers.length < config.MAX_CREEPS) {
+      this.spawnMaxWorker();
     }
 
     // spawn harvester for each container
@@ -32,15 +35,21 @@ export class Spawner {
     }
   }
 
+  private spawnMaxWorker() {
+    const profile = config.BODY_PROFILE_WORKER;
+    let body: BodyPartConstant[] = this.getMaxBody(profile);
+    this.spawnCreep(body, 'worker');
+  }
+
   private spawnWorker() {
     const profile = config.BODY_PROFILE_WORKER;
-    let body: BodyPartConstant[] = this.maximizeBody(profile);
+    let body: BodyPartConstant[] = this.getMaxBodyNow(profile);
     this.spawnCreep(body, 'worker');
   }
 
   private spawnHarvester() {
     const profile = config.BODY_PROFILE_HARVESTER;
-    let body: BodyPartConstant[] = this.maximizeBody(profile, [MOVE]);
+    let body: BodyPartConstant[] = this.getMaxBodyNow(profile, [MOVE]);
     this.spawnCreep(body, 'harvester');
   }
 
@@ -51,18 +60,29 @@ export class Spawner {
     return result;
   }
 
-  private maximizeBody(profile: BodyPartConstant[], seed: BodyPartConstant[] = []) {
+  private getMaxBody(profile: BodyPartConstant[], seed: BodyPartConstant[] = []) {
     let body: BodyPartConstant[] = seed.slice();
     let finalBody: BodyPartConstant[] = [];
-    let result: ScreepsReturnCode;
+    let energyCapacity = this.spawn.room.energyCapacityAvailable;
     do {
       finalBody = body.slice();
       body = body.concat(profile);
-      console.log(`testing body: ${body}`);
-      result = this.spawn.spawnCreep(body, 'maximizeBody', { dryRun: true });
-      console.log(`test result: ${result}`);
-    } while (result == 0);
-    console.log(`final body: ${finalBody}`);
+    } while (this.calcBodyCost(body) < energyCapacity);
+    return finalBody;
+  }
+
+  private calcBodyCost(body: BodyPartConstant[]): number {
+    return body.map((part) => BODYPART_COST[part])
+      .reduce((cost, partCost) => cost + partCost);
+  }
+
+  private getMaxBodyNow(profile: BodyPartConstant[], seed: BodyPartConstant[] = []) {
+    let body: BodyPartConstant[] = seed.slice();
+    let finalBody: BodyPartConstant[] = [];
+    do {
+      finalBody = body.slice();
+      body = body.concat(profile);
+    } while (this.spawn.spawnCreep(body, 'maximizeBody', { dryRun: true }) == 0);
     return finalBody;
   }
 }
