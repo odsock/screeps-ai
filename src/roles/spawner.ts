@@ -49,7 +49,7 @@ export class Spawner {
 
   private spawnHarvester() {
     const profile = config.BODY_PROFILE_HARVESTER;
-    let body: BodyPartConstant[] = this.getMaxBodyNow(profile, [MOVE]);
+    let body: BodyPartConstant[] = this.getMaxBody(profile, [MOVE]);
     this.spawnCreep(body, 'harvester');
   }
 
