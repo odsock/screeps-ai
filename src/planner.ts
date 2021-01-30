@@ -34,4 +34,7 @@ export class Planner {
         this.room.memory.controllerRoadsComplete = true;
         return OK;
     }
+
+    // TODO: plan roads around extensions
+    // TODO: plan extension placement
 }
