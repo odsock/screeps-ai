@@ -20,46 +20,50 @@ export class Worker {
     }
   }
 
-  // TODO: harvest if not full and closer to the energy source than the controller
   private static upgrade(creep: Creep): void {
-    this.updateJob(creep, 'upgrading');
-    this.stopWorkingIfEmpty(creep);
-    this.startWorkingIfFull(creep, '⚡ upgrade');
-    this.workOrHarvest(creep, function () {
+    if (creep.room.controller) {
       const controller = creep.room.controller;
-      if (controller && creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
-      }
-    });
+      this.updateJob(creep, 'upgrading');
+      this.stopWorkingIfEmpty(creep);
+      this.startWorkingIfFull(creep, '⚡ upgrade');
+      this.workIfCloseToJobsite(creep, creep.room.controller.pos);
+      this.workOrHarvest(creep, function () {
+        if (creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
+      });
+    }
   }
 
   // TODO: make builder move away from energy source if working
   private static build(creep: Creep): void {
-    this.updateJob(creep, 'building');
-    this.stopWorkingIfEmpty(creep);
-    this.startWorkingIfFull(creep, '🚧 build');
-    this.workOrHarvest(creep, function () {
-      let targets = creep.room.find(FIND_CONSTRUCTION_SITES);
-      if (targets.length) {
-        if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+    const site = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+    if (site) {
+      this.updateJob(creep, 'building');
+      this.stopWorkingIfEmpty(creep);
+      this.startWorkingIfFull(creep, '🚧 build');
+      this.workIfCloseToJobsite(creep, site.pos);
+      this.workOrHarvest(creep, function () {
+        if (creep.build(site) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });
         }
-      }
-    });
+      });
+    }
   }
 
   private static repair(creep: Creep): void {
-    this.updateJob(creep, 'repairing');
-    this.stopWorkingIfEmpty(creep);
-    this.startWorkingIfFull(creep, '🚧 repair');
-    this.workOrHarvest(creep, function () {
-      let repairSites = creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax });
-      if (repairSites.length) {
-        if (creep.repair(repairSites[0]) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(repairSites[0], { visualizePathStyle: { stroke: '#ffffff' } });
+    const site = creep.pos.findClosestByPath(FIND_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax });
+    if (site) {
+      this.updateJob(creep, 'repairing');
+      this.stopWorkingIfEmpty(creep);
+      this.startWorkingIfFull(creep, '🚧 repair');
+      this.workIfCloseToJobsite(creep, site.pos);
+      this.workOrHarvest(creep, function () {
+        if (creep.repair(site) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });
         }
-      }
-    });
+      });
+    }
   }
 
   private static harvest(creep: Creep): void {
@@ -67,10 +71,10 @@ export class Worker {
     this.stopWorkingIfEmpty(creep);
     this.startWorkingIfFull(creep, '⚡ transfer');
     this.workOrHarvest(creep, function () {
-      var targets = Worker.findEnergyStorage(creep);
-      if (targets.length > 0) {
-        if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+      const site = Worker.findClosestEnergyStorage(creep);
+      if (site) {
+        if (creep.transfer(site, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });
         }
       }
     });
@@ -88,13 +92,12 @@ export class Worker {
   private static updateJob(creep: Creep, job: string) {
     if (creep.memory.job != job) {
       creep.memory.job = job;
-      creep.memory.working = false;
       creep.say(job);
     }
   }
 
-  private static findEnergyStorage(creep: Creep): AnyStructure[] {
-    return creep.room.find(FIND_STRUCTURES, {
+  private static findClosestEnergyStorage(creep: Creep): AnyStructure | null {
+    return creep.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: (structure) => {
         return (structure.structureType == STRUCTURE_EXTENSION ||
           structure.structureType == STRUCTURE_SPAWN ||
@@ -115,6 +118,29 @@ export class Worker {
     if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
       creep.memory.working = true;
       creep.say(message);
+    }
+  }
+
+  /**
+   * @description Decides if creep should work, or harvest, based on store and position
+   * @param creep 
+   * @param jobsite 
+   */
+  private static workIfCloseToJobsite(creep: Creep, jobsite: RoomPosition) {
+    if (creep.store.getUsedCapacity() != 0) {
+      const source = CreepUtils.findClosestEnergySource(creep);
+      if (source) {
+        const sourceCost = PathFinder.search(creep.pos, source.pos).cost;
+        const jobsiteCost = PathFinder.search(creep.pos, jobsite).cost;
+        const storeRatio = creep.store.getUsedCapacity() / creep.store.getCapacity();
+        // compare cost/energy delivered working vs refilling first
+        if ((1 - jobsiteCost) / storeRatio < (sourceCost + 1)) {
+          creep.memory.working = true;
+        }
+        else {
+          creep.memory.working = false;
+        }
+      }
     }
   }
 }
