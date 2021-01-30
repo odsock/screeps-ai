@@ -1,66 +1,56 @@
 export class CreepUtils {
   public static harvest(creep: Creep): void {
-    let result = CreepUtils.harvestFromTombstones(creep);
-    // console.log(result);
-    if (result != 0) {
-      let result = CreepUtils.harvestFromRuins(creep);
-      // console.log(result);
-      if (result != 0) {
-        let result = CreepUtils.harvestFromContainer(creep);
-        // console.log(result);
-        if (result != 0) {
-          let result = CreepUtils.harvestFromSource(creep);
-          // console.log(result);
-        }
-      }
+    let tombstone = CreepUtils.findClosestTombstoneWithEnergy(creep);
+    if(tombstone) {
+      CreepUtils.withdrawEnergyFromOrMoveTo(creep, tombstone);
+      return;
+    }
+    let ruin = CreepUtils.findClosestRuinsWithEnergy(creep);
+    if(ruin) {
+      CreepUtils.withdrawEnergyFromOrMoveTo(creep, ruin);
+      return;
+    }
+    let container = CreepUtils.findClosestContainerWithEnergy(creep);
+    if(container) {
+      CreepUtils.withdrawEnergyFromOrMoveTo(creep, container);
+      return;
+    }
+    let source = CreepUtils.findClosestEnergySource(creep);
+    if(source) {
+      CreepUtils.harvestEnergyFromOrMoveTo(creep, source);
     }
   }
 
-  private static harvestFromContainer(creep: Creep): ScreepsReturnCode {
-    let containersWithEnergy = creep.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0 });
-    if (containersWithEnergy.length) {
-      let result = creep.withdraw(containersWithEnergy[0], RESOURCE_ENERGY);
-      if (result == ERR_NOT_IN_RANGE) {
-        return creep.moveTo(containersWithEnergy[0], { visualizePathStyle: { stroke: '#ffaa00' } });
-      }
-      return result;
-    }
-    return ERR_NOT_FOUND;
+  public static findClosestTombstoneWithEnergy(creep: Creep): Tombstone | null {
+    return creep.pos.findClosestByPath(FIND_TOMBSTONES, { filter: (t) => t.store.getUsedCapacity() > 0 });
   }
 
-  private static harvestFromRuins(creep: Creep) {
-    let ruinsWithEnergy = creep.room.find(FIND_RUINS, { filter: (r) => r.store.getUsedCapacity() > 0 });
-    if (ruinsWithEnergy.length) {
-      let result = creep.withdraw(ruinsWithEnergy[0], RESOURCE_ENERGY);
-      if (result == ERR_NOT_IN_RANGE) {
-        return creep.moveTo(ruinsWithEnergy[0], { visualizePathStyle: { stroke: '#ffaa00' } });
-      }
-      return result;
-    }
-    return ERR_NOT_FOUND;
+  public static findClosestContainerWithEnergy(creep: Creep): StructureContainer | null {
+    let container = creep.pos.findClosestByPath(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0 });
+    return container as StructureContainer;
   }
 
-  private static harvestFromSource(creep: Creep) {
-    let sources = creep.room.find(FIND_SOURCES);
-    if (sources.length) {
-      let result = creep.harvest(sources[0]);
-      if (result == ERR_NOT_IN_RANGE) {
-        return creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
-      }
-      return result;
-    }
-    return ERR_NOT_FOUND;
+  public static findClosestRuinsWithEnergy(creep: Creep): Ruin | null {
+    return creep.pos.findClosestByPath(FIND_RUINS, { filter: (r) => r.store.getUsedCapacity() > 0 });
   }
 
-  private static harvestFromTombstones(creep: Creep) {
-    let tombstonesWithEnergy = creep.room.find(FIND_TOMBSTONES, { filter: (t) => t.store.getUsedCapacity() > 0 });
-    if (tombstonesWithEnergy.length) {
-      let result = creep.withdraw(tombstonesWithEnergy[0], RESOURCE_ENERGY);
-      if (result == ERR_NOT_IN_RANGE) {
-        return creep.moveTo(tombstonesWithEnergy[0], { visualizePathStyle: { stroke: '#ffaa00' } });
-      }
-      return result;
+  public static findClosestEnergySource(creep: Creep): Source | null {
+    return creep.pos.findClosestByPath(FIND_SOURCES);
+  }
+
+  public static withdrawEnergyFromOrMoveTo(creep: Creep, structure: Tombstone | Ruin | StructureContainer): ScreepsReturnCode {
+    let result = creep.withdraw(structure, RESOURCE_ENERGY);
+    if (result == ERR_NOT_IN_RANGE) {
+      return creep.moveTo(structure, { visualizePathStyle: { stroke: '#ffaa00' } });
     }
-    return ERR_NOT_FOUND;
+    return result;
+  }
+
+  public static harvestEnergyFromOrMoveTo(creep: Creep, source: Source): ScreepsReturnCode {
+    let result = creep.harvest(source);
+    if (result == ERR_NOT_IN_RANGE) {
+      return creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+    }
+    return result;
   }
 }
