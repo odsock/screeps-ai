@@ -5,7 +5,12 @@ export class Harvester {
     this.creep = creep;
   }
 
+  // TODO: make harvester harvest/build/repair/upgrade if in range of its container
   public run() {
+    this.harvestOrMoveToContainer();
+  }
+
+  private harvestOrMoveToContainer() {
     let myContainer = this.getMyContainer();
     if (myContainer) {
       this.fillContainer(myContainer);
