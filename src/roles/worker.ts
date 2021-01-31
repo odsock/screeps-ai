@@ -29,7 +29,13 @@ export class Worker {
       this.workIfCloseToJobsite(creep, creep.room.controller.pos);
       this.workOrHarvest(creep, function () {
         if (creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+          if(creep.room.memory.controllerRoads?.complete == true) {
+            // TODO: reference source by id rather than array index
+            creep.moveByPath(creep.room.memory.controllerRoads.paths[0].path);
+          }
+          else {
+            creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+          }
         }
       });
     }
