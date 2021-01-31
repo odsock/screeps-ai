@@ -9,6 +9,7 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  extensionRoads: boolean;
   controllerRoads: RoadSet;
 }
 
