@@ -1,40 +1,49 @@
 export class Planner {
-    private readonly room: Room;
+  private readonly room: Room;
 
-    public constructor(room: Room) {
-        this.room = room;
-    }
+  public constructor(room: Room) {
+    this.room = room;
+  }
 
-    public planControllerRoads() {
-        if(this.room.memory.controllerRoadsComplete == true) {
-            return OK;
+  public placeControllerRoads(): ScreepsReturnCode {
+    if (this.room.controller && this.room.memory.controllerRoads?.complete != true) {
+      this.room.memory.controllerRoads.complete = true;
+      const controller = this.room.controller;
+      const sources = this.room.find(FIND_SOURCES);
+      for (const source in sources) {
+        const path = this.planRoad(sources[source].pos, controller.pos)
+        if(!path.incomplete) {
+          this.placeRoad(path);
+          this.room.memory.controllerRoads.paths[source] = path;
         }
-
-        if(this.room.controller) {
-            let controller = this.room.controller;
-            let sources = this.room.find(FIND_SOURCES);
-            for(let source in sources) {
-                let path = PathFinder.search(sources[source].pos, {pos: controller.pos, range: 3}, {swampCost: 1});
-                this.room.visual.poly(path.path, { stroke: '#00ff00' });
-                if(path.incomplete) {
-                    console.log(`road plan incomplete: ${sources[source].pos} -> ${controller.pos}`);
-                    return ERR_NO_PATH;
-                }
-
-                for(let pos in path.path){
-                    let result = this.room.createConstructionSite(path.path[pos], STRUCTURE_ROAD);
-                    if(result != 0) {
-                        console.log(`road failed: ${result}`);
-                        return result;
-                    }
-                }
-            }
+        else {
+          this.room.memory.controllerRoads.complete = false;
         }
-
-        this.room.memory.controllerRoadsComplete = true;
-        return OK;
+      }
     }
+    return OK;
+  }
 
-    // TODO: plan roads around extensions
-    // TODO: plan extension placement
+  public placeRoad(path: PathFinderPath): ScreepsReturnCode {
+    for (const pos in path.path) {
+      const result = this.room.createConstructionSite(path.path[pos], STRUCTURE_ROAD);
+      if (result != 0) {
+        console.log(`road failed: ${result}, pos: ${path.path[pos]}`);
+        return result;
+      }
+    }
+    return OK;
+  }
+
+  public planRoad(origin: RoomPosition, goal: RoomPosition): PathFinderPath {
+    const path = PathFinder.search(origin, { pos: goal, range: 3 }, { swampCost: 1 });
+    this.room.visual.poly(path.path, { stroke: '#00ff00' });
+    if (path.incomplete) {
+      console.log(`road plan incomplete: ${origin} -> ${goal}`);
+    }
+    return path;
+  }
+
+  // TODO: plan roads around extensions
+  // TODO: plan extension placement
 }
