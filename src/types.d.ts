@@ -9,7 +9,12 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
-  controllerRoads: { complete: boolean, paths: { [sourceName: string]: PathFinderPath; } };
+  controllerRoads: RoadSet;
+}
+
+interface RoadSet { 
+  complete: boolean; 
+  paths: { [x: string]: PathFinderPath; };
 }
 
 interface Memory {

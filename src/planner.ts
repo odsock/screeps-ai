@@ -7,19 +7,20 @@ export class Planner {
 
   public placeControllerRoads(): ScreepsReturnCode {
     if (this.room.controller && this.room.memory.controllerRoads?.complete != true) {
-      this.room.memory.controllerRoads.complete = true;
+      let roads: RoadSet = {complete: true, paths: {}};
       const controller = this.room.controller;
       const sources = this.room.find(FIND_SOURCES);
       for (const source in sources) {
         const path = this.planRoad(sources[source].pos, controller.pos)
         if(!path.incomplete) {
           this.placeRoad(path);
-          this.room.memory.controllerRoads.paths[source] = path;
+          roads.paths[source] = path;
         }
         else {
-          this.room.memory.controllerRoads.complete = false;
+          roads.complete = false;
         }
       }
+      this.room.memory.controllerRoads = roads;
     }
     return OK;
   }
