@@ -10,17 +10,18 @@ interface CreepMemory {
 
 interface RoomMemory {
   extensionRoads: boolean;
-  controllerRoads: RoadSet;
-}
-
-interface RoadSet { 
-  complete: boolean; 
-  paths: { [x: string]: PathFinderPath; };
+  controllerRoads: boolean;
 }
 
 interface Memory {
   uuid: number;
   log: any;
+}
+
+interface ConstructionPlanPosition {
+  xOffset: number;
+  yOffset: number;
+  structure: StructureConstant;
 }
 
 // `global` extension samples
