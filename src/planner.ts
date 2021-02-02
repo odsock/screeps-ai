@@ -1,3 +1,4 @@
+import { StructurePlan } from "structure-plan";
 import myconstants from "./constants";
 
 export class Planner {
@@ -85,34 +86,29 @@ export class Planner {
       const builtExtens = this.room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType === STRUCTURE_EXTENSION }).length;
       const availExtens = maxExtens - builtExtens;
       // if(availExtens >=5) {
-        const site = this.findSiteForPattern(myconstants.STRUCTURE_PLAN_EXTENSION_GROUP);
-        if(site !== null) {
-          const plan = this.translatePattern(myconstants.STRUCTURE_PLAN_EXTENSION_GROUP, site.x, site.y);
-          console.log(this.room.visual.poly(plan));
-        }
+      const structurePlan = this.findSiteForPattern(myconstants.STRUCTURE_PLAN_EXTENSION_GROUP);
+      if (structurePlan.plan.length > 0) {
+        console.log(this.room.visual.poly(structurePlan.plan));
+      }
       // }
     }
   }
 
-  private findSiteForPattern(pattern: ConstructionPlanPosition[]): RoomPosition | null {
-    const terrain = this.room.getTerrain();
-    let site: RoomPosition;
+  private findSiteForPattern(pattern: StructurePlanPosition[]): StructurePlan {
+    const structurePlan = new StructurePlan(pattern);
+    // const terrain = this.room.getTerrain();
     for (let x = 0; x < myconstants.ROOM_SIZE; x++) {
       for (let y = 0; y < myconstants.ROOM_SIZE; y++) {
-        const translatedPattern = this.translatePattern(pattern, x, y);
-        const blocked = translatedPattern.reduce<boolean>((blocked, pos) => {
+        structurePlan.translate(x, y, this.room.name);
+        const blocked = structurePlan.plan.reduce<boolean>((blocked, pos) => {
           return blocked || this.checkForConstructionObstacle(pos)
         }, false);
-        if(!blocked) {
-          return this.room.getPositionAt(x, y);
+        if (!blocked) {
+          return structurePlan;
         }
       }
     }
-    return null;
-  }
-
-  private translatePattern(pattern: ConstructionPlanPosition[], x: number, y: number) {
-    return pattern.map((pos) => this.room.getPositionAt(pos.xOffset + x, pos.yOffset + y) as RoomPosition);
+    throw new Error(`No site for pattern found.`);
   }
 
   private checkForConstructionObstacle(pos: RoomPosition): boolean {

@@ -18,7 +18,7 @@ interface Memory {
   log: any;
 }
 
-interface ConstructionPlanPosition {
+interface StructurePlanPosition {
   xOffset: number;
   yOffset: number;
   structure: StructureConstant;

@@ -3,7 +3,7 @@ class Constants {
   static readonly BODY_PROFILE_WORKER: BodyPartConstant[] = [WORK, MOVE, CARRY];
   static readonly BODY_PROFILE_HARVESTER: BodyPartConstant[] = [WORK];
 
-  static readonly STRUCTURE_PLAN_EXTENSION_GROUP: ConstructionPlanPosition[] = [
+  static readonly STRUCTURE_PLAN_EXTENSION_GROUP: StructurePlanPosition[] = [
     {xOffset: 2, yOffset: 0, structure: STRUCTURE_ROAD},
     {xOffset: 1, yOffset: 1, structure: STRUCTURE_ROAD},
     {xOffset: 2, yOffset: 1, structure: STRUCTURE_EXTENSION},
