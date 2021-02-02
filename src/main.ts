@@ -18,9 +18,25 @@ export const loop = ErrorMapper.wrapLoop(() => {
   let planner = new Planner(Game.spawns['Spawn1'].room);
   planner.placeControllerRoads();
   planner.planExtensionRoads();
-  planner.planExtensionGroup();
+  // planner.planExtensionGroup();
   runCreeps();
-  
+
+  // HACK: refactor this tower stuff
+  var tower = Game.getObjectById('601722c64c0ffe4790223264') as StructureTower;
+    if(tower) {
+        var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+            filter: (structure) => structure.hits < structure.hitsMax
+        });
+        if(closestDamagedStructure) {
+            tower.repair(closestDamagedStructure);
+        }
+
+        var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+        if(closestHostile) {
+            tower.attack(closestHostile);
+        }
+    }
+
 });
 
 function runCreeps() {
