@@ -77,7 +77,7 @@ export class Planner {
     return cost;
   }
 
-  // TODO: plan extension placement
+  // // TODO: plan extension placement
   public planExtensionGroup() {
     const conLevel = this.room.controller?.level;
     if (conLevel) {
@@ -85,25 +85,40 @@ export class Planner {
       const builtExtens = this.room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType === STRUCTURE_EXTENSION }).length;
       const availExtens = maxExtens - builtExtens;
       // if(availExtens >=5) {
-      console.log(this.room.visual.poly(this.findSiteForPattern(myconstants.STRUCTURE_PLAN_EXTENSION_GROUP)));
+        const site = this.findSiteForPattern(myconstants.STRUCTURE_PLAN_EXTENSION_GROUP);
+        if(site !== null) {
+          const plan = this.translatePattern(myconstants.STRUCTURE_PLAN_EXTENSION_GROUP, site.x, site.y);
+          console.log(this.room.visual.poly(plan));
+        }
       // }
     }
   }
 
-  private findSiteForPattern(pattern: ConstructionPlanPosition[]): RoomPosition[] {
-    let xLast, yLast: number = -1;
+  private findSiteForPattern(pattern: ConstructionPlanPosition[]): RoomPosition | null {
+    const terrain = this.room.getTerrain();
+    let site: RoomPosition;
     for (let x = 0; x < myconstants.ROOM_SIZE; x++) {
       for (let y = 0; y < myconstants.ROOM_SIZE; y++) {
-        const blocked = pattern.reduce<boolean>((blocked, pos) => { return blocked || this.checkForConstructionObstacle(pos.xOffset + x, pos.yOffset + y) }, false);
+        const translatedPattern = this.translatePattern(pattern, x, y);
+        const blocked = translatedPattern.reduce<boolean>((blocked, pos) => {
+          return blocked || this.checkForConstructionObstacle(pos)
+        }, false);
+        if(!blocked) {
+          return this.room.getPositionAt(x, y);
+        }
       }
     }
-    return pattern.map((pos) => this.room.getPositionAt(pos.xOffset, pos.yOffset) as RoomPosition);
+    return null;
   }
 
-  private checkForConstructionObstacle(x: number, y: number): boolean {
-    const posContents = this.room.lookAt(x, y);
-    // probably reduce here again?
-    // posContents.forEach((value) => { value.type == });
-    return true;
+  private translatePattern(pattern: ConstructionPlanPosition[], x: number, y: number) {
+    return pattern.map((pos) => this.room.getPositionAt(pos.xOffset + x, pos.yOffset + y) as RoomPosition);
+  }
+
+  private checkForConstructionObstacle(pos: RoomPosition): boolean {
+    const posContents = this.room.lookAt(pos);
+    return posContents.reduce<boolean>((blocked, item) => {
+      return blocked || item.type == LOOK_TERRAIN
+    }, false);
   }
 }
