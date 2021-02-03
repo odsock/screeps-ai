@@ -1,0 +1,55 @@
+export class StructurePlan {
+  private _plan: RoomPosition[] | undefined;
+  private readonly terrain: RoomTerrain;
+
+  constructor(private readonly pattern: StructurePlanPosition[], private readonly room: Room) {
+    this.terrain = room.getTerrain();
+  }
+
+  get plan(): RoomPosition[] | undefined {
+    return this._plan;
+  }
+
+  public getWidth(): number {
+    return this.pattern.reduce<number>((max, pos) => { return max > pos.xOffset ? max : pos.xOffset }, 0);
+  }
+
+  public getHeight(): number {
+    return this.pattern.reduce<number>((max, pos) => { return max > pos.yOffset ? max : pos.yOffset }, 0);
+  }
+
+  public getStructureAt(pos: RoomPosition): StructureConstant | null {
+    if (this._plan && this._plan.length > 0) {
+      return this.pattern[this._plan.indexOf(pos)].structure;
+    }
+    return null;
+  }
+
+  public translate(x: number, y: number): boolean {
+    this._plan = [];
+    for (let i = 0; i < this.pattern.length; i++) {
+      const newPos = this.room.getPositionAt(this.pattern[i].xOffset + x, this.pattern[i].yOffset + y);
+      if (newPos && !this.isPositionBlocked(newPos, this.pattern[i].structure)) {
+        this._plan.push(newPos);
+      }
+      else {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private isPositionBlocked(pos: RoomPosition, plannedStructure: StructureConstant | null): boolean {
+    if (this.terrain.get(pos.x, pos.y) == TERRAIN_MASK_WALL) {
+      return true;
+    }
+    else {
+      const posContents = this.room.lookAt(pos);
+      return posContents.reduce<boolean>((blocked, item) => {
+        return blocked ||
+          (item.type == LOOK_CONSTRUCTION_SITES && item.constructionSite?.structureType != plannedStructure) ||
+          (item.type == LOOK_STRUCTURES && item.structure?.structureType != plannedStructure)
+      }, false);
+    }
+  }
+}

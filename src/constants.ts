@@ -20,5 +20,6 @@ class Constants {
   ];
 
   static readonly ROOM_SIZE = 50;
+  static readonly MAX_DISTANCE = 99999;
 }
 export default Constants;

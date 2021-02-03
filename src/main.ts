@@ -1,4 +1,6 @@
-import { Planner } from "planner";
+import { ExtensionPlan } from "planning/extension-plan";
+import { PlannerUtils } from "planning/planner-utils";
+import { RoadPlan } from "planning/road-plan";
 import { Harvester } from "roles/harvester";
 import { Spawner } from "roles/spawner";
 import { Worker } from "roles/worker";
@@ -15,10 +17,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
     spawner.spawnCreeps();
   };
 
-  let planner = new Planner(Game.spawns['Spawn1'].room);
-  planner.placeControllerRoads();
-  planner.planExtensionRoads();
-  planner.planExtensionGroup();
+  let roadPlan = new RoadPlan(Game.spawns['Spawn1'].room);
+  roadPlan.placeControllerRoads();
+  roadPlan.planExtensionRoads();
+
+  let extensionPlan = new ExtensionPlan(Game.spawns['Spawn1'].room);
+  extensionPlan.planExtensionGroup();
+  
   runCreeps();
 
   // HACK: refactor this tower stuff
