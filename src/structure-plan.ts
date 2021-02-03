@@ -6,6 +6,14 @@ export class StructurePlan {
     this.pattern = pattern;
   }
 
+  public getWidth(): number {
+    return this.pattern.reduce<number>((max, pos) => { return max > pos.xOffset ? max : pos.xOffset}, 0);
+  }
+
+  public getHeight(): number {
+    return this.pattern.reduce<number>((max, pos) => { return max > pos.yOffset ? max : pos.yOffset}, 0);
+  }
+
   public translate(x: number, y: number, roomName: string): void {
     this._plan = this.pattern.map<RoomPosition>((pos) => {
       const newPos = Game.rooms[roomName].getPositionAt(pos.xOffset + x, pos.yOffset + y);

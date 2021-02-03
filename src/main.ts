@@ -18,7 +18,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   let planner = new Planner(Game.spawns['Spawn1'].room);
   planner.placeControllerRoads();
   planner.planExtensionRoads();
-  // planner.planExtensionGroup();
+  planner.planExtensionGroup();
   runCreeps();
 
   // HACK: refactor this tower stuff

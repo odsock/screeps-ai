@@ -13,8 +13,8 @@ export class Planner {
       this.room.memory.controllerRoads = true;
       const controller = this.room.controller;
       const sources = this.room.find(FIND_SOURCES);
-      for (const source in sources) {
-        const path = this.planRoad(sources[source].pos, controller.pos, 3)
+      for (let i = 0; i < sources.length; i++) {
+        const path = this.planRoad(sources[i].pos, controller.pos, 3)
         if (!path.incomplete) {
           this.placeRoad(path);
         }
@@ -50,9 +50,9 @@ export class Planner {
       console.log(`calling room: ${this.room.name}`);
       const extensions = this.room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_EXTENSION });
       const sources = this.room.find(FIND_SOURCES);
-      for (const source in sources) {
-        for (const extension in extensions) {
-          const path = this.planRoad(sources[source].pos, extensions[extension].pos, 1);
+      for (let i = 0; i < sources.length; i++) {
+        for (let j = 0; i < extensions.length; i++) {
+          const path = this.planRoad(sources[i].pos, extensions[j].pos, 1);
           if (!path.incomplete) {
             this.placeRoad(path);
           }
@@ -97,8 +97,8 @@ export class Planner {
   private findSiteForPattern(pattern: StructurePlanPosition[]): StructurePlan {
     const structurePlan = new StructurePlan(pattern);
     // const terrain = this.room.getTerrain();
-    for (let x = 0; x < myconstants.ROOM_SIZE; x++) {
-      for (let y = 0; y < myconstants.ROOM_SIZE; y++) {
+    for (let x = 1; x < myconstants.ROOM_SIZE - 1 - structurePlan.getWidth(); x++) {
+      for (let y = 1; y < myconstants.ROOM_SIZE - 1 - structurePlan.getHeight(); y++) {
         structurePlan.translate(x, y, this.room.name);
         const blocked = structurePlan.plan.reduce<boolean>((blocked, pos) => {
           return blocked || this.checkForConstructionObstacle(pos)
@@ -108,13 +108,14 @@ export class Planner {
         }
       }
     }
-    throw new Error(`No site for pattern found.`);
+    console.log(`No site for pattern found.`);
+    return structurePlan;
   }
 
   private checkForConstructionObstacle(pos: RoomPosition): boolean {
     const posContents = this.room.lookAt(pos);
     return posContents.reduce<boolean>((blocked, item) => {
-      return blocked || item.type == LOOK_TERRAIN
+      return blocked || item.terrain == "wall"
     }, false);
   }
 }
