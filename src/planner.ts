@@ -89,30 +89,33 @@ export class Planner {
       const maxExtens = CONTROLLER_STRUCTURES.extension[conLevel];
       const builtExtens = this.room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType === STRUCTURE_EXTENSION }).length;
       const availExtens = maxExtens - builtExtens;
-      // if(availExtens >=5) {
-      const structurePlan = this.findSiteForPattern(myconstants.STRUCTURE_PLAN_EXTENSION_GROUP);
-      if (structurePlan.plan.length > 0) {
-        console.log(`draw site: ${structurePlan.plan[0].x}, ${structurePlan.plan[0].y}`);
-        const visual = this.room.visual.poly(structurePlan.plan);
+      if (availExtens >= 5) {
+        const structurePlan = this.findSiteForPattern(myconstants.STRUCTURE_PLAN_EXTENSION_GROUP);
+        if (structurePlan.plan.length > 0) {
+          console.log(`draw site: ${structurePlan.plan[0].x}, ${structurePlan.plan[0].y}`);
+          const visual = this.room.visual.poly(structurePlan.plan);
+        }
       }
-      // }
     }
   }
 
   private findSiteForPattern(pattern: StructurePlanPosition[]): StructurePlan {
     const structurePlan = new StructurePlan(pattern);
-    const searchWidth = myconstants.ROOM_SIZE - 1 - structurePlan.getWidth();
-    const searchHeight = myconstants.ROOM_SIZE - 1 - structurePlan.getHeight();
-    let closestSite: RoomPosition | undefined;
+    const patternWidth = structurePlan.getWidth();
+    const patternHeight = structurePlan.getHeight();
+    const searchWidth = myconstants.ROOM_SIZE - 1 - patternWidth;
+    const searchHeight = myconstants.ROOM_SIZE - 1 - patternHeight;
+    let closestSite: { x: number, y: number } | undefined;
     let shortestRange: number = this.MAX_DISTANCE;
 
     // search whole room
     for (let x = 1; x < searchWidth; x++) {
       for (let y = 1; y < searchHeight; y++) {
         // skip anything farther than closest site so far
-        const pos = this.room.getPositionAt(x, y);
-        const range = pos?.getRangeTo(Game.spawns['Spawn1'].pos);
-        if (pos && range && range > shortestRange) {
+        // use center of patten for ranging
+        const posCenter = this.room.getPositionAt(x + patternWidth / 2, y + patternHeight / 2);
+        const range = posCenter?.getRangeTo(Game.spawns['Spawn1'].pos);
+        if (range && range >= shortestRange) {
           continue;
         }
 
@@ -123,15 +126,15 @@ export class Planner {
         }, false);
 
         // if not blocked and closer than best site, remember it
-        if (!blocked && pos && range && range < shortestRange) {
+        if (!blocked && range && range < shortestRange) {
           shortestRange = range;
-          closestSite = pos;
+          closestSite = { x, y };
         }
       }
     }
 
     // return best site found
-    if(closestSite) {
+    if (closestSite) {
       structurePlan.translate(closestSite.x, closestSite.y, this.room.name);
       console.log(`closest site: ${closestSite.x},${closestSite.y}`);
     }
@@ -141,8 +144,7 @@ export class Planner {
     return structurePlan;
   }
 
-  // TODO: make matching structures not an obstacle
-  private checkForConstructionObstacle(pos: RoomPosition, structure: StructureConstant): boolean {
+  private checkForConstructionObstacle(pos: RoomPosition, plannedStructure: StructureConstant | null): boolean {
     if (this.terrain.get(pos.x, pos.y) == TERRAIN_MASK_WALL) {
       return true;
     }
@@ -150,8 +152,8 @@ export class Planner {
       const posContents = this.room.lookAt(pos);
       return posContents.reduce<boolean>((blocked, item) => {
         return blocked ||
-          item.type == LOOK_CONSTRUCTION_SITES ||
-          item.type == LOOK_STRUCTURES
+          (item.type == LOOK_CONSTRUCTION_SITES && item.constructionSite?.structureType != plannedStructure) ||
+          (item.type == LOOK_STRUCTURES && item.structure?.structureType != plannedStructure)
       }, false);
     }
   }
