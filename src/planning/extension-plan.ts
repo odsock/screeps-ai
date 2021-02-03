@@ -7,7 +7,7 @@ export class ExtensionPlan {
     public planExtensionGroup() {
         if (this.getNumAvailableExtensions() >= 5) {
           const structurePlan = PlannerUtils.findSiteForPattern(config.STRUCTURE_PLAN_EXTENSION_GROUP, this.room);
-          if (structurePlan.plan) {
+          if (structurePlan.plan != undefined) {
             console.log(`draw site: ${structurePlan.plan[0].x}, ${structurePlan.plan[0].y}`);
             const visual = this.room.visual.poly(structurePlan.plan);
             structurePlan.plan.forEach((pos) => {
@@ -22,7 +22,7 @@ export class ExtensionPlan {
           }
         }
       }
-    
+
       private getNumAvailableExtensions(): number {
         const conLevel = this.room.controller?.level;
         if (conLevel) {
@@ -32,5 +32,5 @@ export class ExtensionPlan {
         }
         return 0;
       }
-    
+
 }

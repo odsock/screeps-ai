@@ -26,16 +26,17 @@ export class StructurePlan {
   }
 
   public translate(x: number, y: number): boolean {
-    this._plan = [];
+    let tempPlan = [];
     for (let i = 0; i < this.pattern.length; i++) {
       const newPos = this.room.getPositionAt(this.pattern[i].xOffset + x, this.pattern[i].yOffset + y);
       if (newPos && !this.isPositionBlocked(newPos, this.pattern[i].structure)) {
-        this._plan.push(newPos);
+        tempPlan.push(newPos);
       }
       else {
         return false;
       }
     }
+    this._plan = tempPlan;
     return true;
   }
 
@@ -46,9 +47,9 @@ export class StructurePlan {
     else {
       const posContents = this.room.lookAt(pos);
       return posContents.reduce<boolean>((blocked, item) => {
-        return blocked ||
-          (item.type == LOOK_CONSTRUCTION_SITES && item.constructionSite?.structureType != plannedStructure) ||
-          (item.type == LOOK_STRUCTURES && item.structure?.structureType != plannedStructure)
+        return blocked || (plannedStructure == STRUCTURE_ROAD &&
+          (item.constructionSite?.structureType != plannedStructure) ||
+          (item.structure?.structureType != plannedStructure))
       }, false);
     }
   }
