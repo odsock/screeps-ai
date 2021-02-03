@@ -14,7 +14,7 @@ class Constants {
     {xOffset: 3, yOffset: 2, structure: STRUCTURE_EXTENSION},
     {xOffset: 4, yOffset: 2, structure: STRUCTURE_ROAD},
     {xOffset: 1, yOffset: 3, structure: STRUCTURE_ROAD},
-    {xOffset: 2, yOffset: 3, structure: STRUCTURE_ROAD},
+    {xOffset: 2, yOffset: 3, structure: STRUCTURE_EXTENSION},
     {xOffset: 3, yOffset: 3, structure: STRUCTURE_ROAD},
     {xOffset: 2, yOffset: 4, structure: STRUCTURE_ROAD}
   ];
