@@ -21,7 +21,6 @@ export class StructurePlan {
         return newPos;
       }
       else {
-        // BUG: keep this from happening
         throw new Error(`Translated pattern outside room: ${x}, ${y}`);
       }
     });

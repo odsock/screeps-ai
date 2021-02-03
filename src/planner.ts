@@ -3,9 +3,13 @@ import myconstants from "./constants";
 
 export class Planner {
   private readonly room: Room;
+  private readonly terrain: RoomTerrain;
+
+  private readonly MAX_DISTANCE = 99999;
 
   public constructor(room: Room) {
     this.room = room;
+    this.terrain = this.room.getTerrain();
   }
 
   public placeControllerRoads(): ScreepsReturnCode {
@@ -96,26 +100,57 @@ export class Planner {
 
   private findSiteForPattern(pattern: StructurePlanPosition[]): StructurePlan {
     const structurePlan = new StructurePlan(pattern);
-    // const terrain = this.room.getTerrain();
-    for (let x = 1; x < myconstants.ROOM_SIZE - 1 - structurePlan.getWidth(); x++) {
-      for (let y = 1; y < myconstants.ROOM_SIZE - 1 - structurePlan.getHeight(); y++) {
+    const searchWidth = myconstants.ROOM_SIZE - 1 - structurePlan.getWidth();
+    const searchHeight = myconstants.ROOM_SIZE - 1 - structurePlan.getHeight();
+    let closestSite: RoomPosition | undefined;
+    let shortestRange: number = this.MAX_DISTANCE;
+
+    // search whole room
+    for (let x = 1; x < searchWidth; x++) {
+      for (let y = 1; y < searchHeight; y++) {
+        // skip anything farther than closest site so far
+        const pos = this.room.getPositionAt(x, y);
+        const range = pos?.getRangeTo(Game.spawns['Spawn1'].pos);
+        if (pos && range && range > shortestRange) {
+          continue;
+        }
+
+        // check if this site is blocked by structures or walls
         structurePlan.translate(x, y, this.room.name);
         const blocked = structurePlan.plan.reduce<boolean>((blocked, pos) => {
           return blocked || this.checkForConstructionObstacle(pos)
         }, false);
-        if (!blocked) {
-          return structurePlan;
+
+        // if not blocked and closer than best site, remember it
+        if (!blocked && pos && range && range < shortestRange) {
+          console.log(`found better site: ${pos.x},${pos.y}`);
+          shortestRange = range;
+          closestSite = pos;
         }
       }
     }
-    console.log(`No site for pattern found.`);
+
+    // return best site found
+    if(closestSite) {
+      structurePlan.translate(closestSite.x, closestSite.y, this.room.name);
+    }
+    else {
+      console.log(`No site for pattern found.`);
+    }
     return structurePlan;
   }
 
   private checkForConstructionObstacle(pos: RoomPosition): boolean {
-    const posContents = this.room.lookAt(pos);
-    return posContents.reduce<boolean>((blocked, item) => {
-      return blocked || item.terrain == "wall"
-    }, false);
+    if (this.terrain.get(pos.x, pos.y) == TERRAIN_MASK_WALL) {
+      return true;
+    }
+    else {
+      const posContents = this.room.lookAt(pos);
+      return posContents.reduce<boolean>((blocked, item) => {
+        return blocked ||
+          item.type == LOOK_CONSTRUCTION_SITES ||
+          item.type == LOOK_STRUCTURES
+      }, false);
+    }
   }
 }
