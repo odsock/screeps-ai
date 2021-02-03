@@ -92,7 +92,8 @@ export class Planner {
       // if(availExtens >=5) {
       const structurePlan = this.findSiteForPattern(myconstants.STRUCTURE_PLAN_EXTENSION_GROUP);
       if (structurePlan.plan.length > 0) {
-        console.log(this.room.visual.poly(structurePlan.plan));
+        console.log(`draw site: ${structurePlan.plan[0].x}, ${structurePlan.plan[0].y}`);
+        const visual = this.room.visual.poly(structurePlan.plan);
       }
       // }
     }
@@ -118,12 +119,11 @@ export class Planner {
         // check if this site is blocked by structures or walls
         structurePlan.translate(x, y, this.room.name);
         const blocked = structurePlan.plan.reduce<boolean>((blocked, pos) => {
-          return blocked || this.checkForConstructionObstacle(pos)
+          return blocked || this.checkForConstructionObstacle(pos, structurePlan.getStructureAt(pos))
         }, false);
 
         // if not blocked and closer than best site, remember it
         if (!blocked && pos && range && range < shortestRange) {
-          console.log(`found better site: ${pos.x},${pos.y}`);
           shortestRange = range;
           closestSite = pos;
         }
@@ -133,6 +133,7 @@ export class Planner {
     // return best site found
     if(closestSite) {
       structurePlan.translate(closestSite.x, closestSite.y, this.room.name);
+      console.log(`closest site: ${closestSite.x},${closestSite.y}`);
     }
     else {
       console.log(`No site for pattern found.`);
@@ -140,7 +141,8 @@ export class Planner {
     return structurePlan;
   }
 
-  private checkForConstructionObstacle(pos: RoomPosition): boolean {
+  // TODO: make matching structures not an obstacle
+  private checkForConstructionObstacle(pos: RoomPosition, structure: StructureConstant): boolean {
     if (this.terrain.get(pos.x, pos.y) == TERRAIN_MASK_WALL) {
       return true;
     }
