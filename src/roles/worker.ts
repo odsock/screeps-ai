@@ -11,9 +11,9 @@ export class Worker {
       this.build(creep);
     }
     // repair if anything to repair
-    else if (creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax }).length > 0) {
-      this.repair(creep);
-    }
+    // else if (creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax }).length > 0) {
+    //   this.repair(creep);
+    // }
     // otherwise upgrade
     else {
       this.upgrade(creep);
