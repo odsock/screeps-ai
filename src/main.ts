@@ -17,30 +17,38 @@ export const loop = ErrorMapper.wrapLoop(() => {
     spawner.spawnCreeps();
   };
 
-  let roadPlan = new RoadPlan(Game.spawns['Spawn1'].room);
-  roadPlan.placeControllerRoads();
-  roadPlan.planExtensionRoads();
+  for (let spawnName in Game.spawns) {
+    const room = Game.spawns[spawnName].room;
+    const conLevel = room.controller?.level;
 
-  let extensionPlan = new ExtensionPlan(Game.spawns['Spawn1'].room);
-  extensionPlan.planExtensionGroup();
-  
+    // BUG: stop building useless roads early
+    if (conLevel && conLevel > 1) {
+      let roadPlan = new RoadPlan(room);
+      roadPlan.placeControllerRoads();
+      roadPlan.planExtensionRoads();
+
+      let extensionPlan = new ExtensionPlan(room);
+      extensionPlan.planExtensionGroup();
+    }
+  }
+
   runCreeps();
 
   // HACK: refactor this tower stuff
   var tower = Game.getObjectById('601722c64c0ffe4790223264') as StructureTower;
-    if(tower) {
-        var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: (structure) => structure.hits < structure.hitsMax
-        });
-        if(closestDamagedStructure) {
-            tower.repair(closestDamagedStructure);
-        }
-
-        var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-        if(closestHostile) {
-            tower.attack(closestHostile);
-        }
+  if (tower) {
+    var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+      filter: (structure) => structure.hits < structure.hitsMax
+    });
+    if (closestDamagedStructure) {
+      tower.repair(closestDamagedStructure);
     }
+
+    var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    if (closestHostile) {
+      tower.attack(closestHostile);
+    }
+  }
 
 });
 
@@ -51,7 +59,7 @@ function runCreeps() {
     if (creep.memory.role == 'worker') {
       Worker.run(creep);
     }
-    else if(creep.memory.role == 'harvester') {
+    else if (creep.memory.role == 'harvester') {
       let harvester = new Harvester(creep);
       harvester.run();
     }

@@ -9,11 +9,13 @@ export class Spawner {
 
   public spawnCreeps() {
     let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
-    if (workers.length <= 1) {
-      this.spawnWorker();
-    }
-    else if (workers.length < config.MAX_CREEPS) {
-      this.spawnMaxWorker();
+    if (workers.length < config.MAX_CREEPS) {
+      if (workers.length <= 1) {
+        this.spawnWorker();
+      }
+      else {
+        this.spawnMaxWorker();
+      }
     }
 
     // spawn harvester for each container
