@@ -48,7 +48,6 @@ export class Worker {
     }
   }
 
-  // TODO: make builder move away from energy source if working
   private static build(creep: Creep): void {
     const site = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
     if (site) {
@@ -58,9 +57,9 @@ export class Worker {
       this.workIfCloseToJobsite(creep, site.pos);
       this.workOrHarvest(creep, function () {
         // don't block the source while working
-        const closestEnergySource = Worker.findClosestEnergyStorage(creep);
+        const closestEnergySource = CreepUtils.findClosestEnergySource(creep);
         if (closestEnergySource?.pos && creep.pos.isNearTo(closestEnergySource)) {
-          const path = PathFinder.search(creep.pos, closestEnergySource.pos, { flee: true });
+          const path = PathFinder.search(creep.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
           creep.moveByPath(path.path);
         }
         else if (creep.build(site) == ERR_NOT_IN_RANGE) {
