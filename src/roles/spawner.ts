@@ -67,7 +67,7 @@ export class Spawner {
     do {
       finalBody = body.slice();
       body = body.concat(profile);
-    } while (this.calcBodyCost(body) < energyCapacity);
+    } while (this.calcBodyCost(body) <= energyCapacity);
     return finalBody;
   }
 
