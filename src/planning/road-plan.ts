@@ -88,21 +88,4 @@ export class RoadPlan {
 
     return cost;
   }
-
-  // TODO: plan roads around extensions
-  public planExtensionRoads() {
-    if (this.room.memory.extensionRoads != true) {
-      const extensions = this.room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_EXTENSION });
-      const sources = this.room.find(FIND_SOURCES);
-      for (let i = 0; i < sources.length; i++) {
-        for (let j = 0; i < extensions.length; i++) {
-          const path = this.planRoad(sources[i].pos, extensions[j].pos, 1);
-          if (!path.incomplete) {
-            this.placeRoadOnPath(path);
-          }
-        }
-      }
-      this.room.memory.extensionRoads = true;
-    }
-  }
 }

@@ -28,7 +28,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
       extensionPlan.planExtensionGroup();
 
       let roadPlan = new RoadPlan(room);
-      roadPlan.planExtensionRoads();
       roadPlan.placeControllerRoad(spawn.pos);
     }
   }
