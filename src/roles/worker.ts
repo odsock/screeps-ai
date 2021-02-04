@@ -1,5 +1,6 @@
 import { CreepUtils } from "creep-utils";
 
+// TODO: make worker not static
 export class Worker {
   public static run(creep: Creep): void {
     // harvest if any capacity in room
@@ -7,18 +8,29 @@ export class Worker {
       this.harvest(creep);
     }
     // build if anything to build
-    else if (creep.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+    else if (Worker.findConstructionSites(creep).length > 0) {
       this.build(creep);
     }
-    // TODO: repair if no towers to do it
-    // repair if anything to repair
-    // else if (creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax }).length > 0) {
-    //   this.repair(creep);
-    // }
+    // repair if no towers to do it
+    else if (Worker.findTowers(creep).length == 0 && Worker.findRepairSites(creep).length > 0) {
+      this.repair(creep);
+    }
     // otherwise upgrade
     else {
       this.upgrade(creep);
     }
+  }
+
+  private static findConstructionSites(creep: Creep) {
+    return creep.room.find(FIND_CONSTRUCTION_SITES);
+  }
+
+  private static findTowers(creep: Creep): AnyOwnedStructure[] {
+    return creep.room.find(FIND_MY_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_TOWER });
+  }
+
+  private static findRepairSites(creep: Creep): AnyOwnedStructure[] {
+    return creep.room.find(FIND_MY_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax });
   }
 
   private static upgrade(creep: Creep): void {
@@ -45,7 +57,13 @@ export class Worker {
       this.startWorkingIfFull(creep, '🚧 build');
       this.workIfCloseToJobsite(creep, site.pos);
       this.workOrHarvest(creep, function () {
-        if (creep.build(site) == ERR_NOT_IN_RANGE) {
+        // don't block the source while working
+        const closestEnergySource = Worker.findClosestEnergyStorage(creep);
+        if (closestEnergySource?.pos && creep.pos.isNearTo(closestEnergySource)) {
+          const path = PathFinder.search(creep.pos, closestEnergySource.pos, { flee: true });
+          creep.moveByPath(path.path);
+        }
+        else if (creep.build(site) == ERR_NOT_IN_RANGE) {
           creep.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });
         }
       });
