@@ -18,17 +18,18 @@ export const loop = ErrorMapper.wrapLoop(() => {
   };
 
   for (let spawnName in Game.spawns) {
-    const room = Game.spawns[spawnName].room;
+    const spawn = Game.spawns[spawnName];
+    const room = spawn.room;
     const conLevel = room.controller?.level;
 
-    // BUG: stop building useless roads early
-    if (conLevel && conLevel > 1) {
-      let roadPlan = new RoadPlan(room);
-      roadPlan.placeControllerRoads();
-      roadPlan.planExtensionRoads();
-
+    if (conLevel && conLevel > 1 && Game.time % 10 == 0) {
+      console.log(`running planning`);
       let extensionPlan = new ExtensionPlan(room);
       extensionPlan.planExtensionGroup();
+
+      let roadPlan = new RoadPlan(room);
+      roadPlan.planExtensionRoads();
+      roadPlan.placeControllerRoad(spawn.pos);
     }
   }
 

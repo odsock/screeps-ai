@@ -42,7 +42,6 @@ export class StructurePlan {
 
   private isPositionBlocked(pos: RoomPosition, plannedStructure: StructureConstant | null): boolean {
     if (this.terrain.get(pos.x, pos.y) == TERRAIN_MASK_WALL) {
-      console.log('plan: blocked by wall')
       return true;
     }
     else {
@@ -52,19 +51,19 @@ export class StructurePlan {
           item.type == LOOK_STRUCTURES &&
           (item.constructionSite?.structureType != STRUCTURE_ROAD ||
             item.structure?.structureType != STRUCTURE_ROAD);
-        if (blockedRoad) {
-          console.log(`plan: blocked road: at ${pos.x},${pos.y}`);
-          console.log(item);
-        }
+        // if (blockedRoad) {
+        //   console.log(`plan: blocked road: at ${pos.x},${pos.y}`);
+        //   console.log(item);
+        // }
         const blockedStructure = plannedStructure != STRUCTURE_ROAD &&
           (item.type == LOOK_CONSTRUCTION_SITES ||
             item.type == LOOK_DEPOSITS ||
             item.type == LOOK_SOURCES ||
             item.type == LOOK_STRUCTURES);
-        if (blockedStructure) {
-          console.log(`plan: blocked structure at ${pos.x},${pos.y}`);
-          console.log(item);
-        }
+        // if (blockedStructure) {
+        //   console.log(`plan: blocked structure at ${pos.x},${pos.y}`);
+        //   console.log(item);
+        // }
         return blocked || blockedRoad || blockedStructure;
       }, false);
     }
