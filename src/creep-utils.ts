@@ -1,22 +1,22 @@
 export class CreepUtils {
   public static harvest(creep: Creep): void {
     let tombstone = CreepUtils.findClosestTombstoneWithEnergy(creep);
-    if(tombstone) {
+    if (tombstone) {
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, tombstone);
       return;
     }
     let ruin = CreepUtils.findClosestRuinsWithEnergy(creep);
-    if(ruin) {
+    if (ruin) {
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, ruin);
       return;
     }
     let container = CreepUtils.findClosestContainerWithEnergy(creep);
-    if(container) {
+    if (container) {
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, container);
       return;
     }
     let source = CreepUtils.findClosestEnergySource(creep);
-    if(source) {
+    if (source) {
       CreepUtils.harvestEnergyFromOrMoveTo(creep, source);
     }
   }
@@ -52,5 +52,11 @@ export class CreepUtils {
       return creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
     }
     return result;
+  }
+
+  public static consoleLogIfWatched(watchable: Watchable, message: string) {
+    if (watchable.memory.watched == true) {
+      console.log(`${watchable.name}: ${message}`);
+    }
   }
 }

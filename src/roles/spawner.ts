@@ -1,3 +1,4 @@
+import { CreepUtils } from "creep-utils";
 import config from "../constants";
 
 export class Spawner {
@@ -9,6 +10,7 @@ export class Spawner {
 
   public spawnCreeps() {
     let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
+    CreepUtils.consoleLogIfWatched(this.spawn, `${workers.length}/${config.MAX_CREEPS}`);
     if (workers.length < config.MAX_CREEPS) {
       if (workers.length <= 1) {
         this.spawnWorker();

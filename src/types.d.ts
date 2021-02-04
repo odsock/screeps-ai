@@ -24,6 +24,15 @@ interface StructurePlanPosition {
   structure: StructureConstant;
 }
 
+interface Watchable {
+  name: string
+  [key: string]: any
+}
+
+interface StructureWithStorage {
+  store: Store<RESOURCE_ENERGY, false>;
+}
+
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {
