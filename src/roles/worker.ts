@@ -20,7 +20,8 @@ export class Worker {
     }
     // BUG: fill tower if half empty
     else if (this.hasStorePercentFree(this.findClosestTowerWithStorage(creep), 50)) {
-      this.harvest(creep);
+      CreepUtils.consoleLogIfWatched(creep, 'supply job');
+      this.supply(creep);
     }
     // otherwise upgrade
     else {

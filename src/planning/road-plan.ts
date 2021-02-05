@@ -1,14 +1,16 @@
 export class RoadPlan {
   constructor(private readonly room: Room) { }
 
-  public placeControllerRoad(pos: RoomPosition): void {
+  public placeControllerRoad(pos: RoomPosition): PathFinderPath | null {
     const controller = this.room.controller;
     if (controller) {
       const path = this.planRoad(pos, controller.pos, 3)
       if (!path.incomplete) {
         this.placeRoadOnPath(path);
       }
+      return path;
     }
+    return null;
   }
 
   public placeControllerRoads(): ScreepsReturnCode {
