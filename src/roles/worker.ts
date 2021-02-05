@@ -200,31 +200,31 @@ export class Worker {
 
       // calculate effiency of heading back to refill, then going to job site
       const sourceCost = PathFinder.search(creep.pos, { pos: source.pos, range: 1 }).cost;
-      console.log(`sourceCost: ${sourceCost}`);
+      CreepUtils.consoleLogIfWatched(creep, `sourceCost: ${sourceCost}`);
       // subtract one from runCost because you cannot stand on the source
       let runCost = PathFinder.search(source.pos, { pos: jobsite, range: 3 }).cost;
       if (runCost > 1) {
         runCost = runCost - 1;
       }
-      console.log(`runCost: ${runCost}`);
+      CreepUtils.consoleLogIfWatched(creep, `runCost: ${runCost}`);
       const refillEfficiency = sourceCost + runCost;
-      console.log(`refillEfficiency: ${refillEfficiency}`);
+      CreepUtils.consoleLogIfWatched(creep, `refillEfficiency: ${refillEfficiency}`);
 
       // calculate effiency of going to job site partially full
       const jobsiteCost = PathFinder.search(creep.pos, { pos: jobsite, range: 3 }).cost;
-      console.log(`jobsiteCost: ${jobsiteCost}`);
+      CreepUtils.consoleLogIfWatched(creep, `jobsiteCost: ${jobsiteCost}`);
       const storeRatio = creep.store.getUsedCapacity() / creep.store.getCapacity();
-      console.log(`storeRatio: ${storeRatio}`);
+      CreepUtils.consoleLogIfWatched(creep, `storeRatio: ${storeRatio}`);
       const jobsiteEfficiency = jobsiteCost / storeRatio;
-      console.log(`jobsiteEfficiency: ${jobsiteEfficiency}`);
+      CreepUtils.consoleLogIfWatched(creep, `jobsiteEfficiency: ${jobsiteEfficiency}`);
 
       // compare cost/energy delivered working vs refilling first
       if (jobsiteEfficiency < refillEfficiency) {
-        console.log(`close to site: starting work`);
+        CreepUtils.consoleLogIfWatched(creep, `close to site: starting work`);
         creep.memory.working = true;
       }
       else {
-        console.log(`close to source: stopping work`);
+        CreepUtils.consoleLogIfWatched(creep, `close to source: stopping work`);
         creep.memory.working = false;
       }
     }
