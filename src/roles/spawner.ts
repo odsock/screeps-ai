@@ -40,7 +40,6 @@ export class Spawner {
             const result = this.spawnHarvester(harvester.name);
             if(result == OK) {
               harvester.memory.retiring = true;
-
             }
           }
         }

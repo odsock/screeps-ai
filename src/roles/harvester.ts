@@ -53,7 +53,7 @@ export class Harvester {
     let containers = this.creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_CONTAINER });
     let unoccupiedContainers = containers.filter((container) => {
       const creeps = container.pos.lookFor(LOOK_CREEPS);
-      if (creeps && creeps[0].memory.role == 'harvester') {
+      if (creeps.length > 0 && creeps[0].memory.role == 'harvester') {
         return false;
       }
       return true;
