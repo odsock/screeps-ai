@@ -2,6 +2,7 @@
 
 // memory extension samples
 interface CreepMemory {
+  containerId?: Id<StructureContainer>;
   retiree?: string;
   retiring?: boolean;
   job?: string;
