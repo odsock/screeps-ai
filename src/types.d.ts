@@ -2,6 +2,8 @@
 
 // memory extension samples
 interface CreepMemory {
+  retiree?: string;
+  retiring?: boolean;
   job?: string;
   role: string;
   room?: string;

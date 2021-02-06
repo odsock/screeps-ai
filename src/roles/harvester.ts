@@ -7,7 +7,23 @@ export class Harvester {
 
   // TODO: make harvester harvest/build/repair/upgrade if in range of its container
   public run() {
-    this.harvestOrMoveToContainer();
+    if (this.creep.memory.retiree) {
+      this.moveToRetiree();
+    }
+    else {
+      this.harvestOrMoveToContainer();
+    }
+  }
+
+  private moveToRetiree() {
+    const retireeName = this.creep.memory.retiree as string;
+    const retiree = Game.creeps[retireeName];
+    if (retiree) {
+      const result = this.creep.moveTo(retiree.pos, { visualizePathStyle: { stroke: '#ffaa00' } });
+    }
+    else {
+      this.creep.memory.retiree = undefined;
+    }
   }
 
   private harvestOrMoveToContainer() {

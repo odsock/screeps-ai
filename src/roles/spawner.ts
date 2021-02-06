@@ -27,6 +27,24 @@ export class Spawner {
       if (harvesters.length < containers.length) {
         this.spawnHarvester();
       }
+
+      // try to replace any aging harvester early
+      for (let i = 0; i < harvesters.length; i++) {
+        const harvester = harvesters[i];
+        if (!harvester.spawning && !harvester.memory.retiring == true) {
+          const body = this.getHarvesterBody();
+          const ticksToSpawn = body.length * 3;
+          const pathToReplace = PathFinder.search(this.spawn.pos, harvester.pos);
+          CreepUtils.consoleLogIfWatched(this.spawn, `harvester spawn: ticksToLive: ${harvester.ticksToLive}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${pathToReplace.cost}`);
+          if (harvester.ticksToLive && harvester.ticksToLive <= ticksToSpawn + pathToReplace.cost) {
+            const result = this.spawnHarvester(harvester.name);
+            if(result == OK) {
+              harvester.memory.retiring = true;
+
+            }
+          }
+        }
+      }
     }
 
     if (this.spawn.spawning) {
@@ -39,27 +57,36 @@ export class Spawner {
     }
   }
 
-  private spawnMaxWorker() {
+  private spawnMaxWorker(): ScreepsReturnCode {
     const profile = config.BODY_PROFILE_WORKER;
     let body: BodyPartConstant[] = this.getMaxBody(profile);
-    this.spawnCreep(body, 'worker');
+    return this.spawnCreep(body, 'worker');
   }
 
-  private spawnWorker() {
+  private spawnWorker(): ScreepsReturnCode {
     const profile = config.BODY_PROFILE_WORKER;
     let body: BodyPartConstant[] = this.getMaxBodyNow(profile);
-    this.spawnCreep(body, 'worker');
+    return this.spawnCreep(body, 'worker');
   }
 
-  private spawnHarvester() {
+  private spawnHarvester(retireeName?: string): ScreepsReturnCode {
+    let body: BodyPartConstant[] = this.getHarvesterBody();
+    return this.spawnCreep(body, 'harvester', retireeName);
+  }
+
+  private getHarvesterBody(): BodyPartConstant[] {
     const profile = config.BODY_PROFILE_HARVESTER;
     let body: BodyPartConstant[] = this.getMaxBody(profile, [MOVE]);
-    this.spawnCreep(body, 'harvester');
+    return body;
   }
 
-  private spawnCreep(body: BodyPartConstant[], role: string): ScreepsReturnCode {
-    let newName = 'creep' + Game.time;
-    let result = this.spawn.spawnCreep(body, newName, { memory: { role: role } });
+  private spawnCreep(body: BodyPartConstant[], role: string, retiree?: string): ScreepsReturnCode {
+    let newName = role + Game.time;
+    let memory: CreepMemory = { role: role };
+    if(retiree) {
+      memory.retiree = retiree;
+    }
+    let result = this.spawn.spawnCreep(body, newName, { memory: memory });
     console.log(`spawn result: ${result}`);
     return result;
   }
