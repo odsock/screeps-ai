@@ -51,7 +51,13 @@ export class Harvester {
 
   private moveToUnoccupiedContainer() {
     let containers = this.creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_CONTAINER });
-    let unoccupiedContainers = containers.filter((container) => container.room.lookForAt(LOOK_CREEPS, container.pos).length == 0);
+    let unoccupiedContainers = containers.filter((container) => {
+      const creeps = container.pos.lookFor(LOOK_CREEPS);
+      if (creeps && creeps[0].memory.role == 'harvester') {
+        return false;
+      }
+      return true;
+    });
     if (unoccupiedContainers) {
       this.creep.moveTo(unoccupiedContainers[0], { visualizePathStyle: { stroke: '#ffaa00' } });
     }
