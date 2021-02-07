@@ -47,21 +47,22 @@ export const loop = ErrorMapper.wrapLoop(() => {
   runCreeps();
 });
 
-// HACK: refactor this tower stuff
+// TODO: make a tower wrapper class
 function runTowers(room: Room) {
   const towers = room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_TOWER }) as StructureTower[];
   for (let i = 0; i < towers.length; i++) {
     const tower = towers[i];
-    const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-      filter: (structure) => structure.hits < structure.hitsMax
-    });
-    if (closestDamagedStructure) {
-      tower.repair(closestDamagedStructure);
-    }
-
     const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
     if (closestHostile) {
       tower.attack(closestHostile);
+    }
+    else {
+      const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+        filter: (structure) => structure.hits < structure.hitsMax
+      });
+      if (closestDamagedStructure) {
+        tower.repair(closestDamagedStructure);
+      }
     }
   }
 }
