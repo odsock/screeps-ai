@@ -1,5 +1,14 @@
 export class CreepUtils {
   public static harvest(creep: Creep): void {
+    let container = CreepUtils.findClosestContainerWithEnergy(creep);
+    if (container) {
+      CreepUtils.withdrawEnergyFromOrMoveTo(creep, container);
+      return;
+    }
+    let source = CreepUtils.findClosestEnergySource(creep);
+    if (source) {
+      CreepUtils.harvestEnergyFromOrMoveTo(creep, source);
+    }
     let tombstone = CreepUtils.findClosestTombstoneWithEnergy(creep);
     if (tombstone) {
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, tombstone);
@@ -9,15 +18,6 @@ export class CreepUtils {
     if (ruin) {
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, ruin);
       return;
-    }
-    let container = CreepUtils.findClosestContainerWithEnergy(creep);
-    if (container) {
-      CreepUtils.withdrawEnergyFromOrMoveTo(creep, container);
-      return;
-    }
-    let source = CreepUtils.findClosestEnergySource(creep);
-    if (source) {
-      CreepUtils.harvestEnergyFromOrMoveTo(creep, source);
     }
   }
 
@@ -35,7 +35,7 @@ export class CreepUtils {
   }
 
   public static findClosestEnergySource(creep: Creep): Source | null {
-    return creep.pos.findClosestByPath(FIND_SOURCES);
+    return creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
   }
 
   public static withdrawEnergyFromOrMoveTo(creep: Creep, structure: Tombstone | Ruin | StructureContainer): ScreepsReturnCode {
