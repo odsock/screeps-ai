@@ -12,45 +12,59 @@ export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
   cleanupDeadCreepNames();
 
-  for (const spawn in Game.spawns) {
-    let spawner = new Spawner(Game.spawns[spawn]);
-    spawner.spawnCreeps();
-  };
+  // Run each room
+  const roomIds = Game.rooms;
+  for (const roomId in roomIds) {
+    const room = Game.rooms[roomId];
 
-  for (let spawnName in Game.spawns) {
-    const spawn = Game.spawns[spawnName];
-    const room = spawn.room;
-    const conLevel = room.controller?.level;
+    // Run spawners
+    console.log(`${room.name}: running spawns`);
+    const spawns = room.find(FIND_MY_SPAWNS);
+    for (let i = 0; i < spawns.length; i++) {
+      const spawn = spawns[i];
+      let spawner = new Spawner(spawn);
+      spawner.spawnCreeps();
+    }
 
-    if (conLevel && conLevel > 1 && Game.time % 10 == 0) {
-      console.log(`running planning`);
-      let extensionPlan = new ExtensionPlan(room);
-      extensionPlan.planExtensionGroup();
+    console.log(`${room.name}: running towers`);
+    runTowers(room);
 
-      let roadPlan = new RoadPlan(room);
-      roadPlan.placeControllerRoad(spawn.pos);
+    // Plan each room every 10 ticks
+    if (Game.time % 10 == 0) {
+      const conLevel = room.controller?.level;
+
+      if (conLevel && conLevel > 1) {
+        console.log(`${room.name}: running planning`);
+        let extensionPlan = new ExtensionPlan(room);
+        extensionPlan.planExtensionGroup();
+
+        let roadPlan = new RoadPlan(room);
+        roadPlan.placeControllerRoad();
+      }
     }
   }
 
   runCreeps();
+});
 
-  // HACK: refactor this tower stuff
-  var tower = Game.getObjectById('601722c64c0ffe4790223264') as StructureTower;
-  if (tower) {
-    var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+// HACK: refactor this tower stuff
+function runTowers(room: Room) {
+  const towers = room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_TOWER }) as StructureTower[];
+  for (let i = 0; i < towers.length; i++) {
+    const tower = towers[i];
+    const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
       filter: (structure) => structure.hits < structure.hitsMax
     });
     if (closestDamagedStructure) {
       tower.repair(closestDamagedStructure);
     }
 
-    var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
     if (closestHostile) {
       tower.attack(closestHostile);
     }
   }
-
-});
+}
 
 function runCreeps() {
   for (let name in Game.creeps) {
