@@ -26,7 +26,8 @@ export class CreepUtils {
 
     let inactiveSource = CreepUtils.findClosestEnergySource(creep);
     if (inactiveSource) {
-      CreepUtils.harvestEnergyFromOrMoveTo(creep, inactiveSource);
+      CreepUtils.consoleLogIfWatched(creep, `moving to inactive source: ${inactiveSource.pos.x},${inactiveSource.pos.y}`);
+      creep.moveTo(inactiveSource, { visualizePathStyle: { stroke: '#ffaa00' } });
       return;
     }
   }
@@ -62,6 +63,7 @@ export class CreepUtils {
 
   public static harvestEnergyFromOrMoveTo(creep: Creep, source: Source): ScreepsReturnCode {
     let result = creep.harvest(source);
+    CreepUtils.consoleLogIfWatched(creep, `harvest result: ${result}`);
     if (result == ERR_NOT_IN_RANGE) {
       return creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
     }
