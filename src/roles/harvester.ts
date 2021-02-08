@@ -58,10 +58,13 @@ export class Harvester {
     }
     else {
       let containersHere = this.creep.pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_CONTAINER);
-      let myContainer = containersHere?.[0] as StructureContainer;
-      this.creep.memory.containerId = myContainer.id;
-      return myContainer;
+      if(containersHere.length > 0) {
+        let myContainer = containersHere[0] as StructureContainer;
+        this.creep.memory.containerId = myContainer.id;
+        return myContainer;
+      }
     }
+    return null;
   }
 
   private moveToFreeContainer() {
