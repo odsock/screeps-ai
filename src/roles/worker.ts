@@ -7,36 +7,38 @@ export class Worker {
     if (creep.room.energyAvailable < creep.room.energyCapacityAvailable) {
       CreepUtils.consoleLogIfWatched(creep, 'harvesting job');
       this.harvest(creep);
+      return;
     }
+
+    // supply tower if half empty
+    const tower = this.findClosestTowerWithStorage(creep);
+    if (tower) {
+      const towerPercentFree = CreepUtils.getEnergyStorePercentFree(tower);
+      CreepUtils.consoleLogIfWatched(creep, `towerPercentFree: ${towerPercentFree}`);
+      if (creep.memory.job == 'supply' || towerPercentFree > .5) {
+        CreepUtils.consoleLogIfWatched(creep, 'supply job');
+        this.supply(creep);
+        return;
+      }
+    }
+
     // build if anything to build
-    else if (Worker.findConstructionSites(creep).length > 0) {
+    if (Worker.findConstructionSites(creep).length > 0) {
       CreepUtils.consoleLogIfWatched(creep, 'building job');
       this.build(creep);
+      return;
     }
+
     // repair if no towers to do it
-    else if (Worker.findTowers(creep).length == 0 && Worker.findRepairSites(creep).length > 0) {
+    if (Worker.findTowers(creep).length == 0 && Worker.findRepairSites(creep).length > 0) {
       CreepUtils.consoleLogIfWatched(creep, 'repairing job');
       this.repair(creep);
+      return;
     }
-    // BUG: fill tower if half empty
-    else if (this.hasStorePercentFree(this.findClosestTowerWithStorage(creep), 50)) {
-      CreepUtils.consoleLogIfWatched(creep, 'supply job');
-      this.supply(creep);
-    }
-    // otherwise upgrade
-    else {
-      CreepUtils.consoleLogIfWatched(creep, 'upgrading job');
-      this.upgrade(creep);
-    }
-  }
 
-  private static hasStorePercentFree(structure: StructureWithStorage | null, percentFree: number): boolean {
-    if (!structure) {
-      return false;
-    }
-    const freeCap = structure.store.getFreeCapacity<RESOURCE_ENERGY>();
-    const totalCap = structure.store.getCapacity<RESOURCE_ENERGY>();
-    return freeCap / totalCap > percentFree;
+    // otherwise upgrade
+    CreepUtils.consoleLogIfWatched(creep, 'upgrading job');
+    this.upgrade(creep);
   }
 
   private static findConstructionSites(creep: Creep) {
@@ -119,13 +121,16 @@ export class Worker {
   private static supply(creep: Creep): void {
     this.updateJob(creep, 'supply');
     this.stopWorkingIfEmpty(creep);
-    this.startWorkingIfFull(creep, '⚡ transfer');
+    this.startWorkingIfFull(creep, '⚡ supply');
     this.workOrHarvest(creep, function () {
       const site = Worker.findClosestTowerWithStorage(creep);
       if (site) {
         if (creep.transfer(site, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });
         }
+      }
+      else {
+        creep.memory.job = '';
       }
     });
   }
@@ -150,8 +155,7 @@ export class Worker {
     return creep.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: (structure) => {
         return (structure.structureType == STRUCTURE_EXTENSION ||
-          structure.structureType == STRUCTURE_SPAWN ||
-          structure.structureType == STRUCTURE_TOWER) &&
+          structure.structureType == STRUCTURE_SPAWN) &&
           structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
       }
     });
@@ -160,8 +164,7 @@ export class Worker {
   private static findClosestTowerWithStorage(creep: Creep): StructureTower | null {
     return creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: (structure) => {
-        return (structure.structureType == STRUCTURE_TOWER) &&
-          structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+        return structure.structureType == STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
       }
     }) as StructureTower | null;
   }
