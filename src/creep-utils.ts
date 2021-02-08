@@ -5,23 +5,29 @@ export class CreepUtils {
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, container);
       return;
     }
+
     let activeSource = CreepUtils.findClosestActiveEnergySource(creep);
     if (activeSource) {
       CreepUtils.harvestEnergyFromOrMoveTo(creep, activeSource);
+      return;
     }
+
     let tombstone = CreepUtils.findClosestTombstoneWithEnergy(creep);
     if (tombstone) {
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, tombstone);
       return;
     }
+
     let ruin = CreepUtils.findClosestRuinsWithEnergy(creep);
     if (ruin) {
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, ruin);
       return;
     }
+
     let inactiveSource = CreepUtils.findClosestEnergySource(creep);
     if (inactiveSource) {
       CreepUtils.harvestEnergyFromOrMoveTo(creep, inactiveSource);
+      return;
     }
   }
 
@@ -65,6 +71,17 @@ export class CreepUtils {
   public static consoleLogIfWatched(watchable: Watchable, message: string) {
     if (watchable.memory.watched == true) {
       console.log(`${watchable.name}: ${message}`);
+    }
+  }
+
+  public static getEnergyStorePercentFree(structure: StructureWithStorage): number {
+    const freeCap = structure.store.getFreeCapacity(RESOURCE_ENERGY);
+    const totalCap = structure.store.getCapacity(RESOURCE_ENERGY);
+    if (freeCap && totalCap) {
+      return freeCap / totalCap;
+    }
+    else {
+      return 0;
     }
   }
 }
