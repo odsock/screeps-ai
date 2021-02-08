@@ -75,7 +75,7 @@ export class Worker {
       this.workIfCloseToJobsite(creep, site.pos);
       this.workOrHarvest(creep, function () {
         // don't block the source while working
-        const closestEnergySource = CreepUtils.findClosestEnergySource(creep);
+        const closestEnergySource = CreepUtils.findClosestActiveEnergySource(creep);
         if (closestEnergySource?.pos && creep.pos.isNearTo(closestEnergySource)) {
           const path = PathFinder.search(creep.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
           creep.moveByPath(path.path);
@@ -186,15 +186,14 @@ export class Worker {
    * @param jobsite
    */
   private static workIfCloseToJobsite(creep: Creep, jobsite: RoomPosition) {
-    // don't check if full/empty
+    // skip check if full/empty
     if (creep.store.getUsedCapacity() != 0 && creep.store.getFreeCapacity() != 0) {
-      // don't check if can work from here
+      // skip check if can work from here
       if (creep.pos.inRangeTo(jobsite, 3)) {
         return;
       }
-
       // skip check if no source or next to source already
-      const source = CreepUtils.findClosestEnergySource(creep);
+      const source = CreepUtils.findClosestActiveEnergySource(creep);
       if (!source || creep.pos.isNearTo(source)) {
         return;
       }
