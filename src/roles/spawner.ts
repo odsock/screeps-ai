@@ -9,19 +9,10 @@ export class Spawner {
   }
 
   public spawnCreeps() {
-    let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
-    CreepUtils.consoleLogIfWatched(this.spawn, `${workers.length}/${config.MAX_CREEPS}`);
-    if (workers.length < config.MAX_CREEPS) {
-      if (workers.length <= 1) {
-        this.spawnWorker();
-      }
-      else {
-        this.spawnMaxWorker();
-      }
-    }
-
-    // spawn harvester for each container
     if (!this.spawn.spawning) {
+      this.spawnWorker();
+
+      // spawn harvester for each container
       let harvesters = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'harvester' });
       let containers = this.spawn.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
       if (harvesters.length < containers.length) {
@@ -38,7 +29,7 @@ export class Spawner {
           CreepUtils.consoleLogIfWatched(this.spawn, `harvester spawn: ticksToLive: ${harvester.ticksToLive}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${pathToReplace.cost}`);
           if (harvester.ticksToLive && harvester.ticksToLive <= ticksToSpawn + pathToReplace.cost) {
             const result = this.spawnHarvester(harvester.name);
-            if(result == OK) {
+            if (result == OK) {
               harvester.memory.retiring = true;
             }
           }
@@ -56,16 +47,21 @@ export class Spawner {
     }
   }
 
-  private spawnMaxWorker(): ScreepsReturnCode {
-    const profile = config.BODY_PROFILE_WORKER;
-    let body: BodyPartConstant[] = this.getMaxBody(profile);
-    return this.spawnCreep(body, 'worker');
-  }
-
   private spawnWorker(): ScreepsReturnCode {
-    const profile = config.BODY_PROFILE_WORKER;
-    let body: BodyPartConstant[] = this.getMaxBodyNow(profile);
-    return this.spawnCreep(body, 'worker');
+    let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
+    CreepUtils.consoleLogIfWatched(this.spawn, `${workers.length}/${config.MAX_CREEPS}`);
+    if (workers.length < config.MAX_CREEPS) {
+      const profile = config.BODY_PROFILE_WORKER;
+      let body: BodyPartConstant[];
+      if (workers.length <= 1) {
+        body = this.getMaxBodyNow(profile);
+      }
+      else {
+        body = this.getMaxBody(profile);
+      }
+      return this.spawnCreep(body, 'worker');
+    }
+    return OK;
   }
 
   private spawnHarvester(retireeName?: string): ScreepsReturnCode {
@@ -82,7 +78,7 @@ export class Spawner {
   private spawnCreep(body: BodyPartConstant[], role: string, retiree?: string): ScreepsReturnCode {
     let newName = role + Game.time;
     let memory: CreepMemory = { role: role };
-    if(retiree) {
+    if (retiree) {
       memory.retiree = retiree;
     }
     let result = this.spawn.spawnCreep(body, newName, { memory: memory });

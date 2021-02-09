@@ -17,7 +17,7 @@ export class Harvester {
       this.fillContainer();
     }
     else if (this.creep.room.controller && this.creep.pos.isNearTo(this.creep.room.controller.pos)) {
-      this.upgrade();
+      this.creep.upgradeController(this.creep.room.controller);
     }
   }
 
@@ -29,14 +29,6 @@ export class Harvester {
     }
     else {
       this.creep.memory.retiree = undefined;
-    }
-  }
-
-  private upgrade() {
-    let myContainer = this.getMyContainer();
-    if (myContainer && myContainer.store.getUsedCapacity() > 0) {
-      let sources = this.creep.pos.findInRange(FIND_SOURCES, 1);
-      this.creep.harvest(sources[0]);
     }
   }
 
@@ -58,10 +50,13 @@ export class Harvester {
     }
     else {
       let containersHere = this.creep.pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_CONTAINER);
-      let myContainer = containersHere?.[0] as StructureContainer;
-      this.creep.memory.containerId = myContainer.id;
-      return myContainer;
+      if (containersHere.length > 0) {
+        let myContainer = containersHere[0] as StructureContainer;
+        this.creep.memory.containerId = myContainer.id;
+        return myContainer;
+      }
     }
+    return null;
   }
 
   private moveToFreeContainer() {
