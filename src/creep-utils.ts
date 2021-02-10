@@ -1,5 +1,15 @@
 export class CreepUtils {
   public static harvest(creep: Creep): void {
+    // harvest if adjacent to tombstone or ruin
+    let tombstone = CreepUtils.findClosestTombstoneWithEnergy(creep);
+    if (CreepUtils.withdrawIfAdjacent(tombstone, creep) == OK) {
+      return;
+    }
+    let ruin = CreepUtils.findClosestRuinsWithEnergy(creep);
+    if (CreepUtils.withdrawIfAdjacent(ruin, creep) == OK) {
+      return;
+    }
+
     let container = CreepUtils.findClosestContainerWithEnergy(creep);
     if (container) {
       CreepUtils.consoleLogIfWatched(creep, `moving to container: ${container.pos.x},${container.pos.y}`);
@@ -14,14 +24,12 @@ export class CreepUtils {
       return;
     }
 
-    let tombstone = CreepUtils.findClosestTombstoneWithEnergy(creep);
     if (tombstone) {
       CreepUtils.consoleLogIfWatched(creep, `moving to tombstone: ${tombstone.pos.x},${tombstone.pos.y}`);
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, tombstone);
       return;
     }
 
-    let ruin = CreepUtils.findClosestRuinsWithEnergy(creep);
     if (ruin) {
       CreepUtils.consoleLogIfWatched(creep, `moving to ruin: ${ruin.pos.x},${ruin.pos.y}`);
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, ruin);
@@ -66,6 +74,14 @@ export class CreepUtils {
       return creep.moveTo(structure, { visualizePathStyle: { stroke: '#ffaa00' } });
     }
     return result;
+  }
+
+  private static withdrawIfAdjacent(structure: Tombstone | Ruin | StructureContainer | null, creep: Creep) {
+    if (structure && creep.pos.isNearTo(structure)) {
+      CreepUtils.consoleLogIfWatched(creep, `convenient ${structure.prototype}: ${structure.pos.x},${structure.pos.y}`);
+      return creep.withdraw(structure, RESOURCE_ENERGY);
+    }
+    return ERR_NOT_IN_RANGE;
   }
 
   public static harvestEnergyFromOrMoveTo(creep: Creep, source: Source): ScreepsReturnCode {
