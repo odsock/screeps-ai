@@ -2,33 +2,41 @@ export class CreepUtils {
   public static harvest(creep: Creep): void {
     let container = CreepUtils.findClosestContainerWithEnergy(creep);
     if (container) {
+      CreepUtils.consoleLogIfWatched(creep, `moving to container: ${container.pos.x},${container.pos.y}`);
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, container);
       return;
     }
 
     let activeSource = CreepUtils.findClosestActiveEnergySource(creep);
     if (activeSource) {
+      CreepUtils.consoleLogIfWatched(creep, `moving to active source: ${activeSource.pos.x},${activeSource.pos.y}`);
       CreepUtils.harvestEnergyFromOrMoveTo(creep, activeSource);
       return;
     }
 
     let tombstone = CreepUtils.findClosestTombstoneWithEnergy(creep);
     if (tombstone) {
+      CreepUtils.consoleLogIfWatched(creep, `moving to tombstone: ${tombstone.pos.x},${tombstone.pos.y}`);
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, tombstone);
       return;
     }
 
     let ruin = CreepUtils.findClosestRuinsWithEnergy(creep);
     if (ruin) {
+      CreepUtils.consoleLogIfWatched(creep, `moving to ruin: ${ruin.pos.x},${ruin.pos.y}`);
       CreepUtils.withdrawEnergyFromOrMoveTo(creep, ruin);
       return;
     }
 
     let inactiveSource = CreepUtils.findClosestEnergySource(creep);
+    CreepUtils.consoleLogIfWatched(creep, `closest inactive source: ${inactiveSource}`);
     if (inactiveSource) {
-      CreepUtils.harvestEnergyFromOrMoveTo(creep, inactiveSource);
+      CreepUtils.consoleLogIfWatched(creep, `moving to inactive source: ${inactiveSource.pos.x},${inactiveSource.pos.y}`);
+      creep.moveTo(inactiveSource, { visualizePathStyle: { stroke: '#ffaa00' } });
       return;
     }
+
+    CreepUtils.consoleLogIfWatched(creep, `stumped. Just going to sit here.`);
   }
 
   public static findClosestTombstoneWithEnergy(creep: Creep): Tombstone | null {
@@ -62,6 +70,7 @@ export class CreepUtils {
 
   public static harvestEnergyFromOrMoveTo(creep: Creep, source: Source): ScreepsReturnCode {
     let result = creep.harvest(source);
+    CreepUtils.consoleLogIfWatched(creep, `harvest result: ${result}`);
     if (result == ERR_NOT_IN_RANGE) {
       return creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
     }
