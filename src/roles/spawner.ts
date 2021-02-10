@@ -71,7 +71,7 @@ export class Spawner {
 
   private getHarvesterBody(): BodyPartConstant[] {
     const profile = config.BODY_PROFILE_HARVESTER;
-    let body: BodyPartConstant[] = this.getMaxBody(profile, [MOVE]);
+    let body: BodyPartConstant[] = this.getMaxBody(profile, [MOVE, CARRY]);
     return body;
   }
 

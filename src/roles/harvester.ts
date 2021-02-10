@@ -1,3 +1,5 @@
+import { CreepUtils } from "creep-utils";
+
 export class Harvester {
   private creep: Creep;
 
@@ -13,15 +15,26 @@ export class Harvester {
     else if (!this.getMyContainer()) {
       this.moveToFreeContainer();
     }
-    else if (this.creep.pos.findInRange(FIND_SOURCES, 1)) {
+    else if (this.creep.pos.findInRange(FIND_SOURCES, 1).length > 0) {
       this.fillContainer();
     }
-    else if (this.creep.room.controller && this.creep.pos.isNearTo(this.creep.room.controller.pos)) {
-      this.creep.upgradeController(this.creep.room.controller);
+    else {
+      this.upgradeController();
+    }
+    CreepUtils.consoleLogIfWatched(this.creep, `stumped. sitting like a lump`);
+  }
+
+  private upgradeController() {
+    if (this.creep.room.controller && this.creep.pos.inRangeTo(this.creep.room.controller.pos, 3)) {
+      const withdrawResult = this.creep.withdraw(this.getMyContainer() as StructureContainer, RESOURCE_ENERGY);
+      CreepUtils.consoleLogIfWatched(this.creep, `withdraw: ${withdrawResult}`);
+      const result = this.creep.upgradeController(this.creep.room.controller);
+      CreepUtils.consoleLogIfWatched(this.creep, `upgrade: ${result}`);
     }
   }
 
   private moveToRetiree() {
+    CreepUtils.consoleLogIfWatched(this.creep, `moving to retiree`);
     const retireeName = this.creep.memory.retiree as string;
     const retiree = Game.creeps[retireeName];
     if (retiree) {
@@ -33,6 +46,7 @@ export class Harvester {
   }
 
   private fillContainer(): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this.creep, `filling my container`);
     const myContainer = this.getMyContainer();
     if (myContainer && myContainer.store.getFreeCapacity() > 0) {
       let sources = this.creep.pos.findInRange(FIND_SOURCES, 1);
@@ -46,20 +60,28 @@ export class Harvester {
 
   private getMyContainer(): StructureContainer | null {
     if (this.creep.memory.containerId) {
-      return Game.getObjectById(this.creep.memory.containerId);
-    }
-    else {
-      let containersHere = this.creep.pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_CONTAINER);
-      if (containersHere.length > 0) {
-        let myContainer = containersHere[0] as StructureContainer;
-        this.creep.memory.containerId = myContainer.id;
-        return myContainer;
+      const container = Game.getObjectById(this.creep.memory.containerId);
+      if (!container) {
+        CreepUtils.consoleLogIfWatched(this.creep, `container id invalid`);
+        this.creep.memory.containerId = undefined;
       }
+      else {
+        return container;
+      }
+    }
+
+    CreepUtils.consoleLogIfWatched(this.creep, `searching for container`);
+    let containersHere = this.creep.pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_CONTAINER);
+    if (containersHere.length > 0) {
+      const myContainer = containersHere[0] as StructureContainer;
+      this.creep.memory.containerId = myContainer.id;
+      return myContainer;
     }
     return null;
   }
 
   private moveToFreeContainer() {
+    CreepUtils.consoleLogIfWatched(this.creep, `moving to container`);
     let containers = this.creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_CONTAINER });
     let freeContainers = containers.filter((container) => {
       const creeps = container.pos.lookFor(LOOK_CREEPS);
