@@ -109,4 +109,55 @@ export class CreepUtils {
       return 0;
     }
   }
+
+  public static findClosestTowerWithStorage(creep: Creep): StructureTower | null {
+    return creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType == STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+      }
+    }) as StructureTower | null;
+  }
+
+  public static findClosestEnergyStorageNotFull(creep: Creep): AnyStructure | null {
+    return creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return (structure.structureType == STRUCTURE_EXTENSION ||
+          structure.structureType == STRUCTURE_SPAWN) &&
+          structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+      }
+    });
+  }
+
+  public static findConstructionSites(creep: Creep) {
+    return creep.room.find(FIND_CONSTRUCTION_SITES);
+  }
+
+  public static findTowers(creep: Creep): AnyOwnedStructure[] {
+    return creep.room.find(FIND_MY_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_TOWER });
+  }
+
+  public static findRepairSites(creep: Creep): AnyOwnedStructure[] {
+    return creep.room.find(FIND_MY_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax });
+  }
+
+  public static updateJob(creep: Creep, job: string) {
+    if (creep.memory.job != job) {
+      creep.memory.job = job;
+      creep.say(job);
+    }
+  }
+
+  public static stopWorkingIfEmpty(creep: Creep) {
+    if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
+      creep.memory.working = false;
+      creep.say('🔄 harvest');
+    }
+  }
+
+  public static startWorkingIfFull(creep: Creep, message: string) {
+    if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
+      creep.memory.working = true;
+      creep.say(message);
+    }
+  }
 }
