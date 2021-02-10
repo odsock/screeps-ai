@@ -7,7 +7,6 @@ export class Harvester {
     this.creep = creep;
   }
 
-  // TODO: make harvester harvest/build/repair/upgrade if in range of its container
   public run() {
     if (this.creep.memory.retiree) {
       this.moveToRetiree();

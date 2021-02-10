@@ -2,6 +2,7 @@ class Constants {
   static readonly MAX_CREEPS: number = 2;
   static readonly BODY_PROFILE_WORKER: BodyPartConstant[] = [WORK, MOVE, CARRY];
   static readonly BODY_PROFILE_HARVESTER: BodyPartConstant[] = [WORK];
+  static readonly BODY_PROFILE_HAULER: BodyPartConstant[] = [MOVE, CARRY];
 
   static readonly STRUCTURE_PLAN_EXTENSION_GROUP: StructurePlanPosition[] = [
     {xOffset: 2, yOffset: 0, structure: STRUCTURE_ROAD},
