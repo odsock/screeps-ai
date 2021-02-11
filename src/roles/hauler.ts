@@ -28,7 +28,7 @@ export class Hauler {
     // otherwise supply controller
     this.supplyController();
   }
-  
+
   private supplyController() {
     const controllerContainer = this.findClosestControllerContainerNotFull();
     const sourceContainer = this.findClosestSourceContainerNotEmpty();
@@ -39,12 +39,12 @@ export class Hauler {
 
       if (this.creep.memory.working) {
         if (this.creep.transfer(controllerContainer, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          this.creep.moveTo(controllerContainer, { visualizePathStyle: { stroke: '#ffffff' } });
+          this.creep.moveTo(controllerContainer, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
         }
       }
       else {
         if (this.creep.withdraw(sourceContainer, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          this.creep.moveTo(sourceContainer, { visualizePathStyle: { stroke: '#ffffff' } });
+          this.creep.moveTo(sourceContainer, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
         }
       }
     }

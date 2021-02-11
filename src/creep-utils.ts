@@ -88,7 +88,7 @@ export class CreepUtils {
     let result = creep.harvest(source);
     CreepUtils.consoleLogIfWatched(creep, `harvest result: ${result}`);
     if (result == ERR_NOT_IN_RANGE) {
-      return creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+      return creep.moveTo(source, { range: 1, visualizePathStyle: { stroke: '#ffaa00' } });
     }
     return result;
   }
