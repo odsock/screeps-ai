@@ -19,7 +19,8 @@ export class Spawner {
       if (harvesters.length < containers.length) {
         this.spawnHarvester();
       }
-      if (haulers.length < containers.length) {
+      // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
+      if (haulers.length < containers.length / 2) {
         this.spawnHauler();
       }
 

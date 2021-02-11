@@ -39,14 +39,59 @@ export const loop = ErrorMapper.wrapLoop(() => {
         let extensionPlan = new ExtensionPlan(room);
         extensionPlan.planExtensionGroup();
 
-        let roadPlan = new RoadPlan(room);
-        roadPlan.placeControllerRoad();
+        // TODO: make controller road come from source with container only
+        // let roadPlan = new RoadPlan(room);
+        // roadPlan.placeControllerRoad();
+
+        // TODO: build container for each source one at a time
+        placeContainers(room, spawns);
       }
     }
   }
 
   runCreeps();
 });
+
+function placeContainers(room: Room, spawns: StructureSpawn[]) {
+  const containersInConstruction = room.find(FIND_MY_CONSTRUCTION_SITES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
+  if (containersInConstruction.length == 0) {
+    for (let i = 0; i < spawns.length; i++) {
+      const spawn = spawns[i];
+      // find closest source with no adjacent container
+      const source = spawn.pos.findClosestByPath(FIND_SOURCES, {
+        filter: (s) => s.pos.findInRange(FIND_STRUCTURES, 1, {
+          filter: (c) => c.structureType == STRUCTURE_CONTAINER
+        }).length == 0
+      });
+      if(source) {
+        let xOffset = 0;
+        let yOffset = 0;
+        const startPos = new RoomPosition(source.pos.x - 1, source.pos.y - 1, source.pos.roomName);
+        let pos = startPos;
+        while(room.createConstructionSite(pos, STRUCTURE_CONTAINER) != OK) {
+          if(xOffset < 2 && yOffset == 0) {
+            xOffset++;
+          }
+          else if(xOffset == 2 && yOffset < 2) {
+            yOffset++;
+          }
+          else if(xOffset > 0 && yOffset == 2) {
+            xOffset--;
+          }
+          else if(xOffset == 0 && yOffset > 0) {
+            yOffset--;
+          }
+
+          if(xOffset == yOffset && xOffset == 0) {
+            break;
+          }
+          pos = new RoomPosition(startPos.x + xOffset, startPos.y + yOffset, startPos.roomName);
+        }
+        console.log(`${room.name}: create container: ${pos.x},${pos.y}`);
+      }
+    }
+  }
+}
 
 // TODO: make a tower wrapper class
 function runTowers(room: Room) {

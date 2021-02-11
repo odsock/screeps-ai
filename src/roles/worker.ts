@@ -56,6 +56,7 @@ export class Worker {
     }
   }
 
+  // TODO: build with priority on extensions, not roads
   private static build(creep: Creep): void {
     const site = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
     if (site) {
