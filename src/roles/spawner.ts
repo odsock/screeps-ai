@@ -14,9 +14,13 @@ export class Spawner {
 
       // spawn harvester for each container
       let harvesters = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'harvester' });
+      let haulers = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'hauler' });
       let containers = this.spawn.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
       if (harvesters.length < containers.length) {
         this.spawnHarvester();
+      }
+      if (haulers.length < containers.length) {
+        this.spawnHauler();
       }
 
       // try to replace any aging harvester early
@@ -69,9 +73,20 @@ export class Spawner {
     return this.spawnCreep(body, 'harvester', retireeName);
   }
 
+  private spawnHauler(): ScreepsReturnCode {
+    let body: BodyPartConstant[] = this.getHaulerBody();
+    return this.spawnCreep(body, 'hauler');
+  }
+
   private getHarvesterBody(): BodyPartConstant[] {
     const profile = config.BODY_PROFILE_HARVESTER;
     let body: BodyPartConstant[] = this.getMaxBody(profile, [MOVE, CARRY]);
+    return body;
+  }
+
+  private getHaulerBody(): BodyPartConstant[] {
+    const profile = config.BODY_PROFILE_HAULER;
+    let body: BodyPartConstant[] = this.getMaxBody(profile);
     return body;
   }
 

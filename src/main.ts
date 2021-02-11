@@ -2,6 +2,7 @@ import { ExtensionPlan } from "planning/extension-plan";
 import { PlannerUtils } from "planning/planner-utils";
 import { RoadPlan } from "planning/road-plan";
 import { Harvester } from "roles/harvester";
+import { Hauler } from "roles/hauler";
 import { Spawner } from "roles/spawner";
 import { Worker } from "roles/worker";
 import { ErrorMapper } from "utils/ErrorMapper";
@@ -77,6 +78,10 @@ function runCreeps() {
     else if (creep.memory.role == 'harvester') {
       let harvester = new Harvester(creep);
       harvester.run();
+    }
+    else if (creep.memory.role == 'hauler') {
+      let hauler = new Hauler(creep);
+      hauler.run();
     }
     else {
       console.log(`unknown role: ${creep.memory.role}`);
