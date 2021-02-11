@@ -9,7 +9,7 @@ export class Hauler {
     // supply spawn/extensions if any capacity in room
     if (this.creep.room.energyAvailable < this.creep.room.energyCapacityAvailable) {
       CreepUtils.consoleLogIfWatched(this.creep, 'supply spawn job');
-      this.harvest(this.creep);
+      this.supplySpawn(this.creep);
       return;
     }
 
@@ -20,13 +20,37 @@ export class Hauler {
       CreepUtils.consoleLogIfWatched(this.creep, `towerPercentFree: ${towerPercentFree}`);
       if (this.creep.memory.job == 'tower' || towerPercentFree > this.TOWER_SUPPLY_THRESHOLD) {
         CreepUtils.consoleLogIfWatched(this.creep, 'supply tower job');
-        this.supply(this.creep);
+        this.supplyTower(this.creep);
         return;
+      }
+    }
+
+    // otherwise supply controller
+    this.supplyController();
+  }
+  
+  private supplyController() {
+    const controllerContainer = this.findClosestControllerContainerNotFull();
+    const sourceContainer = this.findClosestSourceContainerNotEmpty();
+    if (controllerContainer && sourceContainer) {
+      CreepUtils.updateJob(this.creep, 'controller');
+      CreepUtils.stopWorkingIfEmpty(this.creep);
+      CreepUtils.startWorkingIfFull(this.creep, '⚡ controller');
+
+      if (this.creep.memory.working) {
+        if (this.creep.transfer(controllerContainer, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          this.creep.moveTo(controllerContainer, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
+      }
+      else {
+        if (this.creep.withdraw(sourceContainer, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          this.creep.moveTo(sourceContainer, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
       }
     }
   }
 
-  private harvest(creep: Creep): void {
+  private supplySpawn(creep: Creep): void {
     CreepUtils.updateJob(creep, 'spawn');
     CreepUtils.stopWorkingIfEmpty(creep);
     CreepUtils.startWorkingIfFull(creep, '⚡ spawn');
@@ -40,7 +64,7 @@ export class Hauler {
     });
   }
 
-  private supply(creep: Creep): void {
+  private supplyTower(creep: Creep): void {
     CreepUtils.updateJob(creep, 'tower');
     CreepUtils.stopWorkingIfEmpty(creep);
     CreepUtils.startWorkingIfFull(creep, '⚡ tower');
@@ -62,43 +86,47 @@ export class Hauler {
       work();
     }
     else {
-      this.loadEnergy(creep);
+      this.loadEnergy();
     }
   }
 
-  private findControllerContainers(): StructureContainer[] | null {
+  private findClosestControllerContainerNotFull(): StructureContainer | null {
     let containers: StructureContainer[] = [];
     if (this.creep.room.controller) {
-      containers = this.creep.room.controller.pos.findInRange(FIND_STRUCTURES, 3, { filter: (s) => s.structureType == STRUCTURE_CONTAINER }) as StructureContainer[];
+      containers = this.creep.room.controller.pos.findInRange(FIND_STRUCTURES, 3, {
+        filter: (s) => s.structureType == STRUCTURE_CONTAINER && s.store.getFreeCapacity() > 0
+      }) as StructureContainer[];
     }
-    return containers;
+    return this.creep.pos.findClosestByPath(containers);
   }
 
-  private findSourceContainers(): StructureContainer[] {
+  private findClosestSourceContainerNotEmpty(): StructureContainer | null {
     const sources = this.creep.room.find(FIND_SOURCES);
     let containers: StructureContainer[] = [];
     if (sources.length > 0) {
       for (let i = 0; i < sources.length; i++) {
-        const container = sources[i].pos.findInRange(FIND_STRUCTURES, 1, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
+        const container = sources[i].pos.findInRange(FIND_STRUCTURES, 1, {
+          filter: (s) => s.structureType == STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0
+        });
         if (container.length > 0) {
           containers.push(container[0] as StructureContainer);
         }
       }
     }
-    return containers;
+    return this.creep.pos.findClosestByPath(containers);
   }
 
   private loadEnergy(): void {
     // harvest if adjacent to tombstone or ruin
     const tombstone = CreepUtils.findClosestTombstoneWithEnergy(this.creep);
-    if(tombstone) {
-      if(this.creep.withdraw(tombstone, RESOURCE_ENERGY) == OK) {
+    if (tombstone) {
+      if (this.creep.withdraw(tombstone, RESOURCE_ENERGY) == OK) {
         return;
       }
     }
     const ruin = CreepUtils.findClosestRuinsWithEnergy(this.creep);
-    if(ruin) {
-      if(this.creep.withdraw(ruin, RESOURCE_ENERGY) == OK) {
+    if (ruin) {
+      if (this.creep.withdraw(ruin, RESOURCE_ENERGY) == OK) {
         return;
       }
     }
