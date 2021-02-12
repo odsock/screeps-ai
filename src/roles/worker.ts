@@ -1,4 +1,6 @@
 import { CreepUtils } from "creep-utils";
+import config from "../constants";
+
 
 // TODO: make worker not static
 export class Worker {
@@ -58,7 +60,16 @@ export class Worker {
 
   // TODO: build with priority on extensions, not roads
   private static build(creep: Creep): void {
-    const site = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+    let site: ConstructionSite | null = null;
+    for (let i = 0; !site && i < config.CONSTRUCTION_PRIORITY.length; i++) {
+      site = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
+        filter: (s) => s.structureType == config.CONSTRUCTION_PRIORITY[i]
+      });
+    }
+    if (!site) {
+      site = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+    }
+
     if (site) {
       CreepUtils.updateJob(creep, 'building');
       CreepUtils.stopWorkingIfEmpty(creep);
@@ -71,8 +82,8 @@ export class Worker {
           const path = PathFinder.search(creep.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
           creep.moveByPath(path.path);
         }
-        else if (creep.build(site) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });
+        else if (creep.build(site as ConstructionSite) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(site as ConstructionSite, { visualizePathStyle: { stroke: '#ffffff' } });
         }
       });
     }

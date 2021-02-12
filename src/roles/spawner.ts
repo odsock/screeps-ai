@@ -2,10 +2,17 @@ import { CreepUtils } from "creep-utils";
 import config from "../constants";
 
 export class Spawner {
-  private spawn: StructureSpawn;
+  private readonly spawn: StructureSpawn;
+  private readonly harvesters: Creep[];
+  private readonly haulers: Creep[];
+  private readonly containers: AnyStructure[];
 
   constructor(spawn: StructureSpawn) {
     this.spawn = spawn;
+
+    this.harvesters = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'harvester' });
+    this.haulers = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'hauler' });
+    this.containers = this.spawn.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
   }
 
   public spawnCreeps() {
@@ -13,20 +20,17 @@ export class Spawner {
       this.spawnWorker();
 
       // spawn harvester for each container
-      let harvesters = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'harvester' });
-      let haulers = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'hauler' });
-      let containers = this.spawn.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
-      if (harvesters.length < containers.length) {
+      if (this.harvesters.length < this.containers.length) {
         this.spawnHarvester();
       }
       // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
-      if (haulers.length < containers.length - 1) {
+      if (this.haulers.length < this.containers.length - 1) {
         this.spawnHauler();
       }
 
       // try to replace any aging harvester early
-      for (let i = 0; i < harvesters.length; i++) {
-        const harvester = harvesters[i];
+      for (let i = 0; i < this.harvesters.length; i++) {
+        const harvester = this.harvesters[i];
         if (!harvester.spawning && !harvester.memory.retiring == true) {
           const body = this.getHarvesterBody();
           const ticksToSpawn = body.length * 3;
@@ -55,7 +59,8 @@ export class Spawner {
   private spawnWorker(): ScreepsReturnCode {
     let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
     CreepUtils.consoleLogIfWatched(this.spawn, `${workers.length}/${config.MAX_CREEPS}`);
-    if (workers.length < config.MAX_CREEPS) {
+    // HACK: find a better way to decide worker count
+    if (workers.length < config.MAX_CREEPS - this.harvesters.length) {
       const profile = config.BODY_PROFILE_WORKER;
       let body: BodyPartConstant[];
       if (workers.length <= 1) {
