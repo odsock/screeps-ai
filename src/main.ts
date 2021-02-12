@@ -31,10 +31,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
     runTowers(room);
 
     // Plan each room every 10 ticks
-    if (Game.time % 10 == 0) {
-      const conLevel = room.controller?.level;
-
-      if (conLevel && conLevel > 1) {
+    if (room.controller && Game.time % 10 == 0) {
+      if (room.controller?.level > 1) {
         console.log(`${room.name}: running planning`);
         let extensionPlan = new ExtensionPlan(room);
         extensionPlan.planExtensionGroup();
@@ -43,55 +41,20 @@ export const loop = ErrorMapper.wrapLoop(() => {
         // let roadPlan = new RoadPlan(room);
         // roadPlan.placeControllerRoad();
 
+        /**
+         * TODO: if at least one source container
+         *  and all extensions done
+         *  then build controller container
+         */
+
         // TODO: build container for each source one at a time
-        placeContainers(room, spawns);
+        // placeSourceContainers(room.controller.pos);
       }
     }
   }
 
   runCreeps();
 });
-
-function placeContainers(room: Room, spawns: StructureSpawn[]) {
-  const containersInConstruction = room.find(FIND_MY_CONSTRUCTION_SITES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
-  if (containersInConstruction.length == 0) {
-    for (let i = 0; i < spawns.length; i++) {
-      const spawn = spawns[i];
-      // find closest source with no adjacent container
-      const source = spawn.pos.findClosestByPath(FIND_SOURCES, {
-        filter: (s) => s.pos.findInRange(FIND_STRUCTURES, 1, {
-          filter: (c) => c.structureType == STRUCTURE_CONTAINER
-        }).length == 0
-      });
-      if(source) {
-        let xOffset = 0;
-        let yOffset = 0;
-        const startPos = new RoomPosition(source.pos.x - 1, source.pos.y - 1, source.pos.roomName);
-        let pos = startPos;
-        while(room.createConstructionSite(pos, STRUCTURE_CONTAINER) != OK) {
-          if(xOffset < 2 && yOffset == 0) {
-            xOffset++;
-          }
-          else if(xOffset == 2 && yOffset < 2) {
-            yOffset++;
-          }
-          else if(xOffset > 0 && yOffset == 2) {
-            xOffset--;
-          }
-          else if(xOffset == 0 && yOffset > 0) {
-            yOffset--;
-          }
-
-          if(xOffset == yOffset && xOffset == 0) {
-            break;
-          }
-          pos = new RoomPosition(startPos.x + xOffset, startPos.y + yOffset, startPos.roomName);
-        }
-        console.log(`${room.name}: create container: ${pos.x},${pos.y}`);
-      }
-    }
-  }
-}
 
 // TODO: make a tower wrapper class
 function runTowers(room: Room) {

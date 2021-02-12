@@ -50,4 +50,33 @@ export class PlannerUtils {
     }
     return undefined;
   }
+
+  public static placeStructureAdjacent(position: RoomPosition, structureConstant: BuildableStructureConstant): RoomPosition | null {
+    let xOffset = 0;
+    let yOffset = 0;
+    const startPos = new RoomPosition(position.x - 1, position.y - 1, position.roomName);
+    let pos = startPos;
+    while (pos.createConstructionSite(structureConstant) != OK) {
+      if (xOffset < 2 && yOffset == 0) {
+        xOffset++;
+      }
+      else if (xOffset == 2 && yOffset < 2) {
+        yOffset++;
+      }
+      else if (xOffset > 0 && yOffset == 2) {
+        xOffset--;
+      }
+      else if (xOffset == 0 && yOffset > 0) {
+        yOffset--;
+      }
+
+      // Give up if back to start position
+      if (xOffset == yOffset && xOffset == 0) {
+        return null;
+      }
+
+      pos = new RoomPosition(startPos.x + xOffset, startPos.y + yOffset, startPos.roomName);
+    }
+    return pos;
+  }
 }
