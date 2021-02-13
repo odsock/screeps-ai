@@ -1,3 +1,5 @@
+import { CreepUtils } from "creep-utils";
+import { ContainerPlan } from "planning/container-plan";
 import { ExtensionPlan } from "planning/extension-plan";
 import { PlannerUtils } from "planning/planner-utils";
 import { RoadPlan } from "planning/road-plan";
@@ -17,6 +19,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const roomIds = Game.rooms;
   for (const roomId in roomIds) {
     const room = Game.rooms[roomId];
+    runLogging(room);
 
     // Run spawners
     console.log(`${room.name}: running spawns`);
@@ -34,27 +37,50 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (room.controller && Game.time % 10 == 0) {
       if (room.controller?.level > 1) {
         console.log(`${room.name}: running planning`);
+
+        let containerPlan = new ContainerPlan(room);
+        containerPlan.planContainers();
+
+        // place available extensions
         let extensionPlan = new ExtensionPlan(room);
         extensionPlan.planExtensionGroup();
 
         // TODO: make controller road come from source with container only
         // let roadPlan = new RoadPlan(room);
         // roadPlan.placeControllerRoad();
-
-        /**
-         * TODO: if at least one source container
-         *  and all extensions done
-         *  then build controller container
-         */
-
-        // TODO: build container for each source one at a time
-        // placeSourceContainers(room.controller.pos);
       }
     }
   }
 
   runCreeps();
 });
+
+function runLogging(room: Room) {
+  if (!room.memory.construction) {
+    room.memory.construction = {};
+  }
+
+  // add all construction sites to log
+  const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+  for (let i = 0; i < constructionSites.length; i++) {
+    const site = constructionSites[i];
+    if(!room.memory.construction[site.id]) {
+      room.memory.construction[site.id] = { id: site.id, type: site.structureType, pos: site.pos, startTime: Game.time };
+    }
+  }
+
+  // update any completed ones
+  for (let id in room.memory.construction) {
+    const site = Game.getObjectById(room.memory.construction[id].id);
+    if(site && site.progress <= site.progressTotal){
+      room.memory.construction[id].progress = site.progress / site.progressTotal;
+    }
+    else if(!site) {
+      room.memory.construction[id].endTime = Game.time;
+      room.memory.construction[id].progress = 1;
+    }
+  }
+}
 
 // TODO: make a tower wrapper class
 function runTowers(room: Room) {

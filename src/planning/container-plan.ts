@@ -8,10 +8,13 @@ export class ContainerPlan {
   }
 
   public planContainers() {
-    if (this.room.controller) {
-      if (this.roomHasContainers()) {
-        this.placeControllerContainer();
-      }
+    /**
+     * TODO: if at least one source container
+     *  and all extensions done
+     *  then build controller container
+     */
+    if (!this.roomHasContainers()) {
+      this.placeSourceContainers();
     }
   }
 

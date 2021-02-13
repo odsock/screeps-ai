@@ -12,8 +12,19 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  log: string[];
+  construction: { [id: string]: ConstructionLog };
   extensionRoads: boolean;
   controllerRoads: boolean;
+}
+
+interface ConstructionLog {
+  id: Id<ConstructionSite<BuildableStructureConstant>>;
+  startTime: number;
+  endTime?: number;
+  progress?: number;
+  type: BuildableStructureConstant;
+  pos: RoomPosition;
 }
 
 interface Memory {

@@ -6,10 +6,12 @@ export class Spawner {
   private readonly harvesters: Creep[];
   private readonly haulers: Creep[];
   private readonly containers: AnyStructure[];
+  private readonly workers: Creep[];
 
   constructor(spawn: StructureSpawn) {
     this.spawn = spawn;
 
+    this.workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
     this.harvesters = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'harvester' });
     this.haulers = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'hauler' });
     this.containers = this.spawn.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
@@ -17,14 +19,17 @@ export class Spawner {
 
   public spawnCreeps() {
     if (!this.spawn.spawning) {
-      this.spawnWorker();
-
+      // HACK: find a better way to decide worker count
+      if (this.workers.length < this.getMaxWorkerCount()) {
+        CreepUtils.consoleLogIfWatched(this.spawn, `${this.workers.length}/${config.MAX_CREEPS}`);
+        this.spawnWorker();
+      }
       // spawn harvester for each container
-      if (this.harvesters.length < this.containers.length) {
+      if (this.harvesters.length < this.getMaxHarvesterCount()) {
         this.spawnHarvester();
       }
       // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
-      if (this.haulers.length < this.containers.length - 1) {
+      if (this.haulers.length < this.getMaxHaulerCount()) {
         this.spawnHauler();
       }
 
@@ -56,22 +61,28 @@ export class Spawner {
     }
   }
 
+  private getMaxHaulerCount(): number {
+    return this.containers.length - 1;
+  }
+
+  private getMaxHarvesterCount(): number {
+    return this.containers.length;
+  }
+
+  private getMaxWorkerCount(): number {
+    return config.MAX_CREEPS - this.harvesters.length;
+  }
+
   private spawnWorker(): ScreepsReturnCode {
-    let workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
-    CreepUtils.consoleLogIfWatched(this.spawn, `${workers.length}/${config.MAX_CREEPS}`);
-    // HACK: find a better way to decide worker count
-    if (workers.length < config.MAX_CREEPS - this.harvesters.length) {
-      const profile = config.BODY_PROFILE_WORKER;
-      let body: BodyPartConstant[];
-      if (workers.length <= 1) {
-        body = this.getMaxBodyNow(profile);
-      }
-      else {
-        body = this.getMaxBody(profile);
-      }
-      return this.spawnCreep(body, 'worker');
+    const profile = config.BODY_PROFILE_WORKER;
+    let body: BodyPartConstant[];
+    if (this.workers.length <= 1) {
+      body = this.getMaxBodyNow(profile);
     }
-    return OK;
+    else {
+      body = this.getMaxBody(profile);
+    }
+    return this.spawnCreep(body, 'worker');
   }
 
   private spawnHarvester(retireeName?: string): ScreepsReturnCode {
