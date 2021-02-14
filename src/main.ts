@@ -75,10 +75,21 @@ function runLogging(room: Room) {
     if(site && site.progress <= site.progressTotal){
       room.memory.construction[id].progress = site.progress / site.progressTotal;
     }
-    else if(!site) {
+    else if(!site && !room.memory.construction[id].endTime) {
       room.memory.construction[id].endTime = Game.time;
       room.memory.construction[id].progress = 1;
     }
+  }
+
+  // log when 5 extensions reached
+  const lastExtensionCount = room.memory.extensionCount;
+  const extensionCount = room.find(FIND_MY_STRUCTURES, {filter: (s) => s.structureType == STRUCTURE_EXTENSION}).length;
+  room.memory.extensionCount = extensionCount;
+  if(extensionCount != lastExtensionCount && extensionCount == 1) {
+    CreepUtils.roomMemoryLog(room, 'reached 1 extensions');
+  }
+  else if(extensionCount != lastExtensionCount && extensionCount == 5) {
+    CreepUtils.roomMemoryLog(room, 'reached 5 extensions');
   }
 }
 

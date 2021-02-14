@@ -2,42 +2,33 @@ export class CreepUtils {
   public static harvest(creep: Creep): void {
     // harvest if adjacent to tombstone or ruin
     let tombstone = CreepUtils.findClosestTombstoneWithEnergy(creep);
-    if (CreepUtils.withdrawIfAdjacent(tombstone, creep) == OK) {
+    if (tombstone && creep.withdraw(tombstone, RESOURCE_ENERGY) == OK) {
       return;
     }
     let ruin = CreepUtils.findClosestRuinsWithEnergy(creep);
-    if (CreepUtils.withdrawIfAdjacent(ruin, creep) == OK) {
+    if (ruin && creep.withdraw(ruin, RESOURCE_ENERGY) == OK) {
       return;
     }
 
     let container = CreepUtils.findClosestContainerWithEnergy(creep);
-    if (container) {
-      CreepUtils.consoleLogIfWatched(creep, `moving to container: ${container.pos.x},${container.pos.y}`);
-      CreepUtils.withdrawEnergyFromOrMoveTo(creep, container);
+    if (container && CreepUtils.withdrawEnergyFromOrMoveTo(creep, container) != ERR_NO_PATH) {
       return;
     }
 
     let activeSource = CreepUtils.findClosestActiveEnergySource(creep);
-    if (activeSource) {
-      CreepUtils.consoleLogIfWatched(creep, `moving to active source: ${activeSource.pos.x},${activeSource.pos.y}`);
-      CreepUtils.harvestEnergyFromOrMoveTo(creep, activeSource);
+    if (activeSource && CreepUtils.harvestEnergyFromOrMoveTo(creep, activeSource) != ERR_NO_PATH) {
       return;
     }
 
-    if (tombstone) {
-      CreepUtils.consoleLogIfWatched(creep, `moving to tombstone: ${tombstone.pos.x},${tombstone.pos.y}`);
-      CreepUtils.withdrawEnergyFromOrMoveTo(creep, tombstone);
+    if (tombstone && CreepUtils.withdrawEnergyFromOrMoveTo(creep, tombstone) != ERR_NO_PATH) {
       return;
     }
 
-    if (ruin) {
-      CreepUtils.consoleLogIfWatched(creep, `moving to ruin: ${ruin.pos.x},${ruin.pos.y}`);
-      CreepUtils.withdrawEnergyFromOrMoveTo(creep, ruin);
+    if (ruin && CreepUtils.withdrawEnergyFromOrMoveTo(creep, ruin) != ERR_NO_PATH) {
       return;
     }
 
     let inactiveSource = CreepUtils.findClosestEnergySource(creep);
-    CreepUtils.consoleLogIfWatched(creep, `closest inactive source: ${inactiveSource}`);
     if (inactiveSource) {
       CreepUtils.consoleLogIfWatched(creep, `moving to inactive source: ${inactiveSource.pos.x},${inactiveSource.pos.y}`);
       creep.moveTo(inactiveSource, { visualizePathStyle: { stroke: '#ffaa00' } });
@@ -69,6 +60,7 @@ export class CreepUtils {
   }
 
   public static withdrawEnergyFromOrMoveTo(creep: Creep, structure: Tombstone | Ruin | StructureContainer): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(creep, `moving to ${typeof structure}: ${structure.pos.x},${structure.pos.y}`);
     let result = creep.withdraw(structure, RESOURCE_ENERGY);
     if (result == ERR_NOT_IN_RANGE) {
       return creep.moveTo(structure, { visualizePathStyle: { stroke: '#ffaa00' } });
@@ -76,15 +68,8 @@ export class CreepUtils {
     return result;
   }
 
-  private static withdrawIfAdjacent(structure: Tombstone | Ruin | StructureContainer | null, creep: Creep) {
-    if (structure && creep.pos.isNearTo(structure)) {
-      CreepUtils.consoleLogIfWatched(creep, `convenient ${structure.prototype}: ${structure.pos.x},${structure.pos.y}`);
-      return creep.withdraw(structure, RESOURCE_ENERGY);
-    }
-    return ERR_NOT_IN_RANGE;
-  }
-
   public static harvestEnergyFromOrMoveTo(creep: Creep, source: Source): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(creep, `moving to source: ${source.pos.x},${source.pos.y}`);
     let result = creep.harvest(source);
     CreepUtils.consoleLogIfWatched(creep, `harvest result: ${result}`);
     if (result == ERR_NOT_IN_RANGE) {
@@ -100,7 +85,7 @@ export class CreepUtils {
   }
 
   public static roomMemoryLog(room: Room, message: string): void {
-    if(!room.memory.log) {
+    if (!room.memory.log) {
       room.memory.log = [];
     }
     room.memory.log.push(`${Game.time}: ${message}`);
@@ -143,8 +128,8 @@ export class CreepUtils {
     return creep.room.find(FIND_MY_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_TOWER });
   }
 
-  public static findRepairSites(creep: Creep): AnyOwnedStructure[] {
-    return creep.room.find(FIND_MY_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax });
+  public static findRepairSites(creep: Creep): AnyStructure[] {
+    return creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax });
   }
 
   public static updateJob(creep: Creep, job: string) {

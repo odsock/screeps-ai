@@ -31,8 +31,11 @@ export class Worker {
       return;
     }
 
+    const towerCount = CreepUtils.findTowers(creep).length;
+    const repairSiteCount = CreepUtils.findRepairSites(creep).length;
     // repair if no towers to do it
-    if (CreepUtils.findTowers(creep).length == 0 && CreepUtils.findRepairSites(creep).length > 0) {
+    CreepUtils.consoleLogIfWatched(creep, `towers: ${towerCount}, repair sites: ${repairSiteCount}`)
+    if (towerCount == 0 && repairSiteCount > 0) {
       CreepUtils.consoleLogIfWatched(creep, 'repairing job');
       this.repair(creep);
       return;

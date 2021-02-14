@@ -16,6 +16,7 @@ interface RoomMemory {
   construction: { [id: string]: ConstructionLog };
   extensionRoads: boolean;
   controllerRoads: boolean;
+  extensionCount?: number;
 }
 
 interface ConstructionLog {
