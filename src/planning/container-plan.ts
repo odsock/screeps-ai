@@ -1,3 +1,4 @@
+import { CreepUtils } from "creep-utils";
 import { PlannerUtils } from "./planner-utils";
 
 export class ContainerPlan {
@@ -7,30 +8,22 @@ export class ContainerPlan {
     this.containerInConstruction = this.roomHasContainersInConstruction();
   }
 
-  public planContainers() {
-    /**
-     * TODO: if at least one source container
-     *  and all extensions done
-     *  then build controller container
-     */
-    if (!this.roomHasContainers()) {
-      this.placeSourceContainers();
-    }
-  }
-
-  public placeControllerContainer() {
-    if (this.room.controller && !this.roomHasContainersInConstruction() && this.roomHasContainers()) {
+  public placeControllerContainer(): ScreepsReturnCode {
+    if (this.room.controller && !this.roomHasContainersInConstruction()) {
       let pos = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
       if (pos) {
-        console.log(`${this.room.name}: create controller container: ${pos.x},${pos.y}`);
+        CreepUtils.roomMemoryLog(this.room, `created controller container: ${pos.x},${pos.y}`);
+        return OK;
       }
       else {
-        console.log(`${this.room.name}: create container failed for controller`);
+        CreepUtils.roomMemoryLog(this.room, `create container failed for controller`);
+        return ERR_NOT_FOUND;
       }
     }
+    return OK;
   }
 
-  public placeSourceContainers() {
+  public placeSourceContainer(): ScreepsReturnCode {
     if (this.room.controller && !this.roomHasContainersInConstruction()) {
       // find closest source with no adjacent container
       const source = this.room.controller.pos.findClosestByPath(FIND_SOURCES, {
@@ -41,13 +34,16 @@ export class ContainerPlan {
       if (source) {
         let pos = PlannerUtils.placeStructureAdjacent(source.pos, STRUCTURE_CONTAINER);
         if (pos) {
-          console.log(`${this.room.name}: create source container: ${pos.x},${pos.y}`);
+          CreepUtils.roomMemoryLog(this.room, `created source container: ${pos.x},${pos.y}`);
+          return OK;
         }
         else {
-          console.log(`${this.room.name}: create container failed for source: ${source.pos.x},${source.pos.y}`);
+          CreepUtils.roomMemoryLog(this.room, `create container failed for source: ${source.pos.x},${source.pos.y}`);
+          return ERR_NOT_FOUND;
         }
       }
     }
+    return OK;
   }
 
   private roomHasContainersInConstruction(): boolean {

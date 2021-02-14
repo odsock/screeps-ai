@@ -1,28 +1,35 @@
+import { CreepUtils } from 'creep-utils';
 import config from '../constants';
 import { PlannerUtils } from './planner-utils';
+import { StructurePlan } from './structure-plan';
 
 export class ExtensionPlan {
   constructor(private readonly room: Room) { }
 
-  public planExtensionGroup() {
+  public planExtensionGroup(): ScreepsReturnCode {
     const numAvailableExtensions = this.getNumAvailableExtensions();
-    // console.log(`numAvailableExtensions: ${numAvailableExtensions}`);
     if (numAvailableExtensions >= 5) {
       const structurePlan = PlannerUtils.findSiteForPattern(config.STRUCTURE_PLAN_EXTENSION_GROUP, this.room);
-      if (structurePlan.plan != undefined) {
-        console.log(`draw site: ${structurePlan.plan[0].x}, ${structurePlan.plan[0].y}`);
-        const visual = this.room.visual.poly(structurePlan.plan);
-        structurePlan.plan.forEach((pos) => {
-          const structureType = structurePlan.getStructureAt(pos);
-          if (structureType) {
-            const result = this.room.createConstructionSite(pos, structureType);
-            if (result != 0) {
-              console.log(`road failed: ${result}, pos: ${pos}`);
-            }
+      return this.placeStructurePlan(structurePlan);
+    }
+    return OK;
+  }
+
+  private placeStructurePlan(structurePlan: StructurePlan): ScreepsReturnCode {
+    if (structurePlan.plan != undefined) {
+      for (let i = 0; i < structurePlan.plan?.length; i++) {
+        const pos = structurePlan.plan[i];
+        const structureType = structurePlan.getStructureAt(pos);
+        if (structureType) {
+          const result = this.room.createConstructionSite(pos, structureType);
+          if (result != OK) {
+            CreepUtils.roomMemoryLog(this.room, `road failed: ${result}, pos: ${pos}`);
+            return result;
           }
-        });
+        }
       }
     }
+    return ERR_NOT_FOUND;
   }
 
   private getNumAvailableExtensions(): number {

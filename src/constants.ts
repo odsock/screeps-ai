@@ -25,8 +25,8 @@ class Constants {
 
   static readonly CONSTRUCTION_PRIORITY: StructureConstant[] = [
     STRUCTURE_TOWER,
-    STRUCTURE_CONTAINER,
-    STRUCTURE_EXTENSION
+    STRUCTURE_EXTENSION,
+    STRUCTURE_CONTAINER
   ];
 }
 export default Constants;

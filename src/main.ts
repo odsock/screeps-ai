@@ -1,8 +1,5 @@
 import { CreepUtils } from "creep-utils";
-import { ContainerPlan } from "planning/container-plan";
-import { ExtensionPlan } from "planning/extension-plan";
-import { PlannerUtils } from "planning/planner-utils";
-import { RoadPlan } from "planning/road-plan";
+import { Planner } from "planning/planner";
 import { Harvester } from "roles/harvester";
 import { Hauler } from "roles/hauler";
 import { Spawner } from "roles/spawner";
@@ -35,20 +32,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     // Plan each room every 10 ticks
     if (room.controller && Game.time % 10 == 0) {
-      if (room.controller?.level > 1) {
-        console.log(`${room.name}: running planning`);
-
-        let containerPlan = new ContainerPlan(room);
-        containerPlan.planContainers();
-
-        // place available extensions
-        let extensionPlan = new ExtensionPlan(room);
-        extensionPlan.planExtensionGroup();
-
-        // TODO: make controller road come from source with container only
-        // let roadPlan = new RoadPlan(room);
-        // roadPlan.placeControllerRoad();
-      }
+      const planner = new Planner(room);
+      planner.run();
     }
   }
 
