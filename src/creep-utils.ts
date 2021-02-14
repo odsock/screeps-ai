@@ -39,7 +39,7 @@ export class CreepUtils {
   }
 
   public static findClosestTombstoneWithEnergy(creep: Creep): Tombstone | null {
-    return creep.pos.findClosestByPath(FIND_TOMBSTONES, { filter: (t) => t.store.getUsedCapacity() > 0 });
+    return creep.pos.findClosestByPath(FIND_TOMBSTONES, { filter: (t) => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   }
 
   public static findClosestContainerWithEnergy(creep: Creep): StructureContainer | null {
@@ -48,7 +48,7 @@ export class CreepUtils {
   }
 
   public static findClosestRuinsWithEnergy(creep: Creep): Ruin | null {
-    return creep.pos.findClosestByPath(FIND_RUINS, { filter: (r) => r.store.getUsedCapacity() > 0 });
+    return creep.pos.findClosestByPath(FIND_RUINS, { filter: (r) => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   }
 
   public static findClosestActiveEnergySource(creep: Creep): Source | null {
