@@ -70,7 +70,7 @@ export class Spawner {
   }
 
   private getMaxWorkerCount(): number {
-    return config.MAX_CREEPS - this.harvesters.length;
+    return config.MAX_CREEPS - this.haulers.length;
   }
 
   private spawnWorker(): ScreepsReturnCode {
