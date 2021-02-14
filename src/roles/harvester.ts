@@ -50,7 +50,8 @@ export class Harvester {
     if (myContainer && myContainer.store.getFreeCapacity() > 0) {
       let sources = this.creep.pos.findInRange(FIND_SOURCES, 1);
       if (sources.length > 0) {
-        return this.creep.harvest(sources[0]);
+        this.creep.harvest(sources[0]);
+        return this.creep.transfer(myContainer, RESOURCE_ENERGY);
       }
       return ERR_NOT_IN_RANGE;
     }
