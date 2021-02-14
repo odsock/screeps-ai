@@ -6,7 +6,7 @@ export class Planner {
   constructor(private readonly room: Room) { }
 
   run(): ScreepsReturnCode {
-    if (this.room.controller && this.room.controller?.level == 2) {
+    if (this.room.controller && this.room.controller?.level >= 2) {
       console.log(`${this.room.name}: running planning`);
 
       // place available extensions
