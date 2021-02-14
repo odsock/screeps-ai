@@ -76,7 +76,7 @@ export class Spawner {
   private spawnWorker(): ScreepsReturnCode {
     const profile = config.BODY_PROFILE_WORKER;
     let body: BodyPartConstant[];
-    if (this.workers.length <= 1) {
+    if (this.workers.length <= 0) {
       body = this.getMaxBodyNow(profile);
     }
     else {

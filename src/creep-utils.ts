@@ -29,8 +29,8 @@ export class CreepUtils {
     }
 
     let inactiveSource = CreepUtils.findClosestEnergySource(creep);
+    CreepUtils.consoleLogIfWatched(creep, `moving to inactive source: ${inactiveSource?.pos.x},${inactiveSource?.pos.y}`);
     if (inactiveSource) {
-      CreepUtils.consoleLogIfWatched(creep, `moving to inactive source: ${inactiveSource.pos.x},${inactiveSource.pos.y}`);
       creep.moveTo(inactiveSource, { visualizePathStyle: { stroke: '#ffaa00' } });
       return;
     }
@@ -56,7 +56,11 @@ export class CreepUtils {
   }
 
   public static findClosestEnergySource(creep: Creep): Source | null {
-    return creep.pos.findClosestByPath(FIND_SOURCES);
+    let source = creep.pos.findClosestByPath(FIND_SOURCES);
+    if(!source) {
+      source = creep.pos.findClosestByRange(FIND_SOURCES);
+    }
+    return source;
   }
 
   public static withdrawEnergyFromOrMoveTo(creep: Creep, structure: Tombstone | Ruin | StructureContainer): ScreepsReturnCode {
