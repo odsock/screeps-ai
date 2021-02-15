@@ -19,11 +19,6 @@ export class Spawner {
 
   public spawnCreeps() {
     if (!this.spawn.spawning) {
-      // HACK: find a better way to decide worker count
-      if (this.workers.length < this.getMaxWorkerCount()) {
-        CreepUtils.consoleLogIfWatched(this.spawn, `${this.workers.length}/${config.MAX_CREEPS}`);
-        this.spawnWorker();
-      }
       // spawn harvester for each container
       if (this.harvesters.length < this.getMaxHarvesterCount()) {
         this.spawnHarvester();
@@ -31,6 +26,11 @@ export class Spawner {
       // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
       if (this.haulers.length < this.getMaxHaulerCount()) {
         this.spawnHauler();
+      }
+      // HACK: find a better way to decide worker count
+      if (this.containers.length < 2 && this.workers.length < this.getMaxWorkerCount()) {
+        CreepUtils.consoleLogIfWatched(this.spawn, `${this.workers.length}/${config.MAX_CREEPS}`);
+        this.spawnWorker();
       }
 
       // try to replace any aging harvester early
@@ -80,7 +80,7 @@ export class Spawner {
       body = this.getMaxBodyNow(profile);
     }
     else {
-      body = this.getMaxBody(profile);
+      body = this.getMaxBody({ profile });
     }
     return this.spawnCreep(body, 'worker');
   }
@@ -97,13 +97,13 @@ export class Spawner {
 
   private getHarvesterBody(): BodyPartConstant[] {
     const profile = config.BODY_PROFILE_HARVESTER;
-    let body: BodyPartConstant[] = this.getMaxBody(profile, [MOVE, CARRY]);
+    let body: BodyPartConstant[] = this.getMaxBody({ profile, seed: [MOVE, CARRY], maxBodyParts: 10 });
     return body;
   }
 
   private getHaulerBody(): BodyPartConstant[] {
     const profile = config.BODY_PROFILE_HAULER;
-    let body: BodyPartConstant[] = this.getMaxBody(profile);
+    let body: BodyPartConstant[] = this.getMaxBody({ profile, maxBodyParts: 20 });
     return body;
   }
 
@@ -118,14 +118,14 @@ export class Spawner {
     return result;
   }
 
-  private getMaxBody(profile: BodyPartConstant[], seed: BodyPartConstant[] = []) {
+  private getMaxBody({ profile, seed = [], maxBodyParts = MAX_CREEP_SIZE }: { profile: BodyPartConstant[]; seed?: BodyPartConstant[]; maxBodyParts?: number; }) {
     let body: BodyPartConstant[] = seed.slice();
     let finalBody: BodyPartConstant[] = [];
     let energyCapacity = this.spawn.room.energyCapacityAvailable;
     do {
       finalBody = body.slice();
       body = body.concat(profile);
-    } while (this.calcBodyCost(body) <= energyCapacity);
+    } while (this.calcBodyCost(body) <= energyCapacity && body.length <= maxBodyParts);
     return finalBody;
   }
 
