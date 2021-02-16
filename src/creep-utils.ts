@@ -35,6 +35,7 @@ export class CreepUtils {
       return;
     }
 
+    creep.say('🤔');
     CreepUtils.consoleLogIfWatched(creep, `stumped. Just going to sit here.`);
   }
 
