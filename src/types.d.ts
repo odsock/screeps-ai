@@ -33,9 +33,13 @@ interface Memory {
   log: any;
 }
 
-interface StructurePlanPosition {
+interface StructurePatternPosition {
   xOffset: number;
   yOffset: number;
+  structure: StructureConstant;
+}
+interface StructurePlanPosition {
+  pos: RoomPosition;
   structure: StructureConstant;
 }
 

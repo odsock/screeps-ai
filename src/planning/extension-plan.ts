@@ -16,16 +16,13 @@ export class ExtensionPlan {
   }
 
   private placeStructurePlan(structurePlan: StructurePlan): ScreepsReturnCode {
-    if (structurePlan.plan != undefined) {
-      for (let i = 0; i < structurePlan.plan?.length; i++) {
-        const pos = structurePlan.plan[i];
-        const structureType = structurePlan.getStructureAt(pos);
-        if (structureType) {
-          const result = this.room.createConstructionSite(pos, structureType);
-          if (result != OK) {
-            CreepUtils.roomMemoryLog(this.room, `road failed: ${result}, pos: ${pos}`);
-            return result;
-          }
+    if (structurePlan.plan) {
+      for (let i = 0; i < structurePlan.plan.length; i++) {
+        const planPosition = structurePlan.plan[i];
+        const result = this.room.createConstructionSite(planPosition.pos, planPosition.structure);
+        if (result != OK) {
+          CreepUtils.roomMemoryLog(this.room, `${planPosition.structure} failed: ${result}, pos: ${planPosition}`);
+          return result;
         }
       }
     }

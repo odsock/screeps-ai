@@ -5,7 +5,7 @@ export class PlannerUtils {
 
   public constructor(private readonly room: Room) {}
 
-  public static findSiteForPattern(pattern: StructurePlanPosition[], room: Room): StructurePlan {
+  public static findSiteForPattern(pattern: StructurePatternPosition[], room: Room): StructurePlan {
     const structurePlan = new StructurePlan(pattern, room);
     const patternWidth = structurePlan.getWidth();
     const patternHeight = structurePlan.getHeight();
