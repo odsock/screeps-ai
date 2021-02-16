@@ -22,6 +22,8 @@ export class StructurePlan {
   }
 
   public translate(x: number, y: number): boolean {
+    this.planned = false;
+    this._plan = [];
     let planOkSoFar = true;
     for (let i = 0; i < this.pattern.length; i++) {
       const planPosition = this.pattern[i];
@@ -51,7 +53,7 @@ export class StructurePlan {
       return false;
     }
     const posConstSites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, pos);
-    if (posConstSites.filter((s) => s.structureType != STRUCTURE_ROAD)) {
+    if (posConstSites.filter((s) => s.structureType != STRUCTURE_ROAD).length > 0) {
       return false;
     }
 
