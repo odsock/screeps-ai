@@ -42,7 +42,7 @@ export class PlannerUtils {
   }
 
   public static getPatternRangeFromSpawn(x: number, patternWidth: number, y: number, patternHeight: number, room: Room): number | undefined {
-    // use center of patten for ranging
+    // use center of pattern for ranging
     const posCenter = room.getPositionAt(x + patternWidth / 2, y + patternHeight / 2);
     const closestSpawn = posCenter?.findClosestByRange(FIND_MY_SPAWNS);
     if(closestSpawn) {
