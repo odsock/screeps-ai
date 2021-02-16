@@ -103,7 +103,7 @@ export class Spawner {
 
   private getHaulerBody(): BodyPartConstant[] {
     const profile = config.BODY_PROFILE_HAULER;
-    let body: BodyPartConstant[] = this.getMaxBody({ profile, maxBodyParts: 20 });
+    let body: BodyPartConstant[] = this.getMaxBody({ profile, maxBodyParts: 30 });
     return body;
   }
 
