@@ -10,14 +10,17 @@ export class ContainerPlan {
 
   public placeControllerContainer(): ScreepsReturnCode {
     if (this.room.controller && !this.roomHasContainersInConstruction()) {
-      let pos = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
-      if (pos) {
-        CreepUtils.roomMemoryLog(this.room, `created controller container: ${pos.x},${pos.y}`);
-        return OK;
-      }
-      else {
-        CreepUtils.roomMemoryLog(this.room, `create container failed for controller`);
-        return ERR_NOT_FOUND;
+      // only place one container at controller
+      if (this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, { filter: (c) => c.structureType == STRUCTURE_CONTAINER }).length == 0) {
+        let pos = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
+        if (pos) {
+          CreepUtils.roomMemoryLog(this.room, `created controller container: ${pos.x},${pos.y}`);
+          return OK;
+        }
+        else {
+          CreepUtils.roomMemoryLog(this.room, `create container failed for controller`);
+          return ERR_NOT_FOUND;
+        }
       }
     }
     return OK;
