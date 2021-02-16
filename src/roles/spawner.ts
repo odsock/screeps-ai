@@ -77,7 +77,7 @@ export class Spawner {
     const profile = config.BODY_PROFILE_WORKER;
     let body: BodyPartConstant[];
     if (this.workers.length <= 0) {
-      body = this.getMaxBodyNow(profile);
+      body = this.getMaxBodyNow({ profile });
     }
     else {
       body = this.getMaxBody({ profile });
@@ -97,13 +97,19 @@ export class Spawner {
 
   private getHarvesterBody(): BodyPartConstant[] {
     const profile = config.BODY_PROFILE_HARVESTER;
-    let body: BodyPartConstant[] = this.getMaxBody({ profile, seed: [MOVE, CARRY], maxBodyParts: 10 });
+    let body = this.getMaxBody({ profile: profile, seed: [MOVE, CARRY], maxBodyParts: 10 });
+    if (this.harvesters.length <= 0 && this.workers.length <= 0 && this.spawn.spawnCreep(body, 'maxBodyTest', { dryRun: true }) != OK) {
+      body = this.getMaxBodyNow({ profile: profile, seed: [MOVE, CARRY], maxBodyParts: 10 });
+    }
     return body;
   }
 
   private getHaulerBody(): BodyPartConstant[] {
     const profile = config.BODY_PROFILE_HAULER;
-    let body: BodyPartConstant[] = this.getMaxBody({ profile, maxBodyParts: 30 });
+    let body = this.getMaxBody({ profile: profile, maxBodyParts: 30 });
+    if (this.haulers.length <= 0 && this.workers.length <= 0 && this.spawn.spawnCreep(body, 'maxBodyTest', { dryRun: true }) != OK) {
+      body = this.getMaxBodyNow({ profile: profile });
+    }
     return body;
   }
 
@@ -134,13 +140,13 @@ export class Spawner {
       .reduce((cost, partCost) => cost + partCost);
   }
 
-  private getMaxBodyNow(profile: BodyPartConstant[], seed: BodyPartConstant[] = []) {
+  private getMaxBodyNow({ profile, seed = [], maxBodyParts = MAX_CREEP_SIZE }: { profile: BodyPartConstant[]; seed?: BodyPartConstant[]; maxBodyParts?: number }) {
     let body: BodyPartConstant[] = seed.slice();
     let finalBody: BodyPartConstant[] = [];
     do {
       finalBody = body.slice();
       body = body.concat(profile);
-    } while (this.spawn.spawnCreep(body, 'maximizeBody', { dryRun: true }) == 0);
+    } while (this.spawn.spawnCreep(body, 'maximizeBody', { dryRun: true }) == 0 && body.length + profile.length <= maxBodyParts);
     return finalBody;
   }
 }
