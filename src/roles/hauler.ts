@@ -1,5 +1,6 @@
 import { CreepUtils } from "creep-utils";
 
+// TODO: get hauler to pull havester to container
 export class Hauler {
   constructor(private readonly creep: Creep) { }
 

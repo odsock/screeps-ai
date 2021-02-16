@@ -33,6 +33,8 @@ export class Spawner {
         this.spawnWorker();
       }
 
+      // TODO: write a claimer creep
+
       // try to replace any aging harvester early
       for (let i = 0; i < this.harvesters.length; i++) {
         const harvester = this.harvesters[i];
