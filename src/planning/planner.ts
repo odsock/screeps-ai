@@ -1,6 +1,7 @@
 import { CreepUtils } from "creep-utils";
 import { ContainerPlan } from "./container-plan";
 import { ExtensionPlan } from "./extension-plan";
+import { RoadPlan } from "./road-plan";
 
 export class Planner {
   constructor(private readonly room: Room) { }
@@ -30,7 +31,7 @@ export class Planner {
       }
 
       // TODO: make controller road come from source with container only
-      // let roadPlan = new RoadPlan(room);
+      // let roadPlan = new RoadPlan(this.room);
       // roadPlan.placeControllerRoad();
     }
     return OK;

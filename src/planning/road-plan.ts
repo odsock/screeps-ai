@@ -6,7 +6,7 @@ export class RoadPlan {
     if (controller) {
       const spawns = this.room.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
-        const path = this.planRoad(spawns[0].pos, controller.pos, 3)
+        const path = this.planRoad(spawns[0].pos, controller.pos, 1)
         if (!path.incomplete) {
           this.placeRoadOnPath(path);
         }
@@ -48,7 +48,7 @@ export class RoadPlan {
     }
   }
 
-  private checkForRoadAtPos(pos: RoomPosition) {
+  private checkForRoadAtPos(pos: RoomPosition): boolean {
     return pos.look().filter((item) => {
       const isRoad = item.structure?.structureType == STRUCTURE_ROAD;
       const isRoadSite = item.constructionSite?.structureType == STRUCTURE_ROAD;
