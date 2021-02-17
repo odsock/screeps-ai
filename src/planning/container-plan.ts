@@ -10,8 +10,10 @@ export class ContainerPlan {
 
   public placeControllerContainer(): ScreepsReturnCode {
     if (this.room.controller && !this.roomHasContainersInConstruction()) {
-      // only place one container at controller
-      if (this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, { filter: (c) => c.structureType == STRUCTURE_CONTAINER }).length == 0) {
+      const controllerContainer = this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: (c) => c.structureType == STRUCTURE_CONTAINER
+      });
+      if (controllerContainer.length == 0) {
         let pos = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
         if (pos) {
           CreepUtils.roomMemoryLog(this.room, `created controller container: ${pos.x},${pos.y}`);
