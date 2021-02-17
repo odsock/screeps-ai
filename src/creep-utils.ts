@@ -158,6 +158,7 @@ export class CreepUtils {
     }
   }
 
+  // PathFinder.search({x: 7, y: 2, roomName: 'E12N56'}, {x: 9, y: 2, roomName: 'E12N56'}, {plainCost: 2}).cost
   public static calcWalkingCostEmpty(creep: Creep, origin: RoomPosition, goal: RoomPosition) {
     const moveParts = creep.body.filter((p) => p.type == MOVE).length;
     const heavyParts = creep.body.filter((p) => p.type != MOVE && p.type != CARRY).length;
