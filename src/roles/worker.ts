@@ -61,7 +61,6 @@ export class Worker {
     }
   }
 
-  // TODO: build with priority on extensions, not roads
   private static build(creep: Creep): void {
     let site: ConstructionSite | null = null;
     for (let i = 0; !site && i < config.CONSTRUCTION_PRIORITY.length; i++) {
@@ -147,11 +146,6 @@ export class Worker {
     }
   }
 
-  /**
-   * @description Decides if creep should work, or harvest, based on store and position
-   * @param creep
-   * @param jobsite
-   */
   private static workIfCloseToJobsite(creep: Creep, jobsite: RoomPosition) {
     // skip check if full/empty
     if (creep.store.getUsedCapacity() != 0 && creep.store.getFreeCapacity() != 0) {
