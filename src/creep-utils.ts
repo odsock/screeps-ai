@@ -58,7 +58,7 @@ export class CreepUtils {
 
   public static findClosestEnergySource(creep: Creep): Source | null {
     let source = creep.pos.findClosestByPath(FIND_SOURCES);
-    if(!source) {
+    if (!source) {
       source = creep.pos.findClosestByRange(FIND_SOURCES);
     }
     return source;
@@ -156,5 +156,17 @@ export class CreepUtils {
       creep.memory.working = true;
       creep.say(message);
     }
+  }
+
+  public static calcWalkingCostEmpty(creep: Creep, origin: RoomPosition, goal: RoomPosition) {
+    const moveParts = creep.body.filter((p) => p.type == MOVE).length;
+    const heavyParts = creep.body.filter((p) => p.type != MOVE && p.type != CARRY).length;
+
+    const roadCost = Math.max(0, heavyParts * 1 - moveParts * 2) / moveParts * 2;
+    const plainCost = Math.max(0, heavyParts * 2 - moveParts * 2) / moveParts * 2;
+    const swampCost = Math.max(0, heavyParts * 10 - moveParts * 2) / moveParts * 2;
+
+    const cost = PathFinder.CostMatrix;
+
   }
 }

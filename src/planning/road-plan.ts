@@ -64,12 +64,21 @@ export class RoadPlan {
     return path;
   }
 
-  public getCostMatrix(roomName: string): CostMatrix | boolean {
+  public getRoadCostMatrix(roomName: string): CostMatrix | boolean {
     const room = Game.rooms[roomName];
     if (!room) return false;
     let cost = new PathFinder.CostMatrix();
 
     const structures = room.find(FIND_STRUCTURES);
+    this.updateRoadCostMatrixForStructures(structures, cost);
+
+    const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
+    this.updateRoadCostMatrixForStructures(constructionSites, cost);
+
+    return cost;
+  }
+
+  private updateRoadCostMatrixForStructures(structures: AnyStructure[] | ConstructionSite[], cost: CostMatrix) {
     for (let i = 0; i < structures.length; i++) {
       const structure = structures[i];
       if (structure.structureType == STRUCTURE_ROAD) {
@@ -79,18 +88,5 @@ export class RoadPlan {
         cost.set(structure.pos.x, structure.pos.y, 0xff);
       }
     }
-
-    const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
-    for (let i = 0; i < constructionSites.length; i++) {
-      const site = constructionSites[i];
-      if (site.structureType == STRUCTURE_ROAD) {
-        cost.set(site.pos.x, site.pos.y, 1);
-      }
-      else if (site.structureType !== STRUCTURE_CONTAINER && (site.structureType !== STRUCTURE_RAMPART || !site.my)) {
-        cost.set(site.pos.x, site.pos.y, 0xff);
-      }
-    }
-
-    return cost;
   }
 }
