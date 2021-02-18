@@ -39,7 +39,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
       const spwampCost = Math.ceil(10 * moveRatio) * spwampCount;
 
       const estimate = roadCost + plainCost + spwampCost + 1;
-
       console.log(`Adjusted estimate: ${estimate}`);
 
       const runTime = Game.time - creep.memory.startTime;
