@@ -2,6 +2,7 @@
 
 // memory extension samples
 interface CreepMemory {
+  start: any;
   startTime: number;
   room: string;
   dest: string;
