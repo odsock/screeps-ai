@@ -1,19 +1,46 @@
 import { ErrorMapper } from "utils/ErrorMapper";
 
 export const loop = ErrorMapper.wrapLoop(() => {
-  console.log(`Current game tick is ${Game.time}`);
+  // console.log(`Current game tick is ${Game.time}`);
   cleanupDeadCreepNames();
+
 
   const flag1 = Game.flags['Flag1'];
   const flag2 = Game.flags['Flag2'];
 
-  let creep = _.first(Object.values(Game.creeps));
+  const cost = PathFinder.search(Game.flags['Flag1'].pos, Game.flags['Flag2'].pos, {
+    plainCost: 2,
+    swampCost: 10,
+    roomCallback: (roomName) => {
+      let room = Game.rooms[roomName];
+      if (!room) return false;
 
+      let costs = new PathFinder.CostMatrix;
+
+      room.find(FIND_STRUCTURES).forEach((struct) => {
+        if (struct.structureType === STRUCTURE_ROAD) {
+          costs.set(struct.pos.x, struct.pos.y, 1);
+        }
+      });
+
+      return costs;
+    }
+  }).cost;
+  console.log(`Path cost: ${cost}`);
+
+  let creep = _.first(Object.values(Game.creeps));
   if (creep) {
+    creep.body.forEach((part) => console.log(part.type));
+    const moveParts = creep.body.filter((part) => { part.type == MOVE });
+    moveParts.forEach((part) => console.log(part.type));
+    const movePartCount = moveParts.length;
+    const heavyParts = creep.body.filter((part) => { part.type != MOVE && part.type != CARRY }).length;
+    console.log(`move: ${movePartCount}, heavy: ${heavyParts}`);
+    const estimate = (cost * heavyParts) / (movePartCount * 2);
+    console.log(`Adjusted estimate: ${estimate}`);
+
     if (creep.memory.dest && creep.pos.isEqualTo(Game.flags[creep.memory.dest].pos)) {
       const runTime = Game.time - creep.memory.startTime;
-      const estimate = PathFinder.search(Game.flags['Flag1'].pos, Game.flags['Flag2'].pos, { plainCost: 2, swampCost: 10 }).cost;
-      console.log(`Estimate: ${estimate}`);
       console.log(`Run time: ${runTime}`);
     }
 
