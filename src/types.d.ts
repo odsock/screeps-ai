@@ -2,9 +2,9 @@
 
 // memory extension samples
 interface CreepMemory {
-  role: string;
+  startTime: number;
   room: string;
-  working: boolean;
+  dest: string;
 }
 
 interface Memory {

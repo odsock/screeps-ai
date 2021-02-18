@@ -1,45 +1,36 @@
 import { ErrorMapper } from "utils/ErrorMapper";
 
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-var roleBuilder = require('role.builder');
-var roleSpawner = require('role.spawner');
-
-// When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
-// This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
-
   cleanupDeadCreepNames();
-  breedNewCreeps();
-  runCreeps();
-});
 
-function runCreeps() {
-  for (var name in Game.creeps) {
-      var creep = Game.creeps[name];
-      if (creep.memory.role == 'harvester') {
-          roleHarvester.run(creep);
-      }
-      if (creep.memory.role == 'upgrader') {
-          roleUpgrader.run(creep);
-      }
-      if (creep.memory.role == 'builder') {
-          roleBuilder.run(creep);
-      }
+  const flag1 = Game.flags['Flag1'];
+  const flag2 = Game.flags['Flag2'];
+
+  let creep = _.first(Object.values(Game.creeps));
+
+  if (creep) {
+    if (creep.memory.dest && creep.pos.isEqualTo(Game.flags[creep.memory.dest].pos)) {
+      const runTime = Game.time - creep.memory.startTime;
+      const estimate = PathFinder.search(Game.flags['Flag1'].pos, Game.flags['Flag2'].pos, { plainCost: 2, swampCost: 10 }).cost;
+      console.log(`Estimate: ${estimate}`);
+      console.log(`Run time: ${runTime}`);
+    }
+
+    if (creep.pos.isEqualTo(flag1.pos)) {
+      creep.memory.dest = 'Flag2';
+      creep.memory.startTime = Game.time;
+      // console.log(`Start time: ${Game.time}`);
+    }
+    else if (creep.pos.isEqualTo(flag2.pos)) {
+      creep.memory.dest = 'Flag1';
+      creep.memory.startTime = Game.time;
+      // console.log(`Start time: ${Game.time}`);
+    }
+
+    creep.moveTo(Game.flags[creep.memory.dest]);
   }
-}
-
-function breedNewCreeps() {
-  var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-  roleSpawner.breed(harvesters, 'harvester', 2);
-
-  var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-  roleSpawner.breed(upgraders, 'upgrader', 2);
-
-  var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-  roleSpawner.breed(builders, 'builder', 2);
-}
+});
 
 function cleanupDeadCreepNames() {
   // Automatically delete memory of missing creeps
