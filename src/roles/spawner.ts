@@ -41,9 +41,10 @@ export class Spawner {
         if (!harvester.spawning && !harvester.memory.retiring == true) {
           const body = this.getHarvesterBody();
           const ticksToSpawn = body.length * 3;
-          const pathToReplace = PathFinder.search(this.spawn.pos, harvester.pos);
-          CreepUtils.consoleLogIfWatched(this.spawn, `harvester spawn: ticksToLive: ${harvester.ticksToLive}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${pathToReplace.cost}`);
-          if (harvester.ticksToLive && harvester.ticksToLive <= ticksToSpawn + pathToReplace.cost) {
+          const pathToReplace = CreepUtils.getPath(this.spawn.pos, harvester.pos);
+          const ticksToReplace = CreepUtils.calcWalkTime(harvester, pathToReplace);
+          CreepUtils.consoleLogIfWatched(this.spawn, `harvester spawn: ticksToLive: ${harvester.ticksToLive}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`);
+          if (harvester.ticksToLive && harvester.ticksToLive <= ticksToSpawn + ticksToReplace) {
             const result = this.spawnHarvester(harvester.name);
             if (result == OK) {
               harvester.memory.retiring = true;

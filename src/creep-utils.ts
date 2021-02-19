@@ -158,16 +158,51 @@ export class CreepUtils {
     }
   }
 
-  // PathFinder.search({x: 7, y: 2, roomName: 'E12N56'}, {x: 9, y: 2, roomName: 'E12N56'}, {plainCost: 2}).cost
-  public static calcWalkingCostEmpty(creep: Creep, origin: RoomPosition, goal: RoomPosition) {
+  public static calcWalkTime(creep: Creep, path: PathFinderPath): number {
+    let roadCount = 0;
+    let plainCount = 0;
+    let spwampCount = 0;
+    const terrain = creep.room.getTerrain();
+    path.path.forEach((pos) => {
+      if (pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_ROAD).length > 0) {
+        roadCount++;
+      }
+      else if (terrain.get(pos.x, pos.y) == TERRAIN_MASK_SWAMP) {
+        spwampCount++;
+      }
+      else {
+        plainCount++;
+      }
+    });
+
     const moveParts = creep.body.filter((p) => p.type == MOVE).length;
     const heavyParts = creep.body.filter((p) => p.type != MOVE && p.type != CARRY).length;
+    const moveRatio = heavyParts / (moveParts * 2);
 
-    const roadCost = Math.max(0, heavyParts * 1 - moveParts * 2) / moveParts * 2;
-    const plainCost = Math.max(0, heavyParts * 2 - moveParts * 2) / moveParts * 2;
-    const swampCost = Math.max(0, heavyParts * 10 - moveParts * 2) / moveParts * 2;
+    const plainCost = Math.ceil(2 * moveRatio) * plainCount;
+    const roadCost = Math.ceil(1 * moveRatio) * roadCount;
+    const spwampCost = Math.ceil(10 * moveRatio) * spwampCount;
 
-    const cost = PathFinder.CostMatrix;
+    return roadCost + plainCost + spwampCost + 1;
+  }
 
+  public static getPath(origin: RoomPosition, goal: RoomPosition): PathFinderPath {
+    return PathFinder.search(origin, { pos: goal, range: 1 }, {
+      plainCost: 2,
+      swampCost: 10,
+      roomCallback: (roomName) => {
+        let room = Game.rooms[roomName];
+        if (!room) {
+          return false;
+        }
+        let costs = new PathFinder.CostMatrix;
+        room.find(FIND_STRUCTURES).forEach((struct) => {
+          if (struct.structureType === STRUCTURE_ROAD) {
+            costs.set(struct.pos.x, struct.pos.y, 1);
+          }
+        });
+        return costs;
+      }
+    });
   }
 }
