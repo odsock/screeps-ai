@@ -89,7 +89,7 @@ export class PlannerUtils {
     });
   }
 
-  public static findClosestSourcesWithContainers(pos: RoomPosition): Source[] | null {
+  public static findSourcesWithContainers(pos: RoomPosition): Source[] | null {
     const sources = Game.rooms[pos.roomName].find(FIND_SOURCES, {
       filter: (s) => s.pos.findInRange(FIND_STRUCTURES, 1, {
         filter: (c) => c.structureType == STRUCTURE_CONTAINER

@@ -12,11 +12,23 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  sourceInfo?: {[id: string]: SourceInfo};
+  controllerInfo?: ControllerInfo;
   log: string[];
   construction: { [id: string]: ConstructionLog };
   extensionRoads: boolean;
   controllerRoads: boolean;
   extensionCount?: number;
+}
+
+interface SourceInfo {
+  containerPos: RoomPosition;
+  controllerRoadComplete: boolean;
+  spawnRoadComplete: boolean;
+}
+
+interface ControllerInfo {
+  containerPos: RoomPosition;
 }
 
 interface ConstructionLog {
