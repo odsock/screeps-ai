@@ -31,11 +31,7 @@ export class ContainerPlan {
   public placeSourceContainer(): ScreepsReturnCode {
     if (this.room.controller && !this.roomHasContainersInConstruction()) {
       // find closest source with no adjacent container
-      const source = this.room.controller.pos.findClosestByPath(FIND_SOURCES, {
-        filter: (s) => s.pos.findInRange(FIND_STRUCTURES, 1, {
-          filter: (c) => c.structureType == STRUCTURE_CONTAINER
-        }).length == 0
-      });
+      const source = this.findSourceWithoutContainerCloseToController();
       if (source) {
         let pos = PlannerUtils.placeStructureAdjacent(source.pos, STRUCTURE_CONTAINER);
         if (pos) {
@@ -49,6 +45,19 @@ export class ContainerPlan {
       }
     }
     return OK;
+  }
+
+  private findSourceWithoutContainerCloseToController() {
+    if (this.room.controller) {
+      return this.room.controller.pos.findClosestByPath(FIND_SOURCES, {
+        filter: (s) => s.pos.findInRange(FIND_STRUCTURES, 1, {
+          filter: (c) => c.structureType == STRUCTURE_CONTAINER
+        }).length == 0
+      });
+    }
+    else {
+      return null;
+    }
   }
 
   private roomHasContainersInConstruction(): boolean {

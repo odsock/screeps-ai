@@ -1,7 +1,7 @@
 export class RoadPlan {
   constructor(private readonly room: Room) { }
 
-  public placeControllerRoad(): PathFinderPath | null {
+  public placeRoadControllerToSpawn(): PathFinderPath | null {
     const controller = this.room.controller;
     if (controller) {
       const spawns = this.room.find(FIND_MY_SPAWNS);
@@ -16,13 +16,13 @@ export class RoadPlan {
     return null;
   }
 
-  public placeControllerRoads(): ScreepsReturnCode {
+  public placeRoadControllerToSource(): ScreepsReturnCode {
     if (this.room.controller && this.room.memory.controllerRoads != true) {
       this.room.memory.controllerRoads = true;
       const controller = this.room.controller;
       const sources = this.room.find(FIND_SOURCES);
       for (let i = 0; i < sources.length; i++) {
-        const path = this.planRoad(sources[i].pos, controller.pos, 3)
+        const path = this.planRoad(sources[i].pos, controller.pos, 3);
         if (!path.incomplete) {
           this.placeRoadOnPath(path);
         }

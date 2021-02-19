@@ -3,7 +3,7 @@ import config from "../constants";
 
 export class PlannerUtils {
 
-  public constructor(private readonly room: Room) {}
+  public constructor(private readonly room: Room) { }
 
   public static findSiteForPattern(pattern: StructurePatternPosition[], room: Room): StructurePlan {
     const structurePlan = new StructurePlan(pattern, room);
@@ -45,7 +45,7 @@ export class PlannerUtils {
     // use center of pattern for ranging
     const posCenter = room.getPositionAt(x + patternWidth / 2, y + patternHeight / 2);
     const closestSpawn = posCenter?.findClosestByRange(FIND_MY_SPAWNS);
-    if(closestSpawn) {
+    if (closestSpawn) {
       return posCenter?.getRangeTo(closestSpawn);
     }
     return undefined;
@@ -78,5 +78,13 @@ export class PlannerUtils {
       pos = new RoomPosition(startPos.x + xOffset, startPos.y + yOffset, startPos.roomName);
     }
     return pos;
+  }
+
+  public static findClosestSourceWithoutContainer(pos: RoomPosition) {
+    return pos.findClosestByPath(FIND_SOURCES, {
+      filter: (s) => s.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: (c) => c.structureType == STRUCTURE_CONTAINER
+      }).length == 0
+    });
   }
 }
