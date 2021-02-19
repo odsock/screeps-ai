@@ -8,17 +8,17 @@ export const loop = ErrorMapper.wrapLoop(() => {
   if (creep) {
     if (creep.memory.dest && creep.memory.start && creep.pos.isEqualTo(Game.flags[creep.memory.dest].pos)) {
       console.log();
-      const path = getBaseCost(Game.flags[creep.memory.start], Game.flags[creep.memory.dest]);
-      const terrain = creep.room.getTerrain();
 
       let roadCount = 0;
       let plainCount = 0;
       let spwampCount = 0;
+      const path = getBaseCost(Game.flags[creep.memory.start], Game.flags[creep.memory.dest]);
+      const terrain = creep.room.getTerrain();
       path.path.forEach((pos) => {
-        if(pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_ROAD).length > 0) {
+        if (pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_ROAD).length > 0) {
           roadCount++;
         }
-        else if(terrain.get(pos.x, pos.y) == TERRAIN_MASK_SWAMP) {
+        else if (terrain.get(pos.x, pos.y) == TERRAIN_MASK_SWAMP) {
           spwampCount++;
         }
         else {
@@ -78,17 +78,15 @@ function getBaseCost(flag1: Flag, flag2: Flag) {
     swampCost: 10,
     roomCallback: (roomName) => {
       let room = Game.rooms[roomName];
-      if (!room)
+      if (!room) {
         return false;
-
+      }
       let costs = new PathFinder.CostMatrix;
-
       room.find(FIND_STRUCTURES).forEach((struct) => {
         if (struct.structureType === STRUCTURE_ROAD) {
           costs.set(struct.pos.x, struct.pos.y, 1);
         }
       });
-
       return costs;
     }
   });
