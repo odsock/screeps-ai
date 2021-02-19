@@ -1,3 +1,5 @@
+import { CreepUtils } from "creep-utils";
+
 export class RoadPlan {
   constructor(private readonly room: Room) { }
 
@@ -17,9 +19,9 @@ export class RoadPlan {
   }
 
   public placeRoadControllerToSource(): ScreepsReturnCode {
-    if (this.room.controller && this.room.memory.controllerRoads != true) {
+    const controller = this.room.controller;
+    if (controller && this.room.memory.controllerRoads != true) {
       this.room.memory.controllerRoads = true;
-      const controller = this.room.controller;
       const sources = this.room.find(FIND_SOURCES);
       for (let i = 0; i < sources.length; i++) {
         const path = this.planRoad(sources[i].pos, controller.pos, 3);
@@ -57,36 +59,10 @@ export class RoadPlan {
   }
 
   public planRoad(origin: RoomPosition, goal: RoomPosition, range = 0): PathFinderPath {
-    const path = PathFinder.search(origin, { pos: goal, range: range }, { swampCost: 2, plainCost: 2, roomCallback: this.getCostMatrix });
+    const path = PathFinder.search(origin, { pos: goal, range: range }, { swampCost: 2, plainCost: 2, roomCallback: CreepUtils.getRoadCostMatrix });
     if (path.incomplete) {
       console.log(`road plan incomplete: ${origin} -> ${goal}`);
     }
     return path;
-  }
-
-  public getRoadCostMatrix(roomName: string): CostMatrix | boolean {
-    const room = Game.rooms[roomName];
-    if (!room) return false;
-    let cost = new PathFinder.CostMatrix();
-
-    const structures = room.find(FIND_STRUCTURES);
-    this.updateRoadCostMatrixForStructures(structures, cost);
-
-    const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
-    this.updateRoadCostMatrixForStructures(constructionSites, cost);
-
-    return cost;
-  }
-
-  private updateRoadCostMatrixForStructures(structures: AnyStructure[] | ConstructionSite[], cost: CostMatrix) {
-    for (let i = 0; i < structures.length; i++) {
-      const structure = structures[i];
-      if (structure.structureType == STRUCTURE_ROAD) {
-        cost.set(structure.pos.x, structure.pos.y, 1);
-      }
-      else if (structure.structureType !== STRUCTURE_CONTAINER && (structure.structureType !== STRUCTURE_RAMPART || !structure.my)) {
-        cost.set(structure.pos.x, structure.pos.y, 0xff);
-      }
-    }
   }
 }

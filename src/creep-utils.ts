@@ -190,19 +190,33 @@ export class CreepUtils {
     return PathFinder.search(origin, { pos: goal, range: 1 }, {
       plainCost: 2,
       swampCost: 10,
-      roomCallback: (roomName) => {
-        let room = Game.rooms[roomName];
-        if (!room) {
-          return false;
-        }
-        let costs = new PathFinder.CostMatrix;
-        room.find(FIND_STRUCTURES).forEach((struct) => {
-          if (struct.structureType === STRUCTURE_ROAD) {
-            costs.set(struct.pos.x, struct.pos.y, 1);
-          }
-        });
-        return costs;
-      }
+      roomCallback: this.getRoadCostMatrix
     });
+  }
+
+  public static getRoadCostMatrix(roomName: string): CostMatrix | boolean {
+    const room = Game.rooms[roomName];
+    if (!room) return false;
+    let cost = new PathFinder.CostMatrix();
+
+    const structures = room.find(FIND_STRUCTURES);
+    this.updateRoadCostMatrixForStructures(structures, cost);
+
+    const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
+    this.updateRoadCostMatrixForStructures(constructionSites, cost);
+
+    return cost;
+  }
+
+  private static updateRoadCostMatrixForStructures(structures: AnyStructure[] | ConstructionSite[], cost: CostMatrix) {
+    for (let i = 0; i < structures.length; i++) {
+      const structure = structures[i];
+      if (structure.structureType == STRUCTURE_ROAD) {
+        cost.set(structure.pos.x, structure.pos.y, 1);
+      }
+      else if (structure.structureType !== STRUCTURE_CONTAINER && (structure.structureType !== STRUCTURE_RAMPART || !structure.my)) {
+        cost.set(structure.pos.x, structure.pos.y, 0xff);
+      }
+    }
   }
 }
