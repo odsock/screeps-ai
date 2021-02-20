@@ -8,7 +8,7 @@ export class Planner {
 
   run(): ScreepsReturnCode {
     this.setupRoomMemory();
-    
+
     if (this.room.controller && this.room.controller?.level >= 2) {
       console.log(`${this.room.name}: running planning`);
 
@@ -42,6 +42,14 @@ export class Planner {
   public setupRoomMemory() {
     if (!this.room.memory.controllerInfo) {
       this.room.memory.controllerInfo = {};
+      if (this.room.controller) {
+        const container = this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
+          filter: (c) => c.structureType == STRUCTURE_CONTAINER
+        });
+        if (container.length > 0) {
+          this.room.memory.controllerInfo.containerPos = container[0].pos;
+        }
+      }
     }
     if (!this.room.memory.sourceInfo) {
       this.room.memory.sourceInfo = {};
