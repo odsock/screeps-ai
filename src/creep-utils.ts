@@ -200,10 +200,10 @@ export class CreepUtils {
     let cost = new PathFinder.CostMatrix();
 
     const structures = room.find(FIND_STRUCTURES);
-    this.updateRoadCostMatrixForStructures(structures, cost);
+    CreepUtils.updateRoadCostMatrixForStructures(structures, cost);
 
     const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
-    this.updateRoadCostMatrixForStructures(constructionSites, cost);
+    CreepUtils.updateRoadCostMatrixForStructures(constructionSites, cost);
 
     return cost;
   }
