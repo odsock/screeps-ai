@@ -17,7 +17,7 @@ export class ContainerPlan {
       if (controllerContainer.length == 0) {
         let pos = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
         if (pos) {
-          this.addControllerContainerToRoomMemory(pos);
+          this.room.memory.controllerInfo.containerPos = pos;
           CreepUtils.roomMemoryLog(this.room, `created controller container: ${pos.x},${pos.y}`);
           return OK;
         }
@@ -30,22 +30,6 @@ export class ContainerPlan {
     return OK;
   }
 
-  private addControllerContainerToRoomMemory(pos: RoomPosition) {
-    if (!this.room.memory.controllerInfo) {
-      this.room.memory.controllerInfo = { containerPos: pos };
-    }
-    else {
-      this.room.memory.controllerInfo.containerPos = pos;
-    }
-  }
-
-  private addSourceContainerToRoomMemory(source: Source, pos: RoomPosition) {
-    if (!this.room.memory.sourceInfo) {
-      this.room.memory.sourceInfo = {};
-    }
-    this.room.memory.sourceInfo[source.id].containerPos = pos;
-  }
-
   public placeSourceContainer(): ScreepsReturnCode {
     if (this.room.controller && !this.roomHasContainersInConstruction()) {
       // find closest source with no adjacent container
@@ -53,7 +37,7 @@ export class ContainerPlan {
       if (source) {
         let pos = PlannerUtils.placeStructureAdjacent(source.pos, STRUCTURE_CONTAINER);
         if (pos) {
-          this.addSourceContainerToRoomMemory(source, pos);
+          this.room.memory.sourceInfo[source.id].containerPos = pos;
           CreepUtils.roomMemoryLog(this.room, `created source container: ${pos.x},${pos.y}`);
           return OK;
         }
@@ -95,5 +79,13 @@ export class ContainerPlan {
     return this.room.find(FIND_MY_CONSTRUCTION_SITES, {
       filter: (s) => s.structureType == STRUCTURE_CONTAINER
     }).length > 0;
+  }
+
+  public static findClosestSourceWithoutContainer(pos: RoomPosition): Source | null {
+    return pos.findClosestByPath(FIND_SOURCES, {
+      filter: (s) => s.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: (c) => c.structureType == STRUCTURE_CONTAINER
+      }).length == 0
+    });
   }
 }

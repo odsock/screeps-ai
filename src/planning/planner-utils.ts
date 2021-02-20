@@ -80,25 +80,4 @@ export class PlannerUtils {
     }
     return pos;
   }
-
-  public static findClosestSourceWithoutContainer(pos: RoomPosition): Source | null {
-    return pos.findClosestByPath(FIND_SOURCES, {
-      filter: (s) => s.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: (c) => c.structureType == STRUCTURE_CONTAINER
-      }).length == 0
-    });
-  }
-
-  public static findSourcesWithContainers(pos: RoomPosition): Source[] | null {
-    const sources = Game.rooms[pos.roomName].find(FIND_SOURCES, {
-      filter: (s) => s.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: (c) => c.structureType == STRUCTURE_CONTAINER
-      }).length > 0
-    });
-
-    return sources.sort((a, b) => {
-      return PathFinder.search(pos, { pos: a.pos, range: 1 }, { roomCallback: CreepUtils.getRoadCostMatrix }).cost -
-        PathFinder.search(pos, { pos: b.pos, range: 1 }, { roomCallback: CreepUtils.getRoadCostMatrix }).cost;
-    });
-  }
 }

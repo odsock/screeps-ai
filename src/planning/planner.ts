@@ -7,6 +7,8 @@ export class Planner {
   constructor(private readonly room: Room) { }
 
   run(): ScreepsReturnCode {
+    this.setupRoomMemory();
+    
     if (this.room.controller && this.room.controller?.level >= 2) {
       console.log(`${this.room.name}: running planning`);
 
@@ -35,5 +37,32 @@ export class Planner {
       // roadPlan.placeControllerRoad();
     }
     return OK;
+  }
+
+  public setupRoomMemory() {
+    if (!this.room.memory.controllerInfo) {
+      this.room.memory.controllerInfo = {};
+    }
+    if (!this.room.memory.sourceInfo) {
+      this.room.memory.sourceInfo = {};
+      const sources = this.room.find(FIND_SOURCES);
+      for (let i = 0; i < sources.length; i++) {
+        this.room.memory.sourceInfo[sources[i].id] = {
+          controllerRoadComplete: false,
+          spawnRoadComplete: false
+        };
+      }
+
+      // add source container info
+      // probably only need this to run once, then remove code
+      sources.forEach((s) => {
+        const container = s.pos.findInRange(FIND_STRUCTURES, 1, {
+          filter: (c) => c.structureType == STRUCTURE_CONTAINER
+        });
+        if (container.length > 0) {
+          this.room.memory.sourceInfo[s.id].containerPos = container[0].pos;
+        }
+      });
+    }
   }
 }
