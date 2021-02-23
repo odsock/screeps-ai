@@ -1,6 +1,8 @@
 import { CreepUtils } from "creep-utils";
 
 // TODO: get hauler to pull havester to container
+// TODO: refill before upgrading if close
+// TODO: don't step on the container dammit
 export class Hauler {
   constructor(private readonly creep: Creep) { }
 
