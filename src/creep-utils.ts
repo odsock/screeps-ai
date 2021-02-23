@@ -158,11 +158,11 @@ export class CreepUtils {
     }
   }
 
-  private static workIfCloseToJobsite(creep: Creep, jobsite: RoomPosition) {
+  public static workIfCloseToJobsite(creep: Creep, jobsite: RoomPosition, range = 3) {
     // skip check if full/empty
     if (creep.store.getUsedCapacity() != 0 && creep.store.getFreeCapacity() != 0) {
       // skip check if can work from here
-      if (creep.pos.inRangeTo(jobsite, 3)) {
+      if (creep.pos.inRangeTo(jobsite, range)) {
         return;
       }
       // skip check if no source or next to source already
