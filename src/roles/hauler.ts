@@ -39,6 +39,7 @@ export class Hauler {
       CreepUtils.updateJob(this.creep, 'controller');
       CreepUtils.stopWorkingIfEmpty(this.creep);
       CreepUtils.startWorkingIfFull(this.creep, '⚡ controller');
+      CreepUtils.workIfCloseToJobsite(this.creep, controllerContainer.pos, 1);
 
       if (this.creep.memory.working) {
         if (this.creep.transfer(controllerContainer, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
