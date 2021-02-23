@@ -158,6 +158,51 @@ export class CreepUtils {
     }
   }
 
+  private static workIfCloseToJobsite(creep: Creep, jobsite: RoomPosition) {
+    // skip check if full/empty
+    if (creep.store.getUsedCapacity() != 0 && creep.store.getFreeCapacity() != 0) {
+      // skip check if can work from here
+      if (creep.pos.inRangeTo(jobsite, 3)) {
+        return;
+      }
+      // skip check if no source or next to source already
+      const source = CreepUtils.findClosestActiveEnergySource(creep);
+      if (!source || creep.pos.isNearTo(source)) {
+        return;
+      }
+
+      // calculate effiency of heading back to refill, then going to job site
+      const sourceCost = PathFinder.search(creep.pos, { pos: source.pos, range: 1 }).cost;
+      CreepUtils.consoleLogIfWatched(creep, `sourceCost: ${sourceCost}`);
+      // subtract one from runCost because you cannot stand on the source
+      let runCost = PathFinder.search(source.pos, { pos: jobsite, range: 3 }).cost;
+      if (runCost > 1) {
+        runCost = runCost - 1;
+      }
+      CreepUtils.consoleLogIfWatched(creep, `runCost: ${runCost}`);
+      const refillEfficiency = sourceCost + runCost;
+      CreepUtils.consoleLogIfWatched(creep, `refillEfficiency: ${refillEfficiency}`);
+
+      // calculate effiency of going to job site partially full
+      const jobsiteCost = PathFinder.search(creep.pos, { pos: jobsite, range: 3 }).cost;
+      CreepUtils.consoleLogIfWatched(creep, `jobsiteCost: ${jobsiteCost}`);
+      const storeRatio = creep.store.getUsedCapacity() / creep.store.getCapacity();
+      CreepUtils.consoleLogIfWatched(creep, `storeRatio: ${storeRatio}`);
+      const jobsiteEfficiency = jobsiteCost / storeRatio;
+      CreepUtils.consoleLogIfWatched(creep, `jobsiteEfficiency: ${jobsiteEfficiency}`);
+
+      // compare cost/energy delivered working vs refilling first
+      if (jobsiteEfficiency < refillEfficiency) {
+        CreepUtils.consoleLogIfWatched(creep, `close to site: starting work`);
+        creep.memory.working = true;
+      }
+      else {
+        CreepUtils.consoleLogIfWatched(creep, `close to source: stopping work`);
+        creep.memory.working = false;
+      }
+    }
+  }
+
   public static calcWalkTime(creep: Creep, path: PathFinderPath): number {
     let roadCount = 0;
     let plainCount = 0;
