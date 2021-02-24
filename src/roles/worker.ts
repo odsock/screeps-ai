@@ -13,9 +13,9 @@ export class Worker {
     }
 
     // supply tower if half empty
-    const tower = CreepUtils.findClosestTowerWithStorage(creep);
+    const tower = CreepUtils.findClosestTowerNotFull(creep);
     if (tower) {
-      const towerPercentFree = CreepUtils.getEnergyStorePercentFree(tower);
+      const towerPercentFree = CreepUtils.getEnergyStoreRatioFree(tower);
       CreepUtils.consoleLogIfWatched(creep, `towerPercentFree: ${towerPercentFree}`);
       if (creep.memory.job == 'supply' || towerPercentFree > .5) {
         CreepUtils.consoleLogIfWatched(creep, 'supply job');
@@ -125,7 +125,7 @@ export class Worker {
     CreepUtils.stopWorkingIfEmpty(creep);
     CreepUtils.startWorkingIfFull(creep, '⚡ supply');
     this.workOrHarvest(creep, function () {
-      const site = CreepUtils.findClosestTowerWithStorage(creep);
+      const site = CreepUtils.findClosestTowerNotFull(creep);
       if (site) {
         if (creep.transfer(site, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });

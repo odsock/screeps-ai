@@ -96,7 +96,7 @@ export class CreepUtils {
     room.memory.log.push(`${Game.time}: ${message}`);
   }
 
-  public static getEnergyStorePercentFree(structure: StructureWithStorage): number {
+  public static getEnergyStoreRatioFree(structure: StructureWithStorage): number {
     const freeCap = structure.store.getFreeCapacity(RESOURCE_ENERGY);
     const totalCap = structure.store.getCapacity(RESOURCE_ENERGY);
     if (freeCap && totalCap) {
@@ -107,7 +107,7 @@ export class CreepUtils {
     }
   }
 
-  public static findClosestTowerWithStorage(creep: Creep): StructureTower | null {
+  public static findClosestTowerNotFull(creep: Creep): StructureTower | null {
     return creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: (structure) => {
         return structure.structureType == STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
@@ -146,6 +146,7 @@ export class CreepUtils {
 
   public static stopWorkingIfEmpty(creep: Creep) {
     if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
+      CreepUtils.consoleLogIfWatched(creep, 'stop working, empty');
       creep.memory.working = false;
       creep.say('🔄 harvest');
     }
@@ -153,6 +154,7 @@ export class CreepUtils {
 
   public static startWorkingIfFull(creep: Creep, message: string) {
     if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
+      CreepUtils.consoleLogIfWatched(creep, 'start working, full');
       creep.memory.working = true;
       creep.say(message);
     }
