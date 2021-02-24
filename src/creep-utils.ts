@@ -179,17 +179,14 @@ export class CreepUtils {
       if (runCost > 1) {
         runCost = runCost - 1;
       }
-      CreepUtils.consoleLogIfWatched(creep, `runCost: ${runCost}`);
       const refillEfficiency = sourceCost + runCost;
-      CreepUtils.consoleLogIfWatched(creep, `refillEfficiency: ${refillEfficiency}`);
+      CreepUtils.consoleLogIfWatched(creep, `runCost: ${runCost}, refillEfficiency: ${refillEfficiency}`);
 
       // calculate effiency of going to job site partially full
       const jobsiteCost = PathFinder.search(creep.pos, { pos: jobsite, range: 3 }).cost;
-      CreepUtils.consoleLogIfWatched(creep, `jobsiteCost: ${jobsiteCost}`);
       const storeRatio = creep.store.getUsedCapacity() / creep.store.getCapacity();
-      CreepUtils.consoleLogIfWatched(creep, `storeRatio: ${storeRatio}`);
       const jobsiteEfficiency = jobsiteCost / storeRatio;
-      CreepUtils.consoleLogIfWatched(creep, `jobsiteEfficiency: ${jobsiteEfficiency}`);
+      CreepUtils.consoleLogIfWatched(creep, `jobsiteCost: ${jobsiteCost}, storeRatio: ${storeRatio}, jobsiteEfficiency: ${jobsiteEfficiency}`);
 
       // compare cost/energy delivered working vs refilling first
       if (jobsiteEfficiency < refillEfficiency) {
