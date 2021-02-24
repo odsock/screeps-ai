@@ -1,7 +1,6 @@
 import { CreepUtils } from "creep-utils";
 
 // TODO: get hauler to pull havester to container
-// TODO: refill before upgrading if close
 // TODO: don't step on the container dammit
 export class Hauler {
   constructor(private readonly creep: Creep) { }
@@ -55,46 +54,42 @@ export class Hauler {
   }
 
   private supplySpawn(): void {
-    CreepUtils.consoleLogIfWatched(this.creep, `supply spawn`);
-    CreepUtils.updateJob(this.creep, 'spawn');
-    CreepUtils.stopWorkingIfEmpty(this.creep);
-    CreepUtils.startWorkingIfFull(this.creep, '⚡ spawn');
-    this.workOrHarvest(this.creep, () => {
-      const site = CreepUtils.findClosestEnergyStorageNotFull(this.creep);
-      if (site) {
-        if (this.creep.transfer(site, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          CreepUtils.consoleLogIfWatched(this.creep, `site out of range: ${site.pos.x},${site.pos.y}`);
-          this.creep.moveTo(site, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
-        }
-      }
-    });
-  }
+    const site = CreepUtils.findClosestEnergyStorageNotFull(this.creep);
+    if (site) {
+      CreepUtils.consoleLogIfWatched(this.creep, `supply spawn`);
+      CreepUtils.updateJob(this.creep, 'spawn');
+      CreepUtils.stopWorkingIfEmpty(this.creep);
+      CreepUtils.startWorkingIfFull(this.creep, '⚡ spawn');
+      CreepUtils.workIfCloseToJobsite(this.creep, site.pos, 1);
 
-  private supplyTower(): void {
-    CreepUtils.consoleLogIfWatched(this.creep, `supply tower`);
-    CreepUtils.updateJob(this.creep, 'tower');
-    CreepUtils.stopWorkingIfEmpty(this.creep);
-    CreepUtils.startWorkingIfFull(this.creep, '⚡ tower');
-    this.workOrHarvest(this.creep, () => {
-      const site = CreepUtils.findClosestTowerWithStorage(this.creep);
-      if (site) {
+      if (this.creep.memory.working) {
         if (this.creep.transfer(site, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           CreepUtils.consoleLogIfWatched(this.creep, `site out of range: ${site.pos.x},${site.pos.y}`);
           this.creep.moveTo(site, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
         }
       }
       else {
-        this.creep.memory.job = '';
+        this.loadEnergy();
       }
-    });
+    }
   }
 
-  private workOrHarvest(creep: Creep, work: Function) {
-    if (creep.memory.working) {
-      work();
-    }
-    else {
-      this.loadEnergy();
+  private supplyTower(): void {
+    const site = CreepUtils.findClosestTowerWithStorage(this.creep);
+    if (site) {
+      CreepUtils.consoleLogIfWatched(this.creep, `supply tower`);
+      CreepUtils.updateJob(this.creep, 'tower');
+      CreepUtils.stopWorkingIfEmpty(this.creep);
+      CreepUtils.startWorkingIfFull(this.creep, '⚡ tower');
+      CreepUtils.workIfCloseToJobsite(this.creep, site.pos, 1);
+
+      if (this.creep.transfer(site, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        CreepUtils.consoleLogIfWatched(this.creep, `site out of range: ${site.pos.x},${site.pos.y}`);
+        this.creep.moveTo(site, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
+      }
+      else {
+        this.creep.memory.job = '';
+      }
     }
   }
 
