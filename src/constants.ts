@@ -1,5 +1,6 @@
 class Constants {
   static readonly MAX_CREEPS: number = 2;
+
   static readonly BODY_PROFILE_WORKER: BodyPartConstant[] = [WORK, MOVE, CARRY];
   static readonly BODY_PROFILE_HARVESTER: BodyPartConstant[] = [WORK];
   static readonly BODY_PROFILE_HAULER: BodyPartConstant[] = [MOVE, CARRY];
@@ -22,6 +23,7 @@ class Constants {
 
   static readonly ROOM_SIZE = 50;
   static readonly MAX_DISTANCE = 99999;
+  static readonly TOWER_RESUPPLY_THRESHOLD = .75;
 
   static readonly CONSTRUCTION_PRIORITY: StructureConstant[] = [
     STRUCTURE_TOWER,

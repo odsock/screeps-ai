@@ -1,11 +1,10 @@
+import config from "../constants";
 import { CreepUtils } from "creep-utils";
 
 // TODO: get hauler to pull havester to container
 // TODO: don't step on the container dammit
 export class Hauler {
   constructor(private readonly creep: Creep) { }
-
-  private readonly TOWER_SUPPLY_THRESHOLD = .5;
 
   public run() {
     // supply spawn/extensions if any capacity in room
@@ -14,14 +13,10 @@ export class Hauler {
       return;
     }
 
-    // supply towers until job complete
-    const towersBelowThreshold = this.findTowersBelowThreshold();
-    if (this.creep.memory.job == 'tower' || towersBelowThreshold.length > 0) {
-      const tower = CreepUtils.findClosestTowerNotFull(this.creep);
-      if (tower) {
-        this.supplyTower(tower);
-        return;
-      }
+    // fill closest tower if any fall below threshold
+    if (this.creep.memory.job == 'tower' || this.findTowersBelowThreshold().length > 0) {
+      this.supplyTower();
+      return;
     }
 
     // otherwise supply controller
@@ -38,7 +33,7 @@ export class Hauler {
     CreepUtils.consoleLogIfWatched(this.creep, `towers not full: ${towers.length}`);
 
     const towersBelowThreshold = towersNotFull.filter((tower) => {
-      return CreepUtils.getEnergyStoreRatioFree(tower) > this.TOWER_SUPPLY_THRESHOLD;
+      return CreepUtils.getEnergyStoreRatioFree(tower) > config.TOWER_RESUPPLY_THRESHOLD;
     });
     CreepUtils.consoleLogIfWatched(this.creep, `towers below threshold: ${towersBelowThreshold.length}`);
 
@@ -91,30 +86,39 @@ export class Hauler {
   // TODO: stop supply when tower is full
   // have to calc check at end of tick, or will never be full (tower shoots first)
   // can't rely on getFreeCapacity because it won't update after transfer
-  private supplyTower(tower: StructureTower): void {
-    CreepUtils.consoleLogIfWatched(this.creep, `supply tower`);
-    CreepUtils.updateJob(this.creep, 'tower');
-    CreepUtils.stopWorkingIfEmpty(this.creep);
-    CreepUtils.startWorkingIfFull(this.creep, '⚡ tower');
-    CreepUtils.workIfCloseToJobsite(this.creep, tower.pos, 1);
+  private supplyTower(): void {
+    const tower = CreepUtils.findClosestTowerNotFull(this.creep);
+    if (tower) {
+      CreepUtils.consoleLogIfWatched(this.creep, `supply tower`);
+      CreepUtils.updateJob(this.creep, 'tower');
+      CreepUtils.stopWorkingIfEmpty(this.creep);
+      CreepUtils.startWorkingIfFull(this.creep, '⚡ tower');
+      CreepUtils.workIfCloseToJobsite(this.creep, tower.pos, 1);
 
-    if (this.creep.memory.working) {
-      CreepUtils.consoleLogIfWatched(this.creep, `tower free cap before: ${tower.store.getFreeCapacity(RESOURCE_ENERGY)}`);
-      const result = this.creep.transfer(tower, RESOURCE_ENERGY);
-      if (result == ERR_NOT_IN_RANGE) {
-        CreepUtils.consoleLogIfWatched(this.creep, `tower out of range: ${tower.pos.x},${tower.pos.y}`);
-        this.creep.moveTo(tower, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
+      if (this.creep.memory.working) {
+        let creepStoredEnergy = this.creep.store.getUsedCapacity(RESOURCE_ENERGY);
+        console.log(creepStoredEnergy);
+        const result = this.creep.transfer(tower, RESOURCE_ENERGY);
+        if (result == ERR_NOT_IN_RANGE) {
+          CreepUtils.consoleLogIfWatched(this.creep, `tower out of range: ${tower.pos.x},${tower.pos.y}`);
+          this.creep.moveTo(tower, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
+        }
+
+        // Stop if tower is full now
+        const towerFreeCap = tower.store.getFreeCapacity(RESOURCE_ENERGY);
+        creepStoredEnergy = this.creep.store.getUsedCapacity(RESOURCE_ENERGY);
+        console.log(creepStoredEnergy);
+        if (result == OK &&  towerFreeCap < creepStoredEnergy) {
+          CreepUtils.consoleLogIfWatched(this.creep, `tower is full: ${tower.pos.x},${tower.pos.y}`);
+          CreepUtils.updateJob(this.creep, 'idle');
+        }
       }
-
-      CreepUtils.consoleLogIfWatched(this.creep, `tower free cap after: ${tower.store.getFreeCapacity(RESOURCE_ENERGY)}`);
-      // Stop if tower is full now
-      if (result == OK && tower.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
-        CreepUtils.consoleLogIfWatched(this.creep, `tower is full: ${tower.pos.x},${tower.pos.y}`);
-        CreepUtils.updateJob(this.creep, 'idle');
+      else {
+        this.loadEnergy();
       }
     }
     else {
-      this.loadEnergy();
+      CreepUtils.updateJob(this.creep, 'idle');
     }
   }
 
