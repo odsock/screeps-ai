@@ -88,16 +88,30 @@ export class Hauler {
     }
   }
 
-  private supplyTower(site: StructureTower): void {
+  // TODO: stop supply when tower is full
+  // have to calc check at end of tick, or will never be full (tower shoots first)
+  // can't rely on getFreeCapacity because it won't update after transfer
+  private supplyTower(tower: StructureTower): void {
     CreepUtils.consoleLogIfWatched(this.creep, `supply tower`);
     CreepUtils.updateJob(this.creep, 'tower');
     CreepUtils.stopWorkingIfEmpty(this.creep);
     CreepUtils.startWorkingIfFull(this.creep, '⚡ tower');
-    CreepUtils.workIfCloseToJobsite(this.creep, site.pos, 1);
+    CreepUtils.workIfCloseToJobsite(this.creep, tower.pos, 1);
 
-    if (this.creep.memory.working && this.creep.transfer(site, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-      CreepUtils.consoleLogIfWatched(this.creep, `site out of range: ${site.pos.x},${site.pos.y}`);
-      this.creep.moveTo(site, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
+    if (this.creep.memory.working) {
+      CreepUtils.consoleLogIfWatched(this.creep, `tower free cap before: ${tower.store.getFreeCapacity(RESOURCE_ENERGY)}`);
+      const result = this.creep.transfer(tower, RESOURCE_ENERGY);
+      if (result == ERR_NOT_IN_RANGE) {
+        CreepUtils.consoleLogIfWatched(this.creep, `tower out of range: ${tower.pos.x},${tower.pos.y}`);
+        this.creep.moveTo(tower, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
+      }
+
+      CreepUtils.consoleLogIfWatched(this.creep, `tower free cap after: ${tower.store.getFreeCapacity(RESOURCE_ENERGY)}`);
+      // Stop if tower is full now
+      if (result == OK && tower.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+        CreepUtils.consoleLogIfWatched(this.creep, `tower is full: ${tower.pos.x},${tower.pos.y}`);
+        CreepUtils.updateJob(this.creep, 'idle');
+      }
     }
     else {
       this.loadEnergy();
