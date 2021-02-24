@@ -23,30 +23,13 @@ export class Hauler {
     this.supplyController();
   }
 
-  private findTowersBelowThreshold(): StructureTower[] {
-    const towers = CreepUtils.findTowers(this.creep) as StructureTower[];
-    CreepUtils.consoleLogIfWatched(this.creep, `towers: ${towers.length}`);
-
-    const towersNotFull = towers.filter((tower) => {
-      return tower.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-    });
-    CreepUtils.consoleLogIfWatched(this.creep, `towers not full: ${towers.length}`);
-
-    const towersBelowThreshold = towersNotFull.filter((tower) => {
-      return CreepUtils.getEnergyStoreRatioFree(tower) > config.TOWER_RESUPPLY_THRESHOLD;
-    });
-    CreepUtils.consoleLogIfWatched(this.creep, `towers below threshold: ${towersBelowThreshold.length}`);
-
-    return towersBelowThreshold;
-  }
-
   private supplyController() {
     const controllerContainer = this.findClosestControllerContainerNotFull();
     const sourceContainer = this.findClosestSourceContainerNotEmpty();
     if (controllerContainer && sourceContainer) {
-      CreepUtils.updateJob(this.creep, 'controller');
+      CreepUtils.updateJob(this.creep, 'upgrade');
       CreepUtils.stopWorkingIfEmpty(this.creep);
-      CreepUtils.startWorkingIfFull(this.creep, '⚡ controller');
+      CreepUtils.startWorkingIfFull(this.creep, '⚡ upgrade');
       CreepUtils.workIfCloseToJobsite(this.creep, controllerContainer.pos, 1);
 
       if (this.creep.memory.working) {
@@ -162,6 +145,23 @@ export class Hauler {
       }
     }
     return this.creep.pos.findClosestByPath(containers);
+  }
+
+  private findTowersBelowThreshold(): StructureTower[] {
+    const towers = CreepUtils.findTowers(this.creep) as StructureTower[];
+    CreepUtils.consoleLogIfWatched(this.creep, `towers: ${towers.length}`);
+
+    const towersNotFull = towers.filter((tower) => {
+      return tower.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+    });
+    CreepUtils.consoleLogIfWatched(this.creep, `towers not full: ${towers.length}`);
+
+    const towersBelowThreshold = towersNotFull.filter((tower) => {
+      return CreepUtils.getEnergyStoreRatioFree(tower) > config.TOWER_RESUPPLY_THRESHOLD;
+    });
+    CreepUtils.consoleLogIfWatched(this.creep, `towers below threshold: ${towersBelowThreshold.length}`);
+
+    return towersBelowThreshold;
   }
 
   private loadEnergy(): void {
