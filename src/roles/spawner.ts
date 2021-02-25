@@ -3,18 +3,21 @@ import config from "../constants";
 
 export class Spawner {
   private readonly spawn: StructureSpawn;
+  private readonly workers: Creep[];
   private readonly harvesters: Creep[];
   private readonly haulers: Creep[];
   private readonly containers: AnyStructure[];
-  private readonly workers: Creep[];
+  private readonly rcl: number;
 
   constructor(spawn: StructureSpawn) {
     this.spawn = spawn;
 
-    this.workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
-    this.harvesters = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'harvester' });
-    this.haulers = this.spawn.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role == 'hauler' });
+    const creeps = this.spawn.room.find(FIND_MY_CREEPS);
+    this.workers = creeps.filter((c) => c.memory.role == 'worker');
+    this.harvesters = creeps.filter((c) => c.memory.role == 'harvester');
+    this.haulers = creeps.filter((c) => c.memory.role == 'hauler');
     this.containers = this.spawn.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
+    this.rcl = this.spawn.room.controller?.level ? this.spawn.room.controller?.level : 0;
   }
 
   public spawnCreeps() {
@@ -27,9 +30,7 @@ export class Spawner {
       if (this.haulers.length < this.getMaxHaulerCount()) {
         this.spawnHauler();
       }
-      // HACK: find a better way to decide worker count
-      if (this.containers.length < 2 && this.workers.length < this.getMaxWorkerCount()) {
-        CreepUtils.consoleLogIfWatched(this.spawn, `${this.workers.length}/${config.MAX_CREEPS}`);
+      if (this.workers.length < this.getMaxWorkerCount()) {
         this.spawnWorker();
       }
 
@@ -40,7 +41,7 @@ export class Spawner {
         const harvester = this.harvesters[i];
         if (!harvester.spawning && !harvester.memory.retiring == true) {
           const body = this.getHarvesterBody();
-          const ticksToSpawn = body.length * 3;
+          const ticksToSpawn = body.length * CREEP_SPAWN_TIME;
           const pathToReplace = CreepUtils.getPath(this.spawn.pos, harvester.pos);
           const ticksToReplace = CreepUtils.calcWalkTime(harvester, pathToReplace);
           CreepUtils.consoleLogIfWatched(this.spawn, `harvester spawn: ticksToLive: ${harvester.ticksToLive}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`);
@@ -73,7 +74,18 @@ export class Spawner {
   }
 
   private getMaxWorkerCount(): number {
-    return config.MAX_CREEPS - this.haulers.length;
+    // make workers in early stages
+    if (this.rcl < 1) {
+      return config.MAX_WORKERS;
+    }
+
+    // make workers if there's something to build
+    const conSites = this.spawn.room.find(FIND_MY_CONSTRUCTION_SITES);
+    if(conSites.length > 0) {
+      return conSites.length < config.MAX_WORKERS ? conSites.length : config.MAX_WORKERS;
+    }
+
+    return 0;
   }
 
   private spawnWorker(): ScreepsReturnCode {
