@@ -96,10 +96,15 @@ function runTowers(room: Room) {
       }
       else {
         const closestDamagedRoad = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-          filter: (structure) =>
-            structure.hits < structure.hitsMax
-            && structure.structureType == STRUCTURE_ROAD
-            && room.memory.roadUseLog[`${structure.pos.x},${structure.pos.y}`] > 0
+          filter: (structure) => {
+            if (!(structure.structureType == STRUCTURE_ROAD)) return false;
+            const isDamagedRoad = structure.hits < structure.hitsMax;
+            const isUsedRoad = room.memory.roadUseLog[`${structure.pos.x},${structure.pos.y}`] > 0;
+            if (!isUsedRoad && isDamagedRoad) {
+              CreepUtils.consoleLogIfWatched(room, `not repairing unused road: ${structure.pos.x},${structure.pos.y}`);
+            }
+            return isDamagedRoad && isUsedRoad;
+          }
         });
         if (closestDamagedRoad) {
           tower.repair(closestDamagedRoad);
