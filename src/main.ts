@@ -101,8 +101,8 @@ function runTowers(room: Room) {
             && structure.structureType == STRUCTURE_ROAD
             && room.memory.roadUseLog[`${structure.pos.x},${structure.pos.y}`] > 0
         });
-        if (closestDamagedStructure) {
-          tower.repair(closestDamagedStructure);
+        if (closestDamagedRoad) {
+          tower.repair(closestDamagedRoad);
         }
       }
     }
