@@ -1,5 +1,9 @@
 export class CreepUtils {
   static touchRoad(pos: RoomPosition) {
+    const roadUseLog = Game.rooms[pos.roomName].memory.roadUseLog;
+    if(!roadUseLog) {
+      Game.rooms[pos.roomName].memory.roadUseLog = {};
+    }
     let timesUsed = Game.rooms[pos.roomName].memory.roadUseLog[`${pos.x},${pos.y}`];
     if(!timesUsed) {
       timesUsed = 0;
