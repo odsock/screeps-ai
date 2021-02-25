@@ -49,7 +49,7 @@ function runLogging(room: Room) {
   const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
   for (let i = 0; i < constructionSites.length; i++) {
     const site = constructionSites[i];
-    if(!room.memory.construction[site.id]) {
+    if (!room.memory.construction[site.id]) {
       room.memory.construction[site.id] = { id: site.id, type: site.structureType, pos: site.pos, startTime: Game.time };
     }
   }
@@ -57,10 +57,10 @@ function runLogging(room: Room) {
   // update any completed ones
   for (let id in room.memory.construction) {
     const site = Game.getObjectById(room.memory.construction[id].id);
-    if(site && site.progress <= site.progressTotal){
+    if (site && site.progress <= site.progressTotal) {
       room.memory.construction[id].progress = site.progress / site.progressTotal;
     }
-    else if(!site && !room.memory.construction[id].endTime) {
+    else if (!site && !room.memory.construction[id].endTime) {
       room.memory.construction[id].endTime = Game.time;
       room.memory.construction[id].progress = 1;
     }
@@ -68,12 +68,12 @@ function runLogging(room: Room) {
 
   // log when 5 extensions reached
   const lastExtensionCount = room.memory.extensionCount;
-  const extensionCount = room.find(FIND_MY_STRUCTURES, {filter: (s) => s.structureType == STRUCTURE_EXTENSION}).length;
+  const extensionCount = room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_EXTENSION }).length;
   room.memory.extensionCount = extensionCount;
-  if(extensionCount != lastExtensionCount && extensionCount == 1) {
+  if (extensionCount != lastExtensionCount && extensionCount == 1) {
     CreepUtils.roomMemoryLog(room, 'reached 1 extensions');
   }
-  else if(extensionCount != lastExtensionCount && extensionCount == 5) {
+  else if (extensionCount != lastExtensionCount && extensionCount == 5) {
     CreepUtils.roomMemoryLog(room, 'reached 5 extensions');
   }
 }
@@ -89,10 +89,21 @@ function runTowers(room: Room) {
     }
     else {
       const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-        filter: (structure) => structure.hits < structure.hitsMax
+        filter: (structure) => structure.hits < structure.hitsMax && structure.structureType != STRUCTURE_ROAD
       });
       if (closestDamagedStructure) {
         tower.repair(closestDamagedStructure);
+      }
+      else {
+        const closestDamagedRoad = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+          filter: (structure) =>
+            structure.hits < structure.hitsMax
+            && structure.structureType == STRUCTURE_ROAD
+            && room.memory.roadUseLog[`${structure.pos.x},${structure.pos.y}`] > 0
+        });
+        if (closestDamagedStructure) {
+          tower.repair(closestDamagedStructure);
+        }
       }
     }
   }
@@ -102,7 +113,7 @@ function runCreeps() {
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
     const onRoad = creep.pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_ROAD).length > 0;
-    if(onRoad) {
+    if (onRoad) {
       CreepUtils.touchRoad(creep.pos);
     }
 
