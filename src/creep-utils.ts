@@ -1,4 +1,12 @@
 export class CreepUtils {
+  static touchRoad(pos: RoomPosition) {
+    let timesUsed = Game.rooms[pos.roomName].memory.roadUseLog[`${pos.x},${pos.y}`];
+    if(!timesUsed) {
+      timesUsed = 0;
+    }
+    Game.rooms[pos.roomName].memory.roadUseLog[`${pos.x},${pos.y}`] = timesUsed + 1;
+  }
+
   public static harvest(creep: Creep): void {
     // harvest if adjacent to tombstone or ruin
     let tombstone = CreepUtils.findClosestTombstoneWithEnergy(creep);

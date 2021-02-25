@@ -101,6 +101,10 @@ function runTowers(room: Room) {
 function runCreeps() {
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
+    const onRoad = creep.pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_ROAD).length > 0;
+    if(onRoad) {
+      CreepUtils.touchRoad(creep.pos);
+    }
 
     if (creep.memory.role == 'worker') {
       Worker.run(creep);

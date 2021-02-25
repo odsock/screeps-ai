@@ -12,6 +12,7 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  roadUseLog: {[pos: string]: number};
   sourceInfo: {[id: string]: SourceInfo};
   controllerInfo: ControllerInfo;
   log: string[];
