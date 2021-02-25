@@ -80,7 +80,7 @@ export class CreepUtils {
     CreepUtils.consoleLogIfWatched(creep, `moving to ${typeof structure}: ${structure.pos.x},${structure.pos.y}`);
     let result = creep.withdraw(structure, RESOURCE_ENERGY);
     if (result == ERR_NOT_IN_RANGE) {
-      return creep.moveTo(structure, { visualizePathStyle: { stroke: '#ffaa00' } });
+      return creep.moveTo(structure, { range: 1, visualizePathStyle: { stroke: '#ffaa00' } });
     }
     return result;
   }
