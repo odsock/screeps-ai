@@ -1,11 +1,11 @@
 export class CreepUtils {
   static touchRoad(pos: RoomPosition) {
     const roadUseLog = Game.rooms[pos.roomName].memory.roadUseLog;
-    if(!roadUseLog) {
+    if (!roadUseLog) {
       Game.rooms[pos.roomName].memory.roadUseLog = {};
     }
     let timesUsed = Game.rooms[pos.roomName].memory.roadUseLog[`${pos.x},${pos.y}`];
-    if(!timesUsed) {
+    if (!timesUsed) {
       timesUsed = 0;
     }
     Game.rooms[pos.roomName].memory.roadUseLog[`${pos.x},${pos.y}`] = timesUsed + 1;
@@ -64,6 +64,10 @@ export class CreepUtils {
     return creep.pos.findClosestByPath(FIND_RUINS, { filter: (r) => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   }
 
+  public static findClosestDroppedEnergy(creep: Creep): Resource<RESOURCE_ENERGY> | null {
+    return creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, { filter: (r) => r.resourceType == RESOURCE_ENERGY }) as Resource<RESOURCE_ENERGY>;
+  }
+
   public static findClosestActiveEnergySource(creep: Creep): Source | null {
     return creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
   }
@@ -80,17 +84,34 @@ export class CreepUtils {
     CreepUtils.consoleLogIfWatched(creep, `moving to ${typeof structure}: ${structure.pos.x},${structure.pos.y}`);
     let result = creep.withdraw(structure, RESOURCE_ENERGY);
     if (result == ERR_NOT_IN_RANGE) {
-      return creep.moveTo(structure, { range: 1, visualizePathStyle: { stroke: '#ffaa00' } });
+      result = creep.moveTo(structure, { range: 1, visualizePathStyle: { stroke: '#ffaa00' } });
+      if (result == OK) {
+        result = creep.withdraw(structure, RESOURCE_ENERGY);
+      }
+    }
+    return result;
+  }
+
+  public static pickupFromOrMoveTo(creep: Creep, resource: Resource): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(creep, `moving to ${typeof resource}: ${resource.pos.x},${resource.pos.y}`);
+    let result: ScreepsReturnCode = creep.pickup(resource);
+    if (result == ERR_NOT_IN_RANGE) {
+      result = creep.moveTo(resource, { range: 1, visualizePathStyle: { stroke: '#ffaa00' } });
+      if (result == OK) {
+        result = creep.pickup(resource);
+      }
     }
     return result;
   }
 
   public static harvestEnergyFromOrMoveTo(creep: Creep, source: Source): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(creep, `moving to source: ${source.pos.x},${source.pos.y}`);
-    let result = creep.harvest(source);
-    CreepUtils.consoleLogIfWatched(creep, `harvest result: ${result}`);
+    CreepUtils.consoleLogIfWatched(creep, `moving to ${typeof source}: ${source.pos.x},${source.pos.y}`);
+    let result: ScreepsReturnCode = creep.harvest(source);
     if (result == ERR_NOT_IN_RANGE) {
-      return creep.moveTo(source, { range: 1, visualizePathStyle: { stroke: '#ffaa00' } });
+      result = creep.moveTo(source, { range: 1, visualizePathStyle: { stroke: '#ffaa00' } });
+      if (result == OK) {
+        result = creep.harvest(source);
+      }
     }
     return result;
   }

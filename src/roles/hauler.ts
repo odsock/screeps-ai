@@ -177,6 +177,12 @@ export class Hauler {
         return;
       }
     }
+    const droppedEnergy = CreepUtils.findClosestDroppedEnergy(this.creep);
+    if (droppedEnergy) {
+      if (this.creep.pickup(droppedEnergy) == OK) {
+        return;
+      }
+    }
 
     const container = CreepUtils.findClosestContainerWithEnergy(this.creep);
     if (container) {
@@ -194,6 +200,12 @@ export class Hauler {
     if (ruin) {
       CreepUtils.consoleLogIfWatched(this.creep, `moving to ruin: ${ruin.pos.x},${ruin.pos.y}`);
       CreepUtils.withdrawEnergyFromOrMoveTo(this.creep, ruin);
+      return;
+    }
+
+    if (droppedEnergy) {
+      CreepUtils.consoleLogIfWatched(this.creep, `moving to ruin: ${droppedEnergy.pos.x},${droppedEnergy.pos.y}`);
+      CreepUtils.pickupFromOrMoveTo(this.creep, droppedEnergy);
       return;
     }
 
