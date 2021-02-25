@@ -19,7 +19,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     runLogging(room);
 
     // Run spawners
-    console.log(`${room.name}: running spawns`);
+    CreepUtils.consoleLogIfWatched(room, `running spawns`);
     const spawns = room.find(FIND_MY_SPAWNS);
     for (let i = 0; i < spawns.length; i++) {
       const spawn = spawns[i];
@@ -27,7 +27,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       spawner.spawnCreeps();
     }
 
-    console.log(`${room.name}: running towers`);
+    CreepUtils.consoleLogIfWatched(room, `running towers`);
     runTowers(room);
 
     // Plan each room every 10 ticks
