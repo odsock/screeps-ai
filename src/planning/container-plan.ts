@@ -58,6 +58,7 @@ export class ContainerPlan {
       if (!path.incomplete) {
         return roadPlanner.placeRoadOnPath(path);
       }
+      return ERR_NO_PATH;
     }
     return OK;
   }
