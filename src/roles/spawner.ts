@@ -37,22 +37,7 @@ export class Spawner {
       // TODO: write a claimer creep
 
       // try to replace any aging harvester early
-      for (let i = 0; i < this.harvesters.length; i++) {
-        const harvester = this.harvesters[i];
-        if (!harvester.spawning && !harvester.memory.retiring == true) {
-          const body = this.getHarvesterBody();
-          const ticksToSpawn = body.length * CREEP_SPAWN_TIME;
-          const pathToReplace = CreepUtils.getPath(this.spawn.pos, harvester.pos);
-          const ticksToReplace = CreepUtils.calcWalkTime(harvester, pathToReplace);
-          CreepUtils.consoleLogIfWatched(this.spawn, `harvester spawn: ticksToLive: ${harvester.ticksToLive}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`);
-          if (harvester.ticksToLive && harvester.ticksToLive <= ticksToSpawn + ticksToReplace) {
-            const result = this.spawnHarvester(harvester.name);
-            if (result == OK) {
-              harvester.memory.retiring = true;
-            }
-          }
-        }
-      }
+      this.replaceOldHarvesters();
     }
 
     if (this.spawn.spawning) {
@@ -62,6 +47,25 @@ export class Spawner {
         this.spawn.pos.x + 1,
         this.spawn.pos.y,
         { align: 'left', opacity: 0.8 });
+    }
+  }
+
+  private replaceOldHarvesters() {
+    for (let i = 0; i < this.harvesters.length; i++) {
+      const harvester = this.harvesters[i];
+      if (!harvester.spawning && !harvester.memory.retiring == true) {
+        const body = this.getHarvesterBody();
+        const ticksToSpawn = body.length * CREEP_SPAWN_TIME;
+        const pathToReplace = CreepUtils.getPath(this.spawn.pos, harvester.pos);
+        const ticksToReplace = CreepUtils.calcWalkTime(harvester, pathToReplace);
+        CreepUtils.consoleLogIfWatched(this.spawn, `harvester spawn: ticksToLive: ${harvester.ticksToLive}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`);
+        if (harvester.ticksToLive && harvester.ticksToLive <= ticksToSpawn + ticksToReplace) {
+          const result = this.spawnHarvester(harvester.name);
+          if (result == OK) {
+            harvester.memory.retiring = true;
+          }
+        }
+      }
     }
   }
 
