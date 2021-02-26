@@ -79,7 +79,6 @@ export class Hauler {
 
       if (this.creep.memory.working) {
         let creepStoredEnergy = this.creep.store.getUsedCapacity(RESOURCE_ENERGY);
-        console.log(creepStoredEnergy);
         const result = this.creep.transfer(tower, RESOURCE_ENERGY);
         if (result == ERR_NOT_IN_RANGE) {
           CreepUtils.consoleLogIfWatched(this.creep, `tower out of range: ${tower.pos.x},${tower.pos.y}`);
@@ -89,8 +88,7 @@ export class Hauler {
         // Stop if tower is full now
         const towerFreeCap = tower.store.getFreeCapacity(RESOURCE_ENERGY);
         creepStoredEnergy = this.creep.store.getUsedCapacity(RESOURCE_ENERGY);
-        console.log(creepStoredEnergy);
-        if (result == OK &&  towerFreeCap < creepStoredEnergy) {
+        if (result == OK && towerFreeCap < creepStoredEnergy) {
           CreepUtils.consoleLogIfWatched(this.creep, `tower is full: ${tower.pos.x},${tower.pos.y}`);
           CreepUtils.updateJob(this.creep, 'idle');
         }
@@ -163,26 +161,39 @@ export class Hauler {
     return towersBelowThreshold;
   }
 
+  private withdrawAdjacentRuinOrTombEnergy(): ScreepsReturnCode {
+    // can't withdraw twice, so prefer emptying tombstones because they decay faster
+    let withdrawResult: ScreepsReturnCode = ERR_NOT_FOUND;
+    const tombs = this.creep.pos.findInRange(FIND_TOMBSTONES, 1, { filter: (t) => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
+    if (tombs.length > 0) {
+      withdrawResult = this.creep.withdraw(tombs[0], RESOURCE_ENERGY);
+    }
+    else {
+      const ruins = this.creep.pos.findInRange(FIND_RUINS, 1, { filter: (r) => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
+      if (ruins.length > 0) {
+        withdrawResult = this.creep.withdraw(ruins[0], RESOURCE_ENERGY);
+      }
+    }
+    return withdrawResult;
+  }
+
+  private pickupAdjacentDroppedEnergy() {
+    let pickupResult: ScreepsReturnCode = ERR_NOT_FOUND;
+    const resources = this.creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, { filter: (r) => r.resourceType == RESOURCE_ENERGY });
+    if (resources.length > 0) {
+      pickupResult = this.creep.pickup(resources[0]);
+    }
+    return pickupResult;
+  }
+
   private loadEnergy(): void {
-    // harvest if adjacent to tombstone or ruin
+    const pickupResult = this.pickupAdjacentDroppedEnergy();
+    const result = this.withdrawAdjacentRuinOrTombEnergy();
+    // TODO: calc current free capacity here, might should quit loading or move adjacent load calls
+
     const tombstone = CreepUtils.findClosestTombstoneWithEnergy(this.creep);
-    if (tombstone) {
-      if (this.creep.withdraw(tombstone, RESOURCE_ENERGY) == OK) {
-        return;
-      }
-    }
     const ruin = CreepUtils.findClosestRuinsWithEnergy(this.creep);
-    if (ruin) {
-      if (this.creep.withdraw(ruin, RESOURCE_ENERGY) == OK) {
-        return;
-      }
-    }
     const droppedEnergy = CreepUtils.findClosestDroppedEnergy(this.creep);
-    if (droppedEnergy) {
-      if (this.creep.pickup(droppedEnergy) == OK) {
-        return;
-      }
-    }
 
     const container = CreepUtils.findClosestContainerWithEnergy(this.creep);
     if (container) {
