@@ -3,11 +3,7 @@ import { PlannerUtils } from "./planner-utils";
 import { RoadPlan } from "./road-plan";
 
 export class ContainerPlan {
-  private containerInConstruction = false;
-
-  public constructor(private readonly room: Room) {
-    this.containerInConstruction = this.roomHasContainersInConstruction();
-  }
+  public constructor(private readonly room: Room) { }
 
   public placeControllerContainer(): ScreepsReturnCode {
     if (this.room.controller && !this.roomHasContainersInConstruction()) {
@@ -46,19 +42,6 @@ export class ContainerPlan {
           return ERR_NOT_FOUND;
         }
       }
-    }
-    return OK;
-  }
-
-  public placeSourceContainerRoad(pos: RoomPosition): ScreepsReturnCode {
-    const controller = this.room.controller;
-    if (controller) {
-      const roadPlanner = new RoadPlan(this.room);
-      const path = roadPlanner.planRoad(pos, controller.pos, 1);
-      if (!path.incomplete) {
-        return roadPlanner.placeRoadOnPath(path);
-      }
-      return ERR_NO_PATH;
     }
     return OK;
   }

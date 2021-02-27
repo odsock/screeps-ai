@@ -19,7 +19,7 @@ export class Planner {
         return result;
       }
 
-      // place first container
+      // place source containers
       let containerPlan = new ContainerPlan(this.room);
       result = containerPlan.placeSourceContainer();
       if (result != OK) {
@@ -33,8 +33,11 @@ export class Planner {
       }
 
       // TODO: make controller road come from source with container only
-      // let roadPlan = new RoadPlan(this.room);
-      // roadPlan.placeControllerRoad();
+      let roadPlan = new RoadPlan(this.room);
+      roadPlan.placeRoadSourceContainerToController();
+      if (result != OK) {
+        return result;
+      }
     }
     return OK;
   }
