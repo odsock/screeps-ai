@@ -17,7 +17,7 @@ export class RoadPlan {
     
     const sourceContainers = sourcesWithContainersWithoutRoads.map((source) =>{
       const pos = this.room.memory.sourceInfo[source.id].containerPos as RoomPosition;
-      return new RoomPosition(pos.x, pos.y, pos.roomName);
+      return Object.create(RoomPosition.prototype, Object.getOwnPropertyDescriptors(pos));
     });
 
     if (sourceContainers[0]) {
