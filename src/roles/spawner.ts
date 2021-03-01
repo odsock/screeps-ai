@@ -87,7 +87,7 @@ export class Spawner {
     const conWork = this.spawn.room.find(FIND_MY_CONSTRUCTION_SITES)
       .reduce<number>((work: number, site) => { return work + site.progressTotal - site.progress }, 0);
     if (conWork > 0) {
-      return conWork / 2000 < config.MAX_WORKERS ? conWork / 2000 : config.MAX_WORKERS;
+      return conWork / config.WORK_PER_WORKER < config.MAX_WORKERS ? conWork / 2000 : config.MAX_WORKERS;
     }
 
     return 0;
