@@ -11,7 +11,7 @@ export class RoadPlan {
     const sourceContainersWithoutRoads = this.room.find(FIND_SOURCES, {
       filter: (source) => {
         const sourceInfo = this.room.memory.sourceInfo[source.id];
-        return sourceInfo.containerPos && !sourceInfo.controllerRoadComplete
+        return sourceInfo.containerPos && !sourceInfo.controllerRoadComplete;
       }
     }).map((source) => this.room.memory.sourceInfo[source.id].containerPos);
 
