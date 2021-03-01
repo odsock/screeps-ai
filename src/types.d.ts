@@ -9,6 +9,7 @@ interface CreepMemory {
 }
 
 interface Memory {
+  posTest: any;
   uuid: number;
   log: any;
 }
