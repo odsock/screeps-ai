@@ -1,6 +1,7 @@
 import config from "../constants";
 import { CreepUtils } from "creep-utils";
 
+// TODO: assign to source containers or something so they don't only use closest
 // TODO: get hauler to pull havester to container
 export class Hauler {
   constructor(private readonly creep: Creep) { }

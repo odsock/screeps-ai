@@ -8,15 +8,20 @@ export class RoadPlan {
       return OK;
     }
 
-    const sourceContainersWithoutRoads = this.room.find(FIND_SOURCES, {
+    const sourcesWithContainersWithoutRoads = this.room.find(FIND_SOURCES, {
       filter: (source) => {
         const sourceInfo = this.room.memory.sourceInfo[source.id];
         return sourceInfo.containerPos && !sourceInfo.controllerRoadComplete;
       }
-    }).map((source) => this.room.memory.sourceInfo[source.id].containerPos);
+    });
+    
+    const sourceContainers = sourcesWithContainersWithoutRoads.map((source) =>{
+      const pos = this.room.memory.sourceInfo[source.id].containerPos as RoomPosition;
+      return new RoomPosition(pos.x, pos.y, pos.roomName);
+    });
 
-    if (sourceContainersWithoutRoads[0]) {
-      return this.placeRoadToController(sourceContainersWithoutRoads[0]);
+    if (sourceContainers[0]) {
+      return this.placeRoadToController(sourceContainers[0]);
     }
 
     // Roads all placed

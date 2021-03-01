@@ -79,7 +79,7 @@ export class Spawner {
 
   private getMaxWorkerCount(): number {
     // make workers in early stages
-    if (this.rcl < 1) {
+    if (this.rcl <= 1) {
       return config.MAX_WORKERS;
     }
 
