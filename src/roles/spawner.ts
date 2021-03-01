@@ -84,9 +84,10 @@ export class Spawner {
     }
 
     // make workers if there's something to build
-    const conSites = this.spawn.room.find(FIND_MY_CONSTRUCTION_SITES);
-    if(conSites.length > 0) {
-      return conSites.length < config.MAX_WORKERS ? conSites.length : config.MAX_WORKERS;
+    const conWork = this.spawn.room.find(FIND_MY_CONSTRUCTION_SITES)
+      .reduce<number>((work: number, site) => { return work + site.progressTotal - site.progress }, 0);
+    if (conWork > 0) {
+      return conWork / 2000 < config.MAX_WORKERS ? conWork / 2000 : config.MAX_WORKERS;
     }
 
     return 0;
