@@ -80,6 +80,7 @@ export class Spawner {
   private getMaxWorkerCount(): number {
     // make workers in early stages
     if (this.rcl <= 1) {
+      CreepUtils.consoleLogIfWatched(this.spawn, `low rcl, max workers: ${config.MAX_WORKERS}`);
       return config.MAX_WORKERS;
     }
 
@@ -88,7 +89,10 @@ export class Spawner {
       .reduce<number>((work: number, site) => { return work + site.progressTotal - site.progress }, 0);
     if (conWork > 0) {
       const calculatedMaxWorkers = conWork / config.WORK_PER_WORKER;
-      return calculatedMaxWorkers < config.MAX_WORKERS ? calculatedMaxWorkers : config.MAX_WORKERS;
+      const maxWorkers = calculatedMaxWorkers < config.MAX_WORKERS ? calculatedMaxWorkers : config.MAX_WORKERS;
+      const finalMaxWorkers = Math.ceil(maxWorkers);
+      CreepUtils.consoleLogIfWatched(this.spawn, `work: ${conWork}, calc max workers: ${calculatedMaxWorkers}, final max workers: ${finalMaxWorkers}`);
+      return finalMaxWorkers;
     }
 
     return 0;
@@ -97,7 +101,7 @@ export class Spawner {
   private spawnWorker(): ScreepsReturnCode {
     const profile = config.BODY_PROFILE_WORKER;
     let body: BodyPartConstant[];
-    if (this.workers.length <= 0) {
+    if (this.workers.length < 1) {
       body = this.getMaxBodyNow({ profile });
     }
     else {
