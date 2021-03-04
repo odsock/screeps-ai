@@ -1,4 +1,13 @@
 export class CreepUtils {
+  static updateJob(creep: Creep, arg1: string) {
+    throw new Error("Method not implemented.");
+  }
+  static stopWorkingIfEmpty(creep: Creep) {
+    throw new Error("Method not implemented.");
+  }
+  static startWorkingIfFull(creep: Creep, arg1: string) {
+    throw new Error("Method not implemented.");
+  }
   static touchRoad(pos: RoomPosition) {
     const roadUseLog = Game.rooms[pos.roomName].memory.roadUseLog;
     if (!roadUseLog) {
@@ -13,21 +22,21 @@ export class CreepUtils {
 
   public static harvest(creep: Creep): void {
     // harvest if adjacent to tombstone or ruin
-    let tombstone = CreepUtils.findClosestTombstoneWithEnergy(creep);
+    let tombstone = creep.closestTombstoneWithEnergy;
     if (tombstone && creep.withdraw(tombstone, RESOURCE_ENERGY) == OK) {
       return;
     }
-    let ruin = CreepUtils.findClosestRuinsWithEnergy(creep);
+    let ruin = creep.closestRuinsWithEnergy;
     if (ruin && creep.withdraw(ruin, RESOURCE_ENERGY) == OK) {
       return;
     }
 
-    let container = CreepUtils.findClosestContainerWithEnergy(creep);
+    let container = creep.closestContainerWithEnergy;
     if (container && CreepUtils.withdrawEnergyFromOrMoveTo(creep, container) != ERR_NO_PATH) {
       return;
     }
 
-    let activeSource = CreepUtils.findClosestActiveEnergySource(creep);
+    let activeSource = creep.closestActiveEnergySource;
     if (activeSource && CreepUtils.harvestEnergyFromOrMoveTo(creep, activeSource) != ERR_NO_PATH) {
       return;
     }
@@ -40,7 +49,7 @@ export class CreepUtils {
       return;
     }
 
-    let inactiveSource = CreepUtils.findClosestEnergySource(creep);
+    let inactiveSource = creep.closestEnergySource;
     CreepUtils.consoleLogIfWatched(creep, `moving to inactive source: ${inactiveSource?.pos.x},${inactiveSource?.pos.y}`);
     if (inactiveSource) {
       creep.moveTo(inactiveSource, { visualizePathStyle: { stroke: '#ffaa00' } });
@@ -49,35 +58,6 @@ export class CreepUtils {
 
     creep.say('🤔');
     CreepUtils.consoleLogIfWatched(creep, `stumped. Just going to sit here.`);
-  }
-
-  public static findClosestTombstoneWithEnergy(creep: Creep): Tombstone | null {
-    return creep.pos.findClosestByPath(FIND_TOMBSTONES, { filter: (t) => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
-  }
-
-  public static findClosestContainerWithEnergy(creep: Creep): StructureContainer | null {
-    let container = creep.pos.findClosestByPath(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0 });
-    return container as StructureContainer;
-  }
-
-  public static findClosestRuinsWithEnergy(creep: Creep): Ruin | null {
-    return creep.pos.findClosestByPath(FIND_RUINS, { filter: (r) => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
-  }
-
-  public static findClosestDroppedEnergy(creep: Creep): Resource<RESOURCE_ENERGY> | null {
-    return creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, { filter: (r) => r.resourceType == RESOURCE_ENERGY }) as Resource<RESOURCE_ENERGY>;
-  }
-
-  public static findClosestActiveEnergySource(creep: Creep): Source | null {
-    return creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-  }
-
-  public static findClosestEnergySource(creep: Creep): Source | null {
-    let source = creep.pos.findClosestByPath(FIND_SOURCES);
-    if (!source) {
-      source = creep.pos.findClosestByRange(FIND_SOURCES);
-    }
-    return source;
   }
 
   public static withdrawEnergyFromOrMoveTo(creep: Creep, structure: Tombstone | Ruin | StructureContainer): ScreepsReturnCode {
@@ -140,59 +120,6 @@ export class CreepUtils {
     }
   }
 
-  public static findClosestTowerNotFull(creep: Creep): StructureTower | null {
-    return creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-      filter: (structure) => {
-        return structure.structureType == STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-      }
-    }) as StructureTower | null;
-  }
-
-  public static findClosestEnergyStorageNotFull(creep: Creep): AnyStructure | null {
-    return creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: (structure) => {
-        return (structure.structureType == STRUCTURE_EXTENSION ||
-          structure.structureType == STRUCTURE_SPAWN) &&
-          structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-      }
-    });
-  }
-
-  public static findConstructionSites(creep: Creep) {
-    return creep.room.find(FIND_CONSTRUCTION_SITES);
-  }
-
-  public static findTowers(creep: Creep): AnyOwnedStructure[] {
-    return creep.room.find(FIND_MY_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_TOWER });
-  }
-
-  public static findRepairSites(creep: Creep): AnyStructure[] {
-    return creep.room.find(FIND_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax });
-  }
-
-  public static updateJob(creep: Creep, job: string) {
-    if (creep.memory.job != job) {
-      creep.memory.job = job;
-      creep.say(job);
-    }
-  }
-
-  public static stopWorkingIfEmpty(creep: Creep) {
-    if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
-      CreepUtils.consoleLogIfWatched(creep, 'stop working, empty');
-      creep.memory.working = false;
-      creep.say('🔄 harvest');
-    }
-  }
-
-  public static startWorkingIfFull(creep: Creep, message: string) {
-    if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
-      CreepUtils.consoleLogIfWatched(creep, 'start working, full');
-      creep.memory.working = true;
-      creep.say(message);
-    }
-  }
-
   public static workIfCloseToJobsite(creep: Creep, jobsite: RoomPosition, range = 3) {
     // skip check if full/empty
     if (creep.store.getUsedCapacity() != 0 && creep.store.getFreeCapacity() != 0) {
@@ -201,7 +128,7 @@ export class CreepUtils {
         return;
       }
       // skip check if no source or next to source already
-      const source = CreepUtils.findClosestActiveEnergySource(creep);
+      const source = creep.closestActiveEnergySource;
       if (!source || creep.pos.isNearTo(source)) {
         return;
       }

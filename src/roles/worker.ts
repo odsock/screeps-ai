@@ -13,7 +13,7 @@ export class Worker {
     }
 
     // supply tower if half empty
-    const tower = CreepUtils.findClosestTowerNotFull(creep);
+    const tower = creep.closestTowerNotFull;
     if (tower) {
       const towerPercentFree = CreepUtils.getEnergyStoreRatioFree(tower);
       CreepUtils.consoleLogIfWatched(creep, `towerPercentFree: ${towerPercentFree}`);
@@ -25,14 +25,14 @@ export class Worker {
     }
 
     // build if anything to build
-    if (CreepUtils.findConstructionSites(creep).length > 0) {
+    if (creep.room.constructionSites.length > 0) {
       CreepUtils.consoleLogIfWatched(creep, 'building job');
       this.build(creep);
       return;
     }
 
-    const towerCount = CreepUtils.findTowers(creep).length;
-    const repairSiteCount = CreepUtils.findRepairSites(creep).length;
+    const towerCount = creep.room.towers.length;
+    const repairSiteCount = creep.room.repairSites.length;
     // repair if no towers to do it
     CreepUtils.consoleLogIfWatched(creep, `towers: ${towerCount}, repair sites: ${repairSiteCount}`)
     if (towerCount == 0 && repairSiteCount > 0) {
@@ -79,7 +79,7 @@ export class Worker {
       CreepUtils.workIfCloseToJobsite(creep, site.pos);
       this.workOrHarvest(creep, function () {
         // don't block the source while working
-        const closestEnergySource = CreepUtils.findClosestActiveEnergySource(creep);
+        const closestEnergySource = creep.closestActiveEnergySource;
         if (closestEnergySource?.pos && creep.pos.isNearTo(closestEnergySource)) {
           const path = PathFinder.search(creep.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
           creep.moveByPath(path.path);
@@ -111,7 +111,7 @@ export class Worker {
     CreepUtils.stopWorkingIfEmpty(creep);
     CreepUtils.startWorkingIfFull(creep, '⚡ transfer');
     this.workOrHarvest(creep, function () {
-      const site = CreepUtils.findClosestEnergyStorageNotFull(creep);
+      const site = creep.closestSpawnStorageNotFull;
       if (site) {
         if (creep.transfer(site, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });
@@ -125,7 +125,7 @@ export class Worker {
     CreepUtils.stopWorkingIfEmpty(creep);
     CreepUtils.startWorkingIfFull(creep, '⚡ supply');
     this.workOrHarvest(creep, function () {
-      const site = CreepUtils.findClosestTowerNotFull(creep);
+      const site = creep.closestTowerNotFull;
       if (site) {
         if (creep.transfer(site, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });

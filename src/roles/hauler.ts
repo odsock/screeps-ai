@@ -46,12 +46,12 @@ export class Hauler {
   }
 
   private supplySpawn(): void {
-    const site = CreepUtils.findClosestEnergyStorageNotFull(this.creep);
+    const site = this.creep.closestSpawnStorageNotFull;
     if (site) {
       CreepUtils.consoleLogIfWatched(this.creep, `supply spawn`);
-      CreepUtils.updateJob(this.creep, 'spawn');
-      CreepUtils.stopWorkingIfEmpty(this.creep);
-      CreepUtils.startWorkingIfFull(this.creep, '⚡ spawn');
+      this.creep.updateJob('spawn');
+      this.creep.stopWorkingIfEmpty();
+      this.creep.startWorkingIfFull('⚡ spawn');
       CreepUtils.workIfCloseToJobsite(this.creep, site.pos, 1);
 
       if (this.creep.memory.working) {
@@ -70,7 +70,7 @@ export class Hauler {
   // have to calc check at end of tick, or will never be full (tower shoots first)
   // can't rely on getFreeCapacity because it won't update after transfer
   private supplyTower(): void {
-    const tower = CreepUtils.findClosestTowerNotFull(this.creep);
+    const tower = this.creep.closestTowerNotFull;
     if (tower) {
       CreepUtils.consoleLogIfWatched(this.creep, `supply tower`);
       CreepUtils.updateJob(this.creep, 'tower');
@@ -146,7 +146,7 @@ export class Hauler {
   }
 
   private findTowersBelowThreshold(): StructureTower[] {
-    const towers = CreepUtils.findTowers(this.creep) as StructureTower[];
+    const towers = this.creep.room.towers;
     CreepUtils.consoleLogIfWatched(this.creep, `towers: ${towers.length}`);
 
     const towersNotFull = towers.filter((tower) => {
@@ -192,11 +192,11 @@ export class Hauler {
     const result = this.withdrawAdjacentRuinOrTombEnergy();
     // TODO: calc current free capacity here, might should quit loading or move adjacent load calls
 
-    const tombstone = CreepUtils.findClosestTombstoneWithEnergy(this.creep);
-    const ruin = CreepUtils.findClosestRuinsWithEnergy(this.creep);
-    const droppedEnergy = CreepUtils.findClosestDroppedEnergy(this.creep);
+    const tombstone = this.creep.closestTombstoneWithEnergy;
+    const ruin = this.creep.closestRuinsWithEnergy;
+    const droppedEnergy = this.creep.closestDroppedEnergy;
 
-    const container = CreepUtils.findClosestContainerWithEnergy(this.creep);
+    const container = this.creep.closestContainerWithEnergy;
     if (container) {
       CreepUtils.consoleLogIfWatched(this.creep, `moving to container: ${container.pos.x},${container.pos.y}`);
       CreepUtils.withdrawEnergyFromOrMoveTo(this.creep, container);

@@ -1,3 +1,5 @@
+import "./prototypes/creep";
+
 import { CreepUtils } from "creep-utils";
 import { Planner } from "planning/planner";
 import { Harvester } from "roles/harvester";
