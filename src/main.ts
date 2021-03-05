@@ -6,7 +6,7 @@ import { Logger } from "./logger";
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
-  cleanupDeadCreepNames();
+  cleanupDeadCreepMemory();
 
   const sockpuppet = new Sockpuppet();
   sockpuppet.run();
@@ -16,7 +16,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 });
 
 // Automatically delete memory of missing creeps
-function cleanupDeadCreepNames() {
+function cleanupDeadCreepMemory() {
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name];
