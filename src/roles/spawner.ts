@@ -145,6 +145,7 @@ export class Spawner {
     if (retiree) {
       memory.retiree = retiree;
     }
+    CreepUtils.consoleLogIfWatched(this.spawn, `spawning body: ${body}, role: ${role}, retiree: ${retiree}`);
     let result = this.spawn.spawnCreep(body, newName, { memory: memory });
     console.log(`spawn result: ${result}`);
     return result;
@@ -171,11 +172,13 @@ export class Spawner {
     let finalBody: BodyPartConstant[] = [];
     do {
       finalBody = body.slice();
+      CreepUtils.consoleLogIfWatched(this.spawn, `final body: ${finalBody}`);
       body = body.concat(profile);
+      CreepUtils.consoleLogIfWatched(this.spawn, `body: ${body}, cost: ${this.calcBodyCost(body)}`);
     } while (
       this.spawn.spawnCreep(body, 'maximizeBody', { dryRun: true }) == 0
       && body.length + profile.length <= maxBodyParts
-      && this.calcBodyCost(body) >= SPAWN_ENERGY_CAPACITY
+      && this.calcBodyCost(body) <= SPAWN_ENERGY_CAPACITY
     );
     return finalBody;
   }
