@@ -1,5 +1,6 @@
 import { CreepUtils } from "creep-utils";
 import config from "../constants";
+import { Harvester } from "./harvester";
 
 export class Spawner {
   private readonly spawn: StructureSpawn;
@@ -52,12 +53,12 @@ export class Spawner {
 
   private replaceOldHarvesters() {
     for (let i = 0; i < this.harvesters.length; i++) {
-      const harvester = this.harvesters[i];
+      const harvester = new Harvester(this.harvesters[i]);
       if (!harvester.spawning && !harvester.memory.retiring == true) {
         const body = this.getHarvesterBody();
         const ticksToSpawn = body.length * CREEP_SPAWN_TIME;
         const pathToReplace = CreepUtils.getPath(this.spawn.pos, harvester.pos);
-        const ticksToReplace = CreepUtils.calcWalkTime(harvester, pathToReplace);
+        const ticksToReplace = harvester.calcWalkTime(pathToReplace);
         CreepUtils.consoleLogIfWatched(this.spawn, `harvester spawn: ticksToLive: ${harvester.ticksToLive}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`);
         if (harvester.ticksToLive && harvester.ticksToLive <= ticksToSpawn + ticksToReplace) {
           const result = this.spawnHarvester(harvester.name);
@@ -171,7 +172,11 @@ export class Spawner {
     do {
       finalBody = body.slice();
       body = body.concat(profile);
-    } while (this.spawn.spawnCreep(body, 'maximizeBody', { dryRun: true }) == 0 && body.length + profile.length <= maxBodyParts);
+    } while (
+      this.spawn.spawnCreep(body, 'maximizeBody', { dryRun: true }) == 0
+      && body.length + profile.length <= maxBodyParts
+      && this.calcBodyCost(body) >= SPAWN_ENERGY_CAPACITY
+    );
     return finalBody;
   }
 }
