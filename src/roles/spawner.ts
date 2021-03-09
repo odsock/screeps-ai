@@ -168,7 +168,13 @@ export class Spawner {
   }
 
   private getMaxBodyNow({ profile, seed = [], maxBodyParts = MAX_CREEP_SIZE }: { profile: BodyPartConstant[]; seed?: BodyPartConstant[]; maxBodyParts?: number }) {
-    let body: BodyPartConstant[] = seed.slice();
+    // first make body at least use initial 300 spawn energy
+    let body = seed.concat(profile);
+    while (this.calcBodyCost(body) < SPAWN_ENERGY_CAPACITY) {
+      body = body.concat(profile);
+    }
+
+    // grow body until all available energy is used
     let finalBody: BodyPartConstant[] = [];
     do {
       finalBody = body.slice();
@@ -178,7 +184,6 @@ export class Spawner {
     } while (
       this.spawn.spawnCreep(body, 'maximizeBody', { dryRun: true }) == 0
       && body.length + profile.length <= maxBodyParts
-      && this.calcBodyCost(body) <= SPAWN_ENERGY_CAPACITY
     );
     return finalBody;
   }
