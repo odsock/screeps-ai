@@ -32,12 +32,14 @@ export class Planner {
         return result;
       }
 
-      // TODO: make controller road come from source with container only
+      // place road from source container to controller container
       let roadPlan = new RoadPlan(this.room);
       roadPlan.placeRoadSourceContainerToController();
       if (result != OK) {
         return result;
       }
+
+      // TODO: place ramparts over containers
     }
     return OK;
   }

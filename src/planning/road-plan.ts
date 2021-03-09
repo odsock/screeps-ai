@@ -3,6 +3,7 @@ import { CreepUtils } from "creep-utils";
 export class RoadPlan {
   constructor(private readonly room: Room) { }
 
+  // TODO: make this a road to the controller container
   public placeRoadSourceContainerToController(): ScreepsReturnCode {
     if (this.roomHasRoadsInConstruction()) {
       return OK;
@@ -14,7 +15,7 @@ export class RoadPlan {
         return sourceInfo.containerPos && !sourceInfo.controllerRoadComplete;
       }
     });
-    
+
     const sourceContainers = sourcesWithContainersWithoutRoads.map((source) =>{
       const pos = this.room.memory.sourceInfo[source.id].containerPos as RoomPosition;
       return Object.create(RoomPosition.prototype, Object.getOwnPropertyDescriptors(pos));
