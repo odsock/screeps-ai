@@ -4,13 +4,14 @@ import { Harvester } from "roles/harvester";
 import { Hauler } from "roles/hauler";
 import { Spawner } from "roles/spawner";
 import { Worker } from "roles/worker";
+import { RoomWrapper } from "structures/room-wrapper";
 
 export class Sockpuppet {
   public run() {
     // Run each room
     const roomIds = Game.rooms;
     for (const roomId in roomIds) {
-      const room = Game.rooms[roomId];
+      const room = new RoomWrapper(roomId);
 
       // Run spawners
       CreepUtils.consoleLogIfWatched(room, `running spawns`);
@@ -37,24 +38,22 @@ export class Sockpuppet {
   public runCreeps(): void {
     for (let name in Game.creeps) {
       let creep = Game.creeps[name];
-      const onRoad = creep.pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_ROAD).length > 0;
-      if (onRoad) {
-        CreepUtils.touchRoad(creep.pos);
-      }
-
-      if (creep.memory.role == 'worker') {
-        Worker.run(creep);
-      }
-      else if (creep.memory.role == 'harvester') {
-        let harvester = new Harvester(creep);
-        harvester.run();
-      }
-      else if (creep.memory.role == 'hauler') {
-        let hauler = new Hauler(creep);
-        hauler.run();
-      }
-      else {
-        console.log(`unknown role: ${creep.memory.role}`);
+      if (!creep.spawning) {
+        if (creep.memory.role == 'worker') {
+          const worker = new Worker(creep);
+          worker.run();
+        }
+        else if (creep.memory.role == 'harvester') {
+          let harvester = new Harvester(creep);
+          harvester.run();
+        }
+        else if (creep.memory.role == 'hauler') {
+          let hauler = new Hauler(creep);
+          hauler.run();
+        }
+        else {
+          console.log(`unknown role: ${creep.memory.role}`);
+        }
       }
     }
   }
