@@ -41,10 +41,12 @@ export class Sockpuppet {
       if (!creep.spawning) {
         if (creep.memory.role == 'worker') {
           const worker = new Worker(creep);
+          // const worker = {...creep} as Worker;
           worker.run();
         }
         else if (creep.memory.role == 'harvester') {
-          let harvester = new Harvester(creep);
+          // const harvester = {...creep} as Harvester;
+          const harvester = new Harvester(creep);
           harvester.run();
         }
         else if (creep.memory.role == 'hauler') {

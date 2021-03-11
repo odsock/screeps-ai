@@ -2,17 +2,20 @@ import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 
 export class CreepWrapper extends Creep {
-  constructor(creep: Creep) {
+  constructor(private readonly creep: Creep) {
     super(creep.id);
+    // HACK: does this do anything?
+    return _.extend(this, creep);
   }
 
   public run() {
+    console.log(this.room);
     this.touchRoad();
   }
 
-  get room(): Room {
-    return new RoomWrapper(super.room.name);
-  }
+  // get room(): Room {
+  //   return new RoomWrapper(this.room.name);
+  // }
 
   protected updateJob(job: string) {
     if (this.memory.job != job) {
@@ -218,7 +221,7 @@ export class CreepWrapper extends Creep {
     let roadCount = 0;
     let plainCount = 0;
     let spwampCount = 0;
-    const terrain = this.room.getTerrain();
+    const terrain = this.creep.room.getTerrain();
     path.path.forEach((pos) => {
       if (pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_ROAD).length > 0) {
         roadCount++;
