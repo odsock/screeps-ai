@@ -2,7 +2,7 @@ import { CreepUtils } from "creep-utils";
 import { Planner } from "planning/planner";
 import { Harvester } from "roles/harvester";
 import { Hauler } from "roles/hauler";
-import { Spawner } from "roles/spawner";
+import { Spawn } from "structures/spawn";
 import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
 
@@ -18,7 +18,7 @@ export class Sockpuppet {
       const spawns = room.find(FIND_MY_SPAWNS);
       for (let i = 0; i < spawns.length; i++) {
         const spawn = spawns[i];
-        let spawner = new Spawner(spawn);
+        let spawner = new Spawn(spawn);
         spawner.spawnCreeps();
       }
 

@@ -1,4 +1,5 @@
 import { CreepUtils } from "creep-utils";
+import { RoomWrapper } from "structures/room-wrapper";
 
 export class CreepWrapper extends Creep {
   constructor(creep: Creep) {
@@ -7,6 +8,10 @@ export class CreepWrapper extends Creep {
 
   public run() {
     this.touchRoad();
+  }
+
+  get room(): Room {
+    return new RoomWrapper(super.room.name);
   }
 
   protected updateJob(job: string) {
