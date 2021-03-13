@@ -4,8 +4,6 @@ import { RoomWrapper } from "structures/room-wrapper";
 export class CreepWrapper extends Creep {
   constructor(private readonly creep: Creep) {
     super(creep.id);
-    // HACK: does this do anything?
-    return _.extend(this, creep);
   }
 
   public run() {
@@ -13,9 +11,9 @@ export class CreepWrapper extends Creep {
     this.touchRoad();
   }
 
-  // get room(): Room {
-  //   return new RoomWrapper(this.room.name);
-  // }
+  get roomw(): Room {
+    return new RoomWrapper(this.room.name);
+  }
 
   protected updateJob(job: string) {
     if (this.memory.job != job) {
