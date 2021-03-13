@@ -36,6 +36,7 @@ export class Spawn extends StructureSpawn {
 
       // TODO: write a claimer creep
 
+      // TODO: replace small harvesters early, for faster recovery from attack or mistakes
       // try to replace any aging harvester early
       this.replaceOldHarvesters();
     }
