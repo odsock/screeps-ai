@@ -33,6 +33,7 @@ export class Hauler extends CreepWrapper {
       this.stopWorkingIfEmpty();
       this.startWorkingIfFull('⚡ upgrade');
       this.workIfCloseToJobsite(controllerContainer.pos, 1);
+      // TODO: if source is empty, start hauling even if not full
 
       if (this.memory.working) {
         if (this.transfer(controllerContainer, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
