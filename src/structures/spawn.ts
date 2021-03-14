@@ -1,6 +1,7 @@
 import { CreepUtils } from "creep-utils";
 import config from "../constants";
 import { Harvester } from "../roles/harvester";
+import { RoomWrapper } from "./room-wrapper";
 
 export class Spawn extends StructureSpawn {
   private readonly workers: Creep[];
@@ -8,16 +9,22 @@ export class Spawn extends StructureSpawn {
   private readonly haulers: Creep[];
   private readonly containers: AnyStructure[];
   private readonly rcl: number;
+  private readonly builders: Creep[];
 
   constructor(spawn: StructureSpawn) {
     super(spawn.id);
 
     const creeps = this.room.find(FIND_MY_CREEPS);
     this.workers = creeps.filter((c) => c.memory.role == 'worker');
+    this.builders = creeps.filter((c) => c.memory.role == 'builder');
     this.harvesters = creeps.filter((c) => c.memory.role == 'harvester');
     this.haulers = creeps.filter((c) => c.memory.role == 'hauler');
     this.containers = this.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
     this.rcl = this.room.controller?.level ? this.room.controller?.level : 0;
+  }
+
+  get roomw(): RoomWrapper {
+    return new RoomWrapper(this.room.name);
   }
 
   public spawnCreeps() {
@@ -84,19 +91,38 @@ export class Spawn extends StructureSpawn {
       CreepUtils.consoleLogIfWatched(this, `low rcl, max workers: ${config.MAX_WORKERS}`);
       return config.MAX_WORKERS;
     }
+    return 0;
+  }
+
+  private getBuilderBody(): BodyPartConstant[] {
+    const conWork = this.room.find(FIND_MY_CONSTRUCTION_SITES)
+      .reduce<number>((work: number, site) => { return work + site.progressTotal - site.progress }, 0);
+    if (conWork > 0) {
+      const workParts = conWork / config.WORK_PER_WORKER_PART;
+      const activeWorkParts = this.builders.reduce((count: number, creep) => {
+        return count + this.countWorkParts(creep);
+      })
+    });
+  }
+
+  private countWorkParts(creep: Creep): number {
+    return creep.body.reduce<number>((creepWorkParts: number, part) => {
+      return creepWorkParts += part.type == WORK ? 1 : 0
+    }, 0);
+  }
+
+  private spawnBuilder(): ScreepsReturnCode {
 
     // make workers if there's something to build
     const conWork = this.room.find(FIND_MY_CONSTRUCTION_SITES)
       .reduce<number>((work: number, site) => { return work + site.progressTotal - site.progress }, 0);
     if (conWork > 0) {
-      const calculatedMaxWorkers = conWork / config.WORK_PER_WORKER;
-      const maxWorkers = calculatedMaxWorkers < config.MAX_WORKERS ? calculatedMaxWorkers : config.MAX_WORKERS;
+      const workParts = conWork / config.WORK_PER_WORKER_PART;
+      const maxWorkers = workParts < config.MAX_WORKERS ? workParts : config.MAX_WORKERS;
       const finalMaxWorkers = Math.ceil(maxWorkers);
-      CreepUtils.consoleLogIfWatched(this, `work: ${conWork}, calc max workers: ${calculatedMaxWorkers}, final max workers: ${finalMaxWorkers}`);
+      CreepUtils.consoleLogIfWatched(this, `work: ${conWork}, calc max workers: ${workParts}, final max workers: ${finalMaxWorkers}`);
       return finalMaxWorkers;
     }
-
-    return 0;
   }
 
   private spawnWorker(): ScreepsReturnCode {

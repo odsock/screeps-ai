@@ -11,7 +11,7 @@ export class CreepWrapper extends Creep {
     this.touchRoad();
   }
 
-  get roomw(): Room {
+  get roomw(): RoomWrapper {
     return new RoomWrapper(this.room.name);
   }
 
@@ -78,18 +78,6 @@ export class CreepWrapper extends Creep {
         this.memory.working = false;
       }
     }
-  }
-
-  protected findConstructionSites() {
-    return this.room.find(FIND_CONSTRUCTION_SITES);
-  }
-
-  protected findTowers(): AnyOwnedStructure[] {
-    return this.room.find(FIND_MY_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_TOWER });
-  }
-
-  protected findRepairSites(): AnyStructure[] {
-    return this.room.find(FIND_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax });
   }
 
   protected findClosestTombstoneWithEnergy(): Tombstone | null {

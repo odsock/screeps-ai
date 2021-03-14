@@ -5,13 +5,6 @@ export class CreepUtils {
     }
   }
 
-  public static roomMemoryLog(room: Room, message: string): void {
-    if (!room.memory.log) {
-      room.memory.log = [];
-    }
-    room.memory.log.push(`${Game.time}: ${message}`);
-  }
-
   public static getEnergyStoreRatioFree(structure: StructureWithStorage): number {
     const freeCap = structure.store.getFreeCapacity(RESOURCE_ENERGY);
     const totalCap = structure.store.getCapacity(RESOURCE_ENERGY);

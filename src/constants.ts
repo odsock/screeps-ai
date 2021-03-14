@@ -1,6 +1,6 @@
 class Constants {
   static readonly MAX_WORKERS: number = 5;
-  static readonly WORK_PER_WORKER = 8000;
+  static readonly WORK_PER_WORKER_PART = 8000;
 
 
   static readonly BODY_PROFILE_WORKER: BodyPartConstant[] = [WORK, MOVE, CARRY];
