@@ -6,6 +6,7 @@ import { Spawn } from "structures/spawn";
 import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
 import { Builder } from "roles/builder";
+import { Upgrader } from "roles/upgrader";
 
 export class Sockpuppet {
   public run() {
@@ -57,6 +58,10 @@ export class Sockpuppet {
         else if (creep.memory.role == 'builder') {
           let builder = new Builder(creep);
           builder.run();
+        }
+        else if (creep.memory.role == 'upgrader') {
+          let upgrader = new Upgrader(creep);
+          upgrader.run();
         }
         else {
           console.log(`unknown role: ${creep.memory.role}`);
