@@ -36,14 +36,18 @@ export class Hauler extends CreepWrapper {
       // TODO: if source is empty, start hauling even if not full
 
       if (this.memory.working) {
+        CreepUtils.consoleLogIfWatched(this, 'working');
         if (this.transfer(controllerContainer, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          this.moveTo(controllerContainer, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
+          const result = this.moveTo(controllerContainer, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
+          CreepUtils.consoleLogIfWatched(this, `moving to controller: ${result}`);
         }
       }
       else {
         // TODO: pickup energy from convenient sources other than source (but not controller)
+        CreepUtils.consoleLogIfWatched(this, 'not working');
         if (this.withdraw(sourceContainer, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          this.moveTo(sourceContainer, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
+          const result = this.moveTo(sourceContainer, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
+          CreepUtils.consoleLogIfWatched(this, `moving to source: ${result}`);
         }
       }
     }
