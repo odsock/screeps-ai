@@ -8,7 +8,7 @@ export class Hauler extends CreepWrapper {
 
   public run() {
     super.run();
-    
+
     // supply spawn/extensions if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
       this.supplySpawn();
@@ -40,6 +40,7 @@ export class Hauler extends CreepWrapper {
         }
       }
       else {
+        // TODO: pickup energy from convenient sources other than source (but not controller)
         if (this.withdraw(sourceContainer, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           this.moveTo(sourceContainer, { range: 1, visualizePathStyle: { stroke: '#ffffff' } });
         }
