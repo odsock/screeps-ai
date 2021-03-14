@@ -2,10 +2,29 @@ class Constants {
   static readonly MAX_WORKERS: number = 5;
   static readonly WORK_PER_WORKER_PART = 8000;
 
+  static readonly BODY_PROFILE_WORKER: CreepBodyProfile = {
+    profile: [WORK, MOVE, CARRY],
+    seed: [],
+    maxBodyParts: MAX_CREEP_SIZE
+  }
 
-  static readonly BODY_PROFILE_WORKER: BodyPartConstant[] = [WORK, MOVE, CARRY];
-  static readonly BODY_PROFILE_HARVESTER: BodyPartConstant[] = [WORK];
-  static readonly BODY_PROFILE_HAULER: BodyPartConstant[] = [MOVE, CARRY, CARRY];
+  static readonly BODY_PROFILE_HARVESTER: CreepBodyProfile = {
+    profile: [WORK],
+    seed: [MOVE, CARRY],
+    maxBodyParts: 10
+  }
+
+  static readonly BODY_PROFILE_HAULER:  CreepBodyProfile = {
+    profile: [MOVE, CARRY, CARRY],
+    seed: [],
+    maxBodyParts: 30
+  }
+
+  static readonly BODY_PROFILE_BUILDER: CreepBodyProfile = {
+    profile: [WORK, MOVE, CARRY],
+    seed: [],
+    maxBodyParts: MAX_CREEP_SIZE
+  }
 
   static readonly STRUCTURE_PLAN_EXTENSION_GROUP: StructurePatternPosition[] = [
     { xOffset: 2, yOffset: 0, structure: STRUCTURE_ROAD },

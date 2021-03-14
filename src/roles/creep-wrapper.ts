@@ -245,4 +245,9 @@ export class CreepWrapper extends Creep {
       this.room.memory.roadUseLog[`${this.pos.x},${this.pos.y}`] = timesUsed + 1;
     }
   }
+
+  public countParts(type: BodyPartConstant): number {
+    return this.body.filter((part) => part.type == type)
+      .length;
+  }
 }

@@ -67,6 +67,12 @@ interface StructureWithStorage {
   store: Store<RESOURCE_ENERGY, false>;
 }
 
+interface CreepBodyProfile {
+  profile: BodyPartConstant[];
+  seed: BodyPartConstant[];
+  maxBodyParts: number;
+}
+
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {
