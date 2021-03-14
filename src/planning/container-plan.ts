@@ -1,9 +1,14 @@
 import { CreepUtils } from "creep-utils";
+import { RoomWrapper } from "structures/room-wrapper";
 import { PlannerUtils } from "./planner-utils";
 import { RoadPlan } from "./road-plan";
 
 export class ContainerPlan {
-  public constructor(private readonly room: Room) { }
+  private readonly room: RoomWrapper;
+
+  public constructor(room: Room) {
+    this.room = new RoomWrapper(room.name);
+  }
 
   public placeControllerContainer(): ScreepsReturnCode {
     if (this.room.controller && !this.roomHasContainersInConstruction()) {
@@ -14,11 +19,11 @@ export class ContainerPlan {
         let pos = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
         if (pos) {
           this.room.memory.controllerInfo.containerPos = pos;
-          CreepUtils.roomMemoryLog(this.room, `created controller container: ${pos.x},${pos.y}`);
+          this.room.roomMemoryLog(`created controller container: ${pos.x},${pos.y}`);
           return OK;
         }
         else {
-          CreepUtils.roomMemoryLog(this.room, `create container failed for controller`);
+          this.room.roomMemoryLog(`create container failed for controller`);
           return ERR_NOT_FOUND;
         }
       }
@@ -34,11 +39,11 @@ export class ContainerPlan {
         let pos = PlannerUtils.placeStructureAdjacent(source.pos, STRUCTURE_CONTAINER);
         if (pos) {
           this.room.memory.sourceInfo[source.id].containerPos = pos;
-          CreepUtils.roomMemoryLog(this.room, `created source container: ${pos.x},${pos.y}`);
+          this.room.roomMemoryLog(`created source container: ${pos.x},${pos.y}`);
           return OK;
         }
         else {
-          CreepUtils.roomMemoryLog(this.room, `create container failed for source: ${source.pos.x},${source.pos.y}`);
+          this.room.roomMemoryLog(`create container failed for source: ${source.pos.x},${source.pos.y}`);
           return ERR_NOT_FOUND;
         }
       }

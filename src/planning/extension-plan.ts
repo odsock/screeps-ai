@@ -1,10 +1,14 @@
 import { CreepUtils } from 'creep-utils';
+import { RoomWrapper } from 'structures/room-wrapper';
 import config from '../constants';
 import { PlannerUtils } from './planner-utils';
 import { StructurePlan } from './structure-plan';
 
 export class ExtensionPlan {
-  constructor(private readonly room: Room) { }
+  private readonly room: RoomWrapper;
+  constructor(room: Room) {
+    this.room = new RoomWrapper(room.name);
+  }
 
   public planExtensionGroup(): ScreepsReturnCode {
     const numAvailableExtensions = this.getNumAvailableExtensions();
@@ -21,7 +25,7 @@ export class ExtensionPlan {
         const planPosition = structurePlan.plan[i];
         const result = this.room.createConstructionSite(planPosition.pos, planPosition.structure);
         if (result != OK) {
-          CreepUtils.roomMemoryLog(this.room, `${planPosition.structure} failed: ${result}, pos: ${planPosition}`);
+          this.room.roomMemoryLog(`${planPosition.structure} failed: ${result}, pos: ${planPosition}`);
           return result;
         }
       }
