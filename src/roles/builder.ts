@@ -13,7 +13,8 @@ export class Builder extends CreepWrapper {
       return;
     }
 
-    CreepUtils.consoleLogIfWatched(this, 'no work left. sitting like a lump');
+    CreepUtils.consoleLogIfWatched(this, 'no work left. this is the end.');
+    this.suicide();
   }
 
   private doBuildJob(): void {
