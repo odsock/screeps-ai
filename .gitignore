@@ -43,7 +43,8 @@ nbproject
 *.sublime-project
 *.sublime-workspace
 .idea
-.vscode
+# keep my vscode files to keep watch task working
+# .vscode
 
 # =========================
 # Operating System Files
