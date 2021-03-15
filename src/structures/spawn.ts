@@ -10,7 +10,6 @@ export class Spawn extends StructureSpawn {
   private readonly workers: Worker[];
   private readonly harvesters: Harvester[];
   private readonly haulers: Hauler[];
-  // TODO: use Builder wrapper here
   private readonly builders: Builder[];
 
   private readonly containers: AnyStructure[];
