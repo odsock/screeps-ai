@@ -55,7 +55,7 @@ export class CreepWrapper extends Creep {
       const sourceCost = PathFinder.search(this.pos, { pos: source.pos, range: 1 }).cost;
       CreepUtils.consoleLogIfWatched(this, `sourceCost: ${sourceCost}`);
       // subtract one from runCost because you cannot stand on the source
-      let runCost = PathFinder.search(source.pos, { pos: jobsite, range: 3 }).cost;
+      let runCost = PathFinder.search(source.pos, { pos: jobsite, range: range }).cost;
       if (runCost > 1) {
         runCost = runCost - 1;
       }
@@ -63,7 +63,7 @@ export class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `runCost: ${runCost}, refillEfficiency: ${refillEfficiency}`);
 
       // calculate effiency of going to job site partially full
-      const jobsiteCost = PathFinder.search(this.pos, { pos: jobsite, range: 3 }).cost;
+      const jobsiteCost = PathFinder.search(this.pos, { pos: jobsite, range: range }).cost;
       const storeRatio = this.store.getUsedCapacity() / this.store.getCapacity();
       const jobsiteEfficiency = jobsiteCost / storeRatio;
       CreepUtils.consoleLogIfWatched(this, `jobsiteCost: ${jobsiteCost}, storeRatio: ${storeRatio}, jobsiteEfficiency: ${jobsiteEfficiency}`);

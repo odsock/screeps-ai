@@ -93,13 +93,17 @@ export class Minder extends CreepWrapper {
 
   protected findFreeSourceContainer(): StructureContainer {
     let sourceContainers: StructureContainer[] = [];
-    const sourceInfos = this.roomw.memory.sourceInfo;
-    for (const sourceId in sourceInfos) {
-      const sourceInfo = sourceInfos[sourceId];
-      if(sourceInfo.containerPos) {
-        const creeps = container.pos.lookFor(LOOK_CREEPS);
-      }
-    }
+    const sourceMemory = this.roomw.memory.sourceInfo;
+    const containerId = Object.keys(sourceMemory)
+      .filter((sourceId) => {
+        sourceMemory.sourceId.containerId
+          && !(sourceMemory.sourceId.minderId && Game.getObjectById(sourceMemory.sourceId.minderId as Id<Creep>))
+      })
+      .map((sourceId) => {
+        return Game.getObjectById(sourceMemory.sourceId.containerId as Id<StructureContainer>);
+      })
+      .;
+    return Game.getObjectById(containerId);
   }
 
   protected moveToFreeContainer(): ScreepsReturnCode {
