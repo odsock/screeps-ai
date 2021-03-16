@@ -91,27 +91,25 @@ export class Minder extends CreepWrapper {
     return null;
   }
 
-  protected findFreeSourceContainer(): StructureContainer {
-    let sourceContainers: StructureContainer[] = [];
+  protected findFreeSourceContainer(): StructureContainer | null {
     const sourceMemory = this.roomw.memory.sourceInfo;
-    const containerId = Object.keys(sourceMemory)
+    const freeContainers = Object.keys(sourceMemory)
       .filter((sourceId) => {
-        sourceMemory.sourceId.containerId
-          && !(sourceMemory.sourceId.minderId && Game.getObjectById(sourceMemory.sourceId.minderId as Id<Creep>))
+        sourceMemory[sourceId].containerId
+          && !(sourceMemory[sourceId].minderId && Game.getObjectById(sourceMemory[sourceId].minderId as Id<Creep>))
       })
-      .map((sourceId) => {
-        return Game.getObjectById(sourceMemory.sourceId.containerId as Id<StructureContainer>);
-      })
-      .;
-    return Game.getObjectById(containerId);
+      .flatMap((sourceId) => {
+        const container = Game.getObjectById(sourceMemory[sourceId].containerId as Id<StructureContainer>);
+        return container ? [container] : [];
+      });
+    return this.pos.findClosestByPath(freeContainers);
   }
 
   protected moveToFreeContainer(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `moving to container`);
-    let containers = this.room.find(FIND_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_CONTAINER });
-    let freeContainers = this.findContainerWithoutHarvester(containers);
-    if (freeContainers) {
-      return this.moveTo(freeContainers[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+    let freeContainer = this.findFreeSourceContainer();
+    if (freeContainer) {
+      return this.moveTo(freeContainer, { visualizePathStyle: { stroke: '#ffaa00' } });
     }
     return ERR_NOT_FOUND;
   }
