@@ -11,12 +11,6 @@ export class Minder extends CreepWrapper {
       }
     }
 
-    if (!this.getMyContainer()) {
-      if (this.moveToFreeContainer() != ERR_NOT_FOUND) {
-        return;
-      }
-    }
-
     const site = this.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES, { filter: { range: 3 } });
     if (site) {
       this.buildNearbySite(site);
@@ -76,52 +70,59 @@ export class Minder extends CreepWrapper {
         CreepUtils.consoleLogIfWatched(this, `container id invalid`);
         this.memory.containerId = undefined;
       }
-      else {
-        return container;
-      }
-    }
-
-    CreepUtils.consoleLogIfWatched(this, `searching for container`);
-    let containersHere = this.pos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_CONTAINER);
-    if (containersHere.length > 0) {
-      const myContainer = containersHere[0] as StructureContainer;
-      this.memory.containerId = myContainer.id;
-      return myContainer;
+      return container;
     }
     return null;
   }
 
-  protected findFreeSourceContainer(): StructureContainer | null {
+  protected claimFreeSourceContainer(): ScreepsReturnCode {
     const sourceMemory = this.roomw.memory.sourceInfo;
-    const freeContainers = Object.keys(sourceMemory)
-      .filter((sourceId) => {
-        sourceMemory[sourceId].containerId
-          && !(sourceMemory[sourceId].minderId && Game.getObjectById(sourceMemory[sourceId].minderId as Id<Creep>))
-      })
-      .flatMap((sourceId) => {
-        const container = Game.getObjectById(sourceMemory[sourceId].containerId as Id<StructureContainer>);
-        return container ? [container] : [];
-      });
-    return this.pos.findClosestByPath(freeContainers);
-  }
 
-  protected moveToFreeContainer(): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `moving to container`);
-    let freeContainer = this.findFreeSourceContainer();
-    if (freeContainer) {
-      return this.moveTo(freeContainer, { visualizePathStyle: { stroke: '#ffaa00' } });
+    let freeSources: SourceInfo[] = [];
+    for (let sourceId in sourceMemory) {
+      if (sourceMemory[sourceId].containerId && !sourceMemory[sourceId].minderId) {
+        freeSources.push(sourceMemory[sourceId]);
+      }
+    }
+
+    const freeContainers = freeSources.flatMap((sourceInfo) => {
+      const container = Game.getObjectById(sourceInfo.containerId as Id<StructureContainer>);
+      return container ? [container] : [];
+    });
+
+    const closestFreeContainer = this.pos.findClosestByPath(freeContainers);
+    const sourceInfo = freeSources.find((sourceInfo) => sourceInfo.containerId == closestFreeContainer?.id);
+    CreepUtils.consoleLogIfWatched(this, `closest free container: ${closestFreeContainer?.pos}`);
+
+    if (sourceInfo && closestFreeContainer) {
+      this.roomw.memory.sourceInfo[sourceInfo.sourceId].minderId = this.id;
+      this.memory.containerId = closestFreeContainer.id;
+      return OK;
     }
     return ERR_NOT_FOUND;
   }
 
+  protected claimFreeControllerContainer(): ScreepsReturnCode {
+    const controllerInfo = this.roomw.memory.controllerInfo;
+    if(controllerInfo.containerId && !controllerInfo.minderId) {
+      this.roomw.memory.controllerInfo.minderId = this.id;
+      this.memory.containerId = controllerInfo.containerId as Id<StructureContainer>;
+      return OK;
+    }
+    return ERR_NOT_FOUND;
+  }
 
-  private findContainerWithoutHarvester(containers: StructureContainer[]) {
-    return containers.filter((container) => {
-      const creeps = container.pos.lookFor(LOOK_CREEPS);
-      if (creeps.length > 0 && creeps[0].memory.role == 'harvester') {
-        return false;
-      }
-      return true;
-    });
+  protected moveToMyContainer(): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `moving to container`);
+    let container = this.getMyContainer();
+    if (container) {
+      return this.moveTo(container, { visualizePathStyle: { stroke: '#ffaa00' } });
+    }
+    return ERR_NOT_FOUND;
+  }
+
+  get onMyContainer(): boolean {
+    const container = this.getMyContainer();
+    return !!container && this.pos.isEqualTo(container.pos);
   }
 }

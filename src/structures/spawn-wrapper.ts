@@ -6,7 +6,7 @@ import config from "../constants";
 import { Harvester } from "../roles/harvester";
 import { RoomWrapper } from "./room-wrapper";
 
-export class Spawn extends StructureSpawn {
+export class SpawnWrapper extends StructureSpawn {
   private readonly workers: Worker[];
   private readonly harvesters: Harvester[];
   private readonly haulers: Hauler[];
@@ -34,7 +34,7 @@ export class Spawn extends StructureSpawn {
   public spawnCreeps() {
     if (!this.spawning) {
       // spawn harvester for each container
-      if (this.harvesters.length < this.getMaxHarvesterCount()) {
+      if (this.harvesters.length < this.getMaxMinderCount()) {
         this.spawnHarvester();
       }
       // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
@@ -44,7 +44,7 @@ export class Spawn extends StructureSpawn {
       if (this.workers.length < this.getMaxWorkerCount()) {
         this.spawnWorker();
       }
-      // make workers if there's something to build
+      // make builders if there's something to build
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
       if (this.roomw.constructionSites.length > 0 && workPartsNeeded) {
         this.spawnBuilder(workPartsNeeded);
@@ -90,7 +90,7 @@ export class Spawn extends StructureSpawn {
     return this.containers.length - 1;
   }
 
-  private getMaxHarvesterCount(): number {
+  private getMaxMinderCount(): number {
     return this.containers.length;
   }
 
@@ -196,13 +196,14 @@ export class Spawn extends StructureSpawn {
 
   private getMaxBodyNow(bodyProfile: CreepBodyProfile) {
     CreepUtils.consoleLogIfWatched(this, `get max body now`)
-    // first make body at as large as possible under 300 spawn energy
+    // first make body as large as possible under 300 spawn energy
     let body = bodyProfile.seed.slice();
     let finalBody: BodyPartConstant[] = [];
     do {
       finalBody = body.slice();
       body = body.concat(bodyProfile.profile);
     } while (this.calcBodyCost(body) < SPAWN_ENERGY_CAPACITY);
+    body = finalBody.slice();
 
     // grow body until all available energy is used
     do {

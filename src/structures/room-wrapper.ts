@@ -1,4 +1,4 @@
-import { Spawn } from "./spawn";
+import { SpawnWrapper } from "./spawn-wrapper";
 
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
@@ -11,8 +11,8 @@ export class RoomWrapper extends Room {
       .reduce<number>((work: number, site) => { return work + site.progressTotal - site.progress }, 0);
   };
 
-  get spawns(): Spawn[] {
-    return this.find(FIND_MY_SPAWNS).map((spawn) => new Spawn(spawn));
+  get spawns(): SpawnWrapper[] {
+    return this.find(FIND_MY_SPAWNS).map((spawn) => new SpawnWrapper(spawn));
   }
 
   get constructionSites(): ConstructionSite[] {

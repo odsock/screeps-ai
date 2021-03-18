@@ -9,7 +9,7 @@ export class Planner {
 
   constructor(room: Room) {
     this.roomw = new RoomWrapper(room.name);
-   }
+  }
 
   run(): ScreepsReturnCode {
     this.setupRoomMemory();
@@ -49,6 +49,7 @@ export class Planner {
     return OK;
   }
 
+  // TODO: refactor memory init to new class
   public setupRoomMemory() {
     if (!this.roomw.memory.controllerInfo) {
       this.roomw.memory.controllerInfo = {};
@@ -61,9 +62,16 @@ export class Planner {
         }
       }
     }
+
+    const controllerInfo = this.roomw.memory.controllerInfo;
+    if (controllerInfo.containerPos && !controllerInfo.containerId) {
+      this.roomw.memory.controllerInfo.containerId = this.getContainerIdAt(new RoomPosition(controllerInfo.containerPos.x, controllerInfo.containerPos.y, controllerInfo.containerPos.roomName));
+    }
+
+    const sources = this.roomw.find(FIND_SOURCES);
+
     if (!this.roomw.memory.sourceInfo) {
       this.roomw.memory.sourceInfo = {};
-      const sources = this.roomw.find(FIND_SOURCES);
       for (let i = 0; i < sources.length; i++) {
         this.roomw.memory.sourceInfo[sources[i].id] = {
           sourceId: sources[i].id,
@@ -72,20 +80,22 @@ export class Planner {
         };
       }
 
-      // add source container id if complete
-      const sourceMemory = this.roomw.memory.sourceInfo;
-      sources.forEach((s) => {
-        const containerPos = sourceMemory[s.id].containerPos;
-        if(containerPos && !sourceMemory[s.id].containerId) {
-          sourceMemory[s.id].containerId = this.getContainerIdAt(containerPos);
-        }
-      });
     }
+
+    // TODO: move source container memory somewhere else
+    // add source container id if complete
+    const sourceMemory = this.roomw.memory.sourceInfo;
+    sources.forEach((s) => {
+      const containerPos = sourceMemory[s.id].containerPos;
+      if (containerPos && !sourceMemory[s.id].containerId) {
+        sourceMemory[s.id].containerId = this.getContainerIdAt(new RoomPosition(containerPos.x, containerPos.y, containerPos.roomName));
+      }
+    });
   }
 
   private getContainerIdAt(containerPos: RoomPosition): string | undefined {
     const container = containerPos.lookFor(LOOK_STRUCTURES).filter((s) => s.structureType == STRUCTURE_CONTAINER);
-    if(container.length > 0) {
+    if (container.length > 0) {
       return container[0].id;
     }
     return undefined;
