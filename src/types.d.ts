@@ -34,7 +34,9 @@ interface SourceInfo {
 
 interface ControllerInfo {
   containerPos?: RoomPosition;
+  containerId?: string;
   linkPos?: RoomPosition;
+  minderId?: string;
 }
 
 interface ConstructionLog {
