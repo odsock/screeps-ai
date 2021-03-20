@@ -1,6 +1,7 @@
 import { CreepUtils } from "creep-utils";
 import { Builder } from "roles/builder";
 import { Hauler } from "roles/hauler";
+import { Upgrader } from "roles/upgrader";
 import { Worker } from "roles/worker";
 import config from "../constants";
 import { Harvester } from "../roles/harvester";
@@ -14,6 +15,7 @@ export class SpawnWrapper extends StructureSpawn {
 
   private readonly containers: AnyStructure[];
   private readonly rcl: number;
+  private readonly upgraders: Upgrader[];
 
   constructor(spawn: StructureSpawn) {
     super(spawn.id);
@@ -22,6 +24,7 @@ export class SpawnWrapper extends StructureSpawn {
     this.workers = creeps.filter((c) => c.memory.role == 'worker').map((c) => new Worker(c));
     this.builders = creeps.filter((c) => c.memory.role == 'builder').map((c) => new Builder(c));;
     this.harvesters = creeps.filter((c) => c.memory.role == 'harvester').map((c) => new Harvester(c));;
+    this.upgraders = creeps.filter((c) => c.memory.role == 'upgarder').map((c) => new Upgrader(c));;
     this.haulers = creeps.filter((c) => c.memory.role == 'hauler').map((c) => new Hauler(c));;
     this.containers = this.room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTAINER });
     this.rcl = this.room.controller?.level ? this.room.controller?.level : 0;
@@ -34,12 +37,15 @@ export class SpawnWrapper extends StructureSpawn {
   public spawnCreeps() {
     if (!this.spawning) {
       // spawn harvester for each container
-      if (this.harvesters.length < this.getMaxMinderCount()) {
+      if (this.harvesters.length < this.getMaxHarvesterCount()) {
         this.spawnHarvester();
       }
       // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
       if (this.haulers.length < this.getMaxHaulerCount()) {
         this.spawnHauler();
+      }
+      if (this.upgraders.length < this.getMaxUpgraderCount()) {
+        this.spawnUpgrader();
       }
       if (this.workers.length < this.getMaxWorkerCount()) {
         this.spawnWorker();
@@ -90,8 +96,14 @@ export class SpawnWrapper extends StructureSpawn {
     return this.containers.length - 1;
   }
 
-  private getMaxMinderCount(): number {
-    return this.containers.length;
+  // TODO: make source continer count dynamic based on memory
+  private getMaxHarvesterCount(): number {
+    return this.containers.length > 0 ? 1 : 0;
+  }
+
+  // TODO: make controller container count dynamic based on memory
+  private getMaxUpgraderCount() {
+    return this.containers.length > 1 ? 1 : 0;
   }
 
   private getMaxWorkerCount(): number {
@@ -142,6 +154,12 @@ export class SpawnWrapper extends StructureSpawn {
     return this.spawn(body, 'harvester', retireeName);
   }
 
+  private spawnUpgrader(retireeName?: string): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `spawning upgrader`);
+    let body: BodyPartConstant[] = this.getUpgraderBody();
+    return this.spawn(body, 'harvester', retireeName);
+  }
+
   private spawnHauler(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `spawning hauler`);
     let body: BodyPartConstant[] = this.getHaulerBody();
@@ -152,6 +170,14 @@ export class SpawnWrapper extends StructureSpawn {
     let body = this.getMaxBody(config.BODY_PROFILE_HARVESTER);
     if (this.harvesters.length <= 0 && this.workers.length <= 0 && this.spawnCreep(body, 'maxBodyTest', { dryRun: true }) != OK) {
       body = this.getMaxBodyNow(config.BODY_PROFILE_HARVESTER);
+    }
+    return body;
+  }
+
+  private getUpgraderBody(): BodyPartConstant[] {
+    let body = this.getMaxBody(config.BODY_PROFILE_UPGRADER);
+    if (this.upgraders.length <= 0 && this.workers.length <= 0 && this.spawnCreep(body, 'maxBodyTest', { dryRun: true }) != OK) {
+      body = this.getMaxBodyNow(config.BODY_PROFILE_UPGRADER);
     }
     return body;
   }

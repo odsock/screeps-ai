@@ -7,7 +7,6 @@ export class CreepWrapper extends Creep {
   }
 
   public run() {
-    console.log(this.room);
     this.touchRoad();
   }
 

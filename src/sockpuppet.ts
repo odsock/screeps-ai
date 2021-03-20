@@ -13,7 +13,7 @@ export class Sockpuppet {
     // Run each room
     const roomIds = Game.rooms;
     for (const roomId in roomIds) {
-      const room = new RoomWrapper(roomId);
+      const room = Game.rooms[roomId];
 
       // Run spawners
       CreepUtils.consoleLogIfWatched(room, `running spawns`);
@@ -28,7 +28,9 @@ export class Sockpuppet {
       this.runTowers(room);
 
       // Plan each room every 10 ticks
+      console.log(`consider planning: ${room.controller} && ${Game.time}`);
       if (room.controller && Game.time % 10 == 0) {
+        console.log(`let's plan`);
         const planner = new Planner(room);
         planner.run();
       }
