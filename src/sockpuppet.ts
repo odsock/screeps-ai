@@ -13,6 +13,7 @@ export class Sockpuppet {
     // Run each room
     const roomIds = Game.rooms;
     for (const roomId in roomIds) {
+      // TODO: test doing this with wrapper (no controller in sim?)
       const room = Game.rooms[roomId];
 
       // Run spawners
@@ -28,9 +29,7 @@ export class Sockpuppet {
       this.runTowers(room);
 
       // Plan each room every 10 ticks
-      console.log(`consider planning: ${room.controller} && ${Game.time}`);
-      if (room.controller && Game.time % 10 == 0) {
-        console.log(`let's plan`);
+      if (Game.time % 10 == 0) {
         const planner = new Planner(room);
         planner.run();
       }

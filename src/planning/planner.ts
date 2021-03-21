@@ -5,27 +5,27 @@ import { ExtensionPlan } from "./extension-plan";
 import { RoadPlan } from "./road-plan";
 
 export class Planner {
-  private readonly roomw: RoomWrapper;
+  private readonly room: Room;
 
   constructor(room: Room) {
-    this.roomw = new RoomWrapper(room.name);
+    this.room = room;
   }
 
   run(): ScreepsReturnCode {
     this.setupRoomMemory();
 
-    if (this.roomw.controller && this.roomw.controller?.level >= 2) {
-      console.log(`${this.roomw.name}: running planning`);
+    if (this.room.controller && this.room.controller?.level >= 2) {
+      console.log(`${this.room.name}: running planning`);
 
       // place available extensions
-      let extensionPlan = new ExtensionPlan(this.roomw);
+      let extensionPlan = new ExtensionPlan(this.room);
       let result = extensionPlan.planExtensionGroup();
       if (result != OK) {
         return result;
       }
 
       // place source containers
-      let containerPlan = new ContainerPlan(this.roomw);
+      let containerPlan = new ContainerPlan(this.room);
       result = containerPlan.placeSourceContainer();
       if (result != OK) {
         return result;
@@ -38,7 +38,7 @@ export class Planner {
       }
 
       // place road from source container to controller container
-      let roadPlan = new RoadPlan(this.roomw);
+      let roadPlan = new RoadPlan(this.room);
       roadPlan.placeRoadSourceContainerToController();
       if (result != OK) {
         return result;
@@ -51,29 +51,29 @@ export class Planner {
 
   // TODO: refactor memory init to new class
   public setupRoomMemory() {
-    if (!this.roomw.memory.controllerInfo) {
-      this.roomw.memory.controllerInfo = {};
-      if (this.roomw.controller) {
-        const container = this.roomw.controller.pos.findInRange(FIND_STRUCTURES, 1, {
+    if (!this.room.memory.controllerInfo) {
+      this.room.memory.controllerInfo = {};
+      if (this.room.controller) {
+        const container = this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
           filter: (c) => c.structureType == STRUCTURE_CONTAINER
         });
         if (container.length > 0) {
-          this.roomw.memory.controllerInfo.containerPos = container[0].pos;
+          this.room.memory.controllerInfo.containerPos = container[0].pos;
         }
       }
     }
 
-    const controllerInfo = this.roomw.memory.controllerInfo;
+    const controllerInfo = this.room.memory.controllerInfo;
     if (controllerInfo.containerPos && !controllerInfo.containerId) {
-      this.roomw.memory.controllerInfo.containerId = this.getContainerIdAt(new RoomPosition(controllerInfo.containerPos.x, controllerInfo.containerPos.y, controllerInfo.containerPos.roomName));
+      this.room.memory.controllerInfo.containerId = this.getContainerIdAt(new RoomPosition(controllerInfo.containerPos.x, controllerInfo.containerPos.y, controllerInfo.containerPos.roomName));
     }
 
-    const sources = this.roomw.find(FIND_SOURCES);
+    const sources = this.room.find(FIND_SOURCES);
 
-    if (!this.roomw.memory.sourceInfo) {
-      this.roomw.memory.sourceInfo = {};
+    if (!this.room.memory.sourceInfo) {
+      this.room.memory.sourceInfo = {};
       for (let i = 0; i < sources.length; i++) {
-        this.roomw.memory.sourceInfo[sources[i].id] = {
+        this.room.memory.sourceInfo[sources[i].id] = {
           sourceId: sources[i].id,
           controllerRoadComplete: false,
           spawnRoadComplete: false
@@ -84,7 +84,7 @@ export class Planner {
 
     // TODO: move source container memory somewhere else
     // add source container id if complete
-    const sourceMemory = this.roomw.memory.sourceInfo;
+    const sourceMemory = this.room.memory.sourceInfo;
     sources.forEach((s) => {
       const containerPos = sourceMemory[s.id].containerPos;
       if (containerPos && !sourceMemory[s.id].containerId) {
