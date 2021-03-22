@@ -7,7 +7,7 @@ export class ContainerPlan {
   private readonly room: RoomWrapper;
 
   public constructor(room: Room) {
-    this.room = new RoomWrapper(room.name);
+    this.room = new RoomWrapper(room);
   }
 
   public placeControllerContainer(): ScreepsReturnCode {

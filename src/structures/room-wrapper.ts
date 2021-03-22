@@ -2,8 +2,12 @@ import { SpawnWrapper } from "./spawn-wrapper";
 
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
-  public constructor(roomId: string) {
-    super(roomId);
+  public constructor(private readonly room: Room) {
+    super(room.name);
+  }
+
+  get controller(): StructureController | undefined {
+    return this.room.controller;
   }
 
   get constructionWork(): number {

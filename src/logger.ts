@@ -9,7 +9,7 @@ export class Logger {
   }
 
   public logRoom(room: Room) {
-    const roomw = new RoomWrapper(room.name);
+    const roomw = new RoomWrapper(room);
 
     if (!roomw.memory.construction) {
       roomw.memory.construction = {};

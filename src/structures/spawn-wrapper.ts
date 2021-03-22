@@ -19,6 +19,7 @@ export class SpawnWrapper extends StructureSpawn {
 
   constructor(spawn: StructureSpawn) {
     super(spawn.id);
+    this.room = new RoomWrapper(spawn.room);
 
     const creeps = this.room.find(FIND_MY_CREEPS);
     this.workers = creeps.filter((c) => c.memory.role == 'worker').map((c) => new Worker(c));
@@ -30,8 +31,12 @@ export class SpawnWrapper extends StructureSpawn {
     this.rcl = this.room.controller?.level ? this.room.controller?.level : 0;
   }
 
-  get roomw(): RoomWrapper {
-    return new RoomWrapper(this.room.name);
+  get room(): RoomWrapper {
+    return this.room;
+  }
+
+  set room(room: RoomWrapper) {
+    this.room = room;
   }
 
   public spawnCreeps() {
@@ -52,7 +57,7 @@ export class SpawnWrapper extends StructureSpawn {
       }
       // make builders if there's something to build
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
-      if (this.roomw.constructionSites.length > 0 && workPartsNeeded) {
+      if (this.room.constructionSites.length > 0 && workPartsNeeded) {
         this.spawnBuilder(workPartsNeeded);
       }
 
@@ -126,7 +131,7 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getBuilderWorkPartsNeeded() {
-    const conWork = this.roomw.constructionWork;
+    const conWork = this.room.constructionWork;
     const activeWorkParts = this.builders.reduce<number>((count: number, creep) => count + creep.countParts(WORK), 0);
     const workPartsNeeded = conWork / config.WORK_PER_WORKER_PART - activeWorkParts;
     return workPartsNeeded;

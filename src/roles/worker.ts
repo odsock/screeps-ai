@@ -26,14 +26,14 @@ export class Worker extends CreepWrapper {
     }
 
     // build if anything to build
-    if (this.roomw.constructionSites.length > 0) {
+    if (this.room.constructionSites.length > 0) {
       CreepUtils.consoleLogIfWatched(this, 'building job');
       this.doBuildJob();
       return;
     }
 
-    const towerCount = this.roomw.towers.length;
-    const repairSiteCount = this.roomw.repairSites.length;
+    const towerCount = this.room.towers.length;
+    const repairSiteCount = this.room.repairSites.length;
     // repair if no towers to do it
     CreepUtils.consoleLogIfWatched(this, `towers: ${towerCount}, repair sites: ${repairSiteCount}`)
     if (towerCount == 0 && repairSiteCount > 0) {

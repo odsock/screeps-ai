@@ -10,8 +10,8 @@ export class CreepWrapper extends Creep {
     this.touchRoad();
   }
 
-  get roomw(): RoomWrapper {
-    return new RoomWrapper(this.room.name);
+  get room(): RoomWrapper {
+    return new RoomWrapper(this.room);
   }
 
   protected updateJob(job: string) {

@@ -5,10 +5,10 @@ import { ExtensionPlan } from "./extension-plan";
 import { RoadPlan } from "./road-plan";
 
 export class Planner {
-  private readonly room: Room;
+  private readonly room: RoomWrapper;
 
   constructor(room: Room) {
-    this.room = room;
+    this.room = new RoomWrapper(room);
   }
 
   run(): ScreepsReturnCode {

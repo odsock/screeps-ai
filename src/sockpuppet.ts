@@ -11,10 +11,9 @@ import { Upgrader } from "roles/upgrader";
 export class Sockpuppet {
   public run() {
     // Run each room
-    const roomIds = Game.rooms;
-    for (const roomId in roomIds) {
+    for (const roomId in Game.rooms) {
       // TODO: test doing this with wrapper (no controller in sim?)
-      const room = Game.rooms[roomId];
+      const room = new RoomWrapper(Game.rooms[roomId]);
 
       // Run spawners
       CreepUtils.consoleLogIfWatched(room, `running spawns`);

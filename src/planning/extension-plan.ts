@@ -6,8 +6,9 @@ import { StructurePlan } from './structure-plan';
 
 export class ExtensionPlan {
   private readonly room: RoomWrapper;
+  
   constructor(room: Room) {
-    this.room = new RoomWrapper(room.name);
+    this.room = new RoomWrapper(room);
   }
 
   public planExtensionGroup(): ScreepsReturnCode {

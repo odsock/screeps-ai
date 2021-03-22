@@ -76,7 +76,7 @@ export class Minder extends CreepWrapper {
   }
 
   protected claimFreeSourceContainer(): ScreepsReturnCode {
-    const sourceMemory = this.roomw.memory.sourceInfo;
+    const sourceMemory = this.room.memory.sourceInfo;
 
     let freeSources: SourceInfo[] = [];
     for (let sourceId in sourceMemory) {
@@ -95,7 +95,7 @@ export class Minder extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `closest free container: ${closestFreeContainer?.pos}`);
 
     if (sourceInfo && closestFreeContainer) {
-      this.roomw.memory.sourceInfo[sourceInfo.sourceId].minderId = this.id;
+      this.room.memory.sourceInfo[sourceInfo.sourceId].minderId = this.id;
       this.memory.containerId = closestFreeContainer.id;
       return OK;
     }
@@ -103,9 +103,9 @@ export class Minder extends CreepWrapper {
   }
 
   protected claimFreeControllerContainer(): ScreepsReturnCode {
-    const controllerInfo = this.roomw.memory.controllerInfo;
+    const controllerInfo = this.room.memory.controllerInfo;
     if(controllerInfo.containerId && !controllerInfo.minderId) {
-      this.roomw.memory.controllerInfo.minderId = this.id;
+      this.room.memory.controllerInfo.minderId = this.id;
       this.memory.containerId = controllerInfo.containerId as Id<StructureContainer>;
       return OK;
     }
