@@ -7,7 +7,7 @@ export class Builder extends CreepWrapper {
     super.run();
 
     // build if anything to build
-    if (this.room.constructionSites.length > 0) {
+    if (this.roomw.constructionSites.length > 0) {
       CreepUtils.consoleLogIfWatched(this, 'building job');
       this.doBuildJob();
       return;

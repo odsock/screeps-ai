@@ -154,7 +154,7 @@ export class Hauler extends CreepWrapper {
   }
 
   private findTowersBelowThreshold(): StructureTower[] {
-    const towers = this.room.towers;
+    const towers = this.roomw.towers;
     CreepUtils.consoleLogIfWatched(this, `towers: ${towers.length}`);
 
     const towersNotFull = towers.filter((tower) => {

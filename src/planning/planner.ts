@@ -51,7 +51,9 @@ export class Planner {
 
   // TODO: refactor memory init to new class
   public setupRoomMemory() {
+    console.log(`setup room memory`);
     if (!this.room.memory.controllerInfo) {
+      console.log(`- add controllerInfo`);
       this.room.memory.controllerInfo = {};
       if (this.room.controller) {
         const container = this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
@@ -63,31 +65,37 @@ export class Planner {
       }
     }
 
+    console.log(`- add controller containers`)
     const controllerInfo = this.room.memory.controllerInfo;
-    if (controllerInfo.containerPos && !controllerInfo.containerId) {
+    if (controllerInfo?.containerPos && !controllerInfo.containerId) {
       this.room.memory.controllerInfo.containerId = this.getContainerIdAt(new RoomPosition(controllerInfo.containerPos.x, controllerInfo.containerPos.y, controllerInfo.containerPos.roomName));
     }
 
     const sources = this.room.find(FIND_SOURCES);
-
     if (!this.room.memory.sourceInfo) {
+      console.log(`- add sourceInfo`);
       this.room.memory.sourceInfo = {};
-      for (let i = 0; i < sources.length; i++) {
+    }
+
+    for (let i = 0; i < sources.length; i++) {
+      if (!this.room.memory.sourceInfo[sources[i].id]) {
+        console.log(`- add source`);
         this.room.memory.sourceInfo[sources[i].id] = {
           sourceId: sources[i].id,
           controllerRoadComplete: false,
           spawnRoadComplete: false
         };
       }
-
     }
 
     // TODO: move source container memory somewhere else
     // add source container id if complete
     const sourceMemory = this.room.memory.sourceInfo;
+    console.log(`- add source containers`);
     sources.forEach((s) => {
       const containerPos = sourceMemory[s.id].containerPos;
-      if (containerPos && !sourceMemory[s.id].containerId) {
+      if (containerPos && !sourceMemory[s.id]?.containerId) {
+        console.log(`- new container found`);
         sourceMemory[s.id].containerId = this.getContainerIdAt(new RoomPosition(containerPos.x, containerPos.y, containerPos.roomName));
       }
     });
