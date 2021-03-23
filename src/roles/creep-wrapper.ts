@@ -136,6 +136,10 @@ export class CreepWrapper extends Creep {
     if (ruin && this.withdraw(ruin, RESOURCE_ENERGY) == OK) {
       return;
     }
+    const resource = this.findClosestDroppedEnergy();
+    if(resource) {
+      this.pickup(resource);
+    }
 
     let container = this.findClosestContainerWithEnergy();
     if (container && this.withdrawEnergyFromOrMoveTo(container) != ERR_NO_PATH) {
