@@ -9,7 +9,7 @@ export class Worker extends CreepWrapper {
     // harvest if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
       CreepUtils.consoleLogIfWatched(this, 'harvesting job');
-      this.harvestByPriority();
+      this.doHarvestJob();
       return;
     }
 
