@@ -28,7 +28,8 @@ export class Sockpuppet {
       // Plan each room every 10 ticks
       if (Game.time % 10 === 0) {
         const planner = new Planner(room);
-        planner.run();
+        const result = planner.run();
+        console.log(`planning result: ${result}`);
       }
     }
 
