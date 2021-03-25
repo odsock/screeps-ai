@@ -11,7 +11,8 @@
 			"activityBar.background": "#3B2A1E",
 			"titleBar.activeBackground": "#523B2A",
 			"titleBar.activeForeground": "#FDFBFA"
-		}
+		},
+		"eslint.format.enable": true
 	},
 	"tasks": {
 		"version": "2.0.0",

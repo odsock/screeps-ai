@@ -24,7 +24,7 @@ interface RoomMemory {
 
 interface SourceInfo {
   sourceId: string;
-  containerId?: string
+  containerId?: string;
   controllerRoadComplete: boolean;
   spawnRoadComplete: boolean;
   minderId?: string;
@@ -60,8 +60,8 @@ interface StructurePlanPosition {
 }
 
 interface Watchable {
-  name: string
-  [key: string]: any
+  name: string;
+  [key: string]: any;
 }
 
 interface StructureWithStorage {

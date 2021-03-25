@@ -1,35 +1,44 @@
 import { CreepUtils } from "creep-utils";
 
 export class RoadPlan {
-  constructor(private readonly room: Room) { }
+  public constructor(private readonly room: Room) {}
 
   // TODO: make this a road to the controller container
-  public placeRoadSourceContainerToController(): ScreepsReturnCode {
+  public placeRoadSourceContainerToControllerContainer(): ScreepsReturnCode {
     if (this.roomHasRoadsInConstruction()) {
-      return OK;
+      return ERR_BUSY;
     }
 
-    const sourcesWithContainersWithoutRoads = this.room.find(FIND_SOURCES, {
-      filter: (source) => {
-        const sourceInfo = this.room.memory.sourceInfo[source.id];
-        return sourceInfo.containerId && !sourceInfo.controllerRoadComplete;
-      }
-    });
-
-    let sourceContainers: StructureContainer[] = [];
-    sourcesWithContainersWithoutRoads.forEach(source => {
-      const id = this.room.memory.sourceInfo[source.id].containerId;
-      const container = Game.getObjectById(id as Id<StructureContainer>);
-      if(container) {
-        sourceContainers.push(container);
-      }
-    });
-
-    if (sourceContainers.length > 0) {
-      return this.placeRoadToController(sourceContainers[0].pos);
+    const controllerContainer = Game.getObjectById(
+      this.room.memory.controllerInfo.containerId as Id<StructureContainer>
+    );
+    if (!controllerContainer) {
+      this.room.memory.controllerInfo.containerId = undefined;
+      return ERR_NOT_FOUND;
     }
 
-    // Roads all placed
+    const sourceInfo = this.room.memory.sourceInfo;
+    for (const sourceId in sourceInfo) {
+      const info = sourceInfo[sourceId];
+
+      // get the container object, clear id memory if not found
+      const sourceContainer = Game.getObjectById(info.containerId as Id<StructureContainer>);
+      if (!sourceContainer) {
+        this.room.memory.sourceInfo[sourceId].containerId = undefined;
+        continue;
+      }
+
+      // get a path and place road idempotently
+      const path: PathFinderPath = this.planRoad(sourceContainer?.pos, controllerContainer.pos, 1);
+      if (!path.incomplete) {
+        this.placeRoadOnPath(path);
+        if (this.roomHasRoadsInConstruction()) {
+          return OK;
+        }
+      }
+    }
+
+    // no sources, or no containers
     return OK;
   }
 
@@ -38,7 +47,7 @@ export class RoadPlan {
     if (controller) {
       const spawns = this.room.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
-        const path = this.planRoad(spawns[0].pos, controller.pos, 1)
+        const path = this.planRoad(spawns[0].pos, controller.pos, 1);
         if (!path.incomplete) {
           this.placeRoadOnPath(path);
         }
@@ -65,8 +74,8 @@ export class RoadPlan {
     const controller = this.room.controller;
     if (controller) {
       const sources = this.room.find(FIND_SOURCES);
-      for (let i = 0; i < sources.length; i++) {
-        const path = this.planRoad(sources[i].pos, controller.pos, 3);
+      for (const source of sources) {
+        const path = this.planRoad(source.pos, controller.pos, 3);
         if (!path.incomplete) {
           this.placeRoadOnPath(path);
         }
@@ -76,13 +85,12 @@ export class RoadPlan {
   }
 
   private placeRoadOnPath(path: PathFinderPath): ScreepsReturnCode {
-    for (let i = 0; i < path.path.length; i++) {
-      const pos = path.path[i];
+    for (const pos of path.path) {
       const hasRoad = this.checkForRoadAtPos(pos);
       if (!hasRoad) {
         const result = this.room.createConstructionSite(pos, STRUCTURE_ROAD);
-        if (result != 0) {
-          console.log(`road failed: ${result}, pos: ${pos}`);
+        if (result !== 0) {
+          console.log(`road failed: ${result}, pos: ${String(pos)}`);
           return result;
         }
       }
@@ -91,24 +99,33 @@ export class RoadPlan {
   }
 
   private checkForRoadAtPos(pos: RoomPosition): boolean {
-    return pos.look().filter((item) => {
-      const isRoad = item.structure?.structureType == STRUCTURE_ROAD;
-      const isRoadSite = item.constructionSite?.structureType == STRUCTURE_ROAD;
-      return isRoad || isRoadSite;
-    }).length > 0;
+    return (
+      pos.look().filter(item => {
+        const isRoad = item.structure?.structureType === STRUCTURE_ROAD;
+        const isRoadSite = item.constructionSite?.structureType === STRUCTURE_ROAD;
+        return isRoad || isRoadSite;
+      }).length > 0
+    );
   }
 
   private planRoad(origin: RoomPosition, goal: RoomPosition, range = 0): PathFinderPath {
-    const path = PathFinder.search(origin, { pos: goal, range: range }, { swampCost: 2, plainCost: 2, roomCallback: CreepUtils.getRoadCostMatrix });
+    const path = PathFinder.search(
+      origin,
+      { pos: goal, range },
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      { swampCost: 2, plainCost: 2, roomCallback: CreepUtils.getRoadCostMatrix }
+    );
     if (path.incomplete) {
-      console.log(`road plan incomplete: ${origin} -> ${goal}`);
+      console.log(`road plan incomplete: ${String(origin)} -> ${String(goal)}`);
     }
     return path;
   }
 
   private roomHasRoadsInConstruction(): boolean {
-    return this.room.find(FIND_MY_CONSTRUCTION_SITES, {
-      filter: (s) => s.structureType == STRUCTURE_ROAD
-    }).length > 0;
+    return (
+      this.room.find(FIND_MY_CONSTRUCTION_SITES, {
+        filter: s => s.structureType === STRUCTURE_ROAD
+      }).length > 0
+    );
   }
 }

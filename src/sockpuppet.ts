@@ -1,15 +1,15 @@
+import { Builder } from "roles/builder";
 import { CreepUtils } from "creep-utils";
-import { Planner } from "planning/planner";
 import { Harvester } from "roles/harvester";
 import { Hauler } from "roles/hauler";
-import { SpawnWrapper } from "structures/spawn-wrapper";
-import { Worker } from "roles/worker";
+import { Planner } from "planning/planner";
 import { RoomWrapper } from "structures/room-wrapper";
-import { Builder } from "roles/builder";
+import { SpawnWrapper } from "structures/spawn-wrapper";
 import { Upgrader } from "roles/upgrader";
+import { Worker } from "roles/worker";
 
 export class Sockpuppet {
-  public run() {
+  public run(): void {
     // Run each room
     for (const roomId in Game.rooms) {
       // TODO: test doing this with wrapper (no controller in sim?)
@@ -18,9 +18,8 @@ export class Sockpuppet {
       // Run spawners
       CreepUtils.consoleLogIfWatched(room, `running spawns`);
       const spawns = room.find(FIND_MY_SPAWNS);
-      for (let i = 0; i < spawns.length; i++) {
-        const spawn = spawns[i];
-        let spawner = new SpawnWrapper(spawn);
+      for (const spawn of spawns) {
+        const spawner = new SpawnWrapper(spawn);
         spawner.spawnCreeps();
       }
 
@@ -28,7 +27,7 @@ export class Sockpuppet {
       this.runTowers(room);
 
       // Plan each room every 10 ticks
-      if (Game.time % 10 == 0) {
+      if (Game.time % 10 === 0) {
         const planner = new Planner(room);
         planner.run();
       }
@@ -38,30 +37,25 @@ export class Sockpuppet {
   }
 
   public runCreeps(): void {
-    for (let name in Game.creeps) {
-      let creep = Game.creeps[name];
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
       if (!creep.spawning) {
-        if (creep.memory.role == 'worker') {
+        if (creep.memory.role === "worker") {
           const worker = new Worker(creep);
           worker.run();
-        }
-        else if (creep.memory.role == 'harvester') {
+        } else if (creep.memory.role === "harvester") {
           const harvester = new Harvester(creep);
           harvester.run();
-        }
-        else if (creep.memory.role == 'hauler') {
-          let hauler = new Hauler(creep);
+        } else if (creep.memory.role === "hauler") {
+          const hauler = new Hauler(creep);
           hauler.run();
-        }
-        else if (creep.memory.role == 'builder') {
-          let builder = new Builder(creep);
+        } else if (creep.memory.role === "builder") {
+          const builder = new Builder(creep);
           builder.run();
-        }
-        else if (creep.memory.role == 'upgrader') {
-          let upgrader = new Upgrader(creep);
+        } else if (creep.memory.role === "upgrader") {
+          const upgrader = new Upgrader(creep);
           upgrader.run();
-        }
-        else {
+        } else {
           console.log(`unknown role: ${creep.memory.role}`);
         }
       }
@@ -70,29 +64,31 @@ export class Sockpuppet {
 
   // TODO: make a tower wrapper class
   // TODO: towers should heal creeps when nothing to kill
-  public runTowers(room: Room) {
-    const towers = room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_TOWER }) as StructureTower[];
-    for (let i = 0; i < towers.length; i++) {
-      const tower = towers[i];
+  public runTowers(room: Room): void {
+    const towers = room.find(FIND_MY_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_TOWER
+    }) as StructureTower[];
+    for (const tower of towers) {
       const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
       if (closestHostile) {
         tower.attack(closestHostile);
-      }
-      else {
+      } else {
         const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-          filter: (structure) => structure.hits < structure.hitsMax && structure.structureType != STRUCTURE_ROAD
+          filter: structure => structure.hits < structure.hitsMax && structure.structureType !== STRUCTURE_ROAD
         });
         if (closestDamagedStructure) {
           tower.repair(closestDamagedStructure);
-        }
-        else {
+        } else {
           const closestDamagedRoad = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: (structure) => {
-              if (!(structure.structureType == STRUCTURE_ROAD)) return false;
+            filter: structure => {
+              if (!(structure.structureType === STRUCTURE_ROAD)) return false;
               const isDamagedRoad = structure.hits < structure.hitsMax;
               const isUsedRoad = room.memory.roadUseLog[`${structure.pos.x},${structure.pos.y}`] > 0;
               if (!isUsedRoad && isDamagedRoad) {
-                CreepUtils.consoleLogIfWatched(room, `not repairing unused road: ${structure.pos.x},${structure.pos.y}`);
+                CreepUtils.consoleLogIfWatched(
+                  room,
+                  `not repairing unused road: ${structure.pos.x},${structure.pos.y}`
+                );
               }
               return isDamagedRoad && isUsedRoad;
             }
