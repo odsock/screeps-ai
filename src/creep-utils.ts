@@ -5,6 +5,15 @@ export class CreepUtils {
     }
   }
 
+  public static creepBodyToString(body: BodyPartConstant[]): string {
+    const counts = _.countBy(body);
+    let returnValue = "";
+    for (const key in counts) {
+      returnValue = `${returnValue}${key[0]}${counts[key]}`;
+    }
+    return returnValue;
+  }
+
   public static getEnergyStoreRatioFree(structure: StructureWithStorage): number {
     const freeCap = structure.store.getFreeCapacity(RESOURCE_ENERGY);
     const totalCap = structure.store.getCapacity(RESOURCE_ENERGY);
