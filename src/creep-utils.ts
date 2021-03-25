@@ -1,5 +1,5 @@
 export class CreepUtils {
-  public static consoleLogIfWatched(watchable: Watchable, message: string) {
+  public static consoleLogIfWatched(watchable: Watchable, message: string): void {
     if (watchable.memory.watched === true) {
       console.log(`${watchable.name}: ${message}`);
     }
@@ -10,24 +10,27 @@ export class CreepUtils {
     const totalCap = structure.store.getCapacity(RESOURCE_ENERGY);
     if (freeCap && totalCap) {
       return freeCap / totalCap;
-    }
-    else {
+    } else {
       return 0;
     }
   }
 
   public static getPath(origin: RoomPosition, goal: RoomPosition): PathFinderPath {
-    return PathFinder.search(origin, { pos: goal, range: 1 }, {
-      plainCost: 2,
-      swampCost: 10,
-      roomCallback: this.getRoadCostMatrix
-    });
+    return PathFinder.search(
+      origin,
+      { pos: goal, range: 1 },
+      {
+        plainCost: 2,
+        swampCost: 10,
+        roomCallback: this.getRoadCostMatrix
+      }
+    );
   }
 
   public static getRoadCostMatrix(roomName: string): CostMatrix | boolean {
     const room = Game.rooms[roomName];
     if (!room) return false;
-    let cost = new PathFinder.CostMatrix();
+    const cost = new PathFinder.CostMatrix();
 
     const structures = room.find(FIND_STRUCTURES);
     CreepUtils.updateRoadCostMatrixForStructures(structures, cost);
@@ -39,12 +42,13 @@ export class CreepUtils {
   }
 
   private static updateRoadCostMatrixForStructures(structures: AnyStructure[] | ConstructionSite[], cost: CostMatrix) {
-    for (let i = 0; i < structures.length; i++) {
-      const structure = structures[i];
+    for (const structure of structures) {
       if (structure.structureType === STRUCTURE_ROAD) {
         cost.set(structure.pos.x, structure.pos.y, 1);
-      }
-      else if (structure.structureType !== STRUCTURE_CONTAINER && (structure.structureType !== STRUCTURE_RAMPART || !structure.my)) {
+      } else if (
+        structure.structureType !== STRUCTURE_CONTAINER &&
+        (structure.structureType !== STRUCTURE_RAMPART || !structure.my)
+      ) {
         cost.set(structure.pos.x, structure.pos.y, 0xff);
       }
     }
