@@ -1,14 +1,14 @@
+import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
 import config from "../constants";
-import { CreepWrapper } from "./creep-wrapper";
 
 export class Worker extends CreepWrapper {
   public run(): void {
     super.run();
-    
+
     // harvest if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
-      CreepUtils.consoleLogIfWatched(this, 'harvesting job');
+      CreepUtils.consoleLogIfWatched(this, "harvesting job");
       this.doHarvestJob();
       return;
     }
@@ -18,8 +18,8 @@ export class Worker extends CreepWrapper {
     if (tower) {
       const towerPercentFree = CreepUtils.getEnergyStoreRatioFree(tower);
       CreepUtils.consoleLogIfWatched(this, `towerPercentFree: ${towerPercentFree}`);
-      if (this.memory.job == 'supply' || towerPercentFree > .5) {
-        CreepUtils.consoleLogIfWatched(this, 'supply job');
+      if (this.memory.job === "supply" || towerPercentFree > 0.5) {
+        CreepUtils.consoleLogIfWatched(this, "supply job");
         this.doSupplyJob();
         return;
       }
@@ -27,7 +27,7 @@ export class Worker extends CreepWrapper {
 
     // build if anything to build
     if (this.roomw.constructionSites.length > 0) {
-      CreepUtils.consoleLogIfWatched(this, 'building job');
+      CreepUtils.consoleLogIfWatched(this, "building job");
       this.doBuildJob();
       return;
     }
@@ -35,32 +35,31 @@ export class Worker extends CreepWrapper {
     const towerCount = this.roomw.towers.length;
     const repairSiteCount = this.roomw.repairSites.length;
     // repair if no towers to do it
-    CreepUtils.consoleLogIfWatched(this, `towers: ${towerCount}, repair sites: ${repairSiteCount}`)
-    if (towerCount == 0 && repairSiteCount > 0) {
-      CreepUtils.consoleLogIfWatched(this, 'repairing job');
+    CreepUtils.consoleLogIfWatched(this, `towers: ${towerCount}, repair sites: ${repairSiteCount}`);
+    if (towerCount === 0 && repairSiteCount > 0) {
+      CreepUtils.consoleLogIfWatched(this, "repairing job");
       this.doRepairJob();
       return;
     }
 
     // otherwise upgrade
-    CreepUtils.consoleLogIfWatched(this, 'upgrading job');
+    CreepUtils.consoleLogIfWatched(this, "upgrading job");
     this.doUpgradeJob();
   }
 
   private doUpgradeJob(): void {
     if (this.room.controller) {
       const controller = this.room.controller;
-      this.updateJob('upgrading');
+      this.updateJob("upgrading");
       this.stopWorkingIfEmpty();
-      this.startWorkingIfFull('⚡ upgrade');
+      this.startWorkingIfFull("⚡ upgrade");
       this.workIfCloseToJobsite(this.room.controller.pos);
 
       if (this.memory.working) {
-        if (this.upgradeController(controller) == ERR_NOT_IN_RANGE) {
-          this.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+        if (this.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+          this.moveTo(controller, { visualizePathStyle: { stroke: "#ffffff" } });
         }
-      }
-      else {
+      } else {
         this.harvestByPriority();
       }
     }
@@ -70,7 +69,7 @@ export class Worker extends CreepWrapper {
     let site: ConstructionSite | null = null;
     for (let i = 0; !site && i < config.CONSTRUCTION_PRIORITY.length; i++) {
       site = this.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
-        filter: (s) => s.structureType == config.CONSTRUCTION_PRIORITY[i]
+        filter: s => s.structureType === config.CONSTRUCTION_PRIORITY[i]
       });
     }
     if (!site) {
@@ -78,9 +77,9 @@ export class Worker extends CreepWrapper {
     }
 
     if (site) {
-      this.updateJob('building');
+      this.updateJob("building");
       this.stopWorkingIfEmpty();
-      this.startWorkingIfFull('🚧 build');
+      this.startWorkingIfFull("🚧 build");
       this.workIfCloseToJobsite(site.pos);
 
       if (this.memory.working) {
@@ -89,71 +88,67 @@ export class Worker extends CreepWrapper {
         if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource)) {
           const path = PathFinder.search(this.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
           this.moveByPath(path.path);
+        } else if (this.build(site) === ERR_NOT_IN_RANGE) {
+          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
-        else if (this.build(site as ConstructionSite) == ERR_NOT_IN_RANGE) {
-          this.moveTo(site as ConstructionSite, { visualizePathStyle: { stroke: '#ffffff' } });
-        }
-      }
-      else {
+      } else {
         this.harvestByPriority();
       }
     }
   }
 
   private doRepairJob(): void {
-    const site = this.pos.findClosestByPath(FIND_STRUCTURES, { filter: (structure) => structure.hits < structure.hitsMax });
+    const site = this.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: structure => structure.hits < structure.hitsMax
+    });
     if (site) {
-      this.updateJob('repairing');
+      this.updateJob("repairing");
       this.stopWorkingIfEmpty();
-      this.startWorkingIfFull('🚧 repair');
+      this.startWorkingIfFull("🚧 repair");
       this.workIfCloseToJobsite(site.pos);
 
       if (this.memory.working) {
-        if (this.repair(site) == ERR_NOT_IN_RANGE) {
-          this.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });
+        if (this.repair(site) === ERR_NOT_IN_RANGE) {
+          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
-      }
-      else {
+      } else {
         this.harvestByPriority();
       }
     }
   }
 
   private doHarvestJob(): void {
-    this.updateJob('harvesting');
+    this.updateJob("harvesting");
     this.stopWorkingIfEmpty();
-    this.startWorkingIfFull('⚡ transfer');
+    this.startWorkingIfFull("⚡ transfer");
 
     if (this.memory.working) {
       const site = this.findClosestEnergyStorageNotFull();
       if (site) {
-        if (this.transfer(site, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          this.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });
+        if (this.transfer(site, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
       }
-    }
-    else {
+    } else {
       this.harvestByPriority();
     }
   }
 
   private doSupplyJob(): void {
-    this.updateJob('supply');
+    this.updateJob("supply");
     this.stopWorkingIfEmpty();
-    this.startWorkingIfFull('⚡ supply');
+    this.startWorkingIfFull("⚡ supply");
 
     if (this.memory.working) {
       const site = this.findClosestTowerNotFull();
       if (site) {
-        if (this.transfer(site, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          this.moveTo(site, { visualizePathStyle: { stroke: '#ffffff' } });
+        if (this.transfer(site, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
+      } else {
+        this.memory.job = "";
       }
-      else {
-        this.memory.job = '';
-      }
-    }
-    else {
+    } else {
       this.harvestByPriority();
     }
   }

@@ -1,5 +1,5 @@
-import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
+import { CreepUtils } from "creep-utils";
 
 export class CreepWrapper extends Creep {
   public constructor(private readonly creep: Creep) {

@@ -57,22 +57,22 @@ export class PlannerUtils {
     let yOffset = 0;
     const startPos = new RoomPosition(position.x - 1, position.y - 1, position.roomName);
     let pos = startPos;
-    while (pos.createConstructionSite(structureConstant) != OK) {
-      if (xOffset < 2 && yOffset == 0) {
+    while (pos.createConstructionSite(structureConstant) !== OK) {
+      if (xOffset < 2 && yOffset === 0) {
         xOffset++;
       }
-      else if (xOffset == 2 && yOffset < 2) {
+      else if (xOffset === 2 && yOffset < 2) {
         yOffset++;
       }
-      else if (xOffset > 0 && yOffset == 2) {
+      else if (xOffset > 0 && yOffset === 2) {
         xOffset--;
       }
-      else if (xOffset == 0 && yOffset > 0) {
+      else if (xOffset === 0 && yOffset > 0) {
         yOffset--;
       }
 
       // Give up if back to start position
-      if (xOffset == yOffset && xOffset == 0) {
+      if (xOffset === yOffset && xOffset === 0) {
         return null;
       }
 

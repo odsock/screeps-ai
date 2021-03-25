@@ -6,7 +6,7 @@ import { StructurePlan } from './structure-plan';
 
 export class ExtensionPlan {
   private readonly room: RoomWrapper;
-  
+
   constructor(room: Room) {
     this.room = new RoomWrapper(room);
   }
@@ -25,7 +25,7 @@ export class ExtensionPlan {
       for (let i = 0; i < structurePlan.plan.length; i++) {
         const planPosition = structurePlan.plan[i];
         const result = this.room.createConstructionSite(planPosition.pos, planPosition.structure);
-        if (result != OK) {
+        if (result !== OK) {
           this.room.roomMemoryLog(`${planPosition.structure} failed: ${result}, pos: ${planPosition}`);
           return result;
         }

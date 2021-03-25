@@ -1,6 +1,6 @@
+import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
 import config from "../constants";
-import { CreepWrapper } from "./creep-wrapper";
 
 export class Builder extends CreepWrapper {
   public run(): void {
@@ -8,12 +8,12 @@ export class Builder extends CreepWrapper {
 
     // build if anything to build
     if (this.roomw.constructionSites.length > 0) {
-      CreepUtils.consoleLogIfWatched(this, 'building job');
+      CreepUtils.consoleLogIfWatched(this, "building job");
       this.doBuildJob();
       return;
     }
 
-    CreepUtils.consoleLogIfWatched(this, 'no work left. this is the end.');
+    CreepUtils.consoleLogIfWatched(this, "no work left. this is the end.");
     this.suicide();
   }
 
@@ -21,7 +21,7 @@ export class Builder extends CreepWrapper {
     let site: ConstructionSite | null = null;
     for (let i = 0; !site && i < config.CONSTRUCTION_PRIORITY.length; i++) {
       site = this.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
-        filter: (s) => s.structureType == config.CONSTRUCTION_PRIORITY[i]
+        filter: s => s.structureType === config.CONSTRUCTION_PRIORITY[i]
       });
     }
     if (!site) {
@@ -29,9 +29,9 @@ export class Builder extends CreepWrapper {
     }
 
     if (site) {
-      this.updateJob('building');
+      this.updateJob("building");
       this.stopWorkingIfEmpty();
-      this.startWorkingIfFull('🚧 build');
+      this.startWorkingIfFull("🚧 build");
       this.workIfCloseToJobsite(site.pos);
 
       if (this.memory.working) {
@@ -40,12 +40,10 @@ export class Builder extends CreepWrapper {
         if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource)) {
           const path = PathFinder.search(this.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
           this.moveByPath(path.path);
+        } else if (this.build(site) === ERR_NOT_IN_RANGE) {
+          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
-        else if (this.build(site as ConstructionSite) == ERR_NOT_IN_RANGE) {
-          this.moveTo(site as ConstructionSite, { visualizePathStyle: { stroke: '#ffffff' } });
-        }
-      }
-      else {
+      } else {
         this.harvestByPriority();
       }
     }

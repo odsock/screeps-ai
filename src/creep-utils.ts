@@ -1,6 +1,6 @@
 export class CreepUtils {
   public static consoleLogIfWatched(watchable: Watchable, message: string) {
-    if (watchable.memory.watched == true) {
+    if (watchable.memory.watched === true) {
       console.log(`${watchable.name}: ${message}`);
     }
   }
@@ -41,7 +41,7 @@ export class CreepUtils {
   private static updateRoadCostMatrixForStructures(structures: AnyStructure[] | ConstructionSite[], cost: CostMatrix) {
     for (let i = 0; i < structures.length; i++) {
       const structure = structures[i];
-      if (structure.structureType == STRUCTURE_ROAD) {
+      if (structure.structureType === STRUCTURE_ROAD) {
         cost.set(structure.pos.x, structure.pos.y, 1);
       }
       else if (structure.structureType !== STRUCTURE_CONTAINER && (structure.structureType !== STRUCTURE_RAMPART || !structure.my)) {

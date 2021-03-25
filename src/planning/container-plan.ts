@@ -13,9 +13,9 @@ export class ContainerPlan {
   public placeControllerContainer(): ScreepsReturnCode {
     if (this.room.controller && !this.roomHasContainersInConstruction()) {
       const controllerContainer = this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: (c) => c.structureType == STRUCTURE_CONTAINER
+        filter: (c) => c.structureType === STRUCTURE_CONTAINER
       });
-      if (controllerContainer.length == 0) {
+      if (controllerContainer.length === 0) {
         const id = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
         if (id) {
           this.room.memory.controllerInfo.containerId = id;
@@ -47,8 +47,8 @@ export class ContainerPlan {
     if (this.room.controller) {
       return this.room.controller.pos.findClosestByPath(FIND_SOURCES, {
         filter: (s) => s.pos.findInRange(FIND_STRUCTURES, 1, {
-          filter: (c) => c.structureType == STRUCTURE_CONTAINER
-        }).length == 0
+          filter: (c) => c.structureType === STRUCTURE_CONTAINER
+        }).length === 0
       });
     }
     else {
@@ -58,15 +58,15 @@ export class ContainerPlan {
 
   private roomHasContainersInConstruction(): boolean {
     return this.room.find(FIND_MY_CONSTRUCTION_SITES, {
-      filter: (s) => s.structureType == STRUCTURE_CONTAINER
+      filter: (s) => s.structureType === STRUCTURE_CONTAINER
     }).length > 0;
   }
 
   public static findClosestSourceWithoutContainer(pos: RoomPosition): Source | null {
     return pos.findClosestByPath(FIND_SOURCES, {
       filter: (s) => s.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: (c) => c.structureType == STRUCTURE_CONTAINER
-      }).length == 0
+        filter: (c) => c.structureType === STRUCTURE_CONTAINER
+      }).length === 0
     });
   }
 }

@@ -1,19 +1,19 @@
-import { CreepUtils } from "creep-utils";
 import { Minder } from "./minder";
+import { CreepUtils } from "creep-utils";
 
 export class Harvester extends Minder {
-  public run() {
+  public run(): void {
     super.run();
 
-    if(!this.getMyContainer()) {
+    if (!this.getMyContainer()) {
       this.claimFreeSourceContainer();
     }
 
-    if(!this.onMyContainer) {
+    if (!this.onMyContainer) {
       this.moveToMyContainer();
     }
-    
-    if(this.fillContainer() != ERR_NOT_IN_RANGE) {
+
+    if (this.fillContainer() !== ERR_NOT_IN_RANGE) {
       return;
     }
 

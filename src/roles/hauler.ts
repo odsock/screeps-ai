@@ -1,5 +1,5 @@
-import { CreepUtils } from "creep-utils";
 import { CreepWrapper } from "./creep-wrapper";
+import { CreepUtils } from "creep-utils";
 import config from "../constants";
 
 // TODO: assign to source containers or something so they don't only use closest

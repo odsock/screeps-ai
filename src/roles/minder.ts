@@ -1,12 +1,12 @@
-import { CreepUtils } from "creep-utils";
 import { CreepWrapper } from "./creep-wrapper";
+import { CreepUtils } from "creep-utils";
 
 export class Minder extends CreepWrapper {
-  public run() {
+  public run(): void {
     super.run();
 
     if (this.memory.retiree) {
-      if (this.moveToRetiree() != ERR_NOT_FOUND) {
+      if (this.moveToRetiree() !== ERR_NOT_FOUND) {
         return;
       }
     }
@@ -21,17 +21,17 @@ export class Minder extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `filling my container`);
     const myContainer = this.getMyContainer();
     if (myContainer && myContainer.store.getFreeCapacity() > 0) {
-      let sources = this.pos.findInRange(FIND_SOURCES, 1);
+      const sources = this.pos.findInRange(FIND_SOURCES, 1);
       if (sources.length > 0) {
         this.harvest(sources[0]);
         return this.transfer(myContainer, RESOURCE_ENERGY);
       }
       return ERR_NOT_IN_RANGE;
     }
-    return ERR_NOT_FOUND
+    return ERR_NOT_FOUND;
   }
 
-  protected buildNearbySite(site: ConstructionSite<BuildableStructureConstant>) {
+  protected buildNearbySite(site: ConstructionSite<BuildableStructureConstant>): ScreepsReturnCode {
     const withdrawResult = this.withdraw(this.getMyContainer() as StructureContainer, RESOURCE_ENERGY);
     CreepUtils.consoleLogIfWatched(this, `withdraw: ${withdrawResult}`);
     const result = this.build(site);
@@ -55,9 +55,8 @@ export class Minder extends CreepWrapper {
     const retireeName = this.memory.retiree as string;
     const retiree = Game.creeps[retireeName];
     if (retiree) {
-      return this.moveTo(retiree.pos, { visualizePathStyle: { stroke: '#ffaa00' } });
-    }
-    else {
+      return this.moveTo(retiree.pos, { visualizePathStyle: { stroke: "#ffaa00" } });
+    } else {
       this.memory.retiree = undefined;
       return ERR_NOT_FOUND;
     }
@@ -78,24 +77,26 @@ export class Minder extends CreepWrapper {
   protected claimFreeSourceContainer(): ScreepsReturnCode {
     const sourceMemory = this.room.memory.sourceInfo;
 
-    let freeSources: SourceInfo[] = [];
-    for (let sourceId in sourceMemory) {
+    const freeSourceInfos: SourceInfo[] = [];
+    for (const sourceId in sourceMemory) {
       if (sourceMemory[sourceId].containerId && !sourceMemory[sourceId].minderId) {
-        freeSources.push(sourceMemory[sourceId]);
+        freeSourceInfos.push(sourceMemory[sourceId]);
       }
     }
 
-    const freeContainers = freeSources.flatMap((sourceInfo) => {
+    const freeContainers = freeSourceInfos.flatMap(sourceInfo => {
       const container = Game.getObjectById(sourceInfo.containerId as Id<StructureContainer>);
       return container ? [container] : [];
     });
 
     const closestFreeContainer = this.pos.findClosestByPath(freeContainers);
-    const sourceInfo = freeSources.find((sourceInfo) => sourceInfo.containerId == closestFreeContainer?.id);
-    CreepUtils.consoleLogIfWatched(this, `closest free container: ${closestFreeContainer?.pos}`);
+    const closestFreeSourceInfo = freeSourceInfos.find(
+      freeSourceInfo => freeSourceInfo.containerId === closestFreeContainer?.id
+    );
+    CreepUtils.consoleLogIfWatched(this, `closest free container: ${String(closestFreeContainer?.pos)}`);
 
-    if (sourceInfo && closestFreeContainer) {
-      this.room.memory.sourceInfo[sourceInfo.sourceId].minderId = this.id;
+    if (closestFreeSourceInfo && closestFreeContainer) {
+      this.room.memory.sourceInfo[closestFreeSourceInfo.sourceId].minderId = this.id;
       this.memory.containerId = closestFreeContainer.id;
       return OK;
     }
@@ -104,7 +105,7 @@ export class Minder extends CreepWrapper {
 
   protected claimFreeControllerContainer(): ScreepsReturnCode {
     const controllerInfo = this.room.memory.controllerInfo;
-    if(controllerInfo.containerId && !controllerInfo.minderId) {
+    if (controllerInfo.containerId && !controllerInfo.minderId) {
       this.room.memory.controllerInfo.minderId = this.id;
       this.memory.containerId = controllerInfo.containerId as Id<StructureContainer>;
       return OK;
@@ -114,14 +115,14 @@ export class Minder extends CreepWrapper {
 
   protected moveToMyContainer(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `moving to container`);
-    let container = this.getMyContainer();
+    const container = this.getMyContainer();
     if (container) {
-      return this.moveTo(container, { visualizePathStyle: { stroke: '#ffaa00' } });
+      return this.moveTo(container, { visualizePathStyle: { stroke: "#ffaa00" } });
     }
     return ERR_NOT_FOUND;
   }
 
-  get onMyContainer(): boolean {
+  protected get onMyContainer(): boolean {
     const container = this.getMyContainer();
     return !!container && this.pos.isEqualTo(container.pos);
   }
