@@ -52,7 +52,7 @@ export class PlannerUtils {
     return undefined;
   }
 
-  public static placeStructureAdjacent(position: RoomPosition, structureConstant: BuildableStructureConstant): RoomPosition | null {
+  public static placeStructureAdjacent(position: RoomPosition, structureConstant: BuildableStructureConstant): string | null {
     let xOffset = 0;
     let yOffset = 0;
     const startPos = new RoomPosition(position.x - 1, position.y - 1, position.roomName);
@@ -78,6 +78,11 @@ export class PlannerUtils {
 
       pos = new RoomPosition(startPos.x + xOffset, startPos.y + yOffset, startPos.roomName);
     }
-    return pos;
+
+    const structure = pos.lookFor(LOOK_CONSTRUCTION_SITES);
+    if(structure.length > 0) {
+      return structure[0].id;
+    }
+    return null;
   }
 }

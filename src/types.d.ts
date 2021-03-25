@@ -24,18 +24,14 @@ interface RoomMemory {
 
 interface SourceInfo {
   sourceId: string;
-  containerPos?: RoomPosition;
   containerId?: string
-  linkPos?: RoomPosition;
   controllerRoadComplete: boolean;
   spawnRoadComplete: boolean;
   minderId?: string;
 }
 
 interface ControllerInfo {
-  containerPos?: RoomPosition;
   containerId?: string;
-  linkPos?: RoomPosition;
   minderId?: string;
 }
 

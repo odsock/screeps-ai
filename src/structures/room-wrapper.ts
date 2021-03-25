@@ -4,6 +4,8 @@ import { SpawnWrapper } from "./spawn-wrapper";
 export class RoomWrapper extends Room {
   public constructor(private readonly room: Room) {
     super(room.name);
+    // does this work?
+    // Object.create(RoomPosition.prototype, Object.getOwnPropertyDescriptors(pos));
   }
 
   get controller(): StructureController | undefined {

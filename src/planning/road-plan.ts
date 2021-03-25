@@ -12,17 +12,21 @@ export class RoadPlan {
     const sourcesWithContainersWithoutRoads = this.room.find(FIND_SOURCES, {
       filter: (source) => {
         const sourceInfo = this.room.memory.sourceInfo[source.id];
-        return sourceInfo.containerPos && !sourceInfo.controllerRoadComplete;
+        return sourceInfo.containerId && !sourceInfo.controllerRoadComplete;
       }
     });
 
-    const sourceContainers = sourcesWithContainersWithoutRoads.map((source) =>{
-      const pos = this.room.memory.sourceInfo[source.id].containerPos as RoomPosition;
-      return Object.create(RoomPosition.prototype, Object.getOwnPropertyDescriptors(pos));
+    let sourceContainers: StructureContainer[] = [];
+    sourcesWithContainersWithoutRoads.forEach(source => {
+      const id = this.room.memory.sourceInfo[source.id].containerId;
+      const container = Game.getObjectById(id as Id<StructureContainer>);
+      if(container) {
+        sourceContainers.push(container);
+      }
     });
 
-    if (sourceContainers[0]) {
-      return this.placeRoadToController(sourceContainers[0]);
+    if (sourceContainers.length > 0) {
+      return this.placeRoadToController(sourceContainers[0].pos);
     }
 
     // Roads all placed

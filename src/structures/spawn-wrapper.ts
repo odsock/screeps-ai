@@ -34,23 +34,29 @@ export class SpawnWrapper extends StructureSpawn {
 
   public spawnCreeps() {
     if (!this.spawning) {
+      CreepUtils.consoleLogIfWatched(this, `spawn creeps`);
       // spawn harvester for each container
       if (this.harvesters.length < this.getMaxHarvesterCount()) {
+        CreepUtils.consoleLogIfWatched(this, `- harvester`);
         this.spawnHarvester();
       }
       // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
       if (this.haulers.length < this.getMaxHaulerCount()) {
+        CreepUtils.consoleLogIfWatched(this, `- hauler`);
         this.spawnHauler();
       }
       if (this.upgraders.length < this.getMaxUpgraderCount()) {
+        CreepUtils.consoleLogIfWatched(this, `- upgrader`);
         this.spawnUpgrader();
       }
       if (this.workers.length < this.getMaxWorkerCount()) {
+        CreepUtils.consoleLogIfWatched(this, `- worker`);
         this.spawnWorker();
       }
       // make builders if there's something to build
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
       if (this.roomw.constructionSites.length > 0 && workPartsNeeded) {
+        CreepUtils.consoleLogIfWatched(this, `- builder`);
         this.spawnBuilder(workPartsNeeded);
       }
 
