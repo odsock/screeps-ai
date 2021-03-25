@@ -1,38 +1,38 @@
 class Constants {
-  static readonly MAX_WORKERS: number = 5;
-  static readonly WORK_PER_WORKER_PART = 2500;
+  public static readonly MAX_WORKERS: number = 5;
+  public static readonly WORK_PER_WORKER_PART = 2500;
 
-  static readonly BODY_PROFILE_WORKER: CreepBodyProfile = {
+  public static readonly BODY_PROFILE_WORKER: CreepBodyProfile = {
     profile: [WORK, MOVE, CARRY],
     seed: [],
     maxBodyParts: MAX_CREEP_SIZE
-  }
+  };
 
-  static readonly BODY_PROFILE_HARVESTER: CreepBodyProfile = {
+  public static readonly BODY_PROFILE_HARVESTER: CreepBodyProfile = {
     profile: [WORK],
     seed: [MOVE, CARRY],
     maxBodyParts: 10
-  }
+  };
 
-  static readonly BODY_PROFILE_UPGRADER: CreepBodyProfile = {
+  public static readonly BODY_PROFILE_UPGRADER: CreepBodyProfile = {
     profile: [WORK],
     seed: [MOVE, CARRY],
     maxBodyParts: 5
-  }
+  };
 
-  static readonly BODY_PROFILE_HAULER:  CreepBodyProfile = {
+  public static readonly BODY_PROFILE_HAULER: CreepBodyProfile = {
     profile: [MOVE, CARRY, CARRY],
     seed: [],
     maxBodyParts: 30
-  }
+  };
 
-  static readonly BODY_PROFILE_BUILDER: CreepBodyProfile = {
+  public static readonly BODY_PROFILE_BUILDER: CreepBodyProfile = {
     profile: [WORK, MOVE, CARRY],
     seed: [],
     maxBodyParts: MAX_CREEP_SIZE
-  }
+  };
 
-  static readonly STRUCTURE_PLAN_EXTENSION_GROUP: StructurePatternPosition[] = [
+  public static readonly STRUCTURE_PLAN_EXTENSION_GROUP: StructurePatternPosition[] = [
     { xOffset: 2, yOffset: 0, structure: STRUCTURE_ROAD },
     { xOffset: 1, yOffset: 1, structure: STRUCTURE_ROAD },
     { xOffset: 2, yOffset: 1, structure: STRUCTURE_EXTENSION },
@@ -48,11 +48,11 @@ class Constants {
     { xOffset: 2, yOffset: 4, structure: STRUCTURE_ROAD }
   ];
 
-  static readonly ROOM_SIZE = 50;
-  static readonly MAX_DISTANCE = 99999;
-  static readonly TOWER_RESUPPLY_THRESHOLD = .75;
+  public static readonly ROOM_SIZE = 50;
+  public static readonly MAX_DISTANCE = 99999;
+  public static readonly TOWER_RESUPPLY_THRESHOLD = 0.75;
 
-  static readonly CONSTRUCTION_PRIORITY: StructureConstant[] = [
+  public static readonly CONSTRUCTION_PRIORITY: StructureConstant[] = [
     STRUCTURE_TOWER,
     STRUCTURE_EXTENSION,
     STRUCTURE_CONTAINER
