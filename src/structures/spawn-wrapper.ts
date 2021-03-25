@@ -86,7 +86,7 @@ export class SpawnWrapper extends StructureSpawn {
         const ticksToReplace = harvester.calcWalkTime(pathToReplace);
         CreepUtils.consoleLogIfWatched(
           this,
-          `harvester spawn: ticksToLive: ${String(
+          `- harvester spawn: ticksToLive: ${String(
             harvester.ticksToLive
           )}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`
         );
@@ -117,7 +117,7 @@ export class SpawnWrapper extends StructureSpawn {
   private getMaxWorkerCount(): number {
     // make workers in early stages
     if (this.rcl <= 1 || (this.containers.length === 0 && this.harvesters.length === 0)) {
-      CreepUtils.consoleLogIfWatched(this, `max workers: ${config.MAX_WORKERS}`);
+      CreepUtils.consoleLogIfWatched(this, `- max workers: ${config.MAX_WORKERS}`);
       return config.MAX_WORKERS;
     }
     return 0;
@@ -145,7 +145,7 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private spawnWorker(): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `spawning worker`);
+    CreepUtils.consoleLogIfWatched(this, `- spawning worker`);
     let body: BodyPartConstant[];
     if (this.workers.length < 1) {
       body = this.getMaxBodyNow(config.BODY_PROFILE_WORKER);
@@ -156,19 +156,19 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private spawnHarvester(retireeName?: string): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `spawning harvester`);
+    CreepUtils.consoleLogIfWatched(this, ` - spawning harvester`);
     const body: BodyPartConstant[] = this.getHarvesterBody();
     return this.spawn(body, "harvester", retireeName);
   }
 
   private spawnUpgrader(retireeName?: string): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `spawning upgrader`);
+    CreepUtils.consoleLogIfWatched(this, `- spawning upgrader`);
     const body: BodyPartConstant[] = this.getUpgraderBody();
     return this.spawn(body, "harvester", retireeName);
   }
 
   private spawnHauler(): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `spawning hauler`);
+    CreepUtils.consoleLogIfWatched(this, `- spawning hauler`);
     const body: BodyPartConstant[] = this.getHaulerBody();
     return this.spawn(body, "hauler");
   }
@@ -215,14 +215,18 @@ export class SpawnWrapper extends StructureSpawn {
     if (retiree) {
       memory.retiree = retiree;
     }
-    CreepUtils.consoleLogIfWatched(this, `spawning body: ${String(body)}, role: ${role}, retiree: ${String(retiree)}`);
     const result = this.spawnCreep(body, newName, { memory });
-    console.log(`spawn result: ${result}`);
+    CreepUtils.consoleLogIfWatched(
+      this,
+      ` - spawning: result: ${result}, role: ${role}, body: ${CreepUtils.creepBodyToString(body)}, retiree: ${String(
+        retiree
+      )}`
+    );
     return result;
   }
 
   private getMaxBody({ profile, seed = [], maxBodyParts = MAX_CREEP_SIZE }: CreepBodyProfile) {
-    CreepUtils.consoleLogIfWatched(this, `get max body`);
+    CreepUtils.consoleLogIfWatched(this, ` - get max body`);
     let body: BodyPartConstant[] = seed.slice();
     let finalBody: BodyPartConstant[] = [];
     const energyCapacity = this.room.energyCapacityAvailable;
@@ -230,7 +234,7 @@ export class SpawnWrapper extends StructureSpawn {
       finalBody = body.slice();
       body = body.concat(profile);
     } while (this.calcBodyCost(body) <= energyCapacity && body.length <= maxBodyParts);
-    CreepUtils.consoleLogIfWatched(this, `final body: ${String(finalBody)}`);
+    CreepUtils.consoleLogIfWatched(this, ` - final body: ${CreepUtils.creepBodyToString(finalBody)}`);
     return finalBody;
   }
 
@@ -239,7 +243,7 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getMaxBodyNow(bodyProfile: CreepBodyProfile) {
-    CreepUtils.consoleLogIfWatched(this, `get max body now`);
+    CreepUtils.consoleLogIfWatched(this, ` - get max body now`);
     // first make body as large as possible under 300 spawn energy
     let body = bodyProfile.seed.slice();
     let finalBody: BodyPartConstant[] = [];
@@ -257,7 +261,7 @@ export class SpawnWrapper extends StructureSpawn {
       this.spawnCreep(body, "maximizeBody", { dryRun: true }) === 0 &&
       body.length + bodyProfile.profile.length <= bodyProfile.maxBodyParts
     );
-    CreepUtils.consoleLogIfWatched(this, `final body: ${String(finalBody)}`);
+    CreepUtils.consoleLogIfWatched(this, ` - final body: ${CreepUtils.creepBodyToString(finalBody)}`);
     return finalBody;
   }
 }
