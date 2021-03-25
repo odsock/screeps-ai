@@ -26,6 +26,7 @@ export class ContainerPlan {
   }
 
   public placeSourceContainer(): ScreepsReturnCode {
+    // TODO: remove requirement for controller
     if (this.room.controller && !this.roomHasContainersInConstruction()) {
       // find closest source with no adjacent container
       const source = this.findSourceWithoutContainerCloseToController();
