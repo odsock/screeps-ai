@@ -25,8 +25,6 @@ interface RoomMemory {
 interface SourceInfo {
   sourceId: string;
   containerId?: string;
-  controllerRoadComplete: boolean;
-  spawnRoadComplete: boolean;
   minderId?: string;
 }
 

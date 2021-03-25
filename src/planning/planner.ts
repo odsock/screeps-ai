@@ -61,33 +61,33 @@ export class Planner {
     if (controllerInfo.containerId) {
       const container = Game.getObjectById(controllerInfo.containerId as Id<StructureContainer>);
       if (!container) {
+        console.log(`- remove invalid container id`);
         this.room.memory.controllerInfo.containerId = undefined;
-      }
-    } else if (this.room.controller) {
-        const container = this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
-          filter: c => c.structureType === STRUCTURE_CONTAINER
-        });
-        // TODO: more than one controller container?
-        if (container.length > 0) {
-          console.log(`- add controller container`);
-          this.room.memory.controllerInfo.containerId = container[0].id;
-        }
       }
     }
 
-    const sources = this.room.find(FIND_SOURCES);
+    if (this.room.controller) {
+      const container = this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: c => c.structureType === STRUCTURE_CONTAINER
+      });
+      // TODO: more than one controller container?
+      if (container.length > 0) {
+        console.log(`- add controller container`);
+        this.room.memory.controllerInfo.containerId = container[0].id;
+      }
+    }
+
     if (!this.room.memory.sourceInfo) {
       console.log(`- add sourceInfo`);
       this.room.memory.sourceInfo = {};
     }
-
-    for (let i = 0; i < sources.length; i++) {
-      if (!this.room.memory.sourceInfo[sources[i].id]) {
+    
+    const sources = this.room.find(FIND_SOURCES);
+    for (const source of sources) {
+      if (!this.room.memory.sourceInfo[source.id]) {
         console.log(`- add source`);
-        this.room.memory.sourceInfo[sources[i].id] = {
-          sourceId: sources[i].id,
-          controllerRoadComplete: false,
-          spawnRoadComplete: false
+        this.room.memory.sourceInfo[source.id] = {
+          sourceId: source.id
         };
       }
     }
@@ -96,13 +96,14 @@ export class Planner {
     // add source container id if complete
     const sourceMemory = this.room.memory.sourceInfo;
     console.log(`- add source containers`);
-    sources.forEach(s => {
-      const containerPos = sourceMemory[s.id].containerPos;
-      if (containerPos && !sourceMemory[s.id]?.containerId) {
+    sources.forEach(source => {
+      const containers = source.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: c => c.structureType === STRUCTURE_CONTAINER
+      });
+      // TODO: multiple source containers?
+      if (containers.length > 0 && !sourceMemory[source.id]?.containerId) {
         console.log(`- new container found`);
-        sourceMemory[s.id].containerId = this.getContainerIdAt(
-          new RoomPosition(containerPos.x, containerPos.y, containerPos.roomName)
-        );
+        sourceMemory[source.id].containerId = containers[0].id;
       }
     });
   }
