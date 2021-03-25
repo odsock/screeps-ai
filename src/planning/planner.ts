@@ -95,14 +95,13 @@ export class Planner {
     // TODO: move source container memory somewhere else
     // add source container id if complete
     const sourceMemory = this.room.memory.sourceInfo;
-    console.log(`- add source containers`);
     sources.forEach(source => {
       const containers = source.pos.findInRange(FIND_STRUCTURES, 1, {
         filter: c => c.structureType === STRUCTURE_CONTAINER
       });
       // TODO: multiple source containers?
       if (containers.length > 0 && !sourceMemory[source.id]?.containerId) {
-        console.log(`- new container found`);
+        console.log(`- add source containers`);
         sourceMemory[source.id].containerId = containers[0].id;
       }
     });
