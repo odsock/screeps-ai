@@ -101,7 +101,14 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getMaxHaulerCount(): number {
-    return this.containers.length - 1;
+    switch (this.containers.length) {
+      case 0:
+        return 0;
+      case 1:
+        return 1;
+      default:
+        return this.containers.length - 1;
+    }
   }
 
   // TODO: make source continer count dynamic based on memory
