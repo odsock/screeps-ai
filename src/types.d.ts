@@ -9,6 +9,7 @@ interface CreepMemory {
   role: string;
   room?: string;
   working?: boolean;
+  watched?: boolean;
 }
 
 interface RoomMemory {
@@ -20,6 +21,7 @@ interface RoomMemory {
   extensionRoads: boolean;
   controllerRoads: boolean;
   extensionCount: number;
+  watched?: boolean;
 }
 
 interface SourceInfo {
@@ -42,11 +44,6 @@ interface ConstructionLog {
   pos: RoomPosition;
 }
 
-interface Memory {
-  uuid: number;
-  log: any;
-}
-
 interface StructurePatternPosition {
   xOffset: number;
   yOffset: number;
@@ -60,6 +57,7 @@ interface StructurePlanPosition {
 interface Watchable {
   name: string;
   [key: string]: any;
+  memory: { watched?: boolean };
 }
 
 interface StructureWithStorage {
