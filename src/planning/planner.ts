@@ -81,7 +81,7 @@ export class Planner {
       console.log(`- add sourceInfo`);
       this.room.memory.sourceInfo = {};
     }
-    
+
     const sources = this.room.find(FIND_SOURCES);
     for (const source of sources) {
       if (!this.room.memory.sourceInfo[source.id]) {
@@ -109,7 +109,7 @@ export class Planner {
   }
 
   private getContainerIdAt(containerPos: RoomPosition): string | undefined {
-    const container = containerPos.lookFor(LOOK_STRUCTURES).filter(s => s.structureType == STRUCTURE_CONTAINER);
+    const container = containerPos.lookFor(LOOK_STRUCTURES).filter(s => s.structureType === STRUCTURE_CONTAINER);
     if (container.length > 0) {
       return container[0].id;
     }
