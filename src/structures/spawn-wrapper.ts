@@ -116,8 +116,8 @@ export class SpawnWrapper extends StructureSpawn {
 
   private getMaxWorkerCount(): number {
     // make workers in early stages
-    if (this.rcl <= 1) {
-      CreepUtils.consoleLogIfWatched(this, `low rcl, max workers: ${config.MAX_WORKERS}`);
+    if (this.rcl <= 1 || (this.containers.length === 0 && this.harvesters.length === 0)) {
+      CreepUtils.consoleLogIfWatched(this, `max workers: ${config.MAX_WORKERS}`);
       return config.MAX_WORKERS;
     }
     return 0;

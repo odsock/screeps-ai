@@ -9,7 +9,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   cleanupDeadCreepMemory();
 
   const sockpuppet = new Sockpuppet();
-  // sockpuppet.run();
+  sockpuppet.run();
 
   const logger = new Logger();
   logger.run();
