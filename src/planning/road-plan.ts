@@ -112,7 +112,6 @@ export class RoadPlan {
     const path = PathFinder.search(
       origin,
       { pos: goal, range },
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       { swampCost: 2, plainCost: 2, roomCallback: CreepUtils.getRoadCostMatrix }
     );
     if (path.incomplete) {

@@ -36,7 +36,7 @@ export class CreepUtils {
     );
   }
 
-  public static getRoadCostMatrix(roomName: string): CostMatrix | boolean {
+  public static getRoadCostMatrix = (roomName: string): CostMatrix | boolean => {
     const room = Game.rooms[roomName];
     if (!room) return false;
     const cost = new PathFinder.CostMatrix();
@@ -48,7 +48,7 @@ export class CreepUtils {
     CreepUtils.updateRoadCostMatrixForStructures(constructionSites, cost);
 
     return cost;
-  }
+  };
 
   private static updateRoadCostMatrixForStructures(structures: AnyStructure[] | ConstructionSite[], cost: CostMatrix) {
     for (const structure of structures) {
