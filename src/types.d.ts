@@ -18,8 +18,6 @@ interface RoomMemory {
   controllerInfo: ControllerInfo;
   log: string[];
   construction: { [id: string]: ConstructionLog };
-  extensionRoads: boolean;
-  controllerRoads: boolean;
   extensionCount: number;
   watched?: boolean;
 }
