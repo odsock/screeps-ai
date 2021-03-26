@@ -81,7 +81,9 @@ export class Sockpuppet {
         } else {
           const closestDamagedRoad = tower.pos.findClosestByRange(FIND_STRUCTURES, {
             filter: structure => {
-              if (!(structure.structureType === STRUCTURE_ROAD)) return false;
+              if (!(structure.structureType === STRUCTURE_ROAD)) {
+                return false;
+              }
               const isDamagedRoad = structure.hits < structure.hitsMax;
               const isUsedRoad = room.memory.roadUseLog[`${structure.pos.x},${structure.pos.y}`] > 0;
               if (!isUsedRoad && isDamagedRoad) {

@@ -26,7 +26,7 @@ export class SpawnWrapper extends StructureSpawn {
     this.workers = creeps.filter(c => c.memory.role === "worker").map(c => new Worker(c));
     this.builders = creeps.filter(c => c.memory.role === "builder").map(c => new Builder(c));
     this.harvesters = creeps.filter(c => c.memory.role === "harvester").map(c => new Harvester(c));
-    this.upgraders = creeps.filter(c => c.memory.role === "upgarder").map(c => new Upgrader(c));
+    this.upgraders = creeps.filter(c => c.memory.role === "upgrader").map(c => new Upgrader(c));
     this.haulers = creeps.filter(c => c.memory.role === "hauler").map(c => new Hauler(c));
     this.containers = this.room.find(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_CONTAINER });
     this.rcl = this.room.controller?.level ? this.room.controller?.level : 0;
@@ -45,7 +45,12 @@ export class SpawnWrapper extends StructureSpawn {
         this.spawnHauler();
         return;
       }
-      if (this.upgraders.length < this.getMaxUpgraderCount()) {
+      const maxUpgraders = this.getMaxUpgraderCount();
+      if (this.upgraders.length < maxUpgraders) {
+        CreepUtils.consoleLogIfWatched(
+          this,
+          `- upgrader count: ${this.upgraders.length}, max upgraders: ${maxUpgraders}`
+        );
         this.spawnUpgrader();
         return;
       }
@@ -180,7 +185,7 @@ export class SpawnWrapper extends StructureSpawn {
   private spawnUpgrader(retireeName?: string): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `- spawning upgrader`);
     const body: BodyPartConstant[] = this.getUpgraderBody();
-    return this.spawn(body, "harvester", retireeName);
+    return this.spawn(body, "upgrader", retireeName);
   }
 
   private spawnHauler(): ScreepsReturnCode {
