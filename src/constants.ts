@@ -17,7 +17,7 @@ class Constants {
   public static readonly BODY_PROFILE_UPGRADER: CreepBodyProfile = {
     profile: [WORK],
     seed: [MOVE, CARRY],
-    maxBodyParts: 5
+    maxBodyParts: 6
   };
 
   public static readonly BODY_PROFILE_HAULER: CreepBodyProfile = {
