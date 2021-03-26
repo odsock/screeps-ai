@@ -1,6 +1,6 @@
 class Constants {
   public static readonly MAX_WORKERS: number = 5;
-  public static readonly WORK_PER_WORKER_PART = 2500;
+  public static readonly WORK_PER_WORKER_PART = 1000;
 
   public static readonly BODY_PROFILE_WORKER: CreepBodyProfile = {
     profile: [WORK, MOVE, CARRY],

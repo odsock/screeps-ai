@@ -146,12 +146,13 @@ export class SpawnWrapper extends StructureSpawn {
   private getBuilderWorkPartsNeeded() {
     const conWork = this.roomw.constructionWork;
     const activeWorkParts = this.builders.reduce<number>((count: number, creep) => count + creep.countParts(WORK), 0);
-    const workPartsNeeded = Math.ceil(conWork / config.WORK_PER_WORKER_PART) - activeWorkParts;
+    const workPartsNeeded = Math.ceil(conWork / config.WORK_PER_WORKER_PART);
+    const workPartsDeficit = workPartsNeeded - activeWorkParts;
     CreepUtils.consoleLogIfWatched(
       this,
       `- calc buider parts needed: ${workPartsNeeded}, active: ${activeWorkParts}, work: ${conWork}`
     );
-    return workPartsNeeded > 0 ? workPartsNeeded : 0;
+    return workPartsDeficit > 0 ? workPartsDeficit : 0;
   }
 
   private spawnBuilder(workPartsNeeded: number): ScreepsReturnCode {

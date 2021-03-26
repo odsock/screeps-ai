@@ -80,9 +80,11 @@ export class Minder extends CreepWrapper {
     const freeSourceInfos: SourceInfo[] = [];
     const freeContainers: StructureContainer[] = [];
     for (const sourceId in sourceMemory) {
+      // TODO: make this clean up old minders
       if (sourceMemory[sourceId].containerId && !sourceMemory[sourceId].minderId) {
         const sourceInfo = sourceMemory[sourceId];
         const container = Game.getObjectById(sourceInfo.containerId as Id<StructureContainer>);
+        CreepUtils.consoleLogIfWatched(this, `container: ${String(container)}`);
         if (container) {
           freeSourceInfos.push(sourceInfo);
           freeContainers.push(container);
@@ -90,6 +92,7 @@ export class Minder extends CreepWrapper {
       }
     }
 
+    CreepUtils.consoleLogIfWatched(this, `free containers: ${String(freeContainers)}`);
     const closestFreeContainer = this.pos.findClosestByPath(freeContainers);
     const closestFreeSourceInfo = freeSourceInfos.find(
       freeSourceInfo => freeSourceInfo.containerId === closestFreeContainer?.id

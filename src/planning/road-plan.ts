@@ -5,14 +5,17 @@ export class RoadPlan {
 
   // TODO: make this a road to the controller container
   public placeRoadSourceContainerToControllerContainer(): ScreepsReturnCode {
-    if (this.roomHasRoadsInConstruction()) {
-      return ERR_BUSY;
-    }
+    console.log(`- container road planning`);
+    // if (this.roomHasRoadsInConstruction()) {
+    //   console.log(` - roads already in construction`);
+    //   return ERR_BUSY;
+    // }
 
     const controllerContainer = Game.getObjectById(
       this.room.memory.controllerInfo.containerId as Id<StructureContainer>
     );
     if (!controllerContainer) {
+      console.log(` - no controller container`);
       this.room.memory.controllerInfo.containerId = undefined;
       return ERR_NOT_FOUND;
     }
@@ -31,10 +34,11 @@ export class RoadPlan {
       // get a path and place road idempotently
       const path: PathFinderPath = this.planRoad(sourceContainer?.pos, controllerContainer.pos, 1);
       if (!path.incomplete) {
-        this.placeRoadOnPath(path);
-        if (this.roomHasRoadsInConstruction()) {
-          return OK;
-        }
+        const result = this.placeRoadOnPath(path);
+        console.log(` - placement result: ${result}`);
+        // if (this.roomHasRoadsInConstruction()) {
+        //   return OK;
+        // }
       }
     }
 

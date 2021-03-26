@@ -27,6 +27,7 @@ export class Builder extends CreepWrapper {
     if (!site) {
       site = this.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
     }
+    CreepUtils.consoleLogIfWatched(this, `found site: ${String(site)}`);
 
     if (site) {
       this.updateJob("building");
@@ -34,16 +35,20 @@ export class Builder extends CreepWrapper {
       this.startWorkingIfFull("🚧 build");
       this.workIfCloseToJobsite(site.pos);
 
+      CreepUtils.consoleLogIfWatched(this, `working: ${String(this.memory.working)}`);
       if (this.memory.working) {
         // don't block the source while working
         const closestEnergySource = this.findClosestActiveEnergySource();
-        if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource)) {
+        if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource) && this.pos.inRangeTo(site.pos, 3)) {
+          CreepUtils.consoleLogIfWatched(this, `moving away from source`);
           const path = PathFinder.search(this.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
           this.moveByPath(path.path);
         } else if (this.build(site) === ERR_NOT_IN_RANGE) {
+          CreepUtils.consoleLogIfWatched(this, `moving to site`);
           this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
       } else {
+        CreepUtils.consoleLogIfWatched(this, `going to harvest`);
         this.harvestByPriority();
       }
     }

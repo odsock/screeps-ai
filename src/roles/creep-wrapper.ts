@@ -30,7 +30,9 @@ export class CreepWrapper extends Creep {
   }
 
   protected startWorkingIfFull(message: string): void {
-    if (!this.memory.working && this.store.getFreeCapacity() === 0) {
+    const freeCap = this.store.getFreeCapacity();
+    CreepUtils.consoleLogIfWatched(this, `full check: working: ${String(this.memory.working)}, free cap: ${freeCap}`);
+    if (!this.memory.working && freeCap === 0) {
       CreepUtils.consoleLogIfWatched(this, "start working, full");
       this.memory.working = true;
       this.say(message);
@@ -78,6 +80,8 @@ export class CreepWrapper extends Creep {
         CreepUtils.consoleLogIfWatched(this, `close to source: stopping work`);
         this.memory.working = false;
       }
+    } else {
+      CreepUtils.consoleLogIfWatched(this, `skip jobsite check`);
     }
   }
 

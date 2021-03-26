@@ -96,6 +96,24 @@ export class Planner {
     // add source container id if complete
     const sourceMemory = this.room.memory.sourceInfo;
     sources.forEach(source => {
+      // if there is a container id set validate it
+      if (sourceMemory[source.id].containerId) {
+        const container = Game.getObjectById(sourceMemory[source.id].containerId as Id<StructureContainer>);
+        if (!container) {
+          console.log(`- remove invalid container id`);
+          this.room.memory.sourceInfo[source.id].containerId = undefined;
+        }
+      }
+
+      // if there is a minder id set validate it
+      if (sourceMemory[source.id].minderId) {
+        const creep = Game.getObjectById(sourceMemory[source.id].minderId as Id<Creep>);
+        if (!creep) {
+          console.log(`- remove invalid minder id`);
+          this.room.memory.sourceInfo[source.id].minderId = undefined;
+        }
+      }
+
       const containers = source.pos.findInRange(FIND_STRUCTURES, 1, {
         filter: c => c.structureType === STRUCTURE_CONTAINER
       });
