@@ -70,6 +70,7 @@ export class SpawnWrapper extends StructureSpawn {
       // TODO: replace small harvesters early, for faster recovery from attack or mistakes
       // try to replace any aging harvester early
       this.replaceOldHarvesters();
+      // TODO: replace old upgraders early too
     }
 
     if (this.spawning) {
