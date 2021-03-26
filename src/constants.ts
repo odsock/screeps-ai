@@ -11,13 +11,13 @@ class Constants {
   public static readonly BODY_PROFILE_HARVESTER: CreepBodyProfile = {
     profile: [WORK],
     seed: [MOVE, CARRY],
-    maxBodyParts: 10
+    maxBodyParts: 8
   };
 
   public static readonly BODY_PROFILE_UPGRADER: CreepBodyProfile = {
     profile: [WORK],
     seed: [MOVE, CARRY],
-    maxBodyParts: 6
+    maxBodyParts: 10
   };
 
   public static readonly BODY_PROFILE_HAULER: CreepBodyProfile = {
