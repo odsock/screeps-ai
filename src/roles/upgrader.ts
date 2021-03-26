@@ -7,17 +7,20 @@ export class Upgrader extends Minder {
 
     if (!this.getMyContainer()) {
       if (this.claimFreeControllerContainer() === ERR_NOT_FOUND) {
+        CreepUtils.consoleLogIfWatched(this, `couldn't find a box`);
         return;
       }
     }
 
     if (!this.onMyContainer) {
       if (this.moveToMyContainer() === ERR_NOT_FOUND) {
+        CreepUtils.consoleLogIfWatched(this, `where'd my box go?`);
         return;
       }
     }
 
-    if (this.withdrawAndUpgrade() !== ERR_NOT_FOUND) {
+    if (this.withdrawAndUpgrade() === ERR_NOT_FOUND) {
+      CreepUtils.consoleLogIfWatched(this, `upgrade what?`);
       return;
     }
 
