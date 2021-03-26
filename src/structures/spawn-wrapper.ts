@@ -55,7 +55,7 @@ export class SpawnWrapper extends StructureSpawn {
       }
       // make builders if there's something to build
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
-      if (this.roomw.constructionSites.length > 0 && workPartsNeeded) {
+      if (this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
         this.spawnBuilder(workPartsNeeded);
         return;
       }
@@ -80,15 +80,14 @@ export class SpawnWrapper extends StructureSpawn {
     for (const creep of this.harvesters) {
       const harvester = new Harvester(creep);
       if (!harvester.spawning && !harvester.memory.retiring === true) {
+        CreepUtils.consoleLogIfWatched(this, `- harvester retirement check: ${harvester.name}`);
         const body = this.getHarvesterBody();
         const ticksToSpawn = body.length * CREEP_SPAWN_TIME;
         const pathToReplace = CreepUtils.getPath(this.pos, harvester.pos);
         const ticksToReplace = harvester.calcWalkTime(pathToReplace);
         CreepUtils.consoleLogIfWatched(
           this,
-          `- harvester spawn: ticksToLive: ${String(
-            harvester.ticksToLive
-          )}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`
+          ` - ticksToLive: ${String(harvester.ticksToLive)}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`
         );
         if (harvester.ticksToLive && harvester.ticksToLive <= ticksToSpawn + ticksToReplace) {
           const result = this.spawnHarvester(harvester.name);
@@ -137,14 +136,22 @@ export class SpawnWrapper extends StructureSpawn {
     for (let i = 0; i < workPartsNeeded && body.length < bodyProfile.maxBodyParts; i++) {
       body = body.concat(bodyProfile.profile);
     }
+    CreepUtils.consoleLogIfWatched(
+      this,
+      ` - needed ${workPartsNeeded} parts, body: ${CreepUtils.creepBodyToString(body)}`
+    );
     return body;
   }
 
   private getBuilderWorkPartsNeeded() {
     const conWork = this.roomw.constructionWork;
     const activeWorkParts = this.builders.reduce<number>((count: number, creep) => count + creep.countParts(WORK), 0);
-    const workPartsNeeded = conWork / config.WORK_PER_WORKER_PART - activeWorkParts;
-    return workPartsNeeded;
+    const workPartsNeeded = Math.ceil(conWork / config.WORK_PER_WORKER_PART) - activeWorkParts;
+    CreepUtils.consoleLogIfWatched(
+      this,
+      `- calc buider parts needed: ${workPartsNeeded}, active: ${activeWorkParts}, work: ${conWork}`
+    );
+    return workPartsNeeded > 0 ? workPartsNeeded : 0;
   }
 
   private spawnBuilder(workPartsNeeded: number): ScreepsReturnCode {
