@@ -37,27 +37,27 @@ export class SpawnWrapper extends StructureSpawn {
       CreepUtils.consoleLogIfWatched(this, `spawn creeps`);
       // spawn harvester for each container
       if (this.harvesters.length < this.getMaxHarvesterCount()) {
-        CreepUtils.consoleLogIfWatched(this, `- harvester`);
         this.spawnHarvester();
+        return;
       }
       // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
       if (this.haulers.length < this.getMaxHaulerCount()) {
-        CreepUtils.consoleLogIfWatched(this, `- hauler`);
         this.spawnHauler();
+        return;
       }
       if (this.upgraders.length < this.getMaxUpgraderCount()) {
-        CreepUtils.consoleLogIfWatched(this, `- upgrader`);
         this.spawnUpgrader();
+        return;
       }
       if (this.workers.length < this.getMaxWorkerCount()) {
-        CreepUtils.consoleLogIfWatched(this, `- worker`);
         this.spawnWorker();
+        return;
       }
       // make builders if there's something to build
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
       if (this.roomw.constructionSites.length > 0 && workPartsNeeded) {
-        CreepUtils.consoleLogIfWatched(this, `- builder`);
         this.spawnBuilder(workPartsNeeded);
+        return;
       }
 
       // TODO: write a claimer creep
@@ -148,6 +148,7 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private spawnBuilder(workPartsNeeded: number): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `- spawning builder`);
     return this.spawn(this.getBuilderBody(workPartsNeeded), "builder");
   }
 
@@ -233,7 +234,6 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getMaxBody({ profile, seed = [], maxBodyParts = MAX_CREEP_SIZE }: CreepBodyProfile) {
-    CreepUtils.consoleLogIfWatched(this, ` - get max body`);
     let body: BodyPartConstant[] = seed.slice();
     let finalBody: BodyPartConstant[] = [];
     const energyCapacity = this.room.energyCapacityAvailable;
@@ -241,7 +241,7 @@ export class SpawnWrapper extends StructureSpawn {
       finalBody = body.slice();
       body = body.concat(profile);
     } while (this.calcBodyCost(body) <= energyCapacity && body.length <= maxBodyParts);
-    CreepUtils.consoleLogIfWatched(this, ` - final body: ${CreepUtils.creepBodyToString(finalBody)}`);
+    CreepUtils.consoleLogIfWatched(this, ` - max body: ${CreepUtils.creepBodyToString(finalBody)}`);
     return finalBody;
   }
 
@@ -250,7 +250,6 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getMaxBodyNow(bodyProfile: CreepBodyProfile) {
-    CreepUtils.consoleLogIfWatched(this, ` - get max body now`);
     // first make body as large as possible under 300 spawn energy
     let body = bodyProfile.seed.slice();
     let finalBody: BodyPartConstant[] = [];
@@ -268,7 +267,7 @@ export class SpawnWrapper extends StructureSpawn {
       this.spawnCreep(body, "maximizeBody", { dryRun: true }) === 0 &&
       body.length + bodyProfile.profile.length <= bodyProfile.maxBodyParts
     );
-    CreepUtils.consoleLogIfWatched(this, ` - final body: ${CreepUtils.creepBodyToString(finalBody)}`);
+    CreepUtils.consoleLogIfWatched(this, ` - max body now: ${CreepUtils.creepBodyToString(finalBody)}`);
     return finalBody;
   }
 }
