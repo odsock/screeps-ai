@@ -4,7 +4,7 @@ import config from "../constants";
 
 export class Worker extends CreepWrapper {
   public run(): void {
-    super.run();
+    this.touchRoad();
 
     // harvest if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {

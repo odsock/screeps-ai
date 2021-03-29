@@ -1,12 +1,8 @@
+import { CreepUtils } from "creep-utils";
+import { Planner } from "planning/planner";
+import { CreepFactory } from "roles/creep-factory";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
-import { Planner } from "planning/planner";
-import { Builder } from "roles/builder";
-import { CreepUtils } from "creep-utils";
-import { Harvester } from "roles/harvester";
-import { Hauler } from "roles/hauler";
-import { Upgrader } from "roles/upgrader";
-import { Worker } from "roles/worker";
 import { TowerWrapper } from "structures/tower-wrapper";
 
 export class Sockpuppet {
@@ -41,24 +37,7 @@ export class Sockpuppet {
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       if (!creep.spawning) {
-        if (creep.memory.role === "worker") {
-          const worker = new Worker(creep);
-          worker.run();
-        } else if (creep.memory.role === "harvester") {
-          const harvester = new Harvester(creep);
-          harvester.run();
-        } else if (creep.memory.role === "hauler") {
-          const hauler = new Hauler(creep);
-          hauler.run();
-        } else if (creep.memory.role === "builder") {
-          const builder = new Builder(creep);
-          builder.run();
-        } else if (creep.memory.role === "upgrader") {
-          const upgrader = new Upgrader(creep);
-          upgrader.run();
-        } else {
-          console.log(`unknown role: ${creep.memory.role}`);
-        }
+        CreepFactory.getCreep(creep).run();
       }
     }
   }

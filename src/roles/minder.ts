@@ -3,7 +3,7 @@ import { CreepUtils } from "creep-utils";
 
 export class Minder extends CreepWrapper {
   public run(): void {
-    super.run();
+    this.touchRoad();
 
     if (this.memory.retiree) {
       if (this.moveToRetiree() !== ERR_NOT_FOUND) {

@@ -1,14 +1,12 @@
 import { RoomWrapper } from "structures/room-wrapper";
 import { CreepUtils } from "creep-utils";
 
-export class CreepWrapper extends Creep {
+export abstract class CreepWrapper extends Creep {
   public constructor(private readonly creep: Creep) {
     super(creep.id);
   }
 
-  public run(): void {
-    this.touchRoad();
-  }
+  public abstract run(): void;
 
   public get roomw(): RoomWrapper {
     return new RoomWrapper(this.room);

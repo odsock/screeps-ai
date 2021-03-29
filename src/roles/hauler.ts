@@ -6,7 +6,7 @@ import config from "../constants";
 // TODO: get hauler to pull havester to container
 export class Hauler extends CreepWrapper {
   public run(): void {
-    super.run();
+    this.touchRoad();
 
     // supply spawn/extensions if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
