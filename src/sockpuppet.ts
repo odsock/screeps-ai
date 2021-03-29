@@ -7,6 +7,7 @@ import { Harvester } from "roles/harvester";
 import { Hauler } from "roles/hauler";
 import { Upgrader } from "roles/upgrader";
 import { Worker } from "roles/worker";
+import { TowerWrapper } from "structures/tower-wrapper";
 
 export class Sockpuppet {
   public run(): void {
@@ -65,14 +66,14 @@ export class Sockpuppet {
   // TODO: make a tower wrapper class
   // TODO: towers should heal creeps when nothing to kill
   public runTowers(room: Room): void {
-    const towers = room.find(FIND_MY_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_TOWER
-    }) as StructureTower[];
+    const towers = room
+      .find<StructureTower>(FIND_MY_STRUCTURES, {
+        filter: s => s.structureType === STRUCTURE_TOWER
+      })
+      .map(t => new TowerWrapper(t));
 
     for (const tower of towers) {
-      this.runTower(tower, room);
+      tower.run();
     }
   }
-
-
 }

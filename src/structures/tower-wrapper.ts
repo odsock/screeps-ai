@@ -2,10 +2,10 @@ import { CreepUtils } from "creep-utils";
 
 export class TowerWrapper extends StructureTower {
   public constructor(private readonly tower: StructureTower) {
-    super(tower.id as Id<StructureTower);
+    super(tower.id);
   }
 
-  public run() {
+  public run(): void {
     const closestHostile = this.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
     if (closestHostile) {
       this.attack(closestHostile);
