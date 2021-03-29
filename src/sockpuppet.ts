@@ -63,8 +63,6 @@ export class Sockpuppet {
     }
   }
 
-  // TODO: make a tower wrapper class
-  // TODO: towers should heal creeps when nothing to kill
   public runTowers(room: Room): void {
     const towers = room
       .find<StructureTower>(FIND_MY_STRUCTURES, {
