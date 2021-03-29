@@ -3,7 +3,6 @@ import { CreepUtils } from "creep-utils";
 export class RoadPlan {
   public constructor(private readonly room: Room) {}
 
-  // TODO: make this a road to the controller container
   public placeRoadSourceContainerToControllerContainer(): ScreepsReturnCode {
     console.log(`- container road planning`);
     // if (this.roomHasRoadsInConstruction()) {
@@ -24,14 +23,14 @@ export class RoadPlan {
     for (const sourceId in sourceInfo) {
       const info = sourceInfo[sourceId];
 
-      // get the container object, clear id memory if not found
+      // get the container object, clear memory if not found
       const sourceContainer = Game.getObjectById(info.containerId as Id<StructureContainer>);
       if (!sourceContainer) {
         this.room.memory.sourceInfo[sourceId].containerId = undefined;
         continue;
       }
 
-      // get a path and place road idempotently
+      // get a path and place road
       const path: PathFinderPath = this.planRoad(sourceContainer?.pos, controllerContainer.pos, 1);
       if (!path.incomplete) {
         const result = this.placeRoadOnPath(path);
@@ -130,5 +129,22 @@ export class RoadPlan {
         filter: s => s.structureType === STRUCTURE_ROAD
       }).length > 0
     );
+  }
+
+  public placeExtensionRoads(): ScreepsReturnCode {
+    const extensions = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_EXTENSION });
+    const spawns = this.room.find(FIND_MY_SPAWNS);
+    for (const spawn of spawns) {
+      for (const extension of extensions) {
+        const path = this.planRoad(spawn.pos, extension.pos, 1);
+        if (!path.incomplete) {
+          const result = this.placeRoadOnPath(path);
+          if (result !== OK) {
+            return result;
+          }
+        }
+      }
+    }
+    return OK;
   }
 }

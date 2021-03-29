@@ -18,29 +18,35 @@ export class Planner {
 
       // place available extensions
       const extensionPlan = new ExtensionPlan(this.room);
-      let result = extensionPlan.planExtensionGroup();
-      if (result !== OK) {
-        return result;
+      const extensionResult = extensionPlan.planExtensionGroup();
+      if (extensionResult !== OK) {
+        return extensionResult;
       }
 
       // place source containers
       const containerPlan = new ContainerPlan(this.room);
-      result = containerPlan.placeSourceContainer();
-      if (result !== OK) {
-        return result;
+      const sourceContainerResult = containerPlan.placeSourceContainer();
+      if (sourceContainerResult !== OK) {
+        return sourceContainerResult;
       }
 
       // place controller container
-      result = containerPlan.placeControllerContainer();
-      if (result !== OK) {
-        return result;
+      const controllerContainerResult = containerPlan.placeControllerContainer();
+      if (controllerContainerResult !== OK) {
+        return controllerContainerResult;
       }
 
       // place road from source container to controller container
       const roadPlan = new RoadPlan(this.room);
-      roadPlan.placeRoadSourceContainerToControllerContainer();
-      if (result !== OK) {
-        return result;
+      const containerRoadResult = roadPlan.placeRoadSourceContainerToControllerContainer();
+      if (containerRoadResult !== OK) {
+        return containerRoadResult;
+      }
+
+      // place roads to all extensions
+      const extensionRoadResult = roadPlan.placeExtensionRoads();
+      if (extensionRoadResult !== OK) {
+        return extensionRoadResult;
       }
 
       // TODO: place ramparts over containers
