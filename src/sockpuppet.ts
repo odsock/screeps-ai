@@ -68,38 +68,11 @@ export class Sockpuppet {
     const towers = room.find(FIND_MY_STRUCTURES, {
       filter: s => s.structureType === STRUCTURE_TOWER
     }) as StructureTower[];
+
     for (const tower of towers) {
-      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-      if (closestHostile) {
-        tower.attack(closestHostile);
-      } else {
-        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-          filter: structure => structure.hits < structure.hitsMax && structure.structureType !== STRUCTURE_ROAD
-        });
-        if (closestDamagedStructure) {
-          tower.repair(closestDamagedStructure);
-        } else {
-          const closestDamagedRoad = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: structure => {
-              if (!(structure.structureType === STRUCTURE_ROAD)) {
-                return false;
-              }
-              const isDamagedRoad = structure.hits < structure.hitsMax;
-              const isUsedRoad = room.memory.roadUseLog[`${structure.pos.x},${structure.pos.y}`] > 0;
-              if (!isUsedRoad && isDamagedRoad) {
-                CreepUtils.consoleLogIfWatched(
-                  room,
-                  `not repairing unused road: ${structure.pos.x},${structure.pos.y}`
-                );
-              }
-              return isDamagedRoad && isUsedRoad;
-            }
-          });
-          if (closestDamagedRoad) {
-            tower.repair(closestDamagedRoad);
-          }
-        }
-      }
+      this.runTower(tower, room);
     }
   }
+
+
 }
