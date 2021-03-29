@@ -16,7 +16,7 @@ export class RoadPlan {
     if (!controllerContainer) {
       console.log(` - no controller container`);
       this.room.memory.controllerInfo.containerId = undefined;
-      return ERR_NOT_FOUND;
+      return OK;
     }
 
     const sourceInfo = this.room.memory.sourceInfo;
