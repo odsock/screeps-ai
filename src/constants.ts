@@ -58,14 +58,14 @@ class Constants {
     STRUCTURE_CONTAINER
   ];
 
-  public static readonly BANNER_HEADER: string = `############################################################`;
+  public static readonly BANNER_HEADER: string = `################################################################`;
   public static readonly BANNER_BODY: string = `
-  ___              _                                       _
+   ___              _                                       _
   / __|  ___   __  | |__  _ __   _  _   _ __   _ __   ___  | |_
   \\__ \\ / _ \\ / _| | / / | '_ \\ | || | | '_ \\ | '_ \\ / -_) |  _|
   |___/ \\___/ \\__| |_\\_\\ | .__/  \\_,_| | .__/ | .__/ \\___|  \\__|
                          |_|           |_|    |_|
 `;
-  public static readonly BANNER_FOOTER: string = `############################################################`;
+  public static readonly BANNER_FOOTER: string = `################################################################`;
 }
 export default Constants;
