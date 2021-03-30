@@ -1,17 +1,20 @@
 import { Sockpuppet } from "sockpuppet";
 import { ErrorMapper } from "utils/ErrorMapper";
 import { Logger } from "./logger";
+import config from "./constants";
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   // check version
   try {
-    const name = process.env.npm_package_name;
     const version = process.env.npm_package_version;
     if (!Memory.version || Memory.version !== version) {
       Memory.version = version;
-      console.log(`${String(name)} ${String(version)}`);
+      console.log(config.BANNER_HEADER);
+      console.log(config.BANNER_BODY);
+      console.log(`Version: ${String(version)}`);
+      console.log(config.BANNER_FOOTER);
     }
   } catch (error) {
     console.log(error);
