@@ -6,12 +6,14 @@ import { Logger } from "./logger";
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   // check version
-  const name = process.env.npm_package_name;
-  const version = process.env.npm_package_version;
-  if (!Memory.version || Memory.version !== version) {
-    Memory.version = version;
-    console.log(`${String(name)} ${String(version)}`);
-  }
+  try {
+    const name = process.env.npm_package_name;
+    const version = process.env.npm_package_version;
+    if (!Memory.version || Memory.version !== version) {
+      Memory.version = version;
+      console.log(`${String(name)} ${String(version)}`);
+    }
+  } catch (error) {}
 
   console.log(`Current game tick is ${Game.time}`);
   cleanupDeadCreepMemory();
