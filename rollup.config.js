@@ -8,8 +8,8 @@ import screeps from "rollup-plugin-screeps";
 
 const Global = `var process = {
   env: {
-    npm_package_name: ${process.env.npm_package_name},
-    npm_package_versino: ${process.env.npm_package_version}
+    npm_package_name: "${process.env.npm_package_name}",
+    npm_package_version: "${process.env.npm_package_version}"
   }
 }`;
 
