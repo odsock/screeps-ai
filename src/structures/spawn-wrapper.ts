@@ -6,6 +6,7 @@ import { Upgrader } from "roles/upgrader";
 import { Worker } from "roles/worker";
 import config from "../constants";
 import { Harvester } from "../roles/harvester";
+import { CreepFactory } from "roles/creep-factory";
 
 export class SpawnWrapper extends StructureSpawn {
   private readonly workers: Worker[];
@@ -69,7 +70,7 @@ export class SpawnWrapper extends StructureSpawn {
 
       // TODO: replace small harvesters early, for faster recovery from attack or mistakes
       // try to replace any aging harvester early
-      this.replaceOldHarvesters();
+      this.replaceOldMinders();
       // TODO: replace old upgraders early too
     }
 
@@ -82,23 +83,24 @@ export class SpawnWrapper extends StructureSpawn {
     }
   }
 
-  private replaceOldHarvesters() {
-    for (const creep of this.harvesters) {
-      const harvester = new Harvester(creep);
-      if (!harvester.spawning && !harvester.memory.retiring === true) {
-        CreepUtils.consoleLogIfWatched(this, `- harvester retirement check: ${harvester.name}`);
+  private replaceOldMinders() {
+    for (const creep of [...this.harvesters, ...this.upgraders]) {
+      const minder = CreepFactory.getCreep(creep);
+      if (!minder.spawning && !minder.memory.retiring === true) {
+        CreepUtils.consoleLogIfWatched(this, `- minder retirement check: ${minder.name}`);
+        // TODO: wrong body
         const body = this.getHarvesterBody();
         const ticksToSpawn = body.length * CREEP_SPAWN_TIME;
-        const pathToReplace = CreepUtils.getPath(this.pos, harvester.pos);
-        const ticksToReplace = harvester.calcWalkTime(pathToReplace);
+        const pathToReplace = CreepUtils.getPath(this.pos, minder.pos);
+        const ticksToReplace = minder.calcWalkTime(pathToReplace);
         CreepUtils.consoleLogIfWatched(
           this,
-          ` - ticksToLive: ${String(harvester.ticksToLive)}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`
+          ` - ticksToLive: ${String(minder.ticksToLive)}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`
         );
-        if (harvester.ticksToLive && harvester.ticksToLive <= ticksToSpawn + ticksToReplace) {
-          const result = this.spawnHarvester(harvester.name);
+        if (minder.ticksToLive && minder.ticksToLive <= ticksToSpawn + ticksToReplace) {
+          const result = this.spawnHarvester(minder.name);
           if (result === OK) {
-            harvester.memory.retiring = true;
+            minder.memory.retiring = true;
           }
         }
       }

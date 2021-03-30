@@ -57,29 +57,31 @@ export class Planner {
   // TODO: refactor memory init to new class
   public setupRoomMemory(): void {
     console.log(`setup room memory`);
-    if (!this.room.memory.controllerInfo) {
-      console.log(`- add controllerInfo`);
-      this.room.memory.controllerInfo = {};
-    }
-
-    const controllerInfo = this.room.memory.controllerInfo;
-    // if there is a controller container id set validate it
-    if (controllerInfo.containerId) {
-      const container = Game.getObjectById(controllerInfo.containerId as Id<StructureContainer>);
-      if (!container) {
-        console.log(`- remove invalid container id`);
-        this.room.memory.controllerInfo.containerId = undefined;
-      }
-    }
-
     if (this.room.controller) {
-      const container = this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: c => c.structureType === STRUCTURE_CONTAINER
-      });
-      // TODO: more than one controller container?
-      if (container.length > 0) {
-        console.log(`- add controller container`);
-        this.room.memory.controllerInfo.containerId = container[0].id;
+      if (!this.room.memory.controllerInfo) {
+        console.log(`- add controllerInfo`);
+        this.room.memory.controllerInfo = {};
+      }
+      const controllerInfo = this.room.memory.controllerInfo;
+
+      // if there is a controller container id set validate it
+      if (controllerInfo.containerId) {
+        const container = Game.getObjectById(controllerInfo.containerId as Id<StructureContainer>);
+        if (!container) {
+          console.log(`- remove invalid container id`);
+          this.room.memory.controllerInfo.containerId = undefined;
+        }
+      }
+
+      if (!controllerInfo.containerId) {
+        const container = this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
+          filter: c => c.structureType === STRUCTURE_CONTAINER
+        });
+        // TODO: more than one controller container?
+        if (container.length > 0) {
+          console.log(`- add controller container`);
+          this.room.memory.controllerInfo.containerId = container[0].id;
+        }
       }
     }
 
