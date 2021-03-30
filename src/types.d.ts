@@ -68,6 +68,10 @@ interface CreepBodyProfile {
   maxBodyParts: number;
 }
 
+interface Memory {
+  version?: string;
+}
+
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {

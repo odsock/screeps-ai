@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint \"src/**/*.ts\"",
     "build": "rollup -c",
-    "push-main": "rollup -c --environment DEST:main",
+    "push-main": "npm version && rollup -c --environment DEST:main",
     "push-pserver": "rollup -c --environment DEST:pserver",
     "push-season": "rollup -c --environment DEST:season",
     "push-sim": "rollup -c --environment DEST:sim",

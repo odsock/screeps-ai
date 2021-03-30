@@ -5,6 +5,14 @@ import { Logger } from "./logger";
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
+  // check version
+  const name = process.env.npm_package_name;
+  const version = process.env.npm_package_version;
+  if (!Memory.version || Memory.version !== version) {
+    Memory.version = version;
+    console.log(`${String(name)} ${String(version)}`);
+  }
+
   console.log(`Current game tick is ${Game.time}`);
   cleanupDeadCreepMemory();
 
