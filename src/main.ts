@@ -18,7 +18,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   } catch (error) {
     console.log(error);
-  }
+  // }
 
   console.log(`Current game tick is ${Game.time}`);
   cleanupDeadCreepMemory();
