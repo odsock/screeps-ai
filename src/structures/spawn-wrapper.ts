@@ -38,7 +38,7 @@ export class SpawnWrapper extends StructureSpawn {
       CreepUtils.consoleLogIfWatched(this, `spawn creeps`);
       // spawn harvester for each container
       if (this.harvesters.length < this.getMaxHarvesterCount()) {
-        this.spawnHarvester();
+        this.spawnMinder(`harvester`);
         return;
       }
       // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
@@ -52,7 +52,7 @@ export class SpawnWrapper extends StructureSpawn {
           this,
           `- upgrader count: ${this.upgraders.length}, max upgraders: ${maxUpgraders}`
         );
-        this.spawnUpgrader();
+        this.spawnMinder(`upgrader`);
         return;
       }
       if (this.workers.length < this.getMaxWorkerCount()) {
@@ -88,8 +88,7 @@ export class SpawnWrapper extends StructureSpawn {
       const minder = CreepFactory.getCreep(creep);
       if (!minder.spawning && !minder.memory.retiring === true) {
         CreepUtils.consoleLogIfWatched(this, `- minder retirement check: ${minder.name}`);
-        // TODO: wrong body
-        const body = this.getHarvesterBody();
+        const body = this.getBody(creep.memory.role);
         const ticksToSpawn = body.length * CREEP_SPAWN_TIME;
         const pathToReplace = CreepUtils.getPath(this.pos, minder.pos);
         const ticksToReplace = minder.calcWalkTime(pathToReplace);
@@ -98,7 +97,7 @@ export class SpawnWrapper extends StructureSpawn {
           ` - ticksToLive: ${String(minder.ticksToLive)}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`
         );
         if (minder.ticksToLive && minder.ticksToLive <= ticksToSpawn + ticksToReplace) {
-          const result = this.spawnHarvester(minder.name);
+          const result = this.spawnMinder(creep.memory.role, minder.name);
           if (result === OK) {
             minder.memory.retiring = true;
           }
@@ -179,22 +178,30 @@ export class SpawnWrapper extends StructureSpawn {
     return this.spawn(body, "worker");
   }
 
-  private spawnHarvester(retireeName?: string): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, ` - spawning harvester`);
-    const body: BodyPartConstant[] = this.getHarvesterBody();
-    return this.spawn(body, "harvester", retireeName);
-  }
-
-  private spawnUpgrader(retireeName?: string): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `- spawning upgrader`);
-    const body: BodyPartConstant[] = this.getUpgraderBody();
-    return this.spawn(body, "upgrader", retireeName);
+  private spawnMinder(role: string, retireeName?: string): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, ` - spawning ${role}`);
+    const body: BodyPartConstant[] = this.getBody(role);
+    return this.spawn(body, role, retireeName);
   }
 
   private spawnHauler(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `- spawning hauler`);
     const body: BodyPartConstant[] = this.getHaulerBody();
     return this.spawn(body, "hauler");
+  }
+
+  private getBody(role: string): BodyPartConstant[] {
+    switch (role) {
+      case "harvester":
+        return this.getHarvesterBody();
+      case "upgrader":
+        return this.getUpgraderBody();
+      case "hauler":
+        return this.getHaulerBody();
+
+      default:
+        throw new Error(`Unknown creep role: ${role}`);
+    }
   }
 
   private getHarvesterBody(): BodyPartConstant[] {
