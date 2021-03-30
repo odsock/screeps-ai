@@ -87,14 +87,15 @@ export class SpawnWrapper extends StructureSpawn {
     for (const creep of [...this.harvesters, ...this.upgraders]) {
       const minder = CreepFactory.getCreep(creep);
       if (!minder.spawning && !minder.memory.retiring === true) {
-        CreepUtils.consoleLogIfWatched(this, `- minder retirement check: ${minder.name}`);
         const body = this.getBody(creep.memory.role);
         const ticksToSpawn = body.length * CREEP_SPAWN_TIME;
         const pathToReplace = CreepUtils.getPath(this.pos, minder.pos);
         const ticksToReplace = minder.calcWalkTime(pathToReplace);
         CreepUtils.consoleLogIfWatched(
           this,
-          ` - ticksToLive: ${String(minder.ticksToLive)}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`
+          `- minder retirement check: ${minder.name}: ticksToLive: ${String(
+            minder.ticksToLive
+          )}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`
         );
         if (minder.ticksToLive && minder.ticksToLive <= ticksToSpawn + ticksToReplace) {
           const result = this.spawnMinder(creep.memory.role, minder.name);
