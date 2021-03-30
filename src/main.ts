@@ -13,7 +13,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
       Memory.version = version;
       console.log(`${String(name)} ${String(version)}`);
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 
   console.log(`Current game tick is ${Game.time}`);
   cleanupDeadCreepMemory();

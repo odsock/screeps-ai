@@ -1,10 +1,17 @@
 "use strict";
 
-import clear from 'rollup-plugin-clear';
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import typescript from 'rollup-plugin-typescript2';
-import screeps from 'rollup-plugin-screeps';
+import clear from "rollup-plugin-clear";
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import typescript from "rollup-plugin-typescript2";
+import screeps from "rollup-plugin-screeps";
+
+const Global = `var process = {
+  env: {
+    npm_package_name: ${process.env.npm_package_name},
+    npm_package_versino: ${process.env.npm_package_version}
+  }
+}`;
 
 let cfg;
 const dest = process.env.DEST;
@@ -19,14 +26,15 @@ export default {
   output: {
     file: "dist/main.js",
     format: "cjs",
-    sourcemap: true
+    sourcemap: true,
+    banner: Global
   },
 
   plugins: [
     clear({ targets: ["dist"] }),
     resolve(),
     commonjs(),
-    typescript({tsconfig: "./tsconfig.json"}),
-    screeps({config: cfg, dryRun: cfg == null})
+    typescript({ tsconfig: "./tsconfig.json" }),
+    screeps({ config: cfg, dryRun: cfg == null })
   ]
-}
+};
