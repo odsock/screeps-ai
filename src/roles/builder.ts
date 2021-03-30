@@ -4,7 +4,7 @@ import config from "../constants";
 
 export class Builder extends CreepWrapper {
   public run(): void {
-    super.run();
+    this.touchRoad();
 
     // build if anything to build
     if (this.roomw.constructionSites.length > 0) {
