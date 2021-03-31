@@ -1,10 +1,8 @@
-import { CreepUtils } from "creep-utils";
 import { StructurePlan } from "planning/structure-plan";
 import config from "../constants";
 
 export class PlannerUtils {
-
-  public constructor(private readonly room: Room) { }
+  public constructor(private readonly room: Room) {}
 
   public static findSiteForPattern(pattern: StructurePatternPosition[], room: Room): StructurePlan {
     const structurePlan = new StructurePlan(pattern, room);
@@ -12,7 +10,7 @@ export class PlannerUtils {
     const patternHeight = structurePlan.getHeight();
     const searchWidth = config.ROOM_SIZE - 1 - patternWidth;
     const searchHeight = config.ROOM_SIZE - 1 - patternHeight;
-    let closestSite: { x: number, y: number } | undefined;
+    let closestSite: { x: number; y: number } | undefined;
     let shortestRange: number = config.MAX_DISTANCE;
 
     // search whole room
@@ -22,8 +20,7 @@ export class PlannerUtils {
         if (range) {
           if (range >= shortestRange) {
             continue;
-          }
-          else if (structurePlan.translate(x, y)) {
+          } else if (structurePlan.translate(x, y)) {
             shortestRange = range;
             closestSite = { x, y };
           }
@@ -35,14 +32,19 @@ export class PlannerUtils {
     if (closestSite) {
       structurePlan.translate(closestSite.x, closestSite.y);
       console.log(`closest site: ${closestSite.x},${closestSite.y}`);
-    }
-    else {
+    } else {
       console.log(`No site for pattern found.`);
     }
     return structurePlan;
   }
 
-  public static getPatternRangeFromSpawn(x: number, patternWidth: number, y: number, patternHeight: number, room: Room): number | undefined {
+  public static getPatternRangeFromSpawn(
+    x: number,
+    patternWidth: number,
+    y: number,
+    patternHeight: number,
+    room: Room
+  ): number | undefined {
     // use center of pattern for ranging
     const posCenter = room.getPositionAt(x + patternWidth / 2, y + patternHeight / 2);
     const closestSpawn = posCenter?.findClosestByRange(FIND_MY_SPAWNS);
@@ -52,7 +54,10 @@ export class PlannerUtils {
     return undefined;
   }
 
-  public static placeStructureAdjacent(position: RoomPosition, structureConstant: BuildableStructureConstant): string | null {
+  public static placeStructureAdjacent(
+    position: RoomPosition,
+    structureConstant: BuildableStructureConstant
+  ): string | null {
     let xOffset = 0;
     let yOffset = 0;
     const startPos = new RoomPosition(position.x - 1, position.y - 1, position.roomName);
@@ -60,14 +65,11 @@ export class PlannerUtils {
     while (pos.createConstructionSite(structureConstant) !== OK) {
       if (xOffset < 2 && yOffset === 0) {
         xOffset++;
-      }
-      else if (xOffset === 2 && yOffset < 2) {
+      } else if (xOffset === 2 && yOffset < 2) {
         yOffset++;
-      }
-      else if (xOffset > 0 && yOffset === 2) {
+      } else if (xOffset > 0 && yOffset === 2) {
         xOffset--;
-      }
-      else if (xOffset === 0 && yOffset > 0) {
+      } else if (xOffset === 0 && yOffset > 0) {
         yOffset--;
       }
 
@@ -80,7 +82,7 @@ export class PlannerUtils {
     }
 
     const structure = pos.lookFor(LOOK_CONSTRUCTION_SITES);
-    if(structure.length > 0) {
+    if (structure.length > 0) {
       return structure[0].id;
     }
     return null;
