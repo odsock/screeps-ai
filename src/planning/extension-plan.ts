@@ -20,8 +20,9 @@ export class ExtensionPlan {
   }
 
   private placeStructurePlan(structurePlan: StructurePlan): ScreepsReturnCode {
-    if (structurePlan.plan) {
-      for (const planPosition of structurePlan.plan) {
+    const plan = structurePlan.getPlan();
+    if (plan) {
+      for (const planPosition of plan) {
         const result = this.room.createConstructionSite(planPosition.pos, planPosition.structure);
         if (result !== OK) {
           this.room.roomMemoryLog(`${planPosition.structure} failed: ${result}, pos: ${String(planPosition)}`);

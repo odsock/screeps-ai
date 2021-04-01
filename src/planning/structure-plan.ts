@@ -1,33 +1,37 @@
 export class StructurePlan {
   private readonly terrain: RoomTerrain;
-  private _plan: StructurePlanPosition[] = [];
-  private planned: boolean = false;
+  // private plan: StructurePlanPosition[] = [];
+  private planned = false;
   private readonly pattern: StructurePatternPosition[];
+  private plan: StructurePlanPosition[] = [];
 
-  constructor(pattern: StructurePatternPosition[], private readonly room: Room) {
+  public constructor(pattern: StructurePatternPosition[], private readonly room: Room) {
     this.terrain = room.getTerrain();
     this.pattern = pattern;
   }
 
-  get plan(): StructurePlanPosition[] | null {
-    return this.planned ? this._plan : null;
+  public getPlan(): StructurePlanPosition[] | null {
+    return this.planned ? this.plan : null;
   }
 
   public getWidth(): number {
-    return this.pattern.reduce<number>((max, pos) => { return max > pos.xOffset ? max : pos.xOffset }, 0);
+    return this.pattern.reduce<number>((max, pos) => {
+      return max > pos.xOffset ? max : pos.xOffset;
+    }, 0);
   }
 
   public getHeight(): number {
-    return this.pattern.reduce<number>((max, pos) => { return max > pos.yOffset ? max : pos.yOffset }, 0);
+    return this.pattern.reduce<number>((max, pos) => {
+      return max > pos.yOffset ? max : pos.yOffset;
+    }, 0);
   }
 
   public translate(x: number, y: number): boolean {
     this.planned = false;
-    this._plan = [];
+    this.plan = [];
     let planOkSoFar = true;
-    for (let i = 0; i < this.pattern.length; i++) {
-      const planPosition = this.pattern[i];
-      const newPos = this.room.getPositionAt(this.pattern[i].xOffset + x, this.pattern[i].yOffset + y);
+    for (const planPosition of this.pattern) {
+      const newPos = this.room.getPositionAt(planPosition.xOffset + x, planPosition.yOffset + y);
       if (!newPos || !this.translatePosition(planPosition, newPos)) {
         planOkSoFar = false;
       }
@@ -49,23 +53,29 @@ export class StructurePlan {
     }
     // can be blocked by non-road structure or construction site
     const posStructures = this.room.lookForAt(LOOK_STRUCTURES, pos);
-    if (posStructures.filter((s) => s.structureType !== STRUCTURE_ROAD).length > 0) {
+    if (posStructures.filter(s => s.structureType !== STRUCTURE_ROAD).length > 0) {
       return false;
     }
     const posConstSites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, pos);
-    if (posConstSites.filter((s) => s.structureType !== STRUCTURE_ROAD).length > 0) {
+    if (posConstSites.filter(s => s.structureType !== STRUCTURE_ROAD).length > 0) {
       return false;
     }
 
     // road overlap is ok, but don't place new construction site
-    if (planPosition.structure === STRUCTURE_ROAD && posStructures.filter((s) => s.structureType === STRUCTURE_ROAD).length > 0) {
+    if (
+      planPosition.structure === STRUCTURE_ROAD &&
+      posStructures.filter(s => s.structureType === STRUCTURE_ROAD).length > 0
+    ) {
       return true;
     }
-    if (planPosition.structure === STRUCTURE_ROAD && posConstSites.filter((s) => s.structureType === STRUCTURE_ROAD).length > 0) {
+    if (
+      planPosition.structure === STRUCTURE_ROAD &&
+      posConstSites.filter(s => s.structureType === STRUCTURE_ROAD).length > 0
+    ) {
       return true;
     }
 
-    this._plan.push({ structure: planPosition.structure, pos: pos });
+    this.plan.push({ structure: planPosition.structure, pos });
     return true;
   }
 }
