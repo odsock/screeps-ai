@@ -26,8 +26,7 @@ export class Hauler extends CreepWrapper {
 
   private supplyController() {
     const controllerContainer = this.findClosestControllerContainerNotFull();
-    const sourceContainer = this.findClosestSourceContainerNotEmpty();
-    if (controllerContainer && sourceContainer) {
+    if (controllerContainer) {
       this.updateJob("upgrade");
       this.stopWorkingIfEmpty();
       this.startWorkingIfFull("⚡ upgrade");
@@ -41,12 +40,7 @@ export class Hauler extends CreepWrapper {
           CreepUtils.consoleLogIfWatched(this, `moving to controller: ${result}`);
         }
       } else {
-        // TODO: pickup energy from convenient sources other than source (but not controller)
-        CreepUtils.consoleLogIfWatched(this, "not working");
-        if (this.withdraw(sourceContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          const result = this.moveTo(sourceContainer, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
-          CreepUtils.consoleLogIfWatched(this, `moving to source: ${result}`);
-        }
+        this.loadEnergy();
       }
     }
   }
@@ -182,7 +176,7 @@ export class Hauler extends CreepWrapper {
     return withdrawResult;
   }
 
-  private pickupAdjacentDroppedEnergy() {
+  private pickupAdjacentDroppedEnergy(): ScreepsReturnCode {
     let pickupResult: ScreepsReturnCode = ERR_NOT_FOUND;
     const resources = this.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
       filter: r => r.resourceType === RESOURCE_ENERGY
@@ -202,7 +196,7 @@ export class Hauler extends CreepWrapper {
     const ruin = this.findClosestRuinsWithEnergy();
     const droppedEnergy = this.findClosestDroppedEnergy();
 
-    const container = this.findClosestContainerWithEnergy();
+    const container = this.findClosestSourceContainerNotEmpty();
     if (container) {
       CreepUtils.consoleLogIfWatched(this, `moving to container: ${container.pos.x},${container.pos.y}`);
       this.withdrawEnergyFromOrMoveTo(container);
