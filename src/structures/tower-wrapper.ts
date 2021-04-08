@@ -40,15 +40,37 @@ export class TowerWrapper extends StructureTower {
 
   private repairStructures(): ScreepsReturnCode {
     // first repair non-roads
-    const closestDamagedStructure = this.pos.findClosestByRange(FIND_STRUCTURES, {
-      filter: structure => structure.hits < structure.hitsMax && structure.structureType !== STRUCTURE_ROAD
-    });
+    const closestDamagedStructure = this.findClosestDamagedNonRoad();
     if (closestDamagedStructure) {
       return this.repair(closestDamagedStructure);
     }
 
-    // second repair roads we use
-    const closestDamagedRoad = this.pos.findClosestByRange(FIND_STRUCTURES, {
+    // second repair roads
+    const closestDamagedRoad = this.findClosestDamagedRoad();
+    if (closestDamagedRoad) {
+      return this.repair(closestDamagedRoad);
+    }
+
+    return ERR_NOT_FOUND;
+  }
+
+  private findClosestDamagedNonRoad(): AnyStructure | null {
+    return this.pos.findClosestByRange(FIND_STRUCTURES, {
+      filter: structure => structure.hits < structure.hitsMax && structure.structureType !== STRUCTURE_ROAD
+    });
+  }
+
+  private findClosestDamagedRoad(): StructureRoad | null {
+    return this.pos.findClosestByRange<StructureRoad>(FIND_STRUCTURES, {
+      filter: structure => structure.hits < structure.hitsMax && structure.structureType === STRUCTURE_ROAD
+    });
+  }
+
+  // unused for now
+  // new road construction is triggered when unused road to extension decays, which triggers a builder spawn
+  // seems better to just repair them (or not make dumb roads!)
+  private findClosestDamagedUsedRoad(): StructureRoad | null {
+    return this.pos.findClosestByRange<StructureRoad>(FIND_STRUCTURES, {
       filter: structure => {
         if (!(structure.structureType === STRUCTURE_ROAD)) {
           return false;
@@ -61,10 +83,5 @@ export class TowerWrapper extends StructureTower {
         return isDamagedRoad && isUsedRoad;
       }
     });
-    if (closestDamagedRoad) {
-      return this.repair(closestDamagedRoad);
-    }
-
-    return ERR_NOT_FOUND;
   }
 }
