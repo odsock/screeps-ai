@@ -101,7 +101,8 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getMaxClaimerCount(): number {
-    return 1;
+    const targetRooms: string[] = config.TARGET_ROOMS;
+    return targetRooms.filter(r => !Game.rooms[r]).length;
   }
 
   private replaceOldMinders() {
