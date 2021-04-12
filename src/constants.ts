@@ -32,6 +32,12 @@ class Constants {
     maxBodyParts: MAX_CREEP_SIZE
   };
 
+  public static readonly BODY_PROFILE_CLAIMER: CreepBodyProfile = {
+    profile: [MOVE, CLAIM],
+    seed: [],
+    maxBodyParts: MAX_CREEP_SIZE
+  };
+
   public static readonly STRUCTURE_PLAN_EXTENSION_GROUP: StructurePatternPosition[] = [
     { xOffset: 2, yOffset: 0, structure: STRUCTURE_ROAD },
     { xOffset: 1, yOffset: 1, structure: STRUCTURE_ROAD },
@@ -67,5 +73,8 @@ class Constants {
                          |_|           |_|    |_|
 `;
   public static readonly BANNER_FOOTER: string = `################################################################`;
+
+  // TODO: create AI targeting of rooms
+  public static readonly TARGET_ROOMS: string[] = ["E12N56", "E11N56"];
 }
 export default Constants;

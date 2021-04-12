@@ -4,6 +4,7 @@ import { Harvester } from "./harvester";
 import { Upgrader } from "./upgrader";
 import { Hauler } from "./hauler";
 import { Builder } from "./builder";
+import { Claimer } from "./claimer";
 
 export class CreepFactory {
   public static getCreep(creep: Creep): CreepWrapper {
@@ -18,6 +19,8 @@ export class CreepFactory {
         return new Hauler(creep);
       case "builder":
         return new Builder(creep);
+      case "claimer":
+        return new Claimer(creep);
 
       default:
         throw new Error(`Unknown creep role: ${creep.memory.role}`);

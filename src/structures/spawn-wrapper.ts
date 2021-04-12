@@ -7,6 +7,7 @@ import { Worker } from "roles/worker";
 import config from "../constants";
 import { Harvester } from "../roles/harvester";
 import { CreepFactory } from "roles/creep-factory";
+import { Claimer } from "roles/claimer";
 
 export class SpawnWrapper extends StructureSpawn {
   private readonly workers: Worker[];
@@ -18,6 +19,7 @@ export class SpawnWrapper extends StructureSpawn {
   private readonly rcl: number;
   private readonly upgraders: Upgrader[];
   private readonly roomw: RoomWrapper;
+  private readonly claimers: Claimer[];
 
   public constructor(spawn: StructureSpawn) {
     super(spawn.id);
@@ -31,6 +33,8 @@ export class SpawnWrapper extends StructureSpawn {
     this.haulers = creeps.filter(c => c.memory.role === "hauler").map(c => new Hauler(c));
     this.containers = this.room.find(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_CONTAINER });
     this.rcl = this.room.controller?.level ? this.room.controller?.level : 0;
+
+    this.claimers = _.filter(Game.creeps, c => c.memory.role === "claimer").map(c => new Claimer(c));
   }
 
   public spawnCreeps(): void {
@@ -67,6 +71,11 @@ export class SpawnWrapper extends StructureSpawn {
       }
 
       // TODO: write a claimer creep
+      const maxClaimers = this.getMaxClaimerCount();
+      if (this.claimers.length < maxClaimers) {
+        this.spawnClaimer();
+        return;
+      }
 
       // TODO: replace small harvesters early, for faster recovery from attack or mistakes
       // try to replace any aging harvester early
@@ -80,6 +89,19 @@ export class SpawnWrapper extends StructureSpawn {
         opacity: 0.8
       });
     }
+  }
+
+  private spawnClaimer(): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `- spawning builder`);
+    return this.spawn(this.getClaimerBody(), "claimer");
+  }
+
+  private getClaimerBody(): BodyPartConstant[] {
+    return this.getMaxBody(config.BODY_PROFILE_CLAIMER);
+  }
+
+  private getMaxClaimerCount(): number {
+    return 1;
   }
 
   private replaceOldMinders() {
