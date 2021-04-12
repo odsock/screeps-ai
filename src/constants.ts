@@ -33,8 +33,8 @@ class Constants {
   };
 
   public static readonly BODY_PROFILE_CLAIMER: CreepBodyProfile = {
-    profile: [MOVE, CLAIM],
-    seed: [],
+    profile: [MOVE, WORK, CARRY],
+    seed: [MOVE, CLAIM],
     maxBodyParts: MAX_CREEP_SIZE
   };
 
