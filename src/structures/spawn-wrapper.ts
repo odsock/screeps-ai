@@ -287,7 +287,6 @@ export class SpawnWrapper extends StructureSpawn {
       finalBody = body.slice();
       body = body.concat(profile);
     } while (this.calcBodyCost(body) <= energyCapacity && body.length <= maxBodyParts);
-    CreepUtils.consoleLogIfWatched(this, ` - max body: ${CreepUtils.creepBodyToString(finalBody)}`);
     return finalBody;
   }
 
@@ -313,7 +312,6 @@ export class SpawnWrapper extends StructureSpawn {
       this.spawnCreep(body, "maximizeBody", { dryRun: true }) === 0 &&
       body.length + bodyProfile.profile.length <= bodyProfile.maxBodyParts
     );
-    CreepUtils.consoleLogIfWatched(this, ` - max body now: ${CreepUtils.creepBodyToString(finalBody)}`);
     return finalBody;
   }
 }
