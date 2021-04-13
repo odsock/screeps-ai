@@ -54,6 +54,20 @@ class Constants {
     { xOffset: 2, yOffset: 4, structure: STRUCTURE_ROAD }
   ];
 
+      r
+     rer
+    reeer
+   rererer
+  reeereeer
+ rerer rerer
+reeer S reeer
+ rerer rerer
+  reeereeer
+   rererer
+    reeer
+     rer
+      r
+
   public static readonly ROOM_SIZE = 50;
   public static readonly MAX_DISTANCE = 99999;
   public static readonly TOWER_RESUPPLY_THRESHOLD = 0.75;
