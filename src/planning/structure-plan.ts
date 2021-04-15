@@ -10,6 +10,12 @@ export class StructurePlan {
   public constructor(pattern: StructurePatternPosition[], private readonly room: Room) {
     this.terrain = room.getTerrain();
     this.pattern = pattern;
+    this.printPattern();
+  }
+  public printPattern(): void {
+    for (const i of this.pattern) {
+      console.log(i);
+    }
   }
 
   public static buildStructurePlan(pattern: string[], room: Room): StructurePlan {
