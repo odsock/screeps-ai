@@ -4,8 +4,8 @@ import config from "../constants";
 export class PlannerUtils {
   public constructor(private readonly room: Room) {}
 
-  public static findSiteForPattern(pattern: StructurePatternPosition[], room: Room): StructurePlan {
-    const structurePlan = new StructurePlan(pattern, room);
+  public static findSiteForPattern(pattern: string[], room: Room): StructurePlan {
+    const structurePlan = StructurePlan.buildStructurePlan(pattern, room);
     const patternWidth = structurePlan.getWidth();
     const patternHeight = structurePlan.getHeight();
     const searchWidth = config.ROOM_SIZE - 1 - patternWidth;

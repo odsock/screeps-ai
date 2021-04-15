@@ -38,36 +38,6 @@ class Constants {
     maxBodyParts: MAX_CREEP_SIZE
   };
 
-  public static readonly STRUCTURE_PLAN_EXTENSION_GROUP: StructurePatternPosition[] = [
-    { xOffset: 2, yOffset: 0, structure: STRUCTURE_ROAD },
-    { xOffset: 1, yOffset: 1, structure: STRUCTURE_ROAD },
-    { xOffset: 2, yOffset: 1, structure: STRUCTURE_EXTENSION },
-    { xOffset: 3, yOffset: 1, structure: STRUCTURE_ROAD },
-    { xOffset: 0, yOffset: 2, structure: STRUCTURE_ROAD },
-    { xOffset: 1, yOffset: 2, structure: STRUCTURE_EXTENSION },
-    { xOffset: 2, yOffset: 2, structure: STRUCTURE_EXTENSION },
-    { xOffset: 3, yOffset: 2, structure: STRUCTURE_EXTENSION },
-    { xOffset: 4, yOffset: 2, structure: STRUCTURE_ROAD },
-    { xOffset: 1, yOffset: 3, structure: STRUCTURE_ROAD },
-    { xOffset: 2, yOffset: 3, structure: STRUCTURE_EXTENSION },
-    { xOffset: 3, yOffset: 3, structure: STRUCTURE_ROAD },
-    { xOffset: 2, yOffset: 4, structure: STRUCTURE_ROAD }
-  ];
-
-      r
-     rer
-    reeer
-   rererer
-  reeereeer
- rerer rerer
-reeer S reeer
- rerer rerer
-  reeereeer
-   rererer
-    reeer
-     rer
-      r
-
   public static readonly ROOM_SIZE = 50;
   public static readonly MAX_DISTANCE = 99999;
   public static readonly TOWER_RESUPPLY_THRESHOLD = 0.75;

@@ -1,3 +1,4 @@
+import { StructurePatterns } from "structure-patterns";
 import { RoomWrapper } from "structures/room-wrapper";
 import config from "../constants";
 import { PlannerUtils } from "./planner-utils";
@@ -13,7 +14,7 @@ export class ExtensionPlan {
   public planExtensionGroup(): ScreepsReturnCode {
     const numAvailableExtensions = this.getNumAvailableExtensions();
     if (numAvailableExtensions >= 5) {
-      const structurePlan = PlannerUtils.findSiteForPattern(config.STRUCTURE_PLAN_EXTENSION_GROUP, this.room);
+      const structurePlan = PlannerUtils.findSiteForPattern(StructurePatterns.EXTENSION_GROUP, this.room);
       return this.placeStructurePlan(structurePlan);
     }
     return OK;

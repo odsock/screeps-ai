@@ -1,3 +1,5 @@
+import { StructurePatterns } from "structure-patterns";
+
 export class StructurePlan {
   private readonly terrain: RoomTerrain;
   // private plan: StructurePlanPosition[] = [];
@@ -8,6 +10,19 @@ export class StructurePlan {
   public constructor(pattern: StructurePatternPosition[], private readonly room: Room) {
     this.terrain = room.getTerrain();
     this.pattern = pattern;
+  }
+
+  public static buildStructurePlan(pattern: string[], room: Room): StructurePlan {
+    const structurePattern: StructurePatternPosition[] = [];
+    for (let i = 0; i < pattern.length; i++) {
+      for (let j = 0; j < pattern[i]?.length; j++) {
+        const structureConstant = StructurePatterns.CHARACTERS[pattern[i].charAt(j)];
+        if (structureConstant) {
+          structurePattern.push({ xOffset: j, yOffset: i, structure: structureConstant });
+        }
+      }
+    }
+    return new StructurePlan(structurePattern, room);
   }
 
   public getPlan(): StructurePlanPosition[] | null {
