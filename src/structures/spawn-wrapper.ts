@@ -101,9 +101,11 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getMaxClaimerCount(): number {
-    const targetRooms: string[] = config.TARGET_ROOMS;
-    // using describe exits to verify room exists
-    return targetRooms.filter(r => Game.map.getRoomStatus(r) && !Game.rooms[r]).length;
+    if (this.room.name !== "sim") {
+      const targetRooms: string[] = config.TARGET_ROOMS;
+      return targetRooms.filter(r => !Game.rooms[r]).length;
+    }
+    return 0;
   }
 
   private replaceOldMinders() {
