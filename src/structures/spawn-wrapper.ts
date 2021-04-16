@@ -159,13 +159,12 @@ export class SpawnWrapper extends StructureSpawn {
     return 0;
   }
 
-  // TODO: this assumes builder profile contains only one work
   private getBuilderBody(workPartsNeeded: number): BodyPartConstant[] {
     const bodyProfile = config.BODY_PROFILE_BUILDER;
-    let body = bodyProfile.seed;
-    for (let i = 0; i < workPartsNeeded && body.length < bodyProfile.maxBodyParts; i++) {
-      body = body.concat(bodyProfile.profile);
-    }
+    const workPartsInProfile = bodyProfile.profile.filter(part => part === WORK).length;
+    bodyProfile.maxBodyParts =
+      (workPartsNeeded / workPartsInProfile) * bodyProfile.profile.length + bodyProfile.seed.length;
+    const body = this.getMaxBody(bodyProfile);
     CreepUtils.consoleLogIfWatched(
       this,
       ` - needed ${workPartsNeeded} parts, body: ${CreepUtils.creepBodyToString(body)}`
