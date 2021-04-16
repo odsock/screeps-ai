@@ -14,15 +14,15 @@ export class Planner {
     this.setupRoomMemory();
 
     if (this.room.controller) {
-      // if (this.room.controller?.level >= 1) {
-      //   const spawns = this.room.find(FIND_MY_SPAWNS);
-      //   if (spawns.length === 0) {
-      //     const ret = this.placeFirstSpawn();
-      //     if (ret !== OK) {
-      //       return ret;
-      //     }
-      //   }
-      // }
+      if (this.room.controller?.level >= 1) {
+        const spawns = this.room.find(FIND_MY_SPAWNS);
+        if (spawns.length === 0) {
+          const ret = this.placeFirstSpawn();
+          if (ret !== OK) {
+            return ret;
+          }
+        }
+      }
 
       if (this.room.controller?.level >= 2) {
         console.log(`${this.room.name}: running planning`);
@@ -64,6 +64,14 @@ export class Planner {
       }
     }
     return OK;
+  }
+
+  // TODO: find a place for spawn with simple rules
+  private placeFirstSpawn(): ScreepsReturnCode {
+    if (this.room.controller) {
+      this.room.controller.pos.
+    }
+    return ERR_INVALID_TARGET;
   }
 
   // TODO: refactor memory init to new class
