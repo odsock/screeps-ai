@@ -66,6 +66,7 @@ export class SpawnWrapper extends StructureSpawn {
       // make builders if there's something to build
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
       if (this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
+        console.log(`${workPartsNeeded > 0}`);
         this.spawnBuilder(workPartsNeeded);
         return;
       }
