@@ -180,7 +180,7 @@ export class SpawnWrapper extends StructureSpawn {
     const workPartsDeficit = workPartsNeeded - activeWorkParts;
     CreepUtils.consoleLogIfWatched(
       this,
-      `- calc buider parts needed: ${workPartsNeeded}, active: ${activeWorkParts}, work: ${conWork}`
+      `- calc buider parts needed: ${workPartsNeeded}, active: ${activeWorkParts}, work: ${conWork}, deficit: ${workPartsDeficit}`
     );
     return workPartsDeficit > 0 ? workPartsDeficit : 0;
   }
