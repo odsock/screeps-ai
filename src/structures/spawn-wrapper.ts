@@ -164,6 +164,7 @@ export class SpawnWrapper extends StructureSpawn {
     const workPartsInProfile = bodyProfile.profile.filter(part => part === WORK).length;
     bodyProfile.maxBodyParts =
       (workPartsNeeded / workPartsInProfile) * bodyProfile.profile.length + bodyProfile.seed.length;
+    CreepUtils.consoleLogIfWatched(this, ` - max body parts: ${bodyProfile.maxBodyParts}`);
     const body = this.getMaxBody(bodyProfile);
     CreepUtils.consoleLogIfWatched(
       this,
