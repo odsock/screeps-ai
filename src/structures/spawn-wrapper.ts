@@ -66,7 +66,6 @@ export class SpawnWrapper extends StructureSpawn {
       // make builders if there's something to build
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
       if (this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
-        console.log(`need more work parts: ${String(workPartsNeeded > 0)}`);
         this.spawnBuilder(workPartsNeeded);
         return;
       }
@@ -93,7 +92,7 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private spawnClaimer(): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `- spawning builder`);
+    CreepUtils.consoleLogIfWatched(this, `- spawning claimer`);
     return this.spawn(this.getClaimerBody(), "claimer");
   }
 
@@ -103,7 +102,8 @@ export class SpawnWrapper extends StructureSpawn {
 
   private getMaxClaimerCount(): number {
     const targetRooms: string[] = config.TARGET_ROOMS;
-    return targetRooms.filter(r => !Game.rooms[r]).length;
+    // using describe exits to verify room exists
+    return targetRooms.filter(r => Game.map.describeExits(r) && !Game.rooms[r]).length;
   }
 
   private replaceOldMinders() {
