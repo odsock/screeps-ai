@@ -68,9 +68,9 @@ export class Planner {
 
   // TODO: find a place for spawn with simple rules
   private placeFirstSpawn(): ScreepsReturnCode {
-    if (this.room.controller) {
-      this.room.controller.pos.
-    }
+    // if (this.room.controller) {
+    //   this.room.controller.pos.
+    // }
     return ERR_INVALID_TARGET;
   }
 
