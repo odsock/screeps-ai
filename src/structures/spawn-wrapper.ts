@@ -66,7 +66,7 @@ export class SpawnWrapper extends StructureSpawn {
       }
       // make builders if there's something to build and past level 1
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
-      if (this.room.controller && this.room.controller.level > 2 && this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
+      if (this.workers.length === 0 && this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
         this.spawnBuilder(workPartsNeeded);
         return;
       }
@@ -186,7 +186,7 @@ export class SpawnWrapper extends StructureSpawn {
     return body;
   }
 
-  private getBuilderWorkPartsNeeded() {
+  private getBuilderWorkPartsNeeded(): number {
     const conWork = this.roomw.constructionWork;
     const activeWorkParts = this.builders.reduce<number>((count: number, creep) => count + creep.countParts(WORK), 0);
     const workPartsNeeded = Math.ceil(conWork / config.WORK_PER_WORKER_PART);
