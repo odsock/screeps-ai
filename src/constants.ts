@@ -57,8 +57,5 @@ class Constants {
                          |_|           |_|    |_|
 `;
   public static readonly BANNER_FOOTER: string = `################################################################`;
-
-  // TODO: create AI targeting of rooms
-  public static readonly TARGET_ROOMS: string[] = ["E12N56", "E11N56"];
 }
 export default Constants;

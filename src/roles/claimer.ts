@@ -1,6 +1,7 @@
 import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
 import config from "../constants";
+import { TargetConfig } from "target-config";
 
 export class Claimer extends CreepWrapper {
   public run(): void {
@@ -43,7 +44,7 @@ export class Claimer extends CreepWrapper {
   private getTargetRoom(): string | undefined {
     if (!this.memory.targetRoom) {
       // find a target room
-      const targetRooms: string[] = config.TARGET_ROOMS;
+      const targetRooms: string[] = TargetConfig.TARGETS[Game.shard.name];
       const targetRoomsNotOwned = targetRooms.filter(r => !Game.rooms[r]);
 
       // store my target room in my memory

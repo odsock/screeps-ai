@@ -8,6 +8,7 @@ import config from "../constants";
 import { Harvester } from "../roles/harvester";
 import { CreepFactory } from "roles/creep-factory";
 import { Claimer } from "roles/claimer";
+import { TargetConfig } from "target-config";
 
 export class SpawnWrapper extends StructureSpawn {
   private readonly workers: Worker[];
@@ -70,7 +71,6 @@ export class SpawnWrapper extends StructureSpawn {
         return;
       }
 
-      // TODO: write a claimer creep
       const maxClaimers = this.getMaxClaimerCount();
       if (this.claimers.length < maxClaimers) {
         this.spawnClaimer();
@@ -101,10 +101,20 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getMaxClaimerCount(): number {
-    if (this.room.name !== "sim") {
-      const targetRooms: string[] = config.TARGET_ROOMS;
-      return targetRooms.filter(r => !Game.rooms[r]).length;
+    const targetRoomNames = TargetConfig.TARGETS[Game.shard.name];
+    if (targetRoomNames) {
+      targetRoomNames.filter(roomName => {
+        if (Game.rooms[roomName]) return false;
+        try {
+          new RoomPosition(0, 0, roomName);
+        } catch (error) {
+          console.log(`ERROR: bad target config: ${roomName}`);
+          return false;
+        }
+        return true;
+      }).length;
     }
+
     return 0;
   }
 
