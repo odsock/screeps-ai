@@ -63,9 +63,9 @@ export class SpawnWrapper extends StructureSpawn {
         this.spawnWorker();
         return;
       }
-      // make builders if there's something to build
+      // make builders if there's something to build and past level 1
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
-      if (this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
+      if (this.room.controller && this.room.controller.level > 2 && this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
         this.spawnBuilder(workPartsNeeded);
         return;
       }
@@ -143,7 +143,7 @@ export class SpawnWrapper extends StructureSpawn {
     }
   }
 
-  // TODO: make source continer count dynamic based on memory
+  // TODO: make source container count dynamic based on memory
   private getMaxHarvesterCount(): number {
     return this.containers.length > 0 ? 1 : 0;
   }
