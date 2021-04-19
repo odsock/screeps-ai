@@ -19,13 +19,14 @@ export class Builder extends CreepWrapper {
 
   private doBuildJob(): void {
     let site: ConstructionSite | null = null;
+    const centerPos = new RoomPosition(config.ROOM_SIZE / 2, config.ROOM_SIZE / 2, this.room.name);
     for (let i = 0; !site && i < config.CONSTRUCTION_PRIORITY.length; i++) {
-      site = this.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
+      site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
         filter: s => s.structureType === config.CONSTRUCTION_PRIORITY[i]
       });
     }
     if (!site) {
-      site = this.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+      site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
     }
     CreepUtils.consoleLogIfWatched(this, `found site: ${String(site)}`);
 
