@@ -18,19 +18,9 @@ export class Builder extends CreepWrapper {
   }
 
   private doBuildJob(): void {
-    let site: ConstructionSite | null = null;
-    const centerPos = new RoomPosition(config.ROOM_SIZE / 2, config.ROOM_SIZE / 2, this.room.name);
-    for (let i = 0; !site && i < config.CONSTRUCTION_PRIORITY.length; i++) {
-      site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
-        filter: s => s.structureType === config.CONSTRUCTION_PRIORITY[i]
-      });
-    }
-    if (!site) {
-      site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
-    }
-    CreepUtils.consoleLogIfWatched(this, `found site: ${String(site)}`);
-
+    let site: ConstructionSite | null = this.getConstructionSite();
     if (site) {
+      this.memory.constructionSiteId = site.id;
       this.updateJob("building");
       this.stopWorkingIfEmpty();
       this.startWorkingIfFull("🚧 build");
@@ -53,5 +43,23 @@ export class Builder extends CreepWrapper {
         this.harvestByPriority();
       }
     }
+  }
+
+  private getConstructionSite(): ConstructionSite | null {
+    const siteId: string | undefined = this.memory.constructionSiteId;
+    let site: ConstructionSite | null = Game.getObjectById(siteId as Id<ConstructionSite>);
+    if (!site) {
+      const centerPos = new RoomPosition(config.ROOM_SIZE / 2, config.ROOM_SIZE / 2, this.room.name);
+      for (let i = 0; !site && i < config.CONSTRUCTION_PRIORITY.length; i++) {
+        site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
+          filter: s => s.structureType === config.CONSTRUCTION_PRIORITY[i]
+        });
+      }
+      if (!site) {
+        site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+      }
+      CreepUtils.consoleLogIfWatched(this, `center pos: ${centerPos}, found site: ${String(site)}`);
+    }
+    return site;
   }
 }
