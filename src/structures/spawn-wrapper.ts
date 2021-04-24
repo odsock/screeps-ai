@@ -153,9 +153,8 @@ export class SpawnWrapper extends StructureSpawn {
     }
   }
 
-  // TODO: make source container count dynamic based on memory
   private getMaxHarvesterCount(): number {
-    return this.containers.length > 0 ? 1 : 0;
+    return this.roomw.sourceContainers.length;
   }
 
   // TODO: make controller container count dynamic based on memory
