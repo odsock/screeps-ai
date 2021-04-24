@@ -30,6 +30,20 @@ export class RoomWrapper extends Room {
     return this.find(FIND_STRUCTURES, { filter: structure => structure.hits < structure.hitsMax });
   }
 
+  public get sourceContainers(): StructureContainer[] {
+    return this.find(FIND_SOURCES)
+      .reduce<StructureContainer[]>((list: StructureContainer[], source) => {
+        const id = this.room.memory.sourceInfo[source.id].containerId;
+        if (id) {
+          const container = Game.getObjectById(id as Id<StructureContainer>);
+          if (container !== null) {
+            list.push(container);
+          }
+        }
+        return list;
+      }, []);
+  }
+
   public roomMemoryLog(message: string): void {
     if (!this.memory.log) {
       this.memory.log = [];
