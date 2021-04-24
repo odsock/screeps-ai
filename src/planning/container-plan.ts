@@ -43,6 +43,7 @@ export class ContainerPlan {
     return OK;
   }
 
+  // BUG: returning null when should be 1
   private findSourceWithoutContainerCloseToController() {
     if (this.room.controller) {
       return this.room.controller.pos.findClosestByPath(FIND_SOURCES, {
