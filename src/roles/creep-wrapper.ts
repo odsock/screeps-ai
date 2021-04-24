@@ -87,9 +87,9 @@ export abstract class CreepWrapper extends Creep {
     return this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   }
 
-  protected findClosestContainerWithEnergy(): StructureContainer | null {
+  protected findClosestContainerWithEnergy(min = 0): StructureContainer | null {
     const container = this.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0
+      filter: s => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0 && s.store.energy > min
     });
     return container as StructureContainer;
   }
@@ -151,7 +151,7 @@ export abstract class CreepWrapper extends Creep {
       this.pickup(resource);
     }
 
-    const container = this.findClosestContainerWithEnergy();
+    const container = this.findClosestContainerWithEnergy(this.store.getFreeCapacity());
     if (container && this.withdrawEnergyFromOrMoveTo(container) !== ERR_NO_PATH) {
       return;
     }
