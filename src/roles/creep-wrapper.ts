@@ -135,6 +135,7 @@ export abstract class CreepWrapper extends Creep {
     });
   }
 
+  // TODO: fix indecisive behavior around nearly empty containers 
   protected harvestByPriority(): void {
     // harvest if adjacent to tombstone or ruin
     const tombstone = this.findClosestTombstoneWithEnergy();

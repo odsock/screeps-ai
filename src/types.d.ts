@@ -2,6 +2,7 @@
 
 // memory extension samples
 interface CreepMemory {
+  constructionSiteId?: string;
   targetRoom?: string;
   containerId?: Id<StructureContainer>;
   retiree?: string;
