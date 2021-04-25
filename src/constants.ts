@@ -1,4 +1,4 @@
-class Constants {
+export class Constants {
   public static readonly MAX_WORKERS: number = 5;
   public static readonly WORK_PER_WORKER_PART = 1000;
 
@@ -58,4 +58,3 @@ class Constants {
 `;
   public static readonly BANNER_FOOTER: string = `################################################################`;
 }
-export default Constants;

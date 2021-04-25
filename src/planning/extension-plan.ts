@@ -1,6 +1,5 @@
 import { StructurePatterns } from "structure-patterns";
 import { RoomWrapper } from "structures/room-wrapper";
-import config from "../constants";
 import { PlannerUtils } from "./planner-utils";
 import { StructurePlan } from "./structure-plan";
 

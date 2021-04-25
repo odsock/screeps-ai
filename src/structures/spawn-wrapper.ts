@@ -4,11 +4,11 @@ import { Builder } from "roles/builder";
 import { Hauler } from "roles/hauler";
 import { Upgrader } from "roles/upgrader";
 import { Worker } from "roles/worker";
-import config from "../constants";
 import { Harvester } from "../roles/harvester";
 import { CreepFactory } from "roles/creep-factory";
 import { Claimer } from "roles/claimer";
 import { TargetConfig } from "target-config";
+import { Constants } from "../constants";
 
 export class SpawnWrapper extends StructureSpawn {
   private readonly workers: Worker[];
@@ -97,7 +97,7 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getClaimerBody(): BodyPartConstant[] {
-    return this.getMaxBody(config.BODY_PROFILE_CLAIMER);
+    return this.getMaxBody(Constants.BODY_PROFILE_CLAIMER);
   }
 
   private getMaxClaimerCount(): number {
@@ -165,14 +165,14 @@ export class SpawnWrapper extends StructureSpawn {
   private getMaxWorkerCount(): number {
     // make workers in early stages
     if (this.rcl <= 1 || (this.containers.length === 0 && this.harvesters.length === 0)) {
-      CreepUtils.consoleLogIfWatched(this, `- max workers: ${config.MAX_WORKERS}`);
-      return config.MAX_WORKERS;
+      CreepUtils.consoleLogIfWatched(this, `- max workers: ${Constants.MAX_WORKERS}`);
+      return Constants.MAX_WORKERS;
     }
     return 0;
   }
 
   private getBuilderBody(workPartsNeeded: number): BodyPartConstant[] {
-    const bodyProfile = config.BODY_PROFILE_BUILDER;
+    const bodyProfile = Constants.BODY_PROFILE_BUILDER;
     const workPartsInProfile = bodyProfile.profile.filter(part => part === WORK).length;
     bodyProfile.maxBodyParts =
       (workPartsNeeded / workPartsInProfile) * bodyProfile.profile.length + bodyProfile.seed.length;
@@ -188,7 +188,7 @@ export class SpawnWrapper extends StructureSpawn {
   private getBuilderWorkPartsNeeded(): number {
     const conWork = this.roomw.constructionWork;
     const activeWorkParts = this.builders.reduce<number>((count: number, creep) => count + creep.countParts(WORK), 0);
-    const workPartsNeeded = Math.ceil(conWork / config.WORK_PER_WORKER_PART);
+    const workPartsNeeded = Math.ceil(conWork / Constants.WORK_PER_WORKER_PART);
     const workPartsDeficit = workPartsNeeded - activeWorkParts;
     CreepUtils.consoleLogIfWatched(
       this,
@@ -206,9 +206,9 @@ export class SpawnWrapper extends StructureSpawn {
     CreepUtils.consoleLogIfWatched(this, `- spawning worker`);
     let body: BodyPartConstant[];
     if (this.workers.length < 1) {
-      body = this.getMaxBodyNow(config.BODY_PROFILE_WORKER);
+      body = this.getMaxBodyNow(Constants.BODY_PROFILE_WORKER);
     } else {
-      body = this.getMaxBody(config.BODY_PROFILE_WORKER);
+      body = this.getMaxBody(Constants.BODY_PROFILE_WORKER);
     }
     return this.spawn(body, "worker");
   }
@@ -240,37 +240,37 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getHarvesterBody(): BodyPartConstant[] {
-    let body = this.getMaxBody(config.BODY_PROFILE_HARVESTER);
+    let body = this.getMaxBody(Constants.BODY_PROFILE_HARVESTER);
     if (
       this.harvesters.length <= 0 &&
       this.workers.length <= 0 &&
       this.spawnCreep(body, "maxBodyTest", { dryRun: true }) !== OK
     ) {
-      body = this.getMaxBodyNow(config.BODY_PROFILE_HARVESTER);
+      body = this.getMaxBodyNow(Constants.BODY_PROFILE_HARVESTER);
     }
     return body;
   }
 
   private getUpgraderBody(): BodyPartConstant[] {
-    let body = this.getMaxBody(config.BODY_PROFILE_UPGRADER);
+    let body = this.getMaxBody(Constants.BODY_PROFILE_UPGRADER);
     if (
       this.upgraders.length <= 0 &&
       this.workers.length <= 0 &&
       this.spawnCreep(body, "maxBodyTest", { dryRun: true }) !== OK
     ) {
-      body = this.getMaxBodyNow(config.BODY_PROFILE_UPGRADER);
+      body = this.getMaxBodyNow(Constants.BODY_PROFILE_UPGRADER);
     }
     return body;
   }
 
   private getHaulerBody(): BodyPartConstant[] {
-    let body = this.getMaxBody(config.BODY_PROFILE_HAULER);
+    let body = this.getMaxBody(Constants.BODY_PROFILE_HAULER);
     if (
       this.haulers.length <= 0 &&
       this.workers.length <= 0 &&
       this.spawnCreep(body, "maxBodyTest", { dryRun: true }) !== OK
     ) {
-      body = this.getMaxBodyNow(config.BODY_PROFILE_HAULER);
+      body = this.getMaxBodyNow(Constants.BODY_PROFILE_HAULER);
     }
     return body;
   }

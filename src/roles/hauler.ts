@@ -1,6 +1,6 @@
 import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
-import config from "../constants";
+import { Constants } from "../constants";
 
 // TODO: assign to source containers or something so they don't only use closest
 // TODO: get hauler to pull havester to container
@@ -152,7 +152,7 @@ export class Hauler extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `towers not full: ${towers.length}`);
 
     const towersBelowThreshold = towersNotFull.filter(tower => {
-      return CreepUtils.getEnergyStoreRatioFree(tower) > config.TOWER_RESUPPLY_THRESHOLD;
+      return CreepUtils.getEnergyStoreRatioFree(tower) > Constants.TOWER_RESUPPLY_THRESHOLD;
     });
     CreepUtils.consoleLogIfWatched(this, `towers below threshold: ${towersBelowThreshold.length}`);
 

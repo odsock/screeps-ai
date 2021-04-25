@@ -1,5 +1,3 @@
-import { listenerCount } from "events";
-
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
   public constructor(private readonly room: Room) {

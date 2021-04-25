@@ -1,6 +1,6 @@
 import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
-import config from "../constants";
+import { Constants } from "../constants";
 
 export class Worker extends CreepWrapper {
   public run(): void {
@@ -69,10 +69,10 @@ export class Worker extends CreepWrapper {
   private doBuildJob(): void {
     let site: ConstructionSite | null = null;
     // TODO: seems hacky to use center of room
-    const centerPos = new RoomPosition(config.ROOM_SIZE / 2, config.ROOM_SIZE / 2, this.room.name);
-    for (let i = 0; !site && i < config.CONSTRUCTION_PRIORITY.length; i++) {
+    const centerPos = new RoomPosition(Constants.ROOM_SIZE / 2, Constants.ROOM_SIZE / 2, this.room.name);
+    for (let i = 0; !site && i < Constants.CONSTRUCTION_PRIORITY.length; i++) {
       site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
-        filter: s => s.structureType === config.CONSTRUCTION_PRIORITY[i]
+        filter: s => s.structureType === Constants.CONSTRUCTION_PRIORITY[i]
       });
     }
     if (!site) {

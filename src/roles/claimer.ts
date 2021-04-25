@@ -1,6 +1,5 @@
 import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
-import config from "../constants";
 import { TargetConfig } from "target-config";
 
 export class Claimer extends CreepWrapper {

@@ -1,5 +1,5 @@
+import { Constants } from "../constants";
 import { StructurePlan } from "planning/structure-plan";
-import config from "../constants";
 
 export class PlannerUtils {
   public constructor(private readonly room: Room) {}
@@ -8,10 +8,10 @@ export class PlannerUtils {
     const structurePlan = StructurePlan.buildStructurePlan(pattern, room);
     const patternWidth = structurePlan.getWidth();
     const patternHeight = structurePlan.getHeight();
-    const searchWidth = config.ROOM_SIZE - 1 - patternWidth;
-    const searchHeight = config.ROOM_SIZE - 1 - patternHeight;
+    const searchWidth = Constants.ROOM_SIZE - 1 - patternWidth;
+    const searchHeight = Constants.ROOM_SIZE - 1 - patternHeight;
     let closestSite: { x: number; y: number } | undefined;
-    let shortestRange: number = config.MAX_DISTANCE;
+    let shortestRange: number = Constants.MAX_DISTANCE;
 
     // search whole room
     for (let x = 1; x < searchWidth; x++) {
