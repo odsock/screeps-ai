@@ -187,6 +187,7 @@ export class Planner {
       x += structure.pos.x;
       y += structure.pos.y;
       count++;
+      console.log(`calculating center: ${x}, ${y}, ${count}`);
     }
     const centerPos = new RoomPosition(x / count, y / count, this.room.name);
     console.log(`colony center: ${centerPos}`);
