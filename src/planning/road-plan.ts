@@ -1,21 +1,18 @@
 import { CreepUtils } from "creep-utils";
+import { RoomWrapper } from "structures/room-wrapper";
 
 export class RoadPlan {
-  public constructor(private readonly room: Room) {}
+  private readonly roomw: RoomWrapper;
+  public constructor(private readonly room: Room) {
+    this.roomw = new RoomWrapper(room);
+  }
 
   public placeRoadSourceContainerToControllerContainer(): ScreepsReturnCode {
     console.log(`- container road planning`);
-    // if (this.roomHasRoadsInConstruction()) {
-    //   console.log(` - roads already in construction`);
-    //   return ERR_BUSY;
-    // }
 
-    const controllerContainer = Game.getObjectById(
-      this.room.memory.controllerInfo.containerId as Id<StructureContainer>
-    );
-    if (!controllerContainer) {
-      console.log(` - no controller container`);
-      this.room.memory.controllerInfo.containerId = undefined;
+    const controllerContainers = this.roomw.controllerContainers;
+    if (controllerContainers.length <= 0) {
+      console.log(` - no controller containers`);
       return OK;
     }
 
@@ -30,14 +27,13 @@ export class RoadPlan {
         continue;
       }
 
-      // get a path and place road
-      const path: PathFinderPath = this.planRoad(sourceContainer?.pos, controllerContainer.pos, 1);
-      if (!path.incomplete) {
-        const result = this.placeRoadOnPath(path);
-        console.log(` - placement result: ${result}`);
-        // if (this.roomHasRoadsInConstruction()) {
-        //   return OK;
-        // }
+      // get a path and place road for each pair of containers
+      for (const controllerContainer of controllerContainers) {
+        const path: PathFinderPath = this.planRoad(sourceContainer?.pos, controllerContainer.pos, 1);
+        if (!path.incomplete) {
+          const result = this.placeRoadOnPath(path);
+          console.log(` - placement result: ${result}`);
+        }
       }
     }
 

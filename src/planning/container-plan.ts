@@ -9,18 +9,17 @@ export class ContainerPlan {
   }
 
   public placeControllerContainer(): ScreepsReturnCode {
-    if (this.room.controller && !this.roomHasContainersInConstruction()) {
-      const controllerContainer = this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: c => c.structureType === STRUCTURE_CONTAINER
-      });
-      if (controllerContainer.length === 0) {
-        const id = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
-        if (id) {
-          this.room.memory.controllerInfo.containerId = id;
-          return OK;
-        }
-        return ERR_NOT_FOUND;
+    if (
+      this.room.controller &&
+      !this.roomHasContainersInConstruction() &&
+      this.room.sourceContainers.length > this.room.controllerContainers.length
+    ) {
+      const id = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
+      if (id) {
+        this.room.memory.controllerInfo.push({ containerId: id });
+        return OK;
       }
+      return ERR_NOT_FOUND;
     }
     return OK;
   }
@@ -30,7 +29,7 @@ export class ContainerPlan {
     if (this.room.controller && !this.roomHasContainersInConstruction()) {
       // find closest source with no adjacent container
       const source = this.findSourceWithoutContainerCloseToController();
-      console.log(` - source without container: ${source}`)
+      console.log(` - source without container: ${source}`);
       if (source) {
         const id = PlannerUtils.placeStructureAdjacent(source.pos, STRUCTURE_CONTAINER);
         if (id) {

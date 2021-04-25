@@ -17,7 +17,7 @@ interface CreepMemory {
 interface RoomMemory {
   roadUseLog: { [pos: string]: number };
   sourceInfo: { [id: string]: SourceInfo };
-  controllerInfo: ControllerInfo;
+  controllerInfo: ContainerInfo[];
   log: string[];
   construction: { [id: string]: ConstructionLog };
   extensionCount: number;
@@ -32,6 +32,11 @@ interface SourceInfo {
 
 interface ControllerInfo {
   containerId?: string;
+  minderId?: string;
+}
+
+interface ContainerInfo {
+  containerId: string;
   minderId?: string;
 }
 

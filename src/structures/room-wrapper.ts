@@ -1,3 +1,5 @@
+import { listenerCount } from "events";
+
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
   public constructor(private readonly room: Room) {
@@ -31,17 +33,26 @@ export class RoomWrapper extends Room {
   }
 
   public get sourceContainers(): StructureContainer[] {
-    return this.find(FIND_SOURCES)
-      .reduce<StructureContainer[]>((list: StructureContainer[], source) => {
-        const id = this.room.memory.sourceInfo[source.id].containerId;
-        if (id) {
-          const container = Game.getObjectById(id as Id<StructureContainer>);
-          if (container !== null) {
-            list.push(container);
-          }
+    return this.find(FIND_SOURCES).reduce<StructureContainer[]>((list: StructureContainer[], source) => {
+      const id = this.room.memory.sourceInfo[source.id].containerId;
+      if (id) {
+        const container = Game.getObjectById(id as Id<StructureContainer>);
+        if (container !== null) {
+          list.push(container);
         }
-        return list;
-      }, []);
+      }
+      return list;
+    }, []);
+  }
+
+  public get controllerContainers(): StructureContainer[] {
+    return this.room.memory.controllerInfo.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
+      const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
+      if (container !== null) {
+        list.push(container);
+      }
+      return list;
+    }, []);
   }
 
   public roomMemoryLog(message: string): void {

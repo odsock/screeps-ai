@@ -109,17 +109,18 @@ export class Minder extends CreepWrapper {
 
   protected claimFreeControllerContainer(): ScreepsReturnCode {
     const controllerInfo = this.room.memory.controllerInfo;
-    const container = Game.getObjectById(controllerInfo.containerId as Id<StructureContainer>);
-    const minder = Game.getObjectById(controllerInfo.minderId as Id<Creep>);
+    for (const containerInfo of controllerInfo) {
+      const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
+      if (!container) {
+        continue;
+      }
 
-    if (!container) {
-      this.room.memory.controllerInfo.containerId = undefined;
-      return ERR_NOT_FOUND;
-    }
-    if (!minder) {
-      this.room.memory.controllerInfo.minderId = this.id;
-      this.memory.containerId = controllerInfo.containerId as Id<StructureContainer>;
-      return OK;
+      const minder = Game.getObjectById(containerInfo.minderId as Id<Creep>);
+      if (!minder) {
+        containerInfo.minderId = this.id;
+        this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
+        return OK;
+      }
     }
     return ERR_NOT_FOUND;
   }
