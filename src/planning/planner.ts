@@ -204,7 +204,7 @@ export class Planner {
         break;
       }
 
-      if (xOffset < range && yOffset === -range) {
+      if (xOffset < range && yOffset === -range || yOffset === 0) {
         xOffset++;
       } else if (xOffset === range && yOffset < range) {
         yOffset++;
@@ -212,8 +212,11 @@ export class Planner {
         xOffset--;
       } else if (xOffset === -range && yOffset > -range) {
         yOffset--;
+      } else {
+        console.log(`breaking loop`);
+        break;
       }
-      
+
       range++;
       
       towerPos.x = centerPos.x + xOffset;
