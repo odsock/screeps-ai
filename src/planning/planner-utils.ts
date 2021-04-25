@@ -91,39 +91,45 @@ export class PlannerUtils {
 
   public static getPositionSpiral(centerPos: RoomPosition, maxRange: number): RoomPosition[] {
     let line: RoomPosition[] = [];
-    
+
     let xOffset = 0;
     let yOffset = 0;
     let pos: RoomPosition = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
 
     for (let range = 0; range < maxRange; range++) {
-      console.log(`pos: ${pos}, xOffset: ${xOffset}, yOffset: ${yOffset}, range: ${range}`);
-      line.push(pos);
+      for (let i = 0; i < range * 8; i++) {
+        console.log(`pos: ${pos}, xOffset: ${xOffset}, yOffset: ${yOffset}, range: ${range}`);
+        line.push(pos);
 
-      if(xOffset < range && yOffset === -range) {
-        xOffset++;
-      } else if (xOffset === range && yOffset < range) {
-        yOffset++;
-      } else if (xOffset > -range && yOffset === range) {
-        xOffset--;
-      } else if (xOffset === -range && yOffset > -range) {
-        yOffset--;
-      } else {
-        console.log(`breaking loop`);
-        break;
+        if (xOffset < range && yOffset === -range) {
+          xOffset++;
+        } else if (xOffset === range && yOffset < range) {
+          yOffset++;
+        } else if (xOffset > -range && yOffset === range) {
+          xOffset--;
+        } else if (xOffset === -range && yOffset > -range) {
+          yOffset--;
+        } else {
+          console.log(`breaking loop`);
+          break;
+        }
+
+        pos = new RoomPosition(centerPos.x + xOffset, centerPos.y + yOffset, centerPos.roomName);
       }
-      
-      pos = new RoomPosition(centerPos.x + xOffset, centerPos.y + yOffset, centerPos.roomName);
     }
     return line;
   }
 
   public static findColonyCenter(room: Room): RoomPosition {
     const myStructures = room.find(FIND_MY_STRUCTURES, {
-      filter: s => s.structureType !== STRUCTURE_EXTENSION && s.structureType !== STRUCTURE_SPAWN && s.structureType !== STRUCTURE_CONTROLLER
+      filter: s =>
+        s.structureType !== STRUCTURE_EXTENSION &&
+        s.structureType !== STRUCTURE_SPAWN &&
+        s.structureType !== STRUCTURE_CONTROLLER
     });
     const myRoadsAndContainers = room.find(FIND_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_CONTAINER ||
+      filter: s =>
+        s.structureType === STRUCTURE_CONTAINER ||
         s.structureType === STRUCTURE_ROAD ||
         s.structureType === STRUCTURE_WALL
     });
@@ -141,5 +147,4 @@ export class PlannerUtils {
     const centerPos = new RoomPosition(x / count, y / count, room.name);
     return centerPos;
   }
-
 }
