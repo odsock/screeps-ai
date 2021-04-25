@@ -102,7 +102,7 @@ export class PlannerUtils {
     for (let i = 0; i < Math.pow(maxRange * 2, 2); i++) {
       if (centerPos.x < Constants.ROOM_SIZE - 2 && centerPos.x > 1 && centerPos.y < Constants.ROOM_SIZE - 2 && centerPos.y > 1) {
         console.log(`pos: ${pos}, xOffset: ${x}, yOffset: ${y}, i: ${i}`);
-        pos = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
+        pos = new RoomPosition(x, y, centerPos.roomName);
         line.push(pos);
       }
 
