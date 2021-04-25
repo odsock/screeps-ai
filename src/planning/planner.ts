@@ -201,7 +201,7 @@ export class Planner {
         yOffset--;
       } else if (xOffset > yOffset) {
         xOffset--;
-      } else if (xOffset > -yOffset) {
+      } else if ((xOffset < 0 && xOffset === yOffset) || xOffset > -yOffset) {
         yOffset++;
       } else if (xOffset < yOffset) {
         xOffset++;
