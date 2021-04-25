@@ -192,7 +192,7 @@ export class Planner {
 
     let ret: ScreepsReturnCode | null = null;
     while (towerPos.x < Constants.ROOM_SIZE && towerPos.y < Constants.ROOM_SIZE && towerPos.x > 0 && towerPos.y > 0) {
-      if (xOffset > 0 && xOffset === yOffset) {
+      if (xOffset >= 0 && xOffset === yOffset) {
         xOffset++;
       } else if (yOffset > -xOffset) {
         yOffset--;
