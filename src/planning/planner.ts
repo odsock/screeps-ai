@@ -62,7 +62,7 @@ export class Planner {
         }
 
         // place towers
-        if(this.getAvailableStructureCount(STRUCTURE_TOWER) > 0) {
+        if (this.getAvailableStructureCount(STRUCTURE_TOWER) > 0) {
           this.placeTower();
         }
 
@@ -165,7 +165,9 @@ export class Planner {
   }
 
   private placeTower(): ScreepsReturnCode {
-    const myStructures = this.room.find(FIND_MY_STRUCTURES);
+    const myStructures = this.room.find(FIND_MY_STRUCTURES, {
+      filter: s => s.structureType !== STRUCTURE_EXTENSION && s.structureType !== STRUCTURE_SPAWN
+    });
     const myRoadsAndContainers = this.room.find(FIND_STRUCTURES, {
       filter: s => {
         s.structureType === STRUCTURE_CONTAINER ||
@@ -220,8 +222,7 @@ export class Planner {
     const rcl = this.room.controller?.level;
     if (rcl) {
       const max = CONTROLLER_STRUCTURES[structureConstant][rcl];
-      const built = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === structureConstant })
-        .length;
+      const built = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === structureConstant }).length;
       const placed = this.room.find(FIND_MY_CONSTRUCTION_SITES, {
         filter: s => s.structureType === structureConstant
       }).length;
