@@ -205,6 +205,7 @@ export class Planner {
       }
       towerPos.x = towerPos.x + xOffset;
       towerPos.y = towerPos.y + yOffset;
+      console.log(`xOffset: ${xOffset}, yOffset: ${yOffset}`);
       ret = this.room.createConstructionSite(towerPos.x, towerPos.y, STRUCTURE_TOWER);
       if (ret === OK) {
         break;
