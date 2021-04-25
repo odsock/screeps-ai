@@ -192,7 +192,7 @@ export class Planner {
     let towerPos = centerPos;
     let xOffset = 0;
     let yOffset = 0;
-    let range = 1;
+    let range = 0;
 
     let line: RoomPosition[] = [];
     let ret: ScreepsReturnCode | null = null;
@@ -203,22 +203,6 @@ export class Planner {
       if (ret === OK) {
         break;
       }
-
-      x++
-      y++
-      x--
-      x--
-      x--
-      y--
-      y--
-      y--
-      x++
-      x++
-      x++
-      y++
-      y++
-      x++
-      y++
 
       if (xOffset === yOffset) {
         yOffset++;
