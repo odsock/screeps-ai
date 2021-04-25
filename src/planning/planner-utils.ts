@@ -115,8 +115,6 @@ export class PlannerUtils {
         console.log(`breaking loop`);
         break;
       }
-
-      range++;
       
       towerPos.x = centerPos.x + xOffset;
       towerPos.y = centerPos.y + yOffset;
