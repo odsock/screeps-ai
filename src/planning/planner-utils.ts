@@ -88,4 +88,65 @@ export class PlannerUtils {
     }
     return null;
   }
+
+  public static getPositionSpiral(centerPos: RoomPosition, maxRange: number): RoomPosition[] {
+    let line: RoomPosition[] = [];
+    
+    let xOffset = 0;
+    let yOffset = 0;
+    let range = 0;
+    let towerPos: RoomPosition = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
+    while (towerPos.x < Constants.ROOM_SIZE && towerPos.y < Constants.ROOM_SIZE && towerPos.x > 0 && towerPos.y > 0) {
+      console.log(`tower site: ${towerPos}, xOffset: ${xOffset}, yOffset: ${yOffset}`);
+      line.push(towerPos);
+
+      if (xOffset === yOffset) {
+        yOffset++;
+        range++;
+      } else if(xOffset < range && yOffset === -range) {
+        xOffset++;
+      } else if (xOffset === range && yOffset < range) {
+        yOffset++;
+      } else if (xOffset > -range && yOffset === range) {
+        xOffset--;
+      } else if (xOffset === -range && yOffset > -range) {
+        yOffset--;
+      } else {
+        console.log(`breaking loop`);
+        break;
+      }
+
+      range++;
+      
+      towerPos.x = centerPos.x + xOffset;
+      towerPos.y = centerPos.y + yOffset;
+      towerPos = new RoomPosition(towerPos.x, towerPos.y, centerPos.roomName);
+    }
+    return line;
+  }
+
+  public static findColonyCenter(room: Room): RoomPosition {
+    const myStructures = room.find(FIND_MY_STRUCTURES, {
+      filter: s => s.structureType !== STRUCTURE_EXTENSION && s.structureType !== STRUCTURE_SPAWN && s.structureType !== STRUCTURE_CONTROLLER
+    });
+    const myRoadsAndContainers = room.find(FIND_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_CONTAINER ||
+        s.structureType === STRUCTURE_ROAD ||
+        s.structureType === STRUCTURE_WALL
+    });
+    console.log(`structures found: ${myStructures.length}, and ${myRoadsAndContainers.length}`);
+    const structures = myRoadsAndContainers.concat(myStructures);
+
+    let x = 0;
+    let y = 0;
+    let count = 0;
+    for (const structure of structures) {
+      x += structure.pos.x;
+      y += structure.pos.y;
+      count++;
+    }
+    const centerPos = new RoomPosition(x / count, y / count, room.name);
+    return centerPos;
+  }
+
 }
