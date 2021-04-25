@@ -97,7 +97,7 @@ export class PlannerUtils {
     let range = 0;
     let towerPos: RoomPosition = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
     while (towerPos.x < Constants.ROOM_SIZE && towerPos.y < Constants.ROOM_SIZE && towerPos.x > 0 && towerPos.y > 0) {
-      console.log(`tower site: ${towerPos}, xOffset: ${xOffset}, yOffset: ${yOffset}`);
+      console.log(`pos: ${towerPos}, xOffset: ${xOffset}, yOffset: ${yOffset}, range: ${range}`);
       line.push(towerPos);
 
       if (xOffset === yOffset) {
