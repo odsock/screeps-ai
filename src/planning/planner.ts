@@ -63,7 +63,10 @@ export class Planner {
 
         // place towers
         if (this.getAvailableStructureCount(STRUCTURE_TOWER) > 0) {
-          this.placeTower();
+          const towerResult = this.placeTower();
+          if (towerResult !== OK) {
+            return towerResult;
+          }
         }
 
         // TODO: place ramparts over containers
@@ -202,6 +205,9 @@ export class Planner {
         yOffset++;
       } else if (xOffset < yOffset) {
         xOffset++;
+      } else {
+        console.log(`break loop`);
+        break;
       }
       towerPos.x = towerPos.x + xOffset;
       towerPos.y = towerPos.y + yOffset;
