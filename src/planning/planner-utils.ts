@@ -110,6 +110,7 @@ export class PlannerUtils {
         const temp = dx;
         dx = -dy;
         dy = temp;
+        console.log(`change direction: ${dx}, ${dy}`);
       }
 
       x = x + dx;
