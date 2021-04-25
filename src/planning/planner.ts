@@ -108,7 +108,8 @@ export class Planner {
       // add new controller containers
       for (const container of containersFound) {
         console.log(`- add controller container`);
-        this.room.memory.controllerInfo.push({ containerId: container.id });
+        if (!this.room.memory.controllerInfo.find((c) => c.containerId === container.id))
+          this.room.memory.controllerInfo.push({ containerId: container.id });
       }
     }
 
