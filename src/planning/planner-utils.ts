@@ -94,16 +94,13 @@ export class PlannerUtils {
     
     let xOffset = 0;
     let yOffset = 0;
-    let range = 0;
-    let towerPos: RoomPosition = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
-    while (towerPos.x < Constants.ROOM_SIZE && towerPos.y < Constants.ROOM_SIZE && towerPos.x > 0 && towerPos.y > 0) {
-      console.log(`pos: ${towerPos}, xOffset: ${xOffset}, yOffset: ${yOffset}, range: ${range}`);
-      line.push(towerPos);
+    let pos: RoomPosition = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
 
-      if (xOffset === yOffset) {
-        yOffset++;
-        range++;
-      } else if(xOffset < range && yOffset === -range) {
+    for (let range = 0; range < maxRange; range++) {
+      console.log(`pos: ${pos}, xOffset: ${xOffset}, yOffset: ${yOffset}, range: ${range}`);
+      line.push(pos);
+
+      if(xOffset < range && yOffset === -range) {
         xOffset++;
       } else if (xOffset === range && yOffset < range) {
         yOffset++;
@@ -116,9 +113,7 @@ export class PlannerUtils {
         break;
       }
       
-      towerPos.x = centerPos.x + xOffset;
-      towerPos.y = centerPos.y + yOffset;
-      towerPos = new RoomPosition(towerPos.x, towerPos.y, centerPos.roomName);
+      pos = new RoomPosition(centerPos.x + xOffset, centerPos.y + yOffset, centerPos.roomName);
     }
     return line;
   }
