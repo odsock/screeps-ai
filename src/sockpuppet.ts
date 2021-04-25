@@ -12,10 +12,6 @@ export class Sockpuppet {
     for (const roomId in Game.rooms) {
       const room = new RoomWrapper(Game.rooms[roomId]);
 
-      // test spiral code
-      const line = PlannerUtils.getPositionSpiral(new RoomPosition(20, 20, room.name), 5);
-      room.visual.poly(line);
-
       // Run spawners
       CreepUtils.consoleLogIfWatched(room, `running spawns`);
       const spawns = room.find(FIND_MY_SPAWNS);
