@@ -13,8 +13,8 @@ export class Sockpuppet {
       const room = new RoomWrapper(Game.rooms[roomId]);
 
       // test spiral code
-      // const line = PlannerUtils.getPositionSpiral(new RoomPosition(20, 20, room.name), 10);
-      // room.visual.poly(line);
+      const line = PlannerUtils.getPositionSpiral(new RoomPosition(20, 20, room.name), 10);
+      room.visual.poly(line);
 
       // Run spawners
       CreepUtils.consoleLogIfWatched(room, `running spawns`);

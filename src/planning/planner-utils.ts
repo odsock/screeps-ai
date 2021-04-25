@@ -1,5 +1,6 @@
 import { Constants } from "../constants";
 import { StructurePlan } from "planning/structure-plan";
+import { constants } from "buffer";
 
 export class PlannerUtils {
   public constructor(private readonly room: Room) {}
@@ -92,32 +93,25 @@ export class PlannerUtils {
   public static getPositionSpiral(centerPos: RoomPosition, maxRange: number): RoomPosition[] {
     let line: RoomPosition[] = [];
 
-    let xOffset = 0;
-    let yOffset = 0;
+    let x = 0;
+    let y = 0;
+    let dx = 0;
+    let dy = -1;
     let pos: RoomPosition = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
 
-    let range = 0;
-    while(range < maxRange) {
-      console.log(`pos: ${pos}, xOffset: ${xOffset}, yOffset: ${yOffset}, range: ${range}`);
-      line.push(pos);
-
-      if (xOffset == range && yOffset === range) {
-        xOffset++;
-        range++;
-      } else if (xOffset === range && yOffset > -range) {
-        yOffset--;
-      } else if (xOffset > -range && yOffset === -range) {
-        xOffset--;
-      } else if (xOffset === -range && yOffset < range) {
-        yOffset++;
-      } else if (xOffset < range && yOffset === range) {
-        xOffset++;
-      } else {
-        console.log(`breaking inner loop`);
-        break;
+    for (let i = 0; i < Math.pow(maxRange * 2, 2); i++) {
+      if (x < Constants.ROOM_SIZE - 2 && x > 1 && y < Constants.ROOM_SIZE - 2 && y > 1) {
+        console.log(`pos: ${pos}, xOffset: ${x}, yOffset: ${y}, i: ${i}`);
+        pos = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
+        line.push(pos);
       }
 
-      pos = new RoomPosition(centerPos.x + xOffset, centerPos.y + yOffset, centerPos.roomName);
+      if (x === y || (x === -y && x < 0) || (x === 1 - y && x > 0)) {
+       [dx, dy] = [-dy, dx];
+      }
+
+      x = x + dx;
+      y = y + dy;
     }
     return line;
   }
