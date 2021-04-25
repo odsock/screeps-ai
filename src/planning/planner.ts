@@ -169,14 +169,13 @@ export class Planner {
 
   private placeTower(): ScreepsReturnCode {
     const myStructures = this.room.find(FIND_MY_STRUCTURES, {
-      filter: s => s.structureType !== STRUCTURE_EXTENSION && s.structureType !== STRUCTURE_SPAWN
+      filter: s => s.structureType !== STRUCTURE_EXTENSION && s.structureType !== STRUCTURE_SPAWN && s.structureType !== STRUCTURE_CONTROLLER
     });
     const myRoadsAndContainers = this.room.find(FIND_STRUCTURES, {
-      filter: s => {
-        s.structureType === STRUCTURE_CONTAINER ||
+      filter: s =>
+          s.structureType === STRUCTURE_CONTAINER ||
           s.structureType === STRUCTURE_ROAD ||
-          s.structureType === STRUCTURE_WALL;
-      }
+          s.structureType === STRUCTURE_WALL
     });
     console.log(`structures found: ${myStructures.length}, and ${myRoadsAndContainers.length}`)
     const structures = myRoadsAndContainers.concat(myStructures);
