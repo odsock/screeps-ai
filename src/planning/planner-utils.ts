@@ -4,6 +4,7 @@ import { StructurePlan } from "planning/structure-plan";
 export class PlannerUtils {
   public constructor(private readonly room: Room) {}
 
+  // TODO: don't assume spawn for center
   public static findSiteForPattern(pattern: string[], room: Room): StructurePlan {
     const structurePlan = StructurePlan.buildStructurePlan(pattern, room);
     const patternWidth = structurePlan.getWidth();
