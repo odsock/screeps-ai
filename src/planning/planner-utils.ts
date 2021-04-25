@@ -96,27 +96,28 @@ export class PlannerUtils {
     let yOffset = 0;
     let pos: RoomPosition = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
 
-    for (let range = 0; range < maxRange; range++) {
-      while (true) {
-        console.log(`pos: ${pos}, xOffset: ${xOffset}, yOffset: ${yOffset}, range: ${range}`);
-        line.push(pos);
+    let range = 0;
+    while(range < maxRange) {
+      console.log(`pos: ${pos}, xOffset: ${xOffset}, yOffset: ${yOffset}, range: ${range}`);
+      line.push(pos);
 
-        if (xOffset < range && yOffset === -range) {
-          xOffset++;
-        } else if (xOffset === range && yOffset < range) {
-          yOffset++;
-        } else if (xOffset > -range && yOffset === range) {
-          xOffset--;
-        } else if (xOffset === -range && yOffset > -range) {
-          yOffset--;
-        } else {
-          console.log(`breaking inner loop`);
-          xOffset++;
-          break;
-        }
-
-        pos = new RoomPosition(centerPos.x + xOffset, centerPos.y + yOffset, centerPos.roomName);
+      if (xOffset == range && yOffset === range) {
+        xOffset++;
+        range++;
+      } else if (xOffset === range && yOffset > -range) {
+        yOffset--;
+      } else if (xOffset > -range && yOffset === -range) {
+        xOffset--;
+      } else if (xOffset === -range && yOffset < range) {
+        yOffset++;
+      } else if (xOffset < range && yOffset === range) {
+        xOffset++;
+      } else {
+        console.log(`breaking inner loop`);
+        break;
       }
+
+      pos = new RoomPosition(centerPos.x + xOffset, centerPos.y + yOffset, centerPos.roomName);
     }
     return line;
   }
