@@ -193,6 +193,7 @@ export class Planner {
     let xOffset = 0;
     let yOffset = 0;
 
+    let line: RoomPosition[] = [];
     let ret: ScreepsReturnCode | null = null;
     while (towerPos.x < Constants.ROOM_SIZE && towerPos.y < Constants.ROOM_SIZE && towerPos.x > 0 && towerPos.y > 0) {
       if (xOffset >= 0 && xOffset === yOffset) {
@@ -212,11 +213,14 @@ export class Planner {
       towerPos.x = towerPos.x + xOffset;
       towerPos.y = towerPos.y + yOffset;
       console.log(`xOffset: ${xOffset}, yOffset: ${yOffset}`);
-      ret = this.room.createConstructionSite(towerPos.x, towerPos.y, STRUCTURE_TOWER);
+      towerPos = new RoomPosition(towerPos.x, towerPos.y, this.room.name);
+      line.push(towerPos);
+      ret = this.room.createConstructionSite(towerPos, STRUCTURE_TOWER);
       if (ret === OK) {
         break;
       }
     }
+    this.room.visual.poly(line);
 
     if (ret) {
       return ret;
