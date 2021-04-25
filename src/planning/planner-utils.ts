@@ -97,7 +97,7 @@ export class PlannerUtils {
     let pos: RoomPosition = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
 
     for (let range = 0; range < maxRange; range++) {
-      for (let i = 0; i < range * 8; i++) {
+      while (true) {
         console.log(`pos: ${pos}, xOffset: ${xOffset}, yOffset: ${yOffset}, range: ${range}`);
         line.push(pos);
 
@@ -110,7 +110,8 @@ export class PlannerUtils {
         } else if (xOffset === -range && yOffset > -range) {
           yOffset--;
         } else {
-          console.log(`breaking loop`);
+          console.log(`breaking inner loop`);
+          xOffset++;
           break;
         }
 
