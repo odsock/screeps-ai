@@ -189,6 +189,9 @@ export class Planner {
       count++;
     }
     const centerPos = new RoomPosition(x / count, y / count, this.room.name);
+    console.log(`colony center: ${centerPos}`);
+    this.room.visual.circle(centerPos);
+
     let towerPos = centerPos;
     let xOffset = 0;
     let yOffset = 0;
