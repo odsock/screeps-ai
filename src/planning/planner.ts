@@ -107,9 +107,10 @@ export class Planner {
 
       // add new controller containers
       for (const container of containersFound) {
-        console.log(`- add controller container`);
-        if (!this.room.memory.controllerInfo.find((c) => c.containerId === container.id))
+        if (!this.room.memory.controllerInfo.find(c => c.containerId === container.id)) {
+          console.log(`- add controller container`);
           this.room.memory.controllerInfo.push({ containerId: container.id });
+        }
       }
     }
 
@@ -176,13 +177,12 @@ export class Planner {
     let ret: ScreepsReturnCode = ERR_NOT_FOUND;
     for (const pos of line) {
       ret = this.room.createConstructionSite(pos, STRUCTURE_TOWER);
-      if(ret === OK) {
+      if (ret === OK) {
         break;
       }
     }
     return ret;
   }
-
 
   private getAvailableStructureCount(structureConstant: BuildableStructureConstant): number {
     let available = 0;
@@ -198,6 +198,4 @@ export class Planner {
     console.log(`${this.room.name}: ${structureConstant}s available: ${available}`);
     return available;
   }
-
-
 }
