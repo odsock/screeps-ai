@@ -178,6 +178,7 @@ export class Planner {
           s.structureType === STRUCTURE_WALL;
       }
     });
+    console.log(`structures found: ${myStructures.length}, and ${myRoadsAndContainers.length}`)
     const structures = myRoadsAndContainers.concat(myStructures);
 
     let x = 0;
