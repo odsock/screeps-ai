@@ -29,8 +29,8 @@ export class ContainerPlan {
     if (this.room.controller && !this.roomHasContainersInConstruction()) {
       // find closest source with no adjacent container
       const source = this.findSourceWithoutContainerCloseToController();
-      console.log(` - source without container: ${source}`);
       if (source) {
+        console.log(` - source without container: ${source}`);
         const id = PlannerUtils.placeStructureAdjacent(source.pos, STRUCTURE_CONTAINER);
         if (id) {
           this.room.memory.sourceInfo[source.id].containerId = id;

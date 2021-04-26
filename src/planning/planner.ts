@@ -3,6 +3,7 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { ContainerPlan } from "./container-plan";
 import { ExtensionPlan } from "./extension-plan";
 import { RoadPlan } from "./road-plan";
+import { PlannerUtils } from "./planner-utils";
 
 export class Planner {
   private readonly room: RoomWrapper;
@@ -62,8 +63,11 @@ export class Planner {
         }
 
         // place towers
-        if(this.getAvailableStructureCount(STRUCTURE_TOWER) > 0) {
-          this.placeTower();
+        if (this.getAvailableStructureCount(STRUCTURE_TOWER) > 0) {
+          const towerResult = this.placeTower();
+          if (towerResult !== OK) {
+            return towerResult;
+          }
         }
 
         // TODO: place ramparts over containers
@@ -103,8 +107,10 @@ export class Planner {
 
       // add new controller containers
       for (const container of containersFound) {
-        console.log(`- add controller container`);
-        this.room.memory.controllerInfo.push({ containerId: container.id });
+        if (!this.room.memory.controllerInfo.find(c => c.containerId === container.id)) {
+          console.log(`- add controller container`);
+          this.room.memory.controllerInfo.push({ containerId: container.id });
+        }
       }
     }
 
@@ -165,54 +171,17 @@ export class Planner {
   }
 
   private placeTower(): ScreepsReturnCode {
-    const myStructures = this.room.find(FIND_MY_STRUCTURES);
-    const myRoadsAndContainers = this.room.find(FIND_STRUCTURES, {
-      filter: s => {
-        s.structureType === STRUCTURE_CONTAINER ||
-          s.structureType === STRUCTURE_ROAD ||
-          s.structureType === STRUCTURE_WALL;
-      }
-    });
-    const structures = myRoadsAndContainers.concat(myStructures);
+    const centerPos = PlannerUtils.findColonyCenter(this.room);
+    const line = PlannerUtils.getPositionSpiral(centerPos, 10);
 
-    let x = 0;
-    let y = 0;
-    let count = 0;
-    for (const structure of structures) {
-      x += structure.pos.x;
-      y += structure.pos.y;
-      count++;
-    }
-    const centerPos = new RoomPosition(x / count, y / count, this.room.name);
-    let towerPos = centerPos;
-    let xOffset = 0;
-    let yOffset = 0;
-
-    let ret: ScreepsReturnCode | null = null;
-    while (towerPos.x < Constants.ROOM_SIZE && towerPos.y < Constants.ROOM_SIZE && towerPos.x > 0 && towerPos.y > 0) {
-      if (xOffset > 0 && xOffset === yOffset) {
-        xOffset++;
-      } else if (yOffset > -xOffset) {
-        yOffset--;
-      } else if (xOffset > yOffset) {
-        xOffset--;
-      } else if (xOffset > -yOffset) {
-        yOffset++;
-      } else if (xOffset < yOffset) {
-        xOffset++;
-      }
-      towerPos.x = towerPos.x + xOffset;
-      towerPos.y = towerPos.y + yOffset;
-      ret = this.room.createConstructionSite(towerPos.x, towerPos.y, STRUCTURE_TOWER);
+    let ret: ScreepsReturnCode = ERR_NOT_FOUND;
+    for (const pos of line) {
+      ret = this.room.createConstructionSite(pos, STRUCTURE_TOWER);
       if (ret === OK) {
         break;
       }
     }
-
-    if (ret) {
-      return ret;
-    }
-    return ERR_NOT_FOUND;
+    return ret;
   }
 
   private getAvailableStructureCount(structureConstant: BuildableStructureConstant): number {
@@ -220,8 +189,7 @@ export class Planner {
     const rcl = this.room.controller?.level;
     if (rcl) {
       const max = CONTROLLER_STRUCTURES[structureConstant][rcl];
-      const built = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === structureConstant })
-        .length;
+      const built = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === structureConstant }).length;
       const placed = this.room.find(FIND_MY_CONSTRUCTION_SITES, {
         filter: s => s.structureType === structureConstant
       }).length;

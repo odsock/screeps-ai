@@ -12,6 +12,7 @@ export class StructurePlan {
     this.pattern = pattern;
     this.printPattern();
   }
+  
   public printPattern(): void {
     for (const i of this.pattern) {
       console.log(`${i.xOffset}, ${i.yOffset}, ${i.structure}`);

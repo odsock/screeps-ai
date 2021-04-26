@@ -4,6 +4,7 @@ import { StructurePlan } from "planning/structure-plan";
 export class PlannerUtils {
   public constructor(private readonly room: Room) {}
 
+  // TODO: don't assume spawn for center
   public static findSiteForPattern(pattern: string[], room: Room): StructurePlan {
     const structurePlan = StructurePlan.buildStructurePlan(pattern, room);
     const patternWidth = structurePlan.getWidth();
@@ -86,5 +87,59 @@ export class PlannerUtils {
       return structure[0].id;
     }
     return null;
+  }
+
+  public static getPositionSpiral(centerPos: RoomPosition, maxRange: number): RoomPosition[] {
+    let line: RoomPosition[] = [];
+    let x = 0;
+    let y = 0;
+    let dx = 0;
+    let dy = -1;
+    let pos: RoomPosition = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
+
+    for (let i = 0; i < Math.pow(maxRange * 2, 2); i++) {
+      if (centerPos.x < Constants.ROOM_SIZE - 2 && centerPos.x > 1 && centerPos.y < Constants.ROOM_SIZE - 2 && centerPos.y > 1) {
+        pos = new RoomPosition(centerPos.x + x, centerPos.y + y, centerPos.roomName);
+        line.push(pos);
+      }
+
+      if (x === y || (x === -y && x < 0) || (x === 1 - y && x > 0)) {
+        const temp = dx;
+        dx = -dy;
+        dy = temp;
+      }
+
+      x = x + dx;
+      y = y + dy;
+    }
+    return line;
+  }
+
+  public static findColonyCenter(room: Room): RoomPosition {
+    const myStructures = room.find(FIND_MY_STRUCTURES, {
+      filter: s =>
+        s.structureType !== STRUCTURE_EXTENSION &&
+        s.structureType !== STRUCTURE_SPAWN &&
+        s.structureType !== STRUCTURE_CONTROLLER
+    });
+    const myRoadsAndContainers = room.find(FIND_STRUCTURES, {
+      filter: s =>
+        s.structureType === STRUCTURE_CONTAINER ||
+        s.structureType === STRUCTURE_ROAD ||
+        s.structureType === STRUCTURE_WALL
+    });
+    console.log(`structures found: ${myStructures.length}, and ${myRoadsAndContainers.length}`);
+    const structures = myRoadsAndContainers.concat(myStructures);
+
+    let x = 0;
+    let y = 0;
+    let count = 0;
+    for (const structure of structures) {
+      x += structure.pos.x;
+      y += structure.pos.y;
+      count++;
+    }
+    const centerPos = new RoomPosition(x / count, y / count, room.name);
+    return centerPos;
   }
 }
