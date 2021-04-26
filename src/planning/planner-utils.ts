@@ -104,6 +104,7 @@ export class PlannerUtils {
         centerPos.y < Constants.ROOM_SIZE - 2 &&
         centerPos.y > 1
       ) {
+        console.log(`new pos: ${centerPos.x + x}, ${centerPos.y + y}`)
         pos = new RoomPosition(centerPos.x + x, centerPos.y + y, centerPos.roomName);
         line.push(pos);
       }
