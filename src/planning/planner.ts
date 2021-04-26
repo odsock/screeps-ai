@@ -1,4 +1,3 @@
-import { Constants } from "../constants";
 import { RoomWrapper } from "structures/room-wrapper";
 import { ContainerPlan } from "./container-plan";
 import { ExtensionPlan } from "./extension-plan";
@@ -95,9 +94,14 @@ export class Planner {
       }
 
       // validate controller containers
-      const controllerInfo = this.room.memory.controllerInfo.filter(containerInfo =>
-        Game.getObjectById(containerInfo.containerId as Id<StructureContainer>)
-      );
+      const controllerMemory: ContainerInfo[] = this.room.memory.controllerInfo;
+      const controllerInfo = controllerMemory.filter((containerInfo: ContainerInfo) => {
+        const containerId = containerInfo.containerId;
+        if (Game.getObjectById(containerId as Id<StructureContainer>)) {
+          return true;
+        }
+        return false;
+      });
       this.room.memory.controllerInfo = controllerInfo;
 
       // find new controller containers

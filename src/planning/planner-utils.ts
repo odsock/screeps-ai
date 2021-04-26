@@ -90,7 +90,7 @@ export class PlannerUtils {
   }
 
   public static getPositionSpiral(centerPos: RoomPosition, maxRange: number): RoomPosition[] {
-    let line: RoomPosition[] = [];
+    const line: RoomPosition[] = [];
     let x = 0;
     let y = 0;
     let dx = 0;
@@ -98,7 +98,12 @@ export class PlannerUtils {
     let pos: RoomPosition = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
 
     for (let i = 0; i < Math.pow(maxRange * 2, 2); i++) {
-      if (centerPos.x < Constants.ROOM_SIZE - 2 && centerPos.x > 1 && centerPos.y < Constants.ROOM_SIZE - 2 && centerPos.y > 1) {
+      if (
+        centerPos.x < Constants.ROOM_SIZE - 2 &&
+        centerPos.x > 1 &&
+        centerPos.y < Constants.ROOM_SIZE - 2 &&
+        centerPos.y > 1
+      ) {
         pos = new RoomPosition(centerPos.x + x, centerPos.y + y, centerPos.roomName);
         line.push(pos);
       }
