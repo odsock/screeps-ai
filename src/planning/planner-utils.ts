@@ -104,7 +104,6 @@ export class PlannerUtils {
         centerPos.y + y < Constants.ROOM_SIZE - 2 &&
         centerPos.y + y > 1
       ) {
-        console.log(`new pos: ${centerPos.x + x}, ${centerPos.y + y}`);
         pos = new RoomPosition(centerPos.x + x, centerPos.y + y, centerPos.roomName);
         line.push(pos);
       }
@@ -134,7 +133,6 @@ export class PlannerUtils {
         s.structureType === STRUCTURE_ROAD ||
         s.structureType === STRUCTURE_WALL
     });
-    console.log(`structures found: ${myStructures.length}, and ${myRoadsAndContainers.length}`);
     const structures = myRoadsAndContainers.concat(myStructures);
 
     let x = 0;
