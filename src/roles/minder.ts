@@ -1,5 +1,6 @@
-import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
+import { PlannerUtils } from "planning/planner-utils";
+import { CreepWrapper } from "./creep-wrapper";
 
 export class Minder extends CreepWrapper {
   public run(): void {
@@ -75,48 +76,24 @@ export class Minder extends CreepWrapper {
   }
 
   protected claimFreeSourceContainer(): ScreepsReturnCode {
+    PlannerUtils.refreshSourceMemory(this.room);
     const sourceMemory = this.room.memory.sourceInfo;
-
-    const freeSourceInfos: SourceInfo[] = [];
-    const freeContainers: StructureContainer[] = [];
     for (const sourceId in sourceMemory) {
-      // TODO: make this clean up old minders
-      if (sourceMemory[sourceId].containerId && !sourceMemory[sourceId].minderId) {
-        const sourceInfo = sourceMemory[sourceId];
-        const container = Game.getObjectById(sourceInfo.containerId as Id<StructureContainer>);
-        CreepUtils.consoleLogIfWatched(this, `container: ${String(container)}`);
-        if (container) {
-          freeSourceInfos.push(sourceInfo);
-          freeContainers.push(container);
-        }
+      const sourceInfo = sourceMemory[sourceId];
+      if (sourceInfo.containerId && !sourceInfo.minderId) {
+        this.room.memory.sourceInfo[sourceInfo.sourceId].minderId = this.id;
+        this.memory.containerId = sourceInfo.containerId as Id<StructureContainer>;
+        return OK;
       }
-    }
-
-    CreepUtils.consoleLogIfWatched(this, `free containers: ${String(freeContainers)}`);
-    const closestFreeContainer = this.pos.findClosestByPath(freeContainers);
-    const closestFreeSourceInfo = freeSourceInfos.find(
-      freeSourceInfo => freeSourceInfo.containerId === closestFreeContainer?.id
-    );
-    CreepUtils.consoleLogIfWatched(this, `closest free container: ${String(closestFreeContainer?.pos)}`);
-
-    if (closestFreeSourceInfo && closestFreeContainer) {
-      this.room.memory.sourceInfo[closestFreeSourceInfo.sourceId].minderId = this.id;
-      this.memory.containerId = closestFreeContainer.id;
-      return OK;
     }
     return ERR_NOT_FOUND;
   }
 
   protected claimFreeControllerContainer(): ScreepsReturnCode {
+    PlannerUtils.refreshControllerMemory(this.room);
     const controllerInfo = this.room.memory.controllerInfo;
     for (const containerInfo of controllerInfo) {
-      const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
-      if (!container) {
-        continue;
-      }
-
-      const minder = Game.getObjectById(containerInfo.minderId as Id<Creep>);
-      if (!minder) {
+      if (!containerInfo.minderId) {
         containerInfo.minderId = this.id;
         this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
         return OK;

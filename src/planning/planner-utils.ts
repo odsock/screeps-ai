@@ -146,4 +146,87 @@ export class PlannerUtils {
     const centerPos = new RoomPosition(x / count, y / count, room.name);
     return centerPos;
   }
+
+  public static refreshSourceMemory(room: Room): void {
+    // init source memory
+    if (!room.memory.sourceInfo) {
+      console.log(`- add sourceInfo`);
+      room.memory.sourceInfo = {};
+    }
+
+    // add all sources
+    const sources = room.find(FIND_SOURCES);
+    for (const source of sources) {
+      if (!room.memory.sourceInfo[source.id]) {
+        console.log(`- add source`);
+        room.memory.sourceInfo[source.id] = {
+          sourceId: source.id
+        };
+      }
+    }
+
+    // refresh each source
+    const sourceMemory = room.memory.sourceInfo;
+    sources.forEach(source => {
+      // validate container id
+      if (sourceMemory[source.id].containerId) {
+        if (!Game.getObjectById(sourceMemory[source.id].containerId as Id<StructureContainer>)) {
+          console.log(`- remove invalid container id`);
+          room.memory.sourceInfo[source.id].containerId = undefined;
+        }
+      }
+
+      // validate minder id
+      if (sourceMemory[source.id].minderId) {
+        if (!Game.getObjectById(sourceMemory[source.id].minderId as Id<Creep>)) {
+          console.log(`- remove invalid minder id`);
+          room.memory.sourceInfo[source.id].minderId = undefined;
+        }
+      }
+
+      // find new containers
+      const containers = source.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: c => c.structureType === STRUCTURE_CONTAINER
+      });
+      // TODO: multiple source containers?
+      if (containers.length > 0 && !sourceMemory[source.id]?.containerId) {
+        console.log(`- add source containers`);
+        sourceMemory[source.id].containerId = containers[0].id;
+      }
+    });
+  }
+
+  public static refreshControllerMemory(room: Room): void {
+    if (room.controller) {
+      // init controller memory
+      if (!room.memory.controllerInfo) {
+        console.log(`- add controllerInfo`);
+        room.memory.controllerInfo = [];
+      }
+
+      // validate controller containers
+      const controllerMemory: ContainerInfo[] = room.memory.controllerInfo;
+      const controllerInfo = controllerMemory.filter((containerInfo: ContainerInfo) => {
+        const containerId = containerInfo.containerId;
+        if (Game.getObjectById(containerId as Id<StructureContainer>)) {
+          return true;
+        }
+        return false;
+      });
+      room.memory.controllerInfo = controllerInfo;
+
+      // find new controller containers
+      const containersFound = room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: c => c.structureType === STRUCTURE_CONTAINER
+      });
+
+      // add new controller containers
+      for (const container of containersFound) {
+        if (!room.memory.controllerInfo.find(c => c.containerId === container.id)) {
+          console.log(`- add controller container`);
+          room.memory.controllerInfo.push({ containerId: container.id });
+        }
+      }
+    }
+  }
 }
