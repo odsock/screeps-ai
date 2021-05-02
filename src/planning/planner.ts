@@ -1,4 +1,3 @@
-import { Constants } from "../constants";
 import { RoomWrapper } from "structures/room-wrapper";
 import { ContainerPlan } from "./container-plan";
 import { ExtensionPlan } from "./extension-plan";
@@ -87,79 +86,8 @@ export class Planner {
   // TODO: refactor memory init to new class
   public setupRoomMemory(): void {
     console.log(`setup room memory`);
-    if (this.room.controller) {
-      // init controller info
-      if (!this.room.memory.controllerInfo) {
-        console.log(`- add controllerInfo`);
-        this.room.memory.controllerInfo = [];
-      }
-
-      // validate controller containers
-      const controllerInfo = this.room.memory.controllerInfo.filter(containerInfo =>
-        Game.getObjectById(containerInfo.containerId as Id<StructureContainer>)
-      );
-      this.room.memory.controllerInfo = controllerInfo;
-
-      // find new controller containers
-      const containersFound = this.room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: c => c.structureType === STRUCTURE_CONTAINER
-      });
-
-      // add new controller containers
-      for (const container of containersFound) {
-        if (!this.room.memory.controllerInfo.find(c => c.containerId === container.id)) {
-          console.log(`- add controller container`);
-          this.room.memory.controllerInfo.push({ containerId: container.id });
-        }
-      }
-    }
-
-    if (!this.room.memory.sourceInfo) {
-      console.log(`- add sourceInfo`);
-      this.room.memory.sourceInfo = {};
-    }
-
-    const sources = this.room.find(FIND_SOURCES);
-    for (const source of sources) {
-      if (!this.room.memory.sourceInfo[source.id]) {
-        console.log(`- add source`);
-        this.room.memory.sourceInfo[source.id] = {
-          sourceId: source.id
-        };
-      }
-    }
-
-    // TODO: move source container memory somewhere else
-    // add source container id if complete
-    const sourceMemory = this.room.memory.sourceInfo;
-    sources.forEach(source => {
-      // if there is a container id set validate it
-      if (sourceMemory[source.id].containerId) {
-        const container = Game.getObjectById(sourceMemory[source.id].containerId as Id<StructureContainer>);
-        if (!container) {
-          console.log(`- remove invalid container id`);
-          this.room.memory.sourceInfo[source.id].containerId = undefined;
-        }
-      }
-
-      // if there is a minder id set validate it
-      if (sourceMemory[source.id].minderId) {
-        const creep = Game.getObjectById(sourceMemory[source.id].minderId as Id<Creep>);
-        if (!creep) {
-          console.log(`- remove invalid minder id`);
-          this.room.memory.sourceInfo[source.id].minderId = undefined;
-        }
-      }
-
-      const containers = source.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: c => c.structureType === STRUCTURE_CONTAINER
-      });
-      // TODO: multiple source containers?
-      if (containers.length > 0 && !sourceMemory[source.id]?.containerId) {
-        console.log(`- add source containers`);
-        sourceMemory[source.id].containerId = containers[0].id;
-      }
-    });
+    PlannerUtils.refreshControllerMemory(this.room);
+    PlannerUtils.refreshSourceMemory(this.room);
   }
 
   private getContainerIdAt(containerPos: RoomPosition): string | undefined {

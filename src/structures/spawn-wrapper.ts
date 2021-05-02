@@ -103,8 +103,10 @@ export class SpawnWrapper extends StructureSpawn {
   private getMaxClaimerCount(): number {
     const targetRoomNames = TargetConfig.TARGETS[Game.shard.name];
     if (targetRoomNames) {
-      targetRoomNames.filter(roomName => {
-        if (Game.rooms[roomName]) return false;
+      return targetRoomNames.filter(roomName => {
+        if (Game.rooms[roomName]) {
+          return false;
+        }
         try {
           new RoomPosition(0, 0, roomName);
         } catch (error) {
@@ -114,7 +116,6 @@ export class SpawnWrapper extends StructureSpawn {
         return true;
       }).length;
     }
-
     return 0;
   }
 

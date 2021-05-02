@@ -40,7 +40,7 @@ export class RoomWrapper extends Room {
         }
       }
       return list;
-    }, []);
+    }, [] as StructureContainer[]);
   }
 
   public get controllerContainers(): StructureContainer[] {

@@ -2,7 +2,6 @@ import { StructurePatterns } from "structure-patterns";
 
 export class StructurePlan {
   private readonly terrain: RoomTerrain;
-  // private plan: StructurePlanPosition[] = [];
   private planned = false;
   private readonly pattern: StructurePatternPosition[];
   private plan: StructurePlanPosition[] = [];
@@ -12,7 +11,6 @@ export class StructurePlan {
     this.pattern = pattern;
     this.printPattern();
   }
-  
   public printPattern(): void {
     for (const i of this.pattern) {
       console.log(`${i.xOffset}, ${i.yOffset}, ${i.structure}`);
