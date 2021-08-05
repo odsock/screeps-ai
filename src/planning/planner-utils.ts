@@ -1,8 +1,14 @@
 import { Constants } from "../constants";
 import { StructurePlan } from "planning/structure-plan";
+import { RoomWrapper } from "structures/room-wrapper";
 
 export class PlannerUtils {
   public constructor(private readonly room: Room) {}
+
+  public static unpackPositionString(positionString: string): RoomPosition {
+    const positionArray: string[] = positionString.split(":");
+    return new RoomPosition(Number(positionArray[0]), Number(positionArray[1]), positionArray[2]);
+  }
 
   // TODO: don't assume spawn for center
   public static findSiteForPattern(pattern: string[], room: Room): StructurePlan {
@@ -39,6 +45,7 @@ export class PlannerUtils {
     return structurePlan;
   }
 
+  // TODO allow range check from other position
   public static getPatternRangeFromSpawn(
     x: number,
     patternWidth: number,
@@ -228,5 +235,10 @@ export class PlannerUtils {
         }
       }
     }
+  }
+
+  public static initRoomMemory(room: Room): void {
+    this.refreshControllerMemory(room);
+    this.refreshSourceMemory(room);
   }
 }
