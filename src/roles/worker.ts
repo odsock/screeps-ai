@@ -88,11 +88,11 @@ export class Worker extends CreepWrapper {
       if (this.memory.working) {
         // don't block the source while working
         const closestEnergySource = this.findClosestActiveEnergySource();
-        if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource)) {
+        if (this.build(site) === ERR_NOT_IN_RANGE) {
+          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
+        } else if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource)) {
           const path = PathFinder.search(this.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
           this.moveByPath(path.path);
-        } else if (this.build(site) === ERR_NOT_IN_RANGE) {
-          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
       } else {
         this.harvestByPriority();
