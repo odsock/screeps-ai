@@ -211,16 +211,21 @@ export class PlannerUtils {
         room.memory.controllerInfo = [];
       }
 
-      // validate controller containers
-      const controllerMemory: ContainerInfo[] = room.memory.controllerInfo;
-      const controllerInfo = controllerMemory.filter((containerInfo: ContainerInfo) => {
-        const containerId = containerInfo.containerId;
-        if (Game.getObjectById(containerId as Id<StructureContainer>)) {
-          return true;
-        }
-        return false;
-      });
-      room.memory.controllerInfo = controllerInfo;
+      // validate controller memory
+      const controllerInfo: ContainerInfo[] = room.memory.controllerInfo;
+      room.memory.controllerInfo = controllerInfo
+        .filter(
+          (containerInfo: ContainerInfo) => !!Game.getObjectById(containerInfo.containerId as Id<StructureContainer>)
+        )
+        .map(containerInfo => {
+          if (containerInfo.minderId) {
+            if (!Game.getObjectById(containerInfo.minderId as Id<Creep>)) {
+              console.log(`- remove invalid minder id`);
+              containerInfo.minderId = undefined;
+            }
+          }
+          return containerInfo;
+        });
 
       // find new controller containers
       const containersFound = room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
