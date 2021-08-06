@@ -100,14 +100,27 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private findClosestControllerContainerNotFull(): StructureContainer | null {
-    let containers: StructureContainer[] = [];
+  private getControllerContainers(): StructureContainer[] {
     if (this.room.controller) {
-      containers = this.room.controller.pos.findInRange(FIND_STRUCTURES, 3, {
-        filter: s => s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity() > 0
-      }) as StructureContainer[];
+      const containers: StructureContainer[] = [];
+      // note: didn't use streaming here because of nulls from getObjectById
+      for (const containerInfo of this.room.memory.controllerInfo) {
+        if (containerInfo.minderId) {
+          const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
+          if (container) {
+            containers.push(container);
+          }
+        }
+      }
+      return containers;
     }
-    return this.pos.findClosestByPath(containers);
+    return [];
+  }
+
+  private findClosestControllerContainerNotFull(): StructureContainer | null {
+    const containers = this.getControllerContainers();
+    const containersNotFull = containers.filter(container => container.store.getFreeCapacity() > 0);
+    return this.pos.findClosestByPath(containersNotFull);
   }
 
   private findClosestSourceContainerNotEmpty(): StructureContainer | null {
