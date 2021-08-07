@@ -39,16 +39,22 @@ export class TowerWrapper extends StructureTower {
   }
 
   private repairStructures(): ScreepsReturnCode {
-    // first repair non-roads
+    // repair structures
     const closestDamagedStructure = this.findClosestDamagedNonRoad();
     if (closestDamagedStructure) {
       return this.repair(closestDamagedStructure);
     }
 
-    // second repair roads
+    // repair roads
     const closestDamagedRoad = this.findClosestDamagedRoad();
     if (closestDamagedRoad) {
       return this.repair(closestDamagedRoad);
+    }
+
+    // repair walls
+    const weakestWall = this.findWeakestWall();
+    if (weakestWall) {
+      return this.repair(weakestWall);
     }
 
     return ERR_NOT_FOUND;
@@ -56,7 +62,10 @@ export class TowerWrapper extends StructureTower {
 
   private findClosestDamagedNonRoad(): AnyStructure | null {
     return this.pos.findClosestByRange(FIND_STRUCTURES, {
-      filter: structure => structure.hits < structure.hitsMax && structure.structureType !== STRUCTURE_ROAD
+      filter: structure =>
+        structure.hits < structure.hitsMax &&
+        structure.structureType !== STRUCTURE_ROAD &&
+        structure.structureType !== STRUCTURE_WALL
     });
   }
 
@@ -64,6 +73,15 @@ export class TowerWrapper extends StructureTower {
     return this.pos.findClosestByRange<StructureRoad>(FIND_STRUCTURES, {
       filter: structure => structure.hits < structure.hitsMax && structure.structureType === STRUCTURE_ROAD
     });
+  }
+
+  private findWeakestWall(): StructureWall | null {
+    const MAX_HITS_WALL = 10000000;
+    return this.room
+      .find<StructureWall>(FIND_STRUCTURES, {
+        filter: structure => structure.hits < MAX_HITS_WALL && structure.structureType === STRUCTURE_WALL
+      })
+      .reduce((weakestWall: StructureWall, wall) => (weakestWall.hits < wall.hits ? weakestWall : wall));
   }
 
   // unused for now
