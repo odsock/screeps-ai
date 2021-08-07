@@ -24,6 +24,7 @@ export class Hauler extends CreepWrapper {
     this.supplyController();
   }
 
+  // TODO don't pull/drop from the same container like a bozo
   private supplyController() {
     const controllerContainer = this.findClosestControllerContainerNotFull();
     if (controllerContainer) {
