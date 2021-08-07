@@ -1,25 +1,22 @@
-import { RoomWrapper } from "./room-wrapper";
 import { CreepUtils } from "creep-utils";
 import { Builder } from "roles/builder";
-import { Hauler } from "roles/hauler";
-import { Upgrader } from "roles/upgrader";
-import { Worker } from "roles/worker";
-import { Harvester } from "../roles/harvester";
-import { CreepFactory } from "roles/creep-factory";
 import { Claimer } from "roles/claimer";
+import { CreepFactory } from "roles/creep-factory";
+import { Hauler } from "roles/hauler";
+import { Minder } from "roles/minder";
+import { Worker } from "roles/worker";
 import { TargetConfig } from "target-config";
 import { Constants } from "../constants";
-import { PlannerUtils } from "planning/planner-utils";
+import { RoomWrapper } from "./room-wrapper";
 
 export class SpawnWrapper extends StructureSpawn {
   private readonly workers: Worker[];
-  private readonly harvesters: Harvester[];
+  private readonly minders: Minder[];
   private readonly haulers: Hauler[];
   private readonly builders: Builder[];
 
   private readonly containers: AnyStructure[];
   private readonly rcl: number;
-  private readonly upgraders: Upgrader[];
   private readonly roomw: RoomWrapper;
   private readonly claimers: Claimer[];
 
@@ -30,8 +27,7 @@ export class SpawnWrapper extends StructureSpawn {
     const creeps = this.room.find(FIND_MY_CREEPS);
     this.workers = creeps.filter(c => c.memory.role === "worker").map(c => new Worker(c));
     this.builders = creeps.filter(c => c.memory.role === "builder").map(c => new Builder(c));
-    this.harvesters = creeps.filter(c => c.memory.role === "harvester").map(c => new Harvester(c));
-    this.upgraders = creeps.filter(c => c.memory.role === "upgrader").map(c => new Upgrader(c));
+    this.minders = creeps.filter(c => c.memory.role === "minder").map(c => new Minder(c));
     this.haulers = creeps.filter(c => c.memory.role === "hauler").map(c => new Hauler(c));
     this.containers = this.room.find(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_CONTAINER });
     this.rcl = this.room.controller?.level ? this.room.controller?.level : 0;
@@ -42,29 +38,24 @@ export class SpawnWrapper extends StructureSpawn {
   public spawnCreeps(): void {
     if (!this.spawning) {
       CreepUtils.consoleLogIfWatched(this, `spawn creeps`);
-      // spawn harvester for each container
-      if (this.harvesters.length < this.getMaxHarvesterCount()) {
-        this.spawnMinder(`harvester`);
+
+      // spawn minder for each container
+      if (this.minders.length < this.containers.length) {
+        this.spawnMinder(`minder`);
         return;
       }
+
       // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
       if (this.haulers.length < this.getMaxHaulerCount()) {
         this.spawnHauler();
         return;
       }
-      const maxUpgraders = this.getMaxUpgraderCount();
-      if (this.upgraders.length < maxUpgraders) {
-        CreepUtils.consoleLogIfWatched(
-          this,
-          `- upgrader count: ${this.upgraders.length}, max upgraders: ${maxUpgraders}`
-        );
-        this.spawnMinder(`upgrader`);
-        return;
-      }
+
       if (this.workers.length < this.getMaxWorkerCount()) {
         this.spawnWorker();
         return;
       }
+
       // make builders if there's something to build and past level 1
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
       if (this.workers.length === 0 && this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
@@ -78,7 +69,7 @@ export class SpawnWrapper extends StructureSpawn {
         return;
       }
 
-      // TODO: replace small harvesters early, for faster recovery from attack or mistakes
+      // TODO: replace small minders early, for faster recovery from attack or mistakes
       // try to replace any aging harvester early
       this.replaceOldMinders();
     }
@@ -121,7 +112,7 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private replaceOldMinders() {
-    for (const creep of [...this.harvesters, ...this.upgraders]) {
+    for (const creep of this.minders) {
       const minder = CreepFactory.getCreep(creep);
       if (!minder.spawning && !minder.memory.retiring === true) {
         const body = this.getBody(creep.memory.role);
@@ -135,7 +126,7 @@ export class SpawnWrapper extends StructureSpawn {
           )}, ticksToSpawn: ${ticksToSpawn}, pathCost: ${ticksToReplace}`
         );
         if (minder.ticksToLive && minder.ticksToLive <= ticksToSpawn + ticksToReplace) {
-          const result = this.spawnMinder(creep.memory.role, minder.name);
+          const result = this.spawnMinder(minder.name);
           if (result === OK) {
             minder.memory.retiring = true;
           }
@@ -155,18 +146,9 @@ export class SpawnWrapper extends StructureSpawn {
     }
   }
 
-  private getMaxHarvesterCount(): number {
-    return this.roomw.sourceContainers.length;
-  }
-
-  // TODO: make controller container count dynamic based on memory
-  private getMaxUpgraderCount() {
-    return this.roomw.controllerContainers.length;
-  }
-
   private getMaxWorkerCount(): number {
     // make workers in early stages
-    if (this.rcl <= 1 || (this.containers.length === 0 && this.harvesters.length === 0)) {
+    if (this.rcl <= 1 || (this.containers.length === 0 && this.minders.length === 0)) {
       CreepUtils.consoleLogIfWatched(this, `- max workers: ${Constants.MAX_WORKERS}`);
       return Constants.MAX_WORKERS;
     }
@@ -215,7 +197,8 @@ export class SpawnWrapper extends StructureSpawn {
     return this.spawn(body, "worker");
   }
 
-  private spawnMinder(role: string, retireeName?: string): ScreepsReturnCode {
+  private spawnMinder(retireeName?: string): ScreepsReturnCode {
+    const role = "minder";
     CreepUtils.consoleLogIfWatched(this, ` - spawning ${role}`);
     const body: BodyPartConstant[] = this.getBody(role);
     return this.spawn(body, role, retireeName);
@@ -229,10 +212,8 @@ export class SpawnWrapper extends StructureSpawn {
 
   private getBody(role: string): BodyPartConstant[] {
     switch (role) {
-      case "harvester":
-        return this.getHarvesterBody();
-      case "upgrader":
-        return this.getUpgraderBody();
+      case "minder":
+        return this.getMinderBody();
       case "hauler":
         return this.getHaulerBody();
 
@@ -241,26 +222,14 @@ export class SpawnWrapper extends StructureSpawn {
     }
   }
 
-  private getHarvesterBody(): BodyPartConstant[] {
-    let body = this.getMaxBody(Constants.BODY_PROFILE_HARVESTER);
+  private getMinderBody(): BodyPartConstant[] {
+    let body = this.getMaxBody(Constants.BODY_PROFILE_MINDER);
     if (
-      this.harvesters.length <= 0 &&
+      this.minders.length <= 0 &&
       this.workers.length <= 0 &&
       this.spawnCreep(body, "maxBodyTest", { dryRun: true }) !== OK
     ) {
-      body = this.getMaxBodyNow(Constants.BODY_PROFILE_HARVESTER);
-    }
-    return body;
-  }
-
-  private getUpgraderBody(): BodyPartConstant[] {
-    let body = this.getMaxBody(Constants.BODY_PROFILE_UPGRADER);
-    if (
-      this.upgraders.length <= 0 &&
-      this.workers.length <= 0 &&
-      this.spawnCreep(body, "maxBodyTest", { dryRun: true }) !== OK
-    ) {
-      body = this.getMaxBodyNow(Constants.BODY_PROFILE_UPGRADER);
+      body = this.getMaxBodyNow(Constants.BODY_PROFILE_MINDER);
     }
     return body;
   }

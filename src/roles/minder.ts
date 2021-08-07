@@ -6,16 +6,48 @@ export class Minder extends CreepWrapper {
   public run(): void {
     this.touchRoad();
 
+    // move to retire old creep
     if (this.memory.retiree) {
       if (this.moveToRetiree() !== ERR_NOT_FOUND) {
         return;
       }
     }
 
+    // help build if close enough
     const site = this.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES, { filter: { range: 3 } });
     if (site) {
       this.buildNearbySite(site);
     }
+
+    // claim container if free
+    if (!this.getMyContainer()) {
+      if (this.claimFreeSourceContainer() === ERR_NOT_FOUND) {
+        CreepUtils.consoleLogIfWatched(this, `no free source container`);
+      } else if (this.claimFreeControllerContainer() === ERR_NOT_FOUND) {
+        CreepUtils.consoleLogIfWatched(this, `no free controller container`);
+        return;
+      }
+    }
+
+    // move to claimed container
+    if (!this.onMyContainer) {
+      if (this.moveToMyContainer() === ERR_NOT_FOUND) {
+        CreepUtils.consoleLogIfWatched(this, `container is missing`);
+        return;
+      }
+    }
+
+    // try to harvest from source
+    if (this.fillContainer() === OK) {
+      return;
+    }
+
+    // try to upgrade controller
+    if (this.withdrawAndUpgrade() === OK) {
+      return;
+    }
+
+    CreepUtils.consoleLogIfWatched(this, `stumped. sitting like a lump`);
   }
 
   protected fillContainer(): ScreepsReturnCode {
@@ -27,8 +59,10 @@ export class Minder extends CreepWrapper {
         this.harvest(sources[0]);
         return this.transfer(myContainer, RESOURCE_ENERGY);
       }
+      CreepUtils.consoleLogIfWatched(this, `no source in range for harvest`);
       return ERR_NOT_IN_RANGE;
     }
+    CreepUtils.consoleLogIfWatched(this, `no container in range with space`);
     return ERR_NOT_FOUND;
   }
 
@@ -48,6 +82,7 @@ export class Minder extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `upgrade: ${result}`);
       return result;
     }
+    CreepUtils.consoleLogIfWatched(this, `no controller in range for upgrade`);
     return ERR_NOT_FOUND;
   }
 
