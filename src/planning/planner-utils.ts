@@ -200,7 +200,7 @@ export class PlannerUtils {
       // mark containers next to controllers
       .map(containerInfo => {
         containerInfo.nextToController = false;
-        if (room.controller) {
+        if (room.controller && !containerInfo.nextToSource) {
           const containers = room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
             filter: c => c.structureType === STRUCTURE_CONTAINER && c.id === containerInfo.containerId
           });
