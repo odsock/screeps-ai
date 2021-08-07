@@ -247,7 +247,7 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private spawn(body: BodyPartConstant[], role: string, retiree?: string): ScreepsReturnCode {
-    const newName = `${role} ${Game.time}`;
+    const newName = `${role} ${Game.time.toString(16)}`;
     const memory: CreepMemory = { role };
     if (retiree) {
       memory.retiree = retiree;
