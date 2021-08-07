@@ -14,6 +14,7 @@ export class ContainerPlan {
       !this.roomHasContainersInConstruction() &&
       this.room.sourceContainers.length > this.room.controllerContainers.length
     ) {
+      console.log(` - placing controller container`);
       const id = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
       if (id) {
         this.room.memory.containers.push({ containerId: id, nextToController: true, nextToSource: false });
