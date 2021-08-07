@@ -21,11 +21,15 @@ export class Minder extends CreepWrapper {
 
     // claim container if free
     if (!this.getMyContainer()) {
-      if (this.claimFreeSourceContainer() === ERR_NOT_FOUND) {
-        CreepUtils.consoleLogIfWatched(this, `no free source container`);
-      } else if (this.claimFreeControllerContainer() === ERR_NOT_FOUND) {
-        CreepUtils.consoleLogIfWatched(this, `no free controller container`);
-        return;
+      const claimSourceResult = this.claimFreeSourceContainer();
+      CreepUtils.consoleLogIfWatched(this, `claim source container result: ${claimSourceResult}`);
+      if (claimSourceResult !== OK) {
+        const claimControllerResult = this.claimFreeControllerContainer();
+        CreepUtils.consoleLogIfWatched(this, `claim controller container result: ${claimControllerResult}`);
+        if (claimControllerResult !== OK) {
+          CreepUtils.consoleLogIfWatched(this, `no free containers`);
+          return;
+        }
       }
     }
 
@@ -138,8 +142,8 @@ export class Minder extends CreepWrapper {
   }
 
   protected moveToMyContainer(): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `moving to container`);
     const container = this.getMyContainer();
+    CreepUtils.consoleLogIfWatched(this, `moving to container: ${String(container)}`);
     if (container) {
       return this.moveTo(container, { visualizePathStyle: { stroke: "#ffaa00" } });
     }
