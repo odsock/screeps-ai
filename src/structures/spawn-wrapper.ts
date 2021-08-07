@@ -39,6 +39,19 @@ export class SpawnWrapper extends StructureSpawn {
     if (!this.spawning) {
       CreepUtils.consoleLogIfWatched(this, `spawn creeps`);
 
+      // make sure there is at least one minder if there is a container
+      if (this.containers.length > 0 && this.minders.length === 0) {
+        this.spawnMinder(`minder`);
+        return;
+      }
+
+      // make sure there is at least one hauler if there is a container
+      const maxHaulerCount = this.getMaxHaulerCount();
+      if (maxHaulerCount > 0 && this.haulers.length === 0) {
+        this.spawnHauler();
+        return;
+      }
+
       // spawn minder for each container
       if (this.minders.length < this.containers.length) {
         this.spawnMinder(`minder`);
@@ -46,7 +59,7 @@ export class SpawnWrapper extends StructureSpawn {
       }
 
       // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
-      if (this.haulers.length < this.getMaxHaulerCount()) {
+      if (this.haulers.length < maxHaulerCount) {
         this.spawnHauler();
         return;
       }
