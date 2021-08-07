@@ -115,28 +115,23 @@ export class Minder extends CreepWrapper {
   }
 
   protected claimFreeSourceContainer(): ScreepsReturnCode {
-    PlannerUtils.refreshSourceMemory(this.room);
-    const sourceMemory = this.room.memory.sourceInfo;
-    for (const sourceId in sourceMemory) {
-      const sourceInfo = sourceMemory[sourceId];
-      if (sourceInfo.containerId && !sourceInfo.minderId) {
-        this.room.memory.sourceInfo[sourceInfo.sourceId].minderId = this.id;
-        this.memory.containerId = sourceInfo.containerId as Id<StructureContainer>;
-        return OK;
-      }
+    PlannerUtils.refreshContainerMemory(this.room);
+    const containerInfo = this.room.memory.containers.find(info => info.nextToSource && !info.minderId);
+    if (containerInfo) {
+      containerInfo.minderId = this.id;
+      this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
+      return OK;
     }
     return ERR_NOT_FOUND;
   }
 
   protected claimFreeControllerContainer(): ScreepsReturnCode {
-    PlannerUtils.refreshControllerMemory(this.room);
-    const controllerInfo = this.room.memory.controllerInfo;
-    for (const containerInfo of controllerInfo) {
-      if (!containerInfo.minderId) {
-        containerInfo.minderId = this.id;
-        this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
-        return OK;
-      }
+    PlannerUtils.refreshContainerMemory(this.room);
+    const containerInfo = this.room.memory.containers.find(info => info.nextToController && !info.minderId);
+    if (containerInfo) {
+      containerInfo.minderId = this.id;
+      this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
+      return OK;
     }
     return ERR_NOT_FOUND;
   }

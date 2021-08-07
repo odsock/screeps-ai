@@ -16,28 +16,22 @@ export class RoadPlan {
       return OK;
     }
 
-    const sourceInfo = this.room.memory.sourceInfo;
-    for (const sourceId in sourceInfo) {
-      const info = sourceInfo[sourceId];
+    const sourceContainers = this.roomw.sourceContainers;
+    if (sourceContainers.length <= 0) {
+      console.log(` - no source containers`);
+      return OK;
+    }
 
-      // get the container object, clear memory if not found
-      const sourceContainer = Game.getObjectById(info.containerId as Id<StructureContainer>);
-      if (!sourceContainer) {
-        this.room.memory.sourceInfo[sourceId].containerId = undefined;
-        continue;
-      }
-
-      // get a path and place road for each pair of containers
+    // get a path and place road for each pair of containers
+    for (const sourceContainer of sourceContainers) {
       for (const controllerContainer of controllerContainers) {
-        const path: PathFinderPath = this.planRoad(sourceContainer?.pos, controllerContainer.pos, 1);
+        const path: PathFinderPath = this.planRoad(sourceContainer.pos, controllerContainer.pos, 1);
         if (!path.incomplete) {
           const result = this.placeRoadOnPath(path);
           console.log(` - placement result: ${result}`);
         }
       }
     }
-
-    // no sources, or no containers
     return OK;
   }
 

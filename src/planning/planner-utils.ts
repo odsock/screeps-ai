@@ -1,6 +1,5 @@
 import { Constants } from "../constants";
 import { StructurePlan } from "planning/structure-plan";
-import { RoomWrapper } from "structures/room-wrapper";
 
 export class PlannerUtils {
   public constructor(private readonly room: Room) {}
@@ -154,96 +153,47 @@ export class PlannerUtils {
     return centerPos;
   }
 
-  public static refreshSourceMemory(room: Room): void {
-    // init source memory
-    if (!room.memory.sourceInfo) {
-      console.log(`- add sourceInfo`);
-      room.memory.sourceInfo = {};
+  public static refreshContainerMemory(room: Room): void {
+    // init container memory
+    if (!room.memory.containers) {
+      console.log(`- add container memory`);
+      room.memory.containers = [];
     }
 
-    // add all sources
-    const sources = room.find(FIND_SOURCES);
-    for (const source of sources) {
-      if (!room.memory.sourceInfo[source.id]) {
-        console.log(`- add source`);
-        room.memory.sourceInfo[source.id] = {
-          sourceId: source.id
-        };
-      }
-    }
-
-    // refresh each source
-    const sourceMemory = room.memory.sourceInfo;
-    sources.forEach(source => {
-      // validate container id
-      if (sourceMemory[source.id].containerId) {
-        if (!Game.getObjectById(sourceMemory[source.id].containerId as Id<StructureContainer>)) {
-          console.log(`- remove invalid container id`);
-          room.memory.sourceInfo[source.id].containerId = undefined;
-        }
-      }
-
-      // validate minder id
-      if (sourceMemory[source.id].minderId) {
-        if (!Game.getObjectById(sourceMemory[source.id].minderId as Id<Creep>)) {
-          console.log(`- remove invalid minder id`);
-          room.memory.sourceInfo[source.id].minderId = undefined;
-        }
-      }
-
-      // find new containers
-      const containers = source.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: c => c.structureType === STRUCTURE_CONTAINER
-      });
-      // TODO: multiple source containers?
-      if (containers.length > 0 && !sourceMemory[source.id]?.containerId) {
-        console.log(`- add source containers`);
-        sourceMemory[source.id].containerId = containers[0].id;
-      }
-    });
-  }
-
-  public static refreshControllerMemory(room: Room): void {
-    if (room.controller) {
-      // init controller memory
-      if (!room.memory.controllerInfo) {
-        console.log(`- add controllerInfo`);
-        room.memory.controllerInfo = [];
-      }
-
-      // validate controller memory
-      const controllerInfo: ContainerInfo[] = room.memory.controllerInfo;
-      room.memory.controllerInfo = controllerInfo
-        .filter(
-          (containerInfo: ContainerInfo) => !!Game.getObjectById(containerInfo.containerId as Id<StructureContainer>)
-        )
-        .map(containerInfo => {
-          if (containerInfo.minderId) {
-            if (!Game.getObjectById(containerInfo.minderId as Id<Creep>)) {
-              console.log(`- remove invalid minder id`);
-              containerInfo.minderId = undefined;
-            }
+    // validate containers and minders
+    room.memory.containers = room.memory.containers
+      .filter(containerInfo => !!Game.getObjectById(containerInfo.containerId as Id<StructureContainer>))
+      .map(containerInfo => {
+        if (containerInfo.minderId) {
+          if (!Game.getObjectById(containerInfo.minderId as Id<Creep>)) {
+            containerInfo.minderId = undefined;
           }
-          return containerInfo;
-        });
-
-      // find new controller containers
-      const containersFound = room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: c => c.structureType === STRUCTURE_CONTAINER
-      });
-
-      // add new controller containers
-      for (const container of containersFound) {
-        if (!room.memory.controllerInfo.find(c => c.containerId === container.id)) {
-          console.log(`- add controller container`);
-          room.memory.controllerInfo.push({ containerId: container.id });
         }
-      }
-    }
-  }
-
-  public static initRoomMemory(room: Room): void {
-    this.refreshControllerMemory(room);
-    this.refreshSourceMemory(room);
+        return containerInfo;
+      })
+      .map(containerInfo => {
+        const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
+        if (container) {
+          const sources = container.pos.findInRange(FIND_SOURCES, 1);
+          containerInfo.nextToSource = false;
+          if (sources.length > 0) {
+            containerInfo.nextToSource = true;
+          }
+        }
+        return containerInfo;
+      })
+      .map(containerInfo => {
+        if (room.controller) {
+          const containers = room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
+            filter: c => c.structureType === STRUCTURE_CONTAINER
+          });
+          if (containers.length > 0) {
+            containerInfo.nextToController = true;
+          }
+        } else {
+          containerInfo.nextToController = false;
+        }
+        return containerInfo;
+      });
   }
 }

@@ -31,23 +31,24 @@ export class RoomWrapper extends Room {
   }
 
   public get sourceContainers(): StructureContainer[] {
-    return this.find(FIND_SOURCES).reduce<StructureContainer[]>((list: StructureContainer[], source) => {
-      const id = this.room.memory.sourceInfo[source.id].containerId;
-      if (id) {
-        const container = Game.getObjectById(id as Id<StructureContainer>);
+    return this.room.memory.containers.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
+      if (containerInfo.nextToSource) {
+        const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
         if (container !== null) {
           list.push(container);
         }
       }
       return list;
-    }, [] as StructureContainer[]);
+    }, []);
   }
 
   public get controllerContainers(): StructureContainer[] {
-    return this.room.memory.controllerInfo.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
-      const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
-      if (container !== null) {
-        list.push(container);
+    return this.room.memory.containers.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
+      if (containerInfo.nextToController) {
+        const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
+        if (container !== null) {
+          list.push(container);
+        }
       }
       return list;
     }, []);

@@ -1,6 +1,5 @@
 import { CreepUtils } from "creep-utils";
 import { Planner } from "planning/planner";
-import { PlannerUtils } from "planning/planner-utils";
 import { CreepFactory } from "roles/creep-factory";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
@@ -11,10 +10,11 @@ export class Sockpuppet {
     // Run each room
     for (const roomId in Game.rooms) {
       const room = new RoomWrapper(Game.rooms[roomId]);
+      const planner = new Planner(room);
 
       // Init room memory if needed
       if (Object.keys(room.memory).length === 0) {
-        PlannerUtils.initRoomMemory(room);
+        planner.setupRoomMemory();
       }
 
       // Run spawners
@@ -30,7 +30,6 @@ export class Sockpuppet {
 
       // Plan each room every 10 ticks
       if (Game.time % 10 === 0) {
-        const planner = new Planner(room);
         const result = planner.run();
         console.log(`planning result: ${result}`);
       }

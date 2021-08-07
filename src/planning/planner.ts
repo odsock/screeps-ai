@@ -86,8 +86,7 @@ export class Planner {
   // TODO: refactor memory init to new class
   public setupRoomMemory(): void {
     console.log(`setup room memory`);
-    PlannerUtils.refreshControllerMemory(this.room);
-    PlannerUtils.refreshSourceMemory(this.room);
+    PlannerUtils.refreshContainerMemory(this.room);
   }
 
   private getContainerIdAt(containerPos: RoomPosition): string | undefined {

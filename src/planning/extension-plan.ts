@@ -38,13 +38,14 @@ export class ExtensionPlan {
     let availableExtensions = 0;
     const conLevel = this.room.controller?.level;
     if (conLevel) {
-      const maxExtens = CONTROLLER_STRUCTURES.extension[conLevel];
-      const builtExtens = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_EXTENSION })
-        .length;
+      const maxExtensions = CONTROLLER_STRUCTURES.extension[conLevel];
+      const builtExtensions = this.room.find(FIND_MY_STRUCTURES, {
+        filter: s => s.structureType === STRUCTURE_EXTENSION
+      }).length;
       const placedExtensions = this.room.find(FIND_MY_CONSTRUCTION_SITES, {
         filter: s => s.structureType === STRUCTURE_EXTENSION
       }).length;
-      availableExtensions = maxExtens - builtExtens - placedExtensions;
+      availableExtensions = maxExtensions - builtExtensions - placedExtensions;
     }
     console.log(`${this.room.name}: extensions available: ${availableExtensions}`);
     return availableExtensions;

@@ -16,7 +16,7 @@ export class ContainerPlan {
     ) {
       const id = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
       if (id) {
-        this.room.memory.controllerInfo.push({ containerId: id });
+        this.room.memory.containers.push({ containerId: id, nextToController: true, nextToSource: false });
         return OK;
       }
       return ERR_NOT_FOUND;
@@ -30,10 +30,10 @@ export class ContainerPlan {
       // find closest source with no adjacent container
       const source = this.findSourceWithoutContainerCloseToController();
       if (source) {
-        console.log(` - source without container: ${source}`);
+        console.log(` - source without container: ${String(source)}`);
         const id = PlannerUtils.placeStructureAdjacent(source.pos, STRUCTURE_CONTAINER);
         if (id) {
-          this.room.memory.sourceInfo[source.id].containerId = id;
+          this.room.memory.containers.push({ containerId: id, nextToSource: true, nextToController: false });
           return OK;
         }
         return ERR_NOT_FOUND;
