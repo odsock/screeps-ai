@@ -9,6 +9,7 @@ import { CreepFactory } from "roles/creep-factory";
 import { Claimer } from "roles/claimer";
 import { TargetConfig } from "target-config";
 import { Constants } from "../constants";
+import { PlannerUtils } from "planning/planner-utils";
 
 export class SpawnWrapper extends StructureSpawn {
   private readonly workers: Worker[];
@@ -160,7 +161,7 @@ export class SpawnWrapper extends StructureSpawn {
 
   // TODO: make controller container count dynamic based on memory
   private getMaxUpgraderCount() {
-    return this.containers.length > 1 ? 1 : 0;
+    return this.roomw.controllerContainers.length;
   }
 
   private getMaxWorkerCount(): number {
@@ -193,7 +194,7 @@ export class SpawnWrapper extends StructureSpawn {
     const workPartsDeficit = workPartsNeeded - activeWorkParts;
     CreepUtils.consoleLogIfWatched(
       this,
-      `- calc buider parts needed: ${workPartsNeeded}, active: ${activeWorkParts}, work: ${conWork}, deficit: ${workPartsDeficit}`
+      `- calc builder parts needed: ${workPartsNeeded}, active: ${activeWorkParts}, work: ${conWork}, deficit: ${workPartsDeficit}`
     );
     return workPartsDeficit > 0 ? workPartsDeficit : 0;
   }

@@ -3,7 +3,7 @@ import { CreepUtils } from "creep-utils";
 import { Constants } from "../constants";
 
 // TODO: assign to source containers or something so they don't only use closest
-// TODO: get hauler to pull havester to container
+// TODO: get hauler to pull harvester to container
 export class Hauler extends CreepWrapper {
   public run(): void {
     this.touchRoad();
