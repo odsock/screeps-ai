@@ -211,4 +211,42 @@ export class PlannerUtils {
         return containerInfo;
       });
   }
+
+  public static countHarvestPositions(room: Room): number {
+    const sources: Source[] = room.find(FIND_SOURCES);
+
+    let count = 0;
+    for (const source of sources) {
+      count += this.isEnterable(source.pos.x - 1, source.pos.y - 1, room.name) ? 1 : 0;
+      count += this.isEnterable(source.pos.x, source.pos.y - 1, room.name) ? 1 : 0;
+      count += this.isEnterable(source.pos.x + 1, source.pos.y - 1, room.name) ? 1 : 0;
+      count += this.isEnterable(source.pos.x + 1, source.pos.y, room.name) ? 1 : 0;
+      count += this.isEnterable(source.pos.x + 1, source.pos.y + 1, room.name) ? 1 : 0;
+      count += this.isEnterable(source.pos.x, source.pos.y + 1, room.name) ? 1 : 0;
+      count += this.isEnterable(source.pos.x - 1, source.pos.y + 1, room.name) ? 1 : 0;
+      count += this.isEnterable(source.pos.x - 1, source.pos.y, room.name) ? 1 : 0;
+    }
+    return count;
+  }
+
+  private static readonly isObstacleLookup = new Map<StructureConstant, boolean>(
+    OBSTACLE_OBJECT_TYPES.map(typeName => [typeName as StructureConstant, true])
+  );
+
+  private static isEnterable(x: number, y: number, roomName: string): boolean {
+    return new RoomPosition(x, y, roomName).look().every(item => {
+      switch (item.type) {
+        case "terrain": {
+          return item.terrain !== "wall";
+        }
+
+        case "structure": {
+          return item.structure && !PlannerUtils.isObstacleLookup.get(item.structure.structureType);
+        }
+
+        default:
+          return true;
+      }
+    });
+  }
 }
