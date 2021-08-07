@@ -18,7 +18,7 @@ export class Builder extends CreepWrapper {
   }
 
   private doBuildJob(): void {
-    let site: ConstructionSite | null = this.getConstructionSite();
+    const site: ConstructionSite | null = this.getConstructionSite();
     if (site) {
       this.memory.constructionSiteId = site.id;
       this.updateJob("building");
@@ -58,7 +58,7 @@ export class Builder extends CreepWrapper {
       if (!site) {
         site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
       }
-      CreepUtils.consoleLogIfWatched(this, `center pos: ${centerPos}, found site: ${String(site)}`);
+      CreepUtils.consoleLogIfWatched(this, `center pos: ${String(centerPos)}, found site: ${String(site)}`);
     }
     return site;
   }

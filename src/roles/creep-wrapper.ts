@@ -50,7 +50,7 @@ export abstract class CreepWrapper extends Creep {
         return;
       }
 
-      // calculate effiency of heading back to refill, then going to job site
+      // calculate efficiency of heading back to refill, then going to job site
       const sourceCost = PathFinder.search(this.pos, { pos: source.pos, range: 1 }).cost;
       CreepUtils.consoleLogIfWatched(this, `sourceCost: ${sourceCost}`);
       // subtract one from runCost because you cannot stand on the source
@@ -61,7 +61,7 @@ export abstract class CreepWrapper extends Creep {
       const refillEfficiency = sourceCost + runCost;
       CreepUtils.consoleLogIfWatched(this, `runCost: ${runCost}, refillEfficiency: ${refillEfficiency}`);
 
-      // calculate effiency of going to job site partially full
+      // calculate efficiency of going to job site partially full
       const jobsiteCost = PathFinder.search(this.pos, { pos: jobsite, range }).cost;
       const storeRatio = this.store.getUsedCapacity() / this.store.getCapacity();
       const jobsiteEfficiency = jobsiteCost / storeRatio;
@@ -221,13 +221,13 @@ export abstract class CreepWrapper extends Creep {
   public calcWalkTime(path: PathFinderPath): number {
     let roadCount = 0;
     let plainCount = 0;
-    let spwampCount = 0;
+    let swampCount = 0;
     const terrain = this.creep.room.getTerrain();
     path.path.forEach(pos => {
       if (pos.lookFor(LOOK_STRUCTURES).filter(s => s.structureType === STRUCTURE_ROAD).length > 0) {
         roadCount++;
       } else if (terrain.get(pos.x, pos.y) === TERRAIN_MASK_SWAMP) {
-        spwampCount++;
+        swampCount++;
       } else {
         plainCount++;
       }
@@ -239,9 +239,9 @@ export abstract class CreepWrapper extends Creep {
 
     const plainCost = Math.ceil(2 * moveRatio) * plainCount;
     const roadCost = Math.ceil(1 * moveRatio) * roadCount;
-    const spwampCost = Math.ceil(10 * moveRatio) * spwampCount;
+    const swampCost = Math.ceil(10 * moveRatio) * swampCount;
 
-    return roadCost + plainCost + spwampCost + 1;
+    return roadCost + plainCost + swampCost + 1;
   }
 
   protected touchRoad(): void {
