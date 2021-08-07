@@ -77,11 +77,17 @@ export class TowerWrapper extends StructureTower {
 
   private findWeakestWall(): StructureWall | null {
     const MAX_HITS_WALL = 10000000;
-    return this.room
-      .find<StructureWall>(FIND_STRUCTURES, {
-        filter: structure => structure.hits < MAX_HITS_WALL && structure.structureType === STRUCTURE_WALL
-      })
-      .reduce((weakestWall: StructureWall, wall) => (weakestWall.hits < wall.hits ? weakestWall : wall));
+    const wallsToRepair = this.room.find<StructureWall>(FIND_STRUCTURES, {
+      filter: structure => structure.hits < MAX_HITS_WALL && structure.structureType === STRUCTURE_WALL
+    });
+
+    if (wallsToRepair.length > 0) {
+      return wallsToRepair.reduce((weakestWall, wall) => {
+        return weakestWall.hits < wall.hits ? weakestWall : wall;
+      });
+    } else {
+      return null;
+    }
   }
 
   // unused for now
