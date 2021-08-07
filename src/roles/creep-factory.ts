@@ -1,7 +1,6 @@
 import { CreepWrapper } from "./creep-wrapper";
 import { Worker } from "./worker";
-import { Harvester } from "./harvester";
-import { Upgrader } from "./upgrader";
+import { Minder } from "./minder";
 import { Hauler } from "./hauler";
 import { Builder } from "./builder";
 import { Claimer } from "./claimer";
@@ -11,10 +10,8 @@ export class CreepFactory {
     switch (creep.memory.role) {
       case "worker":
         return new Worker(creep);
-      case "harvester":
-        return new Harvester(creep);
-      case "upgrader":
-        return new Upgrader(creep);
+      case "minder":
+        return new Minder(creep);
       case "hauler":
         return new Hauler(creep);
       case "builder":
