@@ -11,11 +11,8 @@ export class Sockpuppet {
     for (const roomId in Game.rooms) {
       const room = new RoomWrapper(Game.rooms[roomId]);
       const planner = new Planner(room);
-
-      // Init room memory if needed
-      if (Object.keys(room.memory).length === 0) {
-        planner.setupRoomMemory();
-      }
+      // TODO maybe this is bad idea
+      planner.refreshRoomMemory();
 
       // Run spawners
       CreepUtils.consoleLogIfWatched(room, `running spawns`);

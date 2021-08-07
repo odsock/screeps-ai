@@ -12,7 +12,7 @@ export class Planner {
   }
 
   public run(): ScreepsReturnCode {
-    this.setupRoomMemory();
+    this.refreshRoomMemory();
 
     if (this.room.controller) {
       if (this.room.controller?.level >= 1) {
@@ -84,8 +84,8 @@ export class Planner {
   }
 
   // TODO: refactor memory init to new class
-  public setupRoomMemory(): void {
-    console.log(`setup room memory`);
+  public refreshRoomMemory(): void {
+    console.log(`refresh room memory`);
     PlannerUtils.refreshContainerMemory(this.room);
   }
 
