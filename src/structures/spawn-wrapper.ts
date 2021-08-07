@@ -159,6 +159,7 @@ export class SpawnWrapper extends StructureSpawn {
     }
   }
 
+  // TODO seems like this belongs in planner
   private getMaxWorkerCount(): number {
     // make workers in early stages
     if (this.rcl <= 1 || (this.containers.length === 0 && this.minders.length === 0)) {
