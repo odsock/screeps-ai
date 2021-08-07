@@ -160,9 +160,23 @@ export class PlannerUtils {
       room.memory.containers = [];
     }
 
+    // add missing containers
+    room
+      .find(FIND_STRUCTURES, {
+        filter: c => c.structureType === STRUCTURE_CONTAINER
+      })
+      .forEach(container => {
+        if (!room.memory.containers.find(containerInfo => containerInfo.containerId === container.id)) {
+          room.memory.containers.push({ containerId: container.id, nextToController: false, nextToSource: false });
+        }
+      });
+
     // validate containers and minders
-    room.memory.containers = room.memory.containers
+    const currentContainerMemory = room.memory.containers;
+    room.memory.containers = currentContainerMemory
+      // drop containers that don't exist
       .filter(containerInfo => !!Game.getObjectById(containerInfo.containerId as Id<StructureContainer>))
+      // remove id's for minders that don't exist
       .map(containerInfo => {
         if (containerInfo.minderId) {
           if (!Game.getObjectById(containerInfo.minderId as Id<Creep>)) {
@@ -171,27 +185,28 @@ export class PlannerUtils {
         }
         return containerInfo;
       })
+      // mark containers next to sources
       .map(containerInfo => {
+        containerInfo.nextToSource = false;
         const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
         if (container) {
           const sources = container.pos.findInRange(FIND_SOURCES, 1);
-          containerInfo.nextToSource = false;
           if (sources.length > 0) {
             containerInfo.nextToSource = true;
           }
         }
         return containerInfo;
       })
+      // mark containers next to controllers
       .map(containerInfo => {
+        containerInfo.nextToController = false;
         if (room.controller) {
           const containers = room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
-            filter: c => c.structureType === STRUCTURE_CONTAINER
+            filter: c => c.structureType === STRUCTURE_CONTAINER && c.id === containerInfo.containerId
           });
           if (containers.length > 0) {
             containerInfo.nextToController = true;
           }
-        } else {
-          containerInfo.nextToController = false;
         }
         return containerInfo;
       });
