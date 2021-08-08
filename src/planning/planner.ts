@@ -63,7 +63,7 @@ export class Planner {
 
         // place towers
         if (PlannerUtils.getAvailableStructureCount(STRUCTURE_TOWER, this.room) > 0) {
-          const towerResult = this.placeTowerAtCenterOfColony();
+          const towerResult = PlannerUtils.placeTowerAtCenterOfColony(this.room);
           if (towerResult !== OK) {
             return towerResult;
           }
@@ -87,19 +87,5 @@ export class Planner {
   public refreshRoomMemory(): void {
     console.log(`refresh room memory`);
     PlannerUtils.refreshContainerMemory(this.room);
-  }
-
-  private placeTowerAtCenterOfColony(): ScreepsReturnCode {
-    const centerPos = PlannerUtils.findColonyCenter(this.room);
-    const line = PlannerUtils.getPositionSpiral(centerPos, 10);
-
-    let ret: ScreepsReturnCode = ERR_NOT_FOUND;
-    for (const pos of line) {
-      ret = this.room.createConstructionSite(pos, STRUCTURE_TOWER);
-      if (ret === OK) {
-        break;
-      }
-    }
-    return ret;
   }
 }

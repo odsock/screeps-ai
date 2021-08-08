@@ -264,4 +264,18 @@ export class PlannerUtils {
     console.log(`${room.name}: ${structureConstant}s available: ${available}`);
     return available;
   }
+
+  public static placeTowerAtCenterOfColony(room: Room): ScreepsReturnCode {
+    const centerPos = PlannerUtils.findColonyCenter(room);
+    const line = PlannerUtils.getPositionSpiral(centerPos, 10);
+
+    let ret: ScreepsReturnCode = ERR_NOT_FOUND;
+    for (const pos of line) {
+      ret = room.createConstructionSite(pos, STRUCTURE_TOWER);
+      if (ret === OK) {
+        break;
+      }
+    }
+    return ret;
+  }
 }
