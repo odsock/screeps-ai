@@ -1,7 +1,6 @@
-import { Constants } from "../constants";
 import { CreepUtils } from "creep-utils";
-import { PlannerUtils } from "planning/planner-utils";
 import { CreepWrapper } from "./creep-wrapper";
+import { MemoryUtils } from "planning/memory-utils";
 
 export class Minder extends CreepWrapper {
   public run(): void {
@@ -144,7 +143,7 @@ export class Minder extends CreepWrapper {
   }
 
   protected claimFreeSourceContainer(): ScreepsReturnCode {
-    PlannerUtils.refreshContainerMemory(this.room);
+    MemoryUtils.refreshContainerMemory(this.room);
     const containerInfo = this.room.memory.containers.find(info => info.nextToSource && !info.minderId);
     if (containerInfo) {
       containerInfo.minderId = this.id;
@@ -155,7 +154,7 @@ export class Minder extends CreepWrapper {
   }
 
   protected claimFreeControllerContainer(): ScreepsReturnCode {
-    PlannerUtils.refreshContainerMemory(this.room);
+    MemoryUtils.refreshContainerMemory(this.room);
     const containerInfo = this.room.memory.containers.find(info => info.nextToController && !info.minderId);
     if (containerInfo) {
       containerInfo.minderId = this.id;

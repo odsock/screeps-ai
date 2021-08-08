@@ -220,6 +220,7 @@ export class PlannerUtils {
 
   // TODO: find a place for spawn with simple rules
   public static placeFirstSpawn(room: Room): ScreepsReturnCode {
+    console.log(`called stub spawn placer: ${room.name}`);
     // if (this.room.controller) {
     //   this.room.controller.pos.
     // }
