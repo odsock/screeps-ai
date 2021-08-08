@@ -53,23 +53,29 @@ export class Planner {
       return sourceContainerResult;
     }
 
-    // place controller container
+    // place controller containers
     const controllerContainerResult = containerPlan.placeControllerContainer();
     if (controllerContainerResult !== OK) {
       return controllerContainerResult;
     }
 
-    // place road from source container to controller container
+    // place road from source containers to controller containers
     const roadPlan = new RoadPlan(this.room);
-    const containerRoadResult = roadPlan.placeRoadSourceContainerToControllerContainer();
+    const containerRoadResult = roadPlan.placeRoadSourceContainersToControllerContainers();
     if (containerRoadResult !== OK) {
       return containerRoadResult;
     }
 
     // place roads to all extensions
-    const extensionRoadResult = roadPlan.placeExtensionRoads();
+    const extensionRoadResult = roadPlan.placeRoadSpawnToExtensions();
     if (extensionRoadResult !== OK) {
       return extensionRoadResult;
+    }
+
+    // place road from controller to spawn
+    const controllerRoadResult = roadPlan.placeRoadControllerToSpawn();
+    if (controllerRoadResult !== OK) {
+      return controllerRoadResult;
     }
 
     // place towers

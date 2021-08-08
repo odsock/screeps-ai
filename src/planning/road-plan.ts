@@ -7,7 +7,7 @@ export class RoadPlan {
     this.roomw = new RoomWrapper(room);
   }
 
-  public placeRoadSourceContainerToControllerContainer(): ScreepsReturnCode {
+  public placeRoadSourceContainersToControllerContainers(): ScreepsReturnCode {
     console.log(`- container road planning`);
 
     const controllerContainers = this.roomw.controllerContainers;
@@ -35,22 +35,22 @@ export class RoadPlan {
     return OK;
   }
 
-  private placeRoadControllerToSpawn(): PathFinderPath | null {
-    const controller = this.room.controller;
-    if (controller) {
+  public placeRoadControllerToSpawn(): ScreepsReturnCode {
+    let result: ScreepsReturnCode = ERR_NOT_FOUND;
+    if (this.room.controller) {
       const spawns = this.room.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
-        const path = this.planRoad(spawns[0].pos, controller.pos, 1);
+        const path = this.planRoad(spawns[0].pos, this.room.controller.pos, 1);
         if (!path.incomplete) {
-          this.placeRoadOnPath(path);
+          result = this.placeRoadOnPath(path);
         }
-        return path;
       }
     }
-    return null;
+    CreepUtils.consoleLogResultIfWatched(this.room, `spawn road placement result`, result);
+    return result;
   }
 
-  private placeRoadToController(pos: RoomPosition): ScreepsReturnCode {
+  private placeRoadControllerToPosition(pos: RoomPosition): ScreepsReturnCode {
     const controller = this.room.controller;
     if (controller) {
       const roadPlanner = new RoadPlan(this.room);
@@ -63,7 +63,7 @@ export class RoadPlan {
     return OK;
   }
 
-  private placeRoadsControllerToSources(): ScreepsReturnCode {
+  private placeRoadControllerToSources(): ScreepsReturnCode {
     const controller = this.room.controller;
     if (controller) {
       const sources = this.room.find(FIND_SOURCES);
@@ -121,7 +121,7 @@ export class RoadPlan {
     );
   }
 
-  public placeExtensionRoads(): ScreepsReturnCode {
+  public placeRoadSpawnToExtensions(): ScreepsReturnCode {
     const extensions = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_EXTENSION });
     const spawns = this.room.find(FIND_MY_SPAWNS);
     for (const spawn of spawns) {
