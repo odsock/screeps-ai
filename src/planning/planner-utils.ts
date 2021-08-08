@@ -233,7 +233,7 @@ export class PlannerUtils {
     OBSTACLE_OBJECT_TYPES.map(typeName => [typeName as StructureConstant, true])
   );
 
-  private static isEnterable(x: number, y: number, roomName: string): boolean {
+  public static isEnterable(x: number, y: number, roomName: string): boolean {
     return new RoomPosition(x, y, roomName).look().every(item => {
       switch (item.type) {
         case "terrain": {
@@ -248,5 +248,20 @@ export class PlannerUtils {
           return true;
       }
     });
+  }
+
+  public static getAvailableStructureCount(structureConstant: BuildableStructureConstant, room: Room): number {
+    let available = 0;
+    const rcl = room.controller?.level;
+    if (rcl) {
+      const max = CONTROLLER_STRUCTURES[structureConstant][rcl];
+      const built = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === structureConstant }).length;
+      const placed = room.find(FIND_MY_CONSTRUCTION_SITES, {
+        filter: s => s.structureType === structureConstant
+      }).length;
+      available = max - built - placed;
+    }
+    console.log(`${room.name}: ${structureConstant}s available: ${available}`);
+    return available;
   }
 }

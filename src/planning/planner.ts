@@ -62,8 +62,8 @@ export class Planner {
         }
 
         // place towers
-        if (this.getAvailableStructureCount(STRUCTURE_TOWER) > 0) {
-          const towerResult = this.placeTower();
+        if (PlannerUtils.getAvailableStructureCount(STRUCTURE_TOWER, this.room) > 0) {
+          const towerResult = this.placeTowerAtCenterOfColony();
           if (towerResult !== OK) {
             return towerResult;
           }
@@ -89,15 +89,7 @@ export class Planner {
     PlannerUtils.refreshContainerMemory(this.room);
   }
 
-  private getContainerIdAt(containerPos: RoomPosition): string | undefined {
-    const container = containerPos.lookFor(LOOK_STRUCTURES).filter(s => s.structureType === STRUCTURE_CONTAINER);
-    if (container.length > 0) {
-      return container[0].id;
-    }
-    return undefined;
-  }
-
-  private placeTower(): ScreepsReturnCode {
+  private placeTowerAtCenterOfColony(): ScreepsReturnCode {
     const centerPos = PlannerUtils.findColonyCenter(this.room);
     const line = PlannerUtils.getPositionSpiral(centerPos, 10);
 
@@ -109,20 +101,5 @@ export class Planner {
       }
     }
     return ret;
-  }
-
-  private getAvailableStructureCount(structureConstant: BuildableStructureConstant): number {
-    let available = 0;
-    const rcl = this.room.controller?.level;
-    if (rcl) {
-      const max = CONTROLLER_STRUCTURES[structureConstant][rcl];
-      const built = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === structureConstant }).length;
-      const placed = this.room.find(FIND_MY_CONSTRUCTION_SITES, {
-        filter: s => s.structureType === structureConstant
-      }).length;
-      available = max - built - placed;
-    }
-    console.log(`${this.room.name}: ${structureConstant}s available: ${available}`);
-    return available;
   }
 }
