@@ -25,7 +25,8 @@ export class Hauler extends CreepWrapper {
   }
 
   // TODO don't pull/drop from the same container like a bozo
-  private supplyController() {
+  private supplyController(): ScreepsReturnCode {
+    let result: ScreepsReturnCode = ERR_NOT_FOUND;
     const controllerContainer = this.findClosestControllerContainerNotFull();
     if (controllerContainer) {
       this.updateJob("upgrade");
@@ -37,13 +38,16 @@ export class Hauler extends CreepWrapper {
       if (this.memory.working) {
         CreepUtils.consoleLogIfWatched(this, "working");
         if (this.transfer(controllerContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          const result = this.moveTo(controllerContainer, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
-          CreepUtils.consoleLogIfWatched(this, `moving to controller: ${result}`);
+          result = this.moveTo(controllerContainer, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
+          CreepUtils.consoleLogResultIfWatched(this, `moving to controller`, result);
         }
       } else {
-        this.loadEnergy();
+        result = this.loadEnergy();
       }
+    } else {
+      CreepUtils.consoleLogIfWatched(this, "no controller containers need supply");
     }
+    return result;
   }
 
   private supplySpawn(): void {
@@ -105,6 +109,7 @@ export class Hauler extends CreepWrapper {
     const containersNotFull = this.roomw.controllerContainers.filter(
       container => container.store.getFreeCapacity() > 0
     );
+    CreepUtils.consoleLogIfWatched(this, `controller containers not full: ${containersNotFull.length}`);
     return this.pos.findClosestByPath(containersNotFull);
   }
 
@@ -185,7 +190,7 @@ export class Hauler extends CreepWrapper {
     return pickupResult;
   }
 
-  private loadEnergy(): void {
+  private loadEnergy(): ScreepsReturnCode {
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
     // TODO: calc current free capacity here, might should quit loading or move adjacent load calls
@@ -197,26 +202,22 @@ export class Hauler extends CreepWrapper {
     const container = this.findClosestSourceContainerNotEmpty();
     if (container) {
       CreepUtils.consoleLogIfWatched(this, `moving to container: ${container.pos.x},${container.pos.y}`);
-      this.withdrawEnergyFromOrMoveTo(container);
-      return;
+      return this.withdrawEnergyFromOrMoveTo(container);
     }
 
     if (tombstone) {
       CreepUtils.consoleLogIfWatched(this, `moving to tombstone: ${tombstone.pos.x},${tombstone.pos.y}`);
-      this.withdrawEnergyFromOrMoveTo(tombstone);
-      return;
+      return this.withdrawEnergyFromOrMoveTo(tombstone);
     }
 
     if (ruin) {
       CreepUtils.consoleLogIfWatched(this, `moving to ruin: ${ruin.pos.x},${ruin.pos.y}`);
-      this.withdrawEnergyFromOrMoveTo(ruin);
-      return;
+      return this.withdrawEnergyFromOrMoveTo(ruin);
     }
 
     if (droppedEnergy) {
       CreepUtils.consoleLogIfWatched(this, `moving to ruin: ${droppedEnergy.pos.x},${droppedEnergy.pos.y}`);
-      this.pickupFromOrMoveTo(droppedEnergy);
-      return;
+      return this.pickupFromOrMoveTo(droppedEnergy);
     }
 
     const closestSourceContainer = this.findClosestSourceContainer();
@@ -225,11 +226,11 @@ export class Hauler extends CreepWrapper {
         this,
         `moving to source container: ${closestSourceContainer.pos.x},${closestSourceContainer.pos.y}`
       );
-      this.moveTo(closestSourceContainer, { range: 1, visualizePathStyle: { stroke: "#ffaa00" } });
-      return;
+      return this.moveTo(closestSourceContainer, { range: 1, visualizePathStyle: { stroke: "#ffaa00" } });
     }
 
     this.say("🤔");
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
+    return ERR_NOT_FOUND;
   }
 }
