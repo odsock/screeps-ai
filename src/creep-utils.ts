@@ -10,7 +10,7 @@ export class CreepUtils {
   public static consoleLogResultIfWatched(watchable: Watchable, message: string, result: ScreepsReturnCode): void {
     if (watchable.memory.watched === true) {
       const resultString = String(Constants.ERROR_CODE_LOOKUP.get(result));
-      console.log(`${watchable.name}: ${message}: ${resultString}`);
+      console.log(`${watchable.name}: ${message}: ${result} ${resultString}`);
     }
   }
 
