@@ -3,6 +3,8 @@ import { ContainerPlan } from "./container-plan";
 import { ExtensionPlan } from "./extension-plan";
 import { RoadPlan } from "./road-plan";
 import { PlannerUtils } from "./planner-utils";
+import { MemoryUtils } from "./memory-utils";
+import { CreepUtils } from "creep-utils";
 
 export class Planner {
   private readonly room: RoomWrapper;
@@ -12,80 +14,73 @@ export class Planner {
   }
 
   public run(): ScreepsReturnCode {
-    this.refreshRoomMemory();
+    console.log(`${this.room.name}: running planning`);
+    MemoryUtils.refreshRoomMemory(this.room);
 
     if (this.room.controller) {
       if (this.room.controller?.level >= 1) {
-        const spawns = this.room.find(FIND_MY_SPAWNS);
-        if (spawns.length === 0) {
-          const ret = this.placeFirstSpawn();
-          if (ret !== OK) {
-            return ret;
-          }
-        }
+        const result1 = this.planLevel1();
+        CreepUtils.consoleLogResultIfWatched(this.room, `level 1 planning result`, result1);
       }
 
       if (this.room.controller?.level >= 2) {
-        console.log(`${this.room.name}: running planning`);
-
-        // place available extensions
-        const extensionPlan = new ExtensionPlan(this.room);
-        const extensionResult = extensionPlan.planExtensionGroup();
-        if (extensionResult !== OK) {
-          return extensionResult;
-        }
-
-        // place source containers
-        const containerPlan = new ContainerPlan(this.room);
-        const sourceContainerResult = containerPlan.placeSourceContainer();
-        if (sourceContainerResult !== OK) {
-          return sourceContainerResult;
-        }
-
-        // place controller container
-        const controllerContainerResult = containerPlan.placeControllerContainer();
-        if (controllerContainerResult !== OK) {
-          return controllerContainerResult;
-        }
-
-        // place road from source container to controller container
-        const roadPlan = new RoadPlan(this.room);
-        const containerRoadResult = roadPlan.placeRoadSourceContainerToControllerContainer();
-        if (containerRoadResult !== OK) {
-          return containerRoadResult;
-        }
-
-        // place roads to all extensions
-        const extensionRoadResult = roadPlan.placeExtensionRoads();
-        if (extensionRoadResult !== OK) {
-          return extensionRoadResult;
-        }
-
-        // place towers
-        if (PlannerUtils.getAvailableStructureCount(STRUCTURE_TOWER, this.room) > 0) {
-          const towerResult = PlannerUtils.placeTowerAtCenterOfColony(this.room);
-          if (towerResult !== OK) {
-            return towerResult;
-          }
-        }
-
-        // TODO: place ramparts over containers
+        const result2 = this.planLevel2();
+        CreepUtils.consoleLogResultIfWatched(this.room, `level 2 planning result`, result2);
       }
     }
     return OK;
   }
 
-  // TODO: find a place for spawn with simple rules
-  private placeFirstSpawn(): ScreepsReturnCode {
-    // if (this.room.controller) {
-    //   this.room.controller.pos.
-    // }
-    return ERR_INVALID_TARGET;
+  private planLevel1(): ScreepsReturnCode {
+    if (this.room.find(FIND_MY_SPAWNS).length === 0) {
+      return PlannerUtils.placeFirstSpawn(this.room);
+    }
+    return OK;
   }
 
-  // TODO: refactor memory init to new class
-  public refreshRoomMemory(): void {
-    console.log(`refresh room memory`);
-    PlannerUtils.refreshContainerMemory(this.room);
+  private planLevel2(): ScreepsReturnCode {
+    // place available extensions
+    const extensionPlan = new ExtensionPlan(this.room);
+    const extensionResult = extensionPlan.planExtensionGroup();
+    if (extensionResult !== OK) {
+      return extensionResult;
+    }
+
+    // place source containers
+    const containerPlan = new ContainerPlan(this.room);
+    const sourceContainerResult = containerPlan.placeSourceContainer();
+    if (sourceContainerResult !== OK) {
+      return sourceContainerResult;
+    }
+
+    // place controller container
+    const controllerContainerResult = containerPlan.placeControllerContainer();
+    if (controllerContainerResult !== OK) {
+      return controllerContainerResult;
+    }
+
+    // place road from source container to controller container
+    const roadPlan = new RoadPlan(this.room);
+    const containerRoadResult = roadPlan.placeRoadSourceContainerToControllerContainer();
+    if (containerRoadResult !== OK) {
+      return containerRoadResult;
+    }
+
+    // place roads to all extensions
+    const extensionRoadResult = roadPlan.placeExtensionRoads();
+    if (extensionRoadResult !== OK) {
+      return extensionRoadResult;
+    }
+
+    // place towers
+    if (PlannerUtils.getAvailableStructureCount(STRUCTURE_TOWER, this.room) > 0) {
+      const towerResult = PlannerUtils.placeTowerAtCenterOfColony(this.room);
+      if (towerResult !== OK) {
+        return towerResult;
+      }
+    }
+
+    // TODO: place ramparts over containers
+    return OK;
   }
 }
