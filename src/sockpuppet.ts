@@ -1,5 +1,7 @@
 import { CreepUtils } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
 import { Planner } from "planning/planner";
+import { PlannerUtils } from "planning/planner-utils";
 import { CreepFactory } from "roles/creep-factory";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
@@ -11,8 +13,8 @@ export class Sockpuppet {
     for (const roomId in Game.rooms) {
       const room = new RoomWrapper(Game.rooms[roomId]);
       const planner = new Planner(room);
-      // TODO maybe this is bad idea
-      planner.refreshRoomMemory();
+      // TODO refresh every turn maybe excessive?
+      MemoryUtils.refreshRoomMemory(room);
 
       // Run spawners
       CreepUtils.consoleLogIfWatched(room, `running spawns`);
