@@ -27,7 +27,7 @@ export class StructurePatterns {
   public static readonly CHARACTERS: {[x: string]: StructureConstant | null} = {
     r: STRUCTURE_ROAD,
     e: STRUCTURE_EXTENSION,
-    s: STRUCTURE_SPAWN,
+    S: STRUCTURE_SPAWN,
     " ": null
   }
 }

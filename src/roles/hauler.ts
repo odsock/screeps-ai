@@ -33,16 +33,24 @@ export class Hauler extends CreepWrapper {
       this.stopWorkingIfEmpty();
       this.startWorkingIfFull("⚡ upgrade");
       this.workIfCloseToJobsite(controllerContainer.pos, 1);
-      // TODO: if source is empty, start hauling even if not full
 
       if (this.memory.working) {
         CreepUtils.consoleLogIfWatched(this, "working");
-        if (this.transfer(controllerContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        result = this.transfer(controllerContainer, RESOURCE_ENERGY);
+        if (result === ERR_NOT_IN_RANGE) {
           result = this.moveTo(controllerContainer, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
           CreepUtils.consoleLogResultIfWatched(this, `moving to controller`, result);
         }
       } else {
         result = this.loadEnergy();
+        if (result === ERR_NOT_FOUND) {
+          // nowhere to get energy - start working if not empty
+          if (this.store.energy > 0) {
+            this.memory.working = true;
+            CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
+            result = this.supplyController();
+          }
+        }
       }
     } else {
       CreepUtils.consoleLogIfWatched(this, "no controller containers need supply");
@@ -50,7 +58,8 @@ export class Hauler extends CreepWrapper {
     return result;
   }
 
-  private supplySpawn(): void {
+  private supplySpawn(): ScreepsReturnCode {
+    let result: ScreepsReturnCode = ERR_NOT_FOUND;
     const site = this.findClosestEnergyStorageNotFull();
     if (site) {
       CreepUtils.consoleLogIfWatched(this, `supply spawn`);
@@ -60,20 +69,31 @@ export class Hauler extends CreepWrapper {
       this.workIfCloseToJobsite(site.pos, 1);
 
       if (this.memory.working) {
-        if (this.transfer(site, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        result = this.transfer(site, RESOURCE_ENERGY);
+        if (result === ERR_NOT_IN_RANGE) {
           CreepUtils.consoleLogIfWatched(this, `site out of range: ${site.pos.x},${site.pos.y}`);
-          this.moveTo(site, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
+          result = this.moveTo(site, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
         }
       } else {
-        this.loadEnergy();
+        result = this.loadEnergy();
+        if (result === ERR_NOT_FOUND) {
+          // nowhere to get energy - start working if not empty
+          if (this.store.energy > 0) {
+            this.memory.working = true;
+            CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
+            result = this.supplyController();
+          }
+        }
       }
     }
+    return result;
   }
 
   // TODO: stop supply when tower is full
   // have to calc check at end of tick, or will never be full (tower shoots first)
   // can't rely on getFreeCapacity because it won't update after transfer
-  private supplyTower(): void {
+  private supplyTower(): ScreepsReturnCode {
+    let result: ScreepsReturnCode = ERR_NOT_FOUND;
     const tower = this.findClosestTowerNotFull();
     if (tower) {
       CreepUtils.consoleLogIfWatched(this, `supply tower`);
@@ -84,25 +104,34 @@ export class Hauler extends CreepWrapper {
 
       if (this.memory.working) {
         let creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
-        const result = this.transfer(tower, RESOURCE_ENERGY);
+        result = this.transfer(tower, RESOURCE_ENERGY);
         if (result === ERR_NOT_IN_RANGE) {
           CreepUtils.consoleLogIfWatched(this, `tower out of range: ${tower.pos.x},${tower.pos.y}`);
-          this.moveTo(tower, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
-        }
-
-        // Stop if tower is full now
-        const towerFreeCap = tower.store.getFreeCapacity(RESOURCE_ENERGY);
-        creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
-        if (result === OK && towerFreeCap < creepStoredEnergy) {
-          CreepUtils.consoleLogIfWatched(this, `tower is full: ${tower.pos.x},${tower.pos.y}`);
-          this.updateJob("idle");
+          result = this.moveTo(tower, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
+        } else {
+          // Stop if tower is full now
+          const towerFreeCap = tower.store.getFreeCapacity(RESOURCE_ENERGY);
+          creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
+          if (result === OK && towerFreeCap < creepStoredEnergy) {
+            CreepUtils.consoleLogIfWatched(this, `tower is full: ${tower.pos.x},${tower.pos.y}`);
+            this.updateJob("idle");
+          }
         }
       } else {
-        this.loadEnergy();
+        result = this.loadEnergy();
+        if (result === ERR_NOT_FOUND) {
+          // nowhere to get energy - start working if not empty
+          if (this.store.energy > 0) {
+            this.memory.working = true;
+            CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
+            result = this.supplyController();
+          }
+        }
       }
     } else {
       this.updateJob("idle");
     }
+    return result;
   }
 
   private findClosestControllerContainerNotFull(): StructureContainer | null {
@@ -218,15 +247,6 @@ export class Hauler extends CreepWrapper {
     if (droppedEnergy) {
       CreepUtils.consoleLogIfWatched(this, `moving to ruin: ${droppedEnergy.pos.x},${droppedEnergy.pos.y}`);
       return this.pickupFromOrMoveTo(droppedEnergy);
-    }
-
-    const closestSourceContainer = this.findClosestSourceContainer();
-    if (closestSourceContainer) {
-      CreepUtils.consoleLogIfWatched(
-        this,
-        `moving to source container: ${closestSourceContainer.pos.x},${closestSourceContainer.pos.y}`
-      );
-      return this.moveTo(closestSourceContainer, { range: 1, visualizePathStyle: { stroke: "#ffaa00" } });
     }
 
     this.say("🤔");
