@@ -81,7 +81,7 @@ export class Minder extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `filling my container`);
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
     const myContainer = this.getMyContainer();
-    if (myContainer && myContainer.store.getFreeCapacity() > 0 && this.store.energy > 0) {
+    if (myContainer) {
       result = this.transfer(myContainer, RESOURCE_ENERGY);
     }
     CreepUtils.consoleLogResultIfWatched(this, `fill result`, result);
