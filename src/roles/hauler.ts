@@ -6,12 +6,15 @@ import { CreepWrapper } from "./creep-wrapper";
 // TODO: assign to source containers or something so they don't only use closest
 // TODO: get hauler to pull harvester to container
 export class Hauler extends CreepWrapper {
+  // debugging
+  private stackDepth = 0;
+
   public run(): void {
     this.touchRoad();
 
     // claim container if free
     if (!this.getMyContainer()) {
-      const claimSourceResult = this.claimFreeSourceContainerAsMinder();
+      const claimSourceResult = this.claimSourceContainer();
       CreepUtils.consoleLogIfWatched(this, `claim source container result: ${claimSourceResult}`);
       if (claimSourceResult !== OK) {
         CreepUtils.consoleLogIfWatched(this, `no free containers`);
@@ -31,18 +34,20 @@ export class Hauler extends CreepWrapper {
     }
 
     // otherwise supply controller
+    this.stackDepth = 0;
     this.supplyController();
   }
 
   // TODO don't pull/drop from the same container like a bozo
   private supplyController(): ScreepsReturnCode {
+    this.stackDepth += 1;
+    console.log(this.stackDepth);
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
     const controllerContainer = this.findClosestControllerContainerNotFull();
     if (controllerContainer) {
       this.updateJob("upgrade");
       this.stopWorkingIfEmpty();
       this.startWorkingIfFull("⚡ upgrade");
-      this.workIfCloseToJobsite(controllerContainer.pos, 1);
 
       if (this.memory.working) {
         CreepUtils.consoleLogIfWatched(this, "working");
@@ -270,6 +275,7 @@ export class Hauler extends CreepWrapper {
     if (containerInfos.length > 0) {
       const containerInfo = containerInfos[0];
       containerInfo.haulers.push(this.id);
+      CreepUtils.consoleLogIfWatched(this, `claimed source container: ${containerInfo.containerId}`);
       this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
       return OK;
     }
