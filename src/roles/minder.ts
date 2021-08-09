@@ -40,6 +40,7 @@ export class Minder extends CreepWrapper {
       return;
     } else {
       // help build if close enough
+      // TODO repair if close enough as well
       const buildResult = this.buildNearbySite();
       if (buildResult === OK) {
         return;
