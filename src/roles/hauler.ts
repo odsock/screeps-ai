@@ -1,12 +1,23 @@
-import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
 import { Constants } from "../constants";
+import { CreepWrapper } from "./creep-wrapper";
 
 // TODO: assign to source containers or something so they don't only use closest
 // TODO: get hauler to pull harvester to container
 export class Hauler extends CreepWrapper {
   public run(): void {
     this.touchRoad();
+
+    // claim container if free
+    if (!this.getMyContainer()) {
+      const claimSourceResult = this.claimFreeSourceContainerAsMinder();
+      CreepUtils.consoleLogIfWatched(this, `claim source container result: ${claimSourceResult}`);
+      if (claimSourceResult !== OK) {
+        CreepUtils.consoleLogIfWatched(this, `no free containers`);
+        return;
+      }
+    }
 
     // supply spawn/extensions if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
@@ -251,6 +262,18 @@ export class Hauler extends CreepWrapper {
 
     this.say("🤔");
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
+    return ERR_NOT_FOUND;
+  }
+
+  protected claimSourceContainer(): ScreepsReturnCode {
+    MemoryUtils.refreshContainerMemory(this.room);
+    const containerInfos = this.room.memory.containers.filter(info => info.nearSource && info.creepClaims.length === 0);
+    if (containerInfos.length > 0) {
+      const containerInfo = containerInfos[0];
+      containerInfo.creepClaims.push({ id: this.id, role: this.memory.role });
+      this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
+      return OK;
+    }
     return ERR_NOT_FOUND;
   }
 }

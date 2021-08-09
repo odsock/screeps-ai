@@ -32,8 +32,9 @@ interface SourceInfo {
 interface ContainerInfo {
   containerId: string;
   minderId?: string;
-  nextToSource: boolean;
-  nextToController: boolean;
+  nearSource: boolean;
+  nearController: boolean;
+  creepClaims: { id: string; role: string }[];
 }
 
 interface ConstructionLog {

@@ -18,45 +18,56 @@ export class MemoryUtils {
       })
       .forEach(container => {
         if (!room.memory.containers.find(containerInfo => containerInfo.containerId === container.id)) {
-          room.memory.containers.push({ containerId: container.id, nextToController: false, nextToSource: false });
+          room.memory.containers.push({
+            containerId: container.id,
+            nearController: false,
+            nearSource: false,
+            creepClaims: []
+          });
         }
       });
 
-    // validate containers and minders
+    // validate containers and claims
     const currentContainerMemory = room.memory.containers;
     room.memory.containers = currentContainerMemory
       // drop containers that don't exist
       .filter(containerInfo => !!Game.getObjectById(containerInfo.containerId as Id<StructureContainer>))
-      // remove id's for minders that don't exist
+      // remove id's for creeps that don't exist
       .map(containerInfo => {
         if (containerInfo.minderId) {
           if (!Game.getObjectById(containerInfo.minderId as Id<Creep>)) {
             containerInfo.minderId = undefined;
           }
         }
+        // TODO validate claims array
+        // for (const claim of containerInfo.creepClaims) {
+        //   if (!Game.getObjectById(claim.id as Id<Creep>)) {
+        //     containerInfo.creepClaims[claim] = undefined;
+        //   }
+        // }
         return containerInfo;
       })
       // mark containers next to sources
       .map(containerInfo => {
-        containerInfo.nextToSource = false;
+        containerInfo.nearSource = false;
         const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
         if (container) {
           const sources = container.pos.findInRange(FIND_SOURCES, 1);
           if (sources.length > 0) {
-            containerInfo.nextToSource = true;
+            containerInfo.nearSource = true;
           }
         }
         return containerInfo;
       })
       // mark containers next to controllers
       .map(containerInfo => {
-        containerInfo.nextToController = false;
-        if (room.controller && !containerInfo.nextToSource) {
+        containerInfo.nearController = false;
+        if (room.controller && !containerInfo.nearSource) {
           const containers = room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
             filter: c => c.structureType === STRUCTURE_CONTAINER && c.id === containerInfo.containerId
           });
           if (containers.length > 0) {
-            containerInfo.nextToController = true;
+            containerInfo.nearController = true;
           }
         }
         return containerInfo;

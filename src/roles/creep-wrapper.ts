@@ -1,5 +1,6 @@
 import { RoomWrapper } from "structures/room-wrapper";
 import { CreepUtils } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
 
 export abstract class CreepWrapper extends Creep {
   public constructor(private readonly creep: Creep) {
@@ -261,5 +262,65 @@ export abstract class CreepWrapper extends Creep {
 
   public countParts(type: BodyPartConstant): number {
     return this.body.filter(part => part.type === type).length;
+  }
+
+  protected moveToMyContainer(): ScreepsReturnCode {
+    const container = this.getMyContainer();
+    CreepUtils.consoleLogIfWatched(this, `moving to container: ${String(container)}`);
+    if (container) {
+      return this.moveTo(container, { visualizePathStyle: { stroke: "#ffaa00" } });
+    }
+    return ERR_NOT_FOUND;
+  }
+
+  protected claimFreeSourceContainerAsMinder(): ScreepsReturnCode {
+    MemoryUtils.refreshContainerMemory(this.room);
+    const containerInfo = this.room.memory.containers.find(info => info.nearSource && !info.minderId);
+    if (containerInfo) {
+      containerInfo.minderId = this.id;
+      this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
+      return OK;
+    }
+    return ERR_NOT_FOUND;
+  }
+
+  protected claimFreeControllerContainerAsMinder(): ScreepsReturnCode {
+    MemoryUtils.refreshContainerMemory(this.room);
+    const containerInfo = this.room.memory.containers.find(info => info.nearController && !info.minderId);
+    if (containerInfo) {
+      containerInfo.minderId = this.id;
+      this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
+      return OK;
+    }
+    return ERR_NOT_FOUND;
+  }
+
+  protected get onMyContainer(): boolean {
+    const container = this.getMyContainer();
+    return !!container && this.pos.isEqualTo(container.pos);
+  }
+
+  protected moveToRetiree(): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `moving to retiree`);
+    const retireeName = this.memory.retiree as string;
+    const retiree = Game.creeps[retireeName];
+    if (retiree) {
+      return this.moveTo(retiree.pos, { visualizePathStyle: { stroke: "#ffaa00" } });
+    } else {
+      this.memory.retiree = undefined;
+      return ERR_NOT_FOUND;
+    }
+  }
+
+  protected getMyContainer(): StructureContainer | null {
+    if (this.memory.containerId) {
+      const container = Game.getObjectById(this.memory.containerId);
+      if (!container) {
+        CreepUtils.consoleLogIfWatched(this, `container id invalid`);
+        this.memory.containerId = undefined;
+      }
+      return container;
+    }
+    return null;
   }
 }

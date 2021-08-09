@@ -32,7 +32,7 @@ export class RoomWrapper extends Room {
 
   public get sourceContainers(): StructureContainer[] {
     return this.room.memory.containers.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
-      if (containerInfo.nextToSource) {
+      if (containerInfo.nearSource) {
         const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
         if (container !== null) {
           list.push(container);
@@ -44,7 +44,7 @@ export class RoomWrapper extends Room {
 
   public get controllerContainers(): StructureContainer[] {
     return this.room.memory.containers.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
-      if (containerInfo.nextToController) {
+      if (containerInfo.nearController) {
         const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
         if (container !== null) {
           list.push(container);

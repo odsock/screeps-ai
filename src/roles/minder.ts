@@ -1,6 +1,5 @@
 import { CreepUtils } from "creep-utils";
 import { CreepWrapper } from "./creep-wrapper";
-import { MemoryUtils } from "planning/memory-utils";
 
 export class Minder extends CreepWrapper {
   public run(): void {
@@ -15,10 +14,10 @@ export class Minder extends CreepWrapper {
 
     // claim container if free
     if (!this.getMyContainer()) {
-      const claimSourceResult = this.claimFreeSourceContainer();
+      const claimSourceResult = this.claimFreeSourceContainerAsMinder();
       CreepUtils.consoleLogIfWatched(this, `claim source container result: ${claimSourceResult}`);
       if (claimSourceResult !== OK) {
-        const claimControllerResult = this.claimFreeControllerContainer();
+        const claimControllerResult = this.claimFreeControllerContainerAsMinder();
         CreepUtils.consoleLogIfWatched(this, `claim controller container result: ${claimControllerResult}`);
         if (claimControllerResult !== OK) {
           CreepUtils.consoleLogIfWatched(this, `no free containers`);
@@ -37,8 +36,7 @@ export class Minder extends CreepWrapper {
 
     // harvest then transfer until container and store is full or source is inactive
     const harvestResult = this.harvestFromNearbySource();
-    if (harvestResult === OK) {
-      this.fillContainer();
+    if (harvestResult === OK && this.fillContainer() === OK) {
       return;
     } else {
       // help build if close enough
@@ -54,7 +52,7 @@ export class Minder extends CreepWrapper {
         // try to upgrade controller
         const upgradeResult = this.upgrade();
         if (upgradeResult === ERR_NOT_ENOUGH_ENERGY) {
-          // try again after withdraw (not sure this works)
+          // TODO try again after withdraw (not sure this works, it might skip a tick)
           this.withdrawFromMyContainer();
           this.upgrade();
           return;
@@ -116,65 +114,5 @@ export class Minder extends CreepWrapper {
     }
     CreepUtils.consoleLogResultIfWatched(this, `withdraw result`, result);
     return result;
-  }
-
-  protected moveToRetiree(): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `moving to retiree`);
-    const retireeName = this.memory.retiree as string;
-    const retiree = Game.creeps[retireeName];
-    if (retiree) {
-      return this.moveTo(retiree.pos, { visualizePathStyle: { stroke: "#ffaa00" } });
-    } else {
-      this.memory.retiree = undefined;
-      return ERR_NOT_FOUND;
-    }
-  }
-
-  protected getMyContainer(): StructureContainer | null {
-    if (this.memory.containerId) {
-      const container = Game.getObjectById(this.memory.containerId);
-      if (!container) {
-        CreepUtils.consoleLogIfWatched(this, `container id invalid`);
-        this.memory.containerId = undefined;
-      }
-      return container;
-    }
-    return null;
-  }
-
-  protected claimFreeSourceContainer(): ScreepsReturnCode {
-    MemoryUtils.refreshContainerMemory(this.room);
-    const containerInfo = this.room.memory.containers.find(info => info.nextToSource && !info.minderId);
-    if (containerInfo) {
-      containerInfo.minderId = this.id;
-      this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
-      return OK;
-    }
-    return ERR_NOT_FOUND;
-  }
-
-  protected claimFreeControllerContainer(): ScreepsReturnCode {
-    MemoryUtils.refreshContainerMemory(this.room);
-    const containerInfo = this.room.memory.containers.find(info => info.nextToController && !info.minderId);
-    if (containerInfo) {
-      containerInfo.minderId = this.id;
-      this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
-      return OK;
-    }
-    return ERR_NOT_FOUND;
-  }
-
-  protected moveToMyContainer(): ScreepsReturnCode {
-    const container = this.getMyContainer();
-    CreepUtils.consoleLogIfWatched(this, `moving to container: ${String(container)}`);
-    if (container) {
-      return this.moveTo(container, { visualizePathStyle: { stroke: "#ffaa00" } });
-    }
-    return ERR_NOT_FOUND;
-  }
-
-  protected get onMyContainer(): boolean {
-    const container = this.getMyContainer();
-    return !!container && this.pos.isEqualTo(container.pos);
   }
 }
