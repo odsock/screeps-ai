@@ -152,8 +152,12 @@ export abstract class CreepWrapper extends Creep {
     }
 
     const container = this.findClosestContainerWithEnergy(this.store.getFreeCapacity());
-    if (container && this.withdrawEnergyFromOrMoveTo(container) !== ERR_NO_PATH) {
-      return;
+    if (container) {
+      CreepUtils.consoleLogIfWatched(this, `moving to container: ${container.pos.x},${container.pos.y}`);
+      const result = this.withdrawEnergyFromOrMoveTo(container);
+      if (result !== ERR_NO_PATH) {
+        return;
+      }
     }
 
     const activeSource = this.findClosestActiveEnergySource();
@@ -161,12 +165,20 @@ export abstract class CreepWrapper extends Creep {
       return;
     }
 
-    if (tombstone && this.withdrawEnergyFromOrMoveTo(tombstone) !== ERR_NO_PATH) {
-      return;
+    if (tombstone) {
+      CreepUtils.consoleLogIfWatched(this, `moving to tombstone: ${tombstone.pos.x},${tombstone.pos.y}`);
+      const result = this.withdrawEnergyFromOrMoveTo(tombstone);
+      if (result !== ERR_NO_PATH) {
+        return;
+      }
     }
 
-    if (ruin && this.withdrawEnergyFromOrMoveTo(ruin) !== ERR_NO_PATH) {
-      return;
+    if (ruin) {
+      CreepUtils.consoleLogIfWatched(this, `moving to ruin: ${ruin.pos.x},${ruin.pos.y}`);
+      const result = this.withdrawEnergyFromOrMoveTo(ruin);
+      if (result !== ERR_NO_PATH) {
+        return;
+      }
     }
 
     const inactiveSource = this.findClosestEnergySource();
@@ -184,15 +196,14 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected withdrawEnergyFromOrMoveTo(structure: Tombstone | Ruin | StructureContainer): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(
-      this,
-      `moving to ${String(structure.constructor.prototype)}: ${structure.pos.x},${structure.pos.y}`
-    );
     let result = this.withdraw(structure, RESOURCE_ENERGY);
+    CreepUtils.consoleLogResultIfWatched(this, `withdraw result`, result);
     if (result === ERR_NOT_IN_RANGE) {
       result = this.moveTo(structure, { range: 1, visualizePathStyle: { stroke: "#ffaa00" } });
+      CreepUtils.consoleLogResultIfWatched(this, `move result`, result);
       if (result === OK) {
         result = this.withdraw(structure, RESOURCE_ENERGY);
+        CreepUtils.consoleLogResultIfWatched(this, `second withdraw result`, result);
       }
     }
     return result;
