@@ -48,6 +48,7 @@ export class Hauler extends CreepWrapper {
       this.updateJob("upgrade");
       this.stopWorkingIfEmpty();
       this.startWorkingIfFull("⚡ upgrade");
+      // TODO make close work site check work here, maybe only go for refill if can fill?
 
       if (this.memory.working) {
         CreepUtils.consoleLogIfWatched(this, "working");
