@@ -35,7 +35,8 @@ export class MemoryUtils {
       // remove id's for creeps that don't exist
       .map(containerInfo => {
         if (containerInfo.minderId) {
-          if (!Game.getObjectById(containerInfo.minderId as Id<Creep>)) {
+          const creep = Game.getObjectById(containerInfo.minderId as Id<Creep>);
+          if (!creep || creep.memory.role !== "minder") {
             containerInfo.minderId = undefined;
           }
         }
