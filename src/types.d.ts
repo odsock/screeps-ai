@@ -34,7 +34,7 @@ interface ContainerInfo {
   minderId?: string;
   nearSource: boolean;
   nearController: boolean;
-  creepClaims: { id: string; role: string }[];
+  haulers: string[];
 }
 
 interface ConstructionLog {

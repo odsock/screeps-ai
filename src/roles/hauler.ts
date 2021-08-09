@@ -266,10 +266,10 @@ export class Hauler extends CreepWrapper {
 
   protected claimSourceContainer(): ScreepsReturnCode {
     MemoryUtils.refreshContainerMemory(this.room);
-    const containerInfos = this.room.memory.containers.filter(info => info.nearSource && info.creepClaims.length === 0);
+    const containerInfos = this.room.memory.containers.filter(info => info.nearSource && info.haulers.length === 0);
     if (containerInfos.length > 0) {
       const containerInfo = containerInfos[0];
-      containerInfo.creepClaims.push({ id: this.id, role: this.memory.role });
+      containerInfo.haulers.push(this.id);
       this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
       return OK;
     }

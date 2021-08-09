@@ -17,7 +17,7 @@ export class ContainerPlan {
       console.log(` - placing controller container`);
       const id = PlannerUtils.placeStructureAdjacent(this.room.controller.pos, STRUCTURE_CONTAINER);
       if (id) {
-        this.room.memory.containers.push({ containerId: id, nearController: true, nearSource: false, creepClaims: [] });
+        this.room.memory.containers.push({ containerId: id, nearController: true, nearSource: false, haulers: [] });
         return OK;
       }
       return ERR_NOT_FOUND;
@@ -38,7 +38,7 @@ export class ContainerPlan {
             containerId: id,
             nearSource: true,
             nearController: false,
-            creepClaims: []
+            haulers: []
           });
           return OK;
         }

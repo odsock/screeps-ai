@@ -22,7 +22,7 @@ export class MemoryUtils {
             containerId: container.id,
             nearController: false,
             nearSource: false,
-            creepClaims: []
+            haulers: []
           });
         }
       });
@@ -39,12 +39,8 @@ export class MemoryUtils {
             containerInfo.minderId = undefined;
           }
         }
-        // TODO validate claims array
-        // for (const claim of containerInfo.creepClaims) {
-        //   if (!Game.getObjectById(claim.id as Id<Creep>)) {
-        //     containerInfo.creepClaims[claim] = undefined;
-        //   }
-        // }
+        const currentHaulers = containerInfo.haulers;
+        containerInfo.haulers = currentHaulers.filter(haulerId => !!Game.getObjectById(haulerId as Id<Creep>));
         return containerInfo;
       })
       // mark containers next to sources
