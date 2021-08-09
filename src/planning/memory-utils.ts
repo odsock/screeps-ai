@@ -39,7 +39,7 @@ export class MemoryUtils {
             containerInfo.minderId = undefined;
           }
         }
-        const currentHaulers = containerInfo.haulers;
+        const currentHaulers = containerInfo.haulers ? containerInfo.haulers : [];
         containerInfo.haulers = currentHaulers.filter(haulerId => !!Game.getObjectById(haulerId as Id<Creep>));
         return containerInfo;
       })
