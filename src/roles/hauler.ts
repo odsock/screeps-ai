@@ -15,7 +15,6 @@ export class Hauler extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `claim source container result: ${claimSourceResult}`);
       if (claimSourceResult !== OK) {
         CreepUtils.consoleLogIfWatched(this, `no free containers`);
-        return;
       }
     }
 
