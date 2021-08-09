@@ -244,6 +244,12 @@ export class Hauler extends CreepWrapper {
     const ruin = this.findClosestRuinsWithEnergy();
     const droppedEnergy = this.findClosestDroppedEnergy();
 
+    const myContainer = this.getMyContainer();
+    if (myContainer && myContainer.store.energy > 0) {
+      CreepUtils.consoleLogIfWatched(this, `moving to my container: ${myContainer.pos.x},${myContainer.pos.y}`);
+      return this.withdrawEnergyFromOrMoveTo(myContainer);
+    }
+
     const container = this.findClosestSourceContainerNotEmpty();
     if (container) {
       CreepUtils.consoleLogIfWatched(this, `moving to container: ${container.pos.x},${container.pos.y}`);
