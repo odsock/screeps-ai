@@ -184,7 +184,10 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected withdrawEnergyFromOrMoveTo(structure: Tombstone | Ruin | StructureContainer): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `moving to ${typeof structure}: ${structure.pos.x},${structure.pos.y}`);
+    CreepUtils.consoleLogIfWatched(
+      this,
+      `moving to ${String(structure.constructor.prototype)}: ${structure.pos.x},${structure.pos.y}`
+    );
     let result = this.withdraw(structure, RESOURCE_ENERGY);
     if (result === ERR_NOT_IN_RANGE) {
       result = this.moveTo(structure, { range: 1, visualizePathStyle: { stroke: "#ffaa00" } });
