@@ -3,6 +3,7 @@ import { PlannerUtils } from "planning/planner-utils";
 import { Builder } from "roles/builder";
 import { Claimer } from "roles/claimer";
 import { CreepFactory } from "roles/creep-factory";
+import { Fixer } from "roles/fixer";
 import { Hauler } from "roles/hauler";
 import { Minder } from "roles/minder";
 import { Worker } from "roles/worker";
@@ -15,6 +16,7 @@ export class SpawnWrapper extends StructureSpawn {
   private readonly minders: Minder[];
   private readonly haulers: Hauler[];
   private readonly builders: Builder[];
+  private readonly fixers: Fixer[];
 
   private readonly containers: AnyStructure[];
   private readonly rcl: number;
@@ -30,6 +32,7 @@ export class SpawnWrapper extends StructureSpawn {
     this.builders = creeps.filter(c => c.memory.role === "builder").map(c => new Builder(c));
     this.minders = creeps.filter(c => c.memory.role === "minder").map(c => new Minder(c));
     this.haulers = creeps.filter(c => c.memory.role === "hauler").map(c => new Hauler(c));
+    this.fixers = creeps.filter(c => c.memory.role === "fixer").map(c => new Fixer(c));
     this.containers = this.room.find(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_CONTAINER });
     this.rcl = this.room.controller?.level ? this.room.controller?.level : 0;
 
@@ -70,6 +73,11 @@ export class SpawnWrapper extends StructureSpawn {
         return;
       }
 
+      if (this.fixers.length < Constants.MAX_FIXER_CREEPS) {
+        this.spawnFixer();
+        return;
+      }
+
       // make builders if there's something to build and past level 1
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
       if (this.workers.length === 0 && this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
@@ -95,6 +103,10 @@ export class SpawnWrapper extends StructureSpawn {
         opacity: 0.8
       });
     }
+  }
+  private spawnFixer(): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `- spawning fixer`);
+    return this.spawn(this.getMaxBody(Constants.BODY_PROFILE_FIXER), "fixer");
   }
 
   private spawnClaimer(): ScreepsReturnCode {
