@@ -2,6 +2,8 @@ export class Constants {
   public static readonly MAX_WORKERS: number = 8;
   public static readonly WORK_PER_WORKER_PART = 1000;
 
+  public static readonly MAX_HITS_WALL = 10000000;
+
   public static readonly BODY_PROFILE_WORKER: CreepBodyProfile = {
     profile: [WORK, MOVE, CARRY],
     seed: [],
