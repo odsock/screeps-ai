@@ -1,3 +1,4 @@
+import { Constants } from "../constants";
 import { CreepUtils } from "creep-utils";
 
 export class TowerWrapper extends StructureTower {
@@ -38,23 +39,24 @@ export class TowerWrapper extends StructureTower {
     return ERR_NOT_FOUND;
   }
 
+  // try to repair structures within full power range only
   private repairStructures(): ScreepsReturnCode {
     // repair structures
-    const closestDamagedStructure = this.findClosestDamagedNonRoad();
-    if (closestDamagedStructure) {
-      return this.repair(closestDamagedStructure);
+    const structure = this.findClosestDamagedNonRoad();
+    if (structure && this.pos.inRangeTo(structure.pos.x, structure.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)) {
+      return this.repair(structure);
     }
 
     // repair roads
-    const closestDamagedRoad = this.findClosestDamagedRoad();
-    if (closestDamagedRoad) {
-      return this.repair(closestDamagedRoad);
+    const road = this.findClosestDamagedRoad();
+    if (road && this.pos.inRangeTo(road.pos.x, road.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)) {
+      return this.repair(road);
     }
 
     // repair walls
-    const weakestWall = this.findWeakestWall();
-    if (weakestWall) {
-      return this.repair(weakestWall);
+    const wall = this.findWeakestWall();
+    if (wall && this.pos.inRangeTo(wall.pos.x, wall.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)) {
+      return this.repair(wall);
     }
 
     return ERR_NOT_FOUND;
