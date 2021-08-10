@@ -1,6 +1,7 @@
-import { RoomWrapper } from "structures/room-wrapper";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
+import { RoomWrapper } from "structures/room-wrapper";
+import { Constants } from "../constants";
 
 export abstract class CreepWrapper extends Creep {
   public constructor(private readonly creep: Creep) {
@@ -336,5 +337,68 @@ export abstract class CreepWrapper extends Creep {
       return container;
     }
     return null;
+  }
+
+  protected repairStructures(): ScreepsReturnCode {
+    // repair walls
+    const wall = this.findWeakestWall();
+    if (wall) {
+      return this.moveToAndRepair(wall);
+    }
+
+    // repair structures
+    const structure = this.findClosestDamagedNonRoad();
+    if (structure) {
+      return this.moveToAndRepair(structure);
+    }
+
+    // repair roads
+    const road = this.findClosestDamagedRoad();
+    if (road) {
+      return this.moveToAndRepair(road);
+    }
+
+    return ERR_NOT_FOUND;
+  }
+
+  private moveToAndRepair(structure: Structure<StructureConstant>): ScreepsReturnCode {
+    let result: ScreepsReturnCode = this.repair(structure);
+    CreepUtils.consoleLogResultIfWatched(this, `repairing ${structure.structureType}`, result);
+    if (result === ERR_NOT_IN_RANGE) {
+      CreepUtils.consoleLogResultIfWatched(this, `moving to ${String(structure.pos)}`, result);
+      result = this.moveTo(structure);
+    }
+    return result;
+  }
+
+  private findClosestDamagedNonRoad(): AnyStructure | null {
+    return this.pos.findClosestByRange(FIND_STRUCTURES, {
+      filter: structure =>
+        structure.hits < structure.hitsMax &&
+        structure.structureType !== STRUCTURE_ROAD &&
+        structure.structureType !== STRUCTURE_WALL
+    });
+  }
+
+  private findClosestDamagedRoad(): StructureRoad | null {
+    return this.pos.findClosestByRange<StructureRoad>(FIND_STRUCTURES, {
+      filter: structure => structure.hits < structure.hitsMax && structure.structureType === STRUCTURE_ROAD
+    });
+  }
+
+  private findWeakestWall(): StructureWall | null {
+    const wallsToRepair = this.room.find<StructureWall>(FIND_STRUCTURES, {
+      filter: structure =>
+        structure.hits < Constants.MAX_HITS_WALL &&
+        (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART)
+    });
+
+    if (wallsToRepair.length > 0) {
+      return wallsToRepair.reduce((weakestWall, wall) => {
+        return weakestWall.hits < wall.hits ? weakestWall : wall;
+      });
+    } else {
+      return null;
+    }
   }
 }
