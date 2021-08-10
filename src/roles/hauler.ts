@@ -6,9 +6,6 @@ import { CreepWrapper } from "./creep-wrapper";
 // TODO: assign to source containers or something so they don't only use closest
 // TODO: get hauler to pull harvester to container
 export class Hauler extends CreepWrapper {
-  // debugging
-  private stackDepth = 0;
-
   public run(): void {
     this.touchRoad();
 
@@ -34,14 +31,11 @@ export class Hauler extends CreepWrapper {
     }
 
     // otherwise supply controller
-    this.stackDepth = 0;
     this.supplyController();
   }
 
   // TODO don't pull/drop from the same container like a bozo
   private supplyController(): ScreepsReturnCode {
-    this.stackDepth += 1;
-    console.log(this.stackDepth);
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
     const controllerContainer = this.findClosestControllerContainerNotFull();
     if (controllerContainer) {
