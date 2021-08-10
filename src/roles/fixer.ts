@@ -1,3 +1,4 @@
+import { CreepUtils } from "creep-utils";
 import { CreepWrapper } from "./creep-wrapper";
 
 export class Fixer extends CreepWrapper {
@@ -12,7 +13,8 @@ export class Fixer extends CreepWrapper {
     this.startWorkingIfFull("🚧 repair");
 
     if (this.memory.working) {
-      this.repairStructures();
+      const result = this.repairStructures();
+      CreepUtils.consoleLogResultIfWatched(this, `repair result`, result);
 
       // don't block the source while working
       const closestEnergySource = this.findClosestActiveEnergySource();
