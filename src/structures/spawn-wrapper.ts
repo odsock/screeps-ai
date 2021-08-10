@@ -297,7 +297,7 @@ export class SpawnWrapper extends StructureSpawn {
       finalBody = body.slice();
       body = body.concat(profile);
     } while (this.calcBodyCost(body) <= energyCapacity && body.length <= maxBodyParts);
-    return finalBody;
+    return finalBody.sort();
   }
 
   private calcBodyCost(body: BodyPartConstant[]): number {
@@ -322,6 +322,6 @@ export class SpawnWrapper extends StructureSpawn {
       this.spawnCreep(body, "maximizeBody", { dryRun: true }) === 0 &&
       body.length + bodyProfile.profile.length <= bodyProfile.maxBodyParts
     );
-    return finalBody;
+    return finalBody.sort();
   }
 }
