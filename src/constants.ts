@@ -47,7 +47,7 @@ export class Constants {
 
   public static readonly ROOM_SIZE = 50;
   public static readonly MAX_DISTANCE = 99999;
-  public static readonly TOWER_RESUPPLY_THRESHOLD = 0.75;
+  public static readonly TOWER_RESUPPLY_THRESHOLD = 0.9;
 
   public static readonly CONSTRUCTION_PRIORITY: StructureConstant[] = [
     STRUCTURE_TOWER,
