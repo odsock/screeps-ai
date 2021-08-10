@@ -39,23 +39,35 @@ export class TowerWrapper extends StructureTower {
     return ERR_NOT_FOUND;
   }
 
-  // try to repair structures within full power range only
+  // try to repair structures within optimal range only, and only when damaged enough to use full energy
   private repairStructures(): ScreepsReturnCode {
     // repair structures
     const structure = this.findClosestDamagedNonRoad();
-    if (structure && this.pos.inRangeTo(structure.pos.x, structure.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)) {
+    if (
+      structure &&
+      structure.hitsMax - structure.hits > TOWER_POWER_REPAIR &&
+      this.pos.inRangeTo(structure.pos.x, structure.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)
+    ) {
       return this.repair(structure);
     }
 
     // repair roads
     const road = this.findClosestDamagedRoad();
-    if (road && this.pos.inRangeTo(road.pos.x, road.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)) {
+    if (
+      road &&
+      road.hitsMax - road.hits > TOWER_POWER_REPAIR &&
+      this.pos.inRangeTo(road.pos.x, road.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)
+    ) {
       return this.repair(road);
     }
 
     // repair walls
     const wall = this.findWeakestWall();
-    if (wall && this.pos.inRangeTo(wall.pos.x, wall.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)) {
+    if (
+      wall &&
+      wall.hitsMax - wall.hits > TOWER_POWER_REPAIR &&
+      this.pos.inRangeTo(wall.pos.x, wall.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)
+    ) {
       return this.repair(wall);
     }
 

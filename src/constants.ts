@@ -6,7 +6,7 @@ export class Constants {
 
   public static readonly MAX_HITS_WALL = 10000000;
 
-  public static readonly TOWER_MAX_REPAIR_RANGE = 5;
+  public static readonly TOWER_MAX_REPAIR_RANGE = TOWER_OPTIMAL_RANGE;
 
   public static readonly BODY_PROFILE_FIXER: CreepBodyProfile = {
     profile: [WORK, CARRY, MOVE, MOVE],
