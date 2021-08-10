@@ -35,30 +35,15 @@ export class Minder extends CreepWrapper {
     }
 
     // harvest then transfer until container and store is full or source is inactive
-    const harvestResult = this.harvestFromNearbySource();
-    if (harvestResult === OK && this.fillContainer() === OK) {
+    if (this.harvestFromNearbySource() === OK && this.fillContainer() === OK) {
       return;
-    } else {
-      // help build if close enough
-      // TODO repair if close enough as well
-      const buildResult = this.buildNearbySite();
-      if (buildResult === OK) {
-        return;
-      } else if (buildResult === ERR_NOT_ENOUGH_ENERGY) {
-        // try again after withdraw (not sure this works)
-        this.withdrawFromMyContainer();
-        this.buildNearbySite();
-        return;
-      } else {
-        // try to upgrade controller
-        const upgradeResult = this.upgrade();
-        if (upgradeResult === ERR_NOT_ENOUGH_ENERGY) {
-          // TODO try again after withdraw (not sure this works, it might skip a tick)
-          this.withdrawFromMyContainer();
-          this.upgrade();
-          return;
-        }
-      }
+    }
+
+    // help build if close enough
+    // TODO repair if close enough as well
+    if (this.buildNearbySite() !== ERR_NOT_FOUND || this.upgrade() !== ERR_NOT_FOUND) {
+      this.withdrawFromMyContainer();
+      return;
     }
 
     CreepUtils.consoleLogIfWatched(this, `stumped. sitting like a lump`);
@@ -94,6 +79,17 @@ export class Minder extends CreepWrapper {
       result = this.build(site);
     }
     CreepUtils.consoleLogResultIfWatched(this, `build result`, result);
+    return result;
+  }
+
+  protected repairNearbySite(): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `repairing nearby site`);
+    let result: ScreepsReturnCode = ERR_NOT_FOUND;
+    const site = this.pos.findClosestByRange(FIND_MY_STRUCTURES, { filter: { range: 3 } });
+    if (site) {
+      result = this.repair(site);
+    }
+    CreepUtils.consoleLogResultIfWatched(this, `repair result`, result);
     return result;
   }
 
