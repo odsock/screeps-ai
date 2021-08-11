@@ -126,7 +126,7 @@ export abstract class CreepWrapper extends Creep {
     }) as StructureTower | null;
   }
 
-  protected findClosestEnergyStorageNotFull(): AnyStructure | null {
+  protected findClosestSpawnStorageNotFull(): StructureSpawn | StructureExtension | null {
     return this.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: structure => {
         return (
@@ -134,7 +134,7 @@ export abstract class CreepWrapper extends Creep {
           structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
         );
       }
-    });
+    }) as StructureSpawn | StructureExtension | null;
   }
 
   protected harvestByPriority(): void {

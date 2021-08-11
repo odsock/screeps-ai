@@ -126,7 +126,7 @@ export class Worker extends CreepWrapper {
     this.startWorkingIfFull("⚡ transfer");
 
     if (this.memory.working) {
-      const site = this.findClosestEnergyStorageNotFull();
+      const site = this.findClosestSpawnStorageNotFull();
       if (site) {
         if (this.transfer(site, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });

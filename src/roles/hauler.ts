@@ -20,125 +20,75 @@ export class Hauler extends CreepWrapper {
 
     // supply spawn/extensions if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
-      this.supplySpawn();
-      return;
+      const target = this.findClosestSpawnStorageNotFull();
+      if (target) {
+        this.supplyStructure(target);
+        return;
+      }
     }
 
     // fill closest tower if any fall below threshold
     if (this.memory.job === "tower" || this.findTowersBelowThreshold().length > 0) {
-      this.supplyTower();
-      return;
+      const target = this.findClosestTowerNotFull();
+      if (target) {
+        this.supplyStructure(target);
+        return;
+      }
     }
 
     // otherwise supply controller
-    this.supplyController();
-  }
-
-  // TODO don't pull/drop from the same container like a bozo
-  private supplyController(): ScreepsReturnCode {
-    let result: ScreepsReturnCode = ERR_NOT_FOUND;
-    const controllerContainer = this.findClosestControllerContainerNotFull();
-    if (controllerContainer) {
-      this.updateJob("upgrade");
-      this.stopWorkingIfEmpty();
-      this.startWorkingIfFull("⚡ upgrade");
-      // TODO make close work site check work here, maybe only go for refill if can fill?
-
-      if (this.memory.working) {
-        CreepUtils.consoleLogIfWatched(this, "working");
-        result = this.transfer(controllerContainer, RESOURCE_ENERGY);
-        if (result === ERR_NOT_IN_RANGE) {
-          result = this.moveTo(controllerContainer, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
-          CreepUtils.consoleLogResultIfWatched(this, `moving to controller`, result);
-        }
-      } else {
-        result = this.loadEnergy();
-        if (result === ERR_NOT_FOUND) {
-          // nowhere to get energy - start working if not empty
-          if (this.store.energy > 0) {
-            this.memory.working = true;
-            CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
-            result = this.supplyController();
-          }
-        }
-      }
-    } else {
-      CreepUtils.consoleLogIfWatched(this, "no controller containers need supply");
+    const container = this.findClosestControllerContainerNotFull();
+    if (container) {
+      this.supplyStructure(container);
     }
-    return result;
   }
 
-  private supplySpawn(): ScreepsReturnCode {
+  private supplyStructure(
+    target: StructureSpawn | StructureExtension | StructureContainer | StructureTower
+  ): ScreepsReturnCode {
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
-    const site = this.findClosestEnergyStorageNotFull();
-    if (site) {
-      CreepUtils.consoleLogIfWatched(this, `supply spawn`);
-      this.updateJob("spawn");
-      this.stopWorkingIfEmpty();
-      this.startWorkingIfFull("⚡ spawn");
-      this.workIfCloseToJobsite(site.pos, 1);
+    CreepUtils.consoleLogIfWatched(this, `supply ${target.structureType}`);
+    this.updateJob(`${target.structureType}`);
+    this.stopWorkingIfEmpty();
+    this.startWorkingIfFull(`⚡ ${target.structureType}`);
+    this.workIfCloseToJobsite(target.pos, 1);
 
-      if (this.memory.working) {
-        result = this.transfer(site, RESOURCE_ENERGY);
-        if (result === ERR_NOT_IN_RANGE) {
-          CreepUtils.consoleLogIfWatched(this, `site out of range: ${site.pos.x},${site.pos.y}`);
-          result = this.moveTo(site, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
-        }
+    if (this.memory.working) {
+      CreepUtils.consoleLogIfWatched(this, "working");
+      result = this.transfer(target, RESOURCE_ENERGY);
+      CreepUtils.consoleLogResultIfWatched(this, `transfer result`, result);
+      if (result === ERR_NOT_IN_RANGE) {
+        result = this.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
+        CreepUtils.consoleLogResultIfWatched(
+          this,
+          `moving to ${target.structureType} at ${String(target.pos)}`,
+          result
+        );
       } else {
-        result = this.loadEnergy();
-        if (result === ERR_NOT_FOUND) {
-          // nowhere to get energy - start working if not empty
-          if (this.store.energy > 0) {
-            this.memory.working = true;
-            CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
-            result = this.supplySpawn();
-          }
-        }
-      }
-    }
-    return result;
-  }
-
-  // TODO: stop supply when tower is full
-  // have to calc check at end of tick, or will never be full (tower shoots first)
-  // can't rely on getFreeCapacity because it won't update after transfer
-  private supplyTower(): ScreepsReturnCode {
-    let result: ScreepsReturnCode = ERR_NOT_FOUND;
-    const tower = this.findClosestTowerNotFull();
-    if (tower) {
-      CreepUtils.consoleLogIfWatched(this, `supply tower`);
-      this.updateJob("tower");
-      this.stopWorkingIfEmpty();
-      this.startWorkingIfFull("⚡ tower");
-      this.workIfCloseToJobsite(tower.pos, 1);
-
-      if (this.memory.working) {
-        result = this.transfer(tower, RESOURCE_ENERGY);
-        if (result === ERR_NOT_IN_RANGE) {
-          CreepUtils.consoleLogIfWatched(this, `tower out of range: ${String(tower.pos)}`);
-          result = this.moveTo(tower, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
+        // Stop if structure is full now
+        let targetFreeCap = 0;
+        // Type issue, two different versions of getFreeCapacity. The if makes compiler happy.
+        if (target instanceof OwnedStructure) {
+          targetFreeCap = target.store.getFreeCapacity(RESOURCE_ENERGY);
         } else {
-          // Stop if tower is full now
-          const towerFreeCap = tower.store.getFreeCapacity(RESOURCE_ENERGY);
-          const creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
-          if (result === OK && towerFreeCap < creepStoredEnergy) {
-            CreepUtils.consoleLogIfWatched(this, `tower is full: ${tower.pos.x},${tower.pos.y}`);
-            this.updateJob("idle");
-          }
+          targetFreeCap = target.store.getFreeCapacity(RESOURCE_ENERGY);
         }
-      } else {
-        result = this.loadEnergy();
-        if (result === ERR_NOT_FOUND) {
-          // nowhere to get energy - start working if not empty
-          if (this.store.energy > 0) {
-            this.memory.working = true;
-            CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
-            result = this.supplyTower();
-          }
+        const creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
+        if (result === OK && targetFreeCap < creepStoredEnergy) {
+          CreepUtils.consoleLogIfWatched(this, `${target.structureType} is full: ${String(target.pos)}`);
+          this.updateJob("idle");
         }
       }
     } else {
-      this.updateJob("idle");
+      result = this.loadEnergy();
+      if (result === ERR_NOT_FOUND) {
+        // nowhere to get energy - start working if not empty
+        if (this.store.energy > 0) {
+          this.memory.working = true;
+          CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
+          result = this.supplyStructure(target);
+        }
+      }
     }
     return result;
   }
