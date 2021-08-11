@@ -160,15 +160,9 @@ export class SpawnWrapper extends StructureSpawn {
     }
   }
 
+  // TODO: make this depend on the distance from sources to controller/spawn/storage
   private getMaxHaulerCount(): number {
-    switch (this.containers.length) {
-      case 0:
-        return 0;
-      case 1:
-        return 1;
-      default:
-        return this.containers.length - 1;
-    }
+    return this.roomw.sourceContainers.length;
   }
 
   // TODO seems like this belongs in planner
