@@ -91,7 +91,7 @@ export class Hauler extends CreepWrapper {
           if (this.store.energy > 0) {
             this.memory.working = true;
             CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
-            result = this.supplyController();
+            result = this.supplySpawn();
           }
         }
       }
@@ -113,15 +113,14 @@ export class Hauler extends CreepWrapper {
       this.workIfCloseToJobsite(tower.pos, 1);
 
       if (this.memory.working) {
-        let creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
         result = this.transfer(tower, RESOURCE_ENERGY);
         if (result === ERR_NOT_IN_RANGE) {
-          CreepUtils.consoleLogIfWatched(this, `tower out of range: ${tower.pos.x},${tower.pos.y}`);
+          CreepUtils.consoleLogIfWatched(this, `tower out of range: ${String(tower.pos)}`);
           result = this.moveTo(tower, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
         } else {
           // Stop if tower is full now
           const towerFreeCap = tower.store.getFreeCapacity(RESOURCE_ENERGY);
-          creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
+          const creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
           if (result === OK && towerFreeCap < creepStoredEnergy) {
             CreepUtils.consoleLogIfWatched(this, `tower is full: ${tower.pos.x},${tower.pos.y}`);
             this.updateJob("idle");
@@ -134,7 +133,7 @@ export class Hauler extends CreepWrapper {
           if (this.store.energy > 0) {
             this.memory.working = true;
             CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
-            result = this.supplyController();
+            result = this.supplyTower();
           }
         }
       }
