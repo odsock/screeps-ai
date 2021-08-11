@@ -405,4 +405,38 @@ export abstract class CreepWrapper extends Creep {
       return null;
     }
   }
+
+  /* Ability calculations */
+
+  public get repairAmount(): number {
+    return REPAIR_POWER * this.getActiveBodyparts(WORK);
+  }
+
+  public get buildAmount(): number {
+    return BUILD_POWER * this.getActiveBodyparts(WORK);
+  }
+
+  public get healAmount(): number {
+    return HEAL_POWER * this.getActiveBodyparts(HEAL);
+  }
+
+  public get rangedHealAmount(): number {
+    return RANGED_HEAL_POWER * this.getActiveBodyparts(HEAL);
+  }
+
+  public get harvestAmount(): number {
+    return HARVEST_POWER * this.getActiveBodyparts(WORK);
+  }
+
+  public get rangedAttackAmount(): number {
+    return RANGED_ATTACK_POWER * this.getActiveBodyparts(RANGED_ATTACK);
+  }
+
+  public get attackAmount(): number {
+    return ATTACK_POWER * this.getActiveBodyparts(ATTACK);
+  }
+
+  public get upgradeAmount(): number {
+    return UPGRADE_CONTROLLER_POWER * this.getActiveBodyparts(WORK);
+  }
 }
