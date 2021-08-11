@@ -70,6 +70,10 @@ export class RoomWrapper extends Room {
   private costMatrixCache: { [name: string]: CostMatrix } = {};
 
   public getCostMatrix(name: string, costMatrix: CostMatrix): CostMatrix {
+    if (!this.memory.costMatrix) {
+      this.memory.costMatrix = {};
+    }
+
     if (this.costMatrixCache[name]) {
       return this.costMatrixCache[name];
     } else if (this.memory.costMatrix[name]) {
