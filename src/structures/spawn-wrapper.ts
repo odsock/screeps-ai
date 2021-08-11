@@ -1,5 +1,4 @@
 import { CreepUtils } from "creep-utils";
-import { PlannerUtils } from "planning/planner-utils";
 import { Builder } from "roles/builder";
 import { Claimer } from "roles/claimer";
 import { CreepFactory } from "roles/creep-factory";
@@ -177,7 +176,7 @@ export class SpawnWrapper extends StructureSpawn {
     // make workers in early stages
     if (this.rcl <= 1 || (this.containers.length === 0 && this.minders.length === 0)) {
       CreepUtils.consoleLogIfWatched(this, `- max workers: ${Constants.MAX_WORKERS}`);
-      return PlannerUtils.countHarvestPositions(this.room);
+      return this.roomw.harvestPositions.length;
     }
     return 0;
   }

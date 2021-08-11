@@ -2,9 +2,13 @@ import { Constants } from "../constants";
 import { StructurePlan } from "planning/structure-plan";
 
 export class PlannerUtils {
-  public static unpackPositionString(positionString: string): RoomPosition {
+  public static unpackRoomPosition(positionString: string): RoomPosition {
     const positionArray: string[] = positionString.split(":");
     return new RoomPosition(Number(positionArray[0]), Number(positionArray[1]), positionArray[2]);
+  }
+
+  public static packRoomPosition(pos: RoomPosition): string {
+    return `${pos.x}:${pos.y}:${pos.roomName}`;
   }
 
   // TODO: don't assume spawn for center
@@ -151,29 +155,12 @@ export class PlannerUtils {
     return centerPos;
   }
 
-  public static countHarvestPositions(room: Room): number {
-    const sources: Source[] = room.find(FIND_SOURCES);
-
-    let count = 0;
-    for (const source of sources) {
-      count += this.isEnterable(source.pos.x - 1, source.pos.y - 1, room.name) ? 1 : 0;
-      count += this.isEnterable(source.pos.x, source.pos.y - 1, room.name) ? 1 : 0;
-      count += this.isEnterable(source.pos.x + 1, source.pos.y - 1, room.name) ? 1 : 0;
-      count += this.isEnterable(source.pos.x + 1, source.pos.y, room.name) ? 1 : 0;
-      count += this.isEnterable(source.pos.x + 1, source.pos.y + 1, room.name) ? 1 : 0;
-      count += this.isEnterable(source.pos.x, source.pos.y + 1, room.name) ? 1 : 0;
-      count += this.isEnterable(source.pos.x - 1, source.pos.y + 1, room.name) ? 1 : 0;
-      count += this.isEnterable(source.pos.x - 1, source.pos.y, room.name) ? 1 : 0;
-    }
-    return count;
-  }
-
   private static readonly isObstacleLookup = new Map<StructureConstant, boolean>(
     OBSTACLE_OBJECT_TYPES.map(typeName => [typeName as StructureConstant, true])
   );
 
-  public static isEnterable(x: number, y: number, roomName: string): boolean {
-    return new RoomPosition(x, y, roomName).look().every(item => {
+  public static isEnterable(pos: RoomPosition): boolean {
+    return pos.look().every(item => {
       switch (item.type) {
         case "terrain": {
           return item.terrain !== "wall";

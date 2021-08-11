@@ -15,13 +15,6 @@ export class Fixer extends CreepWrapper {
     if (this.memory.working) {
       const result = this.repairStructures();
       CreepUtils.consoleLogResultIfWatched(this, `repair result`, result);
-
-      // don't block the source while working
-      const closestEnergySource = this.findClosestActiveEnergySource();
-      if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource)) {
-        const path = PathFinder.search(this.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
-        this.moveByPath(path.path);
-      }
     } else {
       this.harvestByPriority();
     }

@@ -1,3 +1,5 @@
+import { PlannerUtils } from "planning/planner-utils";
+
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
   public constructor(private readonly room: Room) {
@@ -40,6 +42,29 @@ export class RoomWrapper extends Room {
       }
       return list;
     }, []);
+  }
+
+  private harvestPositionsCache: RoomPosition[] | undefined;
+
+  public get harvestPositions(): RoomPosition[] {
+    if (this.harvestPositionsCache) {
+      return this.harvestPositionsCache;
+    } else if (this.memory.harvestPositions) {
+      this.harvestPositionsCache = this.memory.harvestPositions.map(pos => PlannerUtils.unpackRoomPosition(pos));
+    } else {
+      this.harvestPositionsCache = this.findHarvestPositions();
+      this.memory.harvestPositions = this.harvestPositionsCache.map(pos => PlannerUtils.packRoomPosition(pos));
+    }
+    return this.harvestPositionsCache;
+  }
+
+  private findHarvestPositions(): RoomPosition[] {
+    return this.room
+      .find(FIND_SOURCES)
+      .reduce<RoomPosition[]>((positions: RoomPosition[], source) => {
+        return positions.concat(PlannerUtils.getPositionSpiral(source.pos, 1));
+      }, [])
+      .filter(pos => PlannerUtils.isEnterable(pos));
   }
 
   public get controllerContainers(): StructureContainer[] {
