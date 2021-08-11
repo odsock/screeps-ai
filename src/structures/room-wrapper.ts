@@ -77,7 +77,7 @@ export class RoomWrapper extends Room {
     if (this.costMatrixCache[name]) {
       return this.costMatrixCache[name];
     } else if (this.memory.costMatrix[name]) {
-      this.costMatrixCache[name] = costMatrix.deserialize(this.memory.costMatrix[name]);
+      this.costMatrixCache[name] = PathFinder.CostMatrix.deserialize(this.memory.costMatrix[name]);
     } else {
       switch (name) {
         case "avoidHarvestPositions":
