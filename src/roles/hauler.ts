@@ -81,14 +81,15 @@ export class Hauler extends CreepWrapper {
       }
     } else {
       result = this.loadEnergy();
-      if (result === ERR_NOT_FOUND) {
-        // nowhere to get energy - start working if not empty
-        if (this.store.energy > 0) {
-          this.memory.working = true;
-          CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
-          result = this.supplyStructure(target);
-        }
-      }
+      // TODO this causes a loop, find a better way
+      // if (result === ERR_NOT_FOUND) {
+      //   // nowhere to get energy - start working if not empty
+      //   if (this.store.energy > 0) {
+      //     this.memory.working = true;
+      //     CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
+      //     result = this.supplyStructure(target);
+      //   }
+      // }
     }
     return result;
   }
