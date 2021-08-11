@@ -67,6 +67,28 @@ export class RoomWrapper extends Room {
       .filter(pos => PlannerUtils.isEnterable(pos));
   }
 
+  private costMatrixCache: { [name: string]: CostMatrix } = {};
+
+  public getCostMatrix(name: string, costMatrix: CostMatrix): CostMatrix {
+    if (this.costMatrixCache[name]) {
+      return this.costMatrixCache[name];
+    } else if (this.memory.costMatrix[name]) {
+      this.costMatrixCache[name] = costMatrix.deserialize(this.memory.costMatrix[name]);
+    } else {
+      switch (name) {
+        case "avoidHarvestPositions":
+          this.harvestPositions.forEach(pos => costMatrix.set(pos.x, pos.y, 0xff));
+          break;
+
+        default:
+          throw new Error(`Unknown cost matrix ${name}`);
+      }
+      this.costMatrixCache[name] = costMatrix;
+      this.memory.costMatrix[name] = costMatrix.serialize();
+    }
+    return costMatrix;
+  }
+
   public get controllerContainers(): StructureContainer[] {
     return this.room.memory.containers.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
       if (containerInfo.nearController) {

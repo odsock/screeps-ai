@@ -366,7 +366,11 @@ export abstract class CreepWrapper extends Creep {
     CreepUtils.consoleLogResultIfWatched(this, `repairing ${structure.structureType}`, result);
     if (result === ERR_NOT_IN_RANGE) {
       CreepUtils.consoleLogResultIfWatched(this, `moving to ${String(structure.pos)}`, result);
-      result = this.moveTo(structure, { avoid: this.roomw.harvestPositions });
+      result = this.moveTo(structure, {
+        costCallback: (roomName, costMatrix) => {
+          this.roomw.getCostMatrix("avoidHarvestPositions", costMatrix);
+        }
+      });
     }
     return result;
   }
