@@ -32,11 +32,28 @@ export class TowerWrapper extends StructureTower {
   }
 
   private attackHostiles(): ScreepsReturnCode {
-    const closestHostile = this.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-    if (closestHostile) {
-      return this.attack(closestHostile);
+    const hostileCreep = this.getClosestHostileHealerFirst();
+    if (hostileCreep) {
+      return this.attack(hostileCreep);
     }
     return ERR_NOT_FOUND;
+  }
+
+  private getClosestHostileHealerFirst(): Creep | undefined {
+    // list hostiles in close range, by number of heal parts
+    const hostileCreeps = this.room
+      .find(FIND_HOSTILE_CREEPS)
+      .filter(creep => this.pos.getRangeTo(creep.pos) < Constants.TOWER_MAX_ATTACK_RANGE)
+      .sort((a, b) => {
+        const aHealParts = a.getActiveBodyparts(HEAL);
+        const bHealParts = b.getActiveBodyparts(HEAL);
+        if (aHealParts === bHealParts) {
+          // when equal number of heal parts sort by range
+          return this.pos.getRangeTo(a.pos) < this.pos.getRangeTo(b.pos) ? 1 : -1;
+        }
+        return aHealParts > bHealParts ? 1 : -1;
+      });
+    return hostileCreeps[0];
   }
 
   // try to repair structures within optimal range only, and only when damaged enough to use full energy
