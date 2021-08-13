@@ -68,7 +68,7 @@ export class Worker extends CreepWrapper {
   // TODO: dry this up with builder code
   private doBuildJob(): void {
     let site: ConstructionSite | null = null;
-    // TODO: seems hacky to use center of room
+    // TODO think of a better priority reference than the center of the room
     const centerPos = new RoomPosition(Constants.ROOM_SIZE / 2, Constants.ROOM_SIZE / 2, this.room.name);
     for (let i = 0; !site && i < Constants.CONSTRUCTION_PRIORITY.length; i++) {
       site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {

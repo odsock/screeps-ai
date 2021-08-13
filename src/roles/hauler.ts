@@ -182,7 +182,6 @@ export class Hauler extends CreepWrapper {
   private loadEnergy(): ScreepsReturnCode {
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
-    // TODO: calc current free capacity here, might should quit loading or move adjacent load calls
 
     const tombstone = this.findClosestTombstoneWithEnergy();
     const ruin = this.findClosestRuinsWithEnergy();

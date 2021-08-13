@@ -1,5 +1,4 @@
 export class MemoryUtils {
-  // TODO: refactor memory init to new class
   public static refreshRoomMemory(room: Room): void {
     this.refreshContainerMemory(room);
   }
