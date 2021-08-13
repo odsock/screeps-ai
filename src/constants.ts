@@ -7,7 +7,7 @@ export class Constants {
   public static readonly MAX_HITS_WALL = 10000000;
 
   public static readonly TOWER_MAX_REPAIR_RANGE = TOWER_OPTIMAL_RANGE;
-  public static readonly TOWER_MAX_ATTACK_RANGE = TOWER_OPTIMAL_RANGE;
+  public static readonly TOWER_MAX_ATTACK_RANGE = TOWER_OPTIMAL_RANGE * 2;
 
   // TODO fixer spawn should scale based on repairs to do?
   public static readonly BODY_PROFILE_FIXER: CreepBodyProfile = {
