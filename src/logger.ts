@@ -38,10 +38,13 @@ export class Logger {
       }
     }
 
+    // TODO log RCL level times
+
     // log when 5 extensions reached
     const lastExtensionCount = roomw.memory.extensionCount;
-    const extensionCount = roomw.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_EXTENSION })
-      .length;
+    const extensionCount = roomw.find(FIND_MY_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_EXTENSION
+    }).length;
     roomw.memory.extensionCount = extensionCount;
     if (extensionCount !== lastExtensionCount && extensionCount === 1) {
       roomw.roomMemoryLog("reached 1 extensions");
