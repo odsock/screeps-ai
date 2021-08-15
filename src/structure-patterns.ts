@@ -1,23 +1,23 @@
 /* eslint-disable prettier/prettier */
 export class StructurePatterns {
   public static readonly FULL_COLONY: string[] = [
-    "          r",
-    "         rer",
-    "        reeer",
-    "       rererer",
-    "      reeereeer",
-    "     rerer rerer",
-    "    reeersssreeer",
-    "  trerer Sml rerert",
-    "  reeerL TPF Lreeer",
-    "  trererLL LLrerert",
-    "    reeerLLLreeer",
-    "     rererLrerer",
-    "      reeereeer",
-    "       rererer",
-    "        reeer",
-    "         rer",
-    "         trt"
+    "        r",
+    "       rer",
+    "      reeer",
+    "     rererer",
+    "    reeereeer",
+    "   rerer rerer",
+    "  reeersssreeer",
+    "trerer Sml rerert",
+    "reeerL TPF Lreeer",
+    "trererLL LLrerert",
+    "  reeerLLLreeer",
+    "   rererLrerer",
+    "    reeereeer",
+    "     rererer",
+    "      reeer",
+    "       rer",
+    "       trt"
   ];
 
   public static readonly EXTENSION_GROUP: string[] = [
