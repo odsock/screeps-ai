@@ -8,16 +8,16 @@ export class StructurePatterns {
     "    reeereeer",
     "   rerer rerer",
     "  reeersssreeer",
-    "trerer Sml rerert",
+    " rerer Sml rerer",
     "reeerL TPF Lreeer",
-    "trererLL LLrerert",
+    " rererLL LLrerer",
     "  reeerLLLreeer",
     "   rererLrerer",
     "    reeereeer",
     "     rererer",
     "      reeer",
     "       rer",
-    "       trt"
+    "        r"
   ];
 
   public static readonly EXTENSION_GROUP: string[] = [
