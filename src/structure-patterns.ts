@@ -1,19 +1,23 @@
 /* eslint-disable prettier/prettier */
 export class StructurePatterns {
   public static readonly FULL_COLONY: string[] = [
-    "  r   r   r",
-    " rertrerOrer",
-    "reeereeereeer",
-    " rererererer",
-    " treeereeert",
-    " rererPrerer",
-    "reeerlSTreeer",
-    " rerersrerer",
-    " treeereeert",
-    " rererererer",
-    "reeereeereeer",
-    " rerFrertrer",
-    "  r   r   r"
+    "          r",
+    "         rer",
+    "        reeer",
+    "       rererer",
+    "      reeereeer",
+    "     rerer rerer",
+    "    reeersssreeer",
+    "  trerer Sml rerert",
+    "  reeerL TPF Lreeer",
+    "  trererLL LLrerert",
+    "    reeerLLLreeer",
+    "     rererLrerer",
+    "      reeereeer",
+    "       rererer",
+    "        reeer",
+    "         rer",
+    "         trt"
   ];
 
   public static readonly EXTENSION_GROUP: string[] = [
@@ -21,6 +25,14 @@ export class StructurePatterns {
     " rer",
     "reeer",
     " rer",
+    "  r"
+  ];
+
+  public static readonly SPAWN_GROUP: string[] = [
+    "  r",
+    " rPr",
+    "rsssr",
+    " rcr",
     "  r"
   ];
 
@@ -32,19 +44,20 @@ export class StructurePatterns {
     "  r"
   ];
 
-  public static readonly CORE_GROUP: string[] = [
+  public static readonly RESOURCE_GROUP: string[] = [
     "  r",
-    " rPr",
+    " rFr",
     "rlSTr",
-    " rsr",
+    " r r",
     "  r"
   ];
 
   public static readonly CHARACTERS: {[x: string]: StructureConstant | null} = {
     r: STRUCTURE_ROAD,
     e: STRUCTURE_EXTENSION,
-    S: STRUCTURE_SPAWN,
-    s: STRUCTURE_STORAGE,
+    c: STRUCTURE_CONTAINER,
+    s: STRUCTURE_SPAWN,
+    S: STRUCTURE_STORAGE,
     L: STRUCTURE_LAB,
     l: STRUCTURE_LINK,
     T: STRUCTURE_TERMINAL,
