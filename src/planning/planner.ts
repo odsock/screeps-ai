@@ -58,7 +58,7 @@ export class Planner {
         // cache plan
         MemoryUtils.setCache(`${this.room.name}_plan`, plan);
         MemoryUtils.setCache(`${this.room.name}_centerPoint`, centerPoint);
-        MemoryUtils.setCache(`${this.room.name}_planVisual`, this.room.visual.export());
+        this.room.planVisual = this.room.visual.export();
       }
     }
   }
@@ -74,30 +74,37 @@ export class Planner {
       return OK;
     }
 
-    // mark one structure for disassembly if mismatch found
-    let result: ScreepsReturnCode = OK;
-    planPositions.some(planPos => {
+    // mark each structure for dismantling if mismatch found
+
+    planPositions.forEach(planPos => {
       const posLook = planPos.pos.look();
       const wrongStructure = posLook.find(
         lookResult => lookResult.structure?.structureType && lookResult.structure.structureType !== planPos.structure
       );
 
       if (wrongStructure?.structure && wrongStructure.structure) {
-        // TODO create a task system for disassembly as least
         console.log(
-          `DISASSEMBLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
+          `DISMANTLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
         );
         const dismantleQueue = this.room.dismantleQueue;
         if (!dismantleQueue.find(item => item.id === wrongStructure.structure?.id)) {
           dismantleQueue.push(wrongStructure.structure);
         }
-        result = ERR_FULL;
       }
       return !!wrongStructure;
     });
 
+    // draw dismantle queue
+    const visualBackup = this.room.visual.export();
+    this.room.visual.clear();
+    this.room.dismantleQueue.forEach(structure => {
+      this.room.visual.circle(structure.pos, { fill: "#FF0000" });
+    });
+    this.room.dismantleVisual = this.room.visual.export();
+    this.room.visual.import(visualBackup);
+
     // try to construct any missing structures
-    result = PlannerUtils.placeStructurePlan(plan);
+    const result = PlannerUtils.placeStructurePlan(plan);
     console.log(`place colony result ${result}`);
 
     return result;

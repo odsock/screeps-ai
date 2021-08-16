@@ -25,6 +25,18 @@ export class RoomWrapper extends Room {
     return MemoryUtils.getCache<string>(`${this.room.name}_planVisual`);
   }
 
+  public set planVisual(visual: string) {
+    MemoryUtils.setCache(`${this.room.name}_planVisual`, visual);
+  }
+
+  public get dismantleVisual(): string {
+    return MemoryUtils.getCache<string>(`${this.room.name}_dismantleVisual`);
+  }
+
+  public set dismantleVisual(visual: string) {
+    MemoryUtils.setCache(`${this.room.name}_dismantleVisual`, visual);
+  }
+
   // TODO cache this as well
   public get deposits(): Deposit[] {
     return this.room.find(FIND_DEPOSITS);
