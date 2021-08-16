@@ -402,13 +402,17 @@ export abstract class CreepWrapper extends Creep {
       filter: structure =>
         structure.hits < structure.hitsMax &&
         structure.structureType !== STRUCTURE_ROAD &&
-        structure.structureType !== STRUCTURE_WALL
+        structure.structureType !== STRUCTURE_WALL &&
+        !this.roomw.dismantleQueue.find(dismantle => dismantle.id === structure.id)
     });
   }
 
   private findClosestDamagedRoad(): StructureRoad | null {
     return this.pos.findClosestByRange<StructureRoad>(FIND_STRUCTURES, {
-      filter: structure => structure.hits < structure.hitsMax && structure.structureType === STRUCTURE_ROAD
+      filter: structure =>
+        structure.hits < structure.hitsMax &&
+        structure.structureType === STRUCTURE_ROAD &&
+        !this.roomw.dismantleQueue.find(dismantle => dismantle.id === structure.id)
     });
   }
 
@@ -416,7 +420,8 @@ export abstract class CreepWrapper extends Creep {
     const wallsToRepair = this.room.find<StructureWall>(FIND_STRUCTURES, {
       filter: structure =>
         structure.hits < Constants.MAX_HITS_WALL &&
-        (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART)
+        (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) &&
+        !this.roomw.dismantleQueue.find(dismantle => dismantle.id === structure.id)
     });
 
     if (wallsToRepair.length > 0) {
