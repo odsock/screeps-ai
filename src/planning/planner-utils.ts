@@ -222,15 +222,23 @@ export class PlannerUtils {
       for (const planPosition of plan) {
         const result = structurePlan.roomw.createConstructionSite(planPosition.pos, planPosition.structure);
         if (result !== OK) {
-          console.log(`${planPosition.structure} failed: ${result}, pos: ${String(planPosition.pos)}`);
-          structurePlan.roomw.roomMemoryLog(
-            `${planPosition.structure} failed: ${result}, pos: ${String(planPosition.pos)}`
-          );
-          return result;
+          // fail only if matching structure is not already there
+          if (
+            !structurePlan.roomw
+              .lookAt(planPosition.pos)
+              .some(
+                item =>
+                  item.structure?.structureType === planPosition.structure ||
+                  item.constructionSite?.structureType === planPosition.structure
+              )
+          ) {
+            console.log(`${planPosition.structure} failed: ${result}, pos: ${String(planPosition.pos)}`);
+            return result;
+          }
         }
       }
     }
-    console.log(`${structurePlan.roomw.name}: no site found for extension plan`);
+    console.log(`${structurePlan.roomw.name}: failed to place plan`);
     return ERR_NOT_FOUND;
   }
 }
