@@ -10,11 +10,13 @@ export class RoomWrapper extends Room {
   }
 
   public get dismantleQueue(): Structure[] {
-    const queue = MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueue`);
+    let queue = MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueue`);
     if (!queue) {
       MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, []);
       return [];
     }
+    queue = queue.filter(structure => !!Game.getObjectById(structure.id));
+    MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue);
     return queue;
   }
 

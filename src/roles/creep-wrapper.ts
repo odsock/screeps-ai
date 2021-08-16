@@ -385,7 +385,7 @@ export abstract class CreepWrapper extends Creep {
 
   private moveToAndDismantle(structure: Structure<StructureConstant>): ScreepsReturnCode {
     let result: ScreepsReturnCode = this.dismantle(structure);
-    CreepUtils.consoleLogResultIfWatched(this, `dismatling ${structure.structureType}`, result);
+    CreepUtils.consoleLogResultIfWatched(this, `dismantling ${structure.structureType}`, result);
     if (result === ERR_NOT_IN_RANGE) {
       CreepUtils.consoleLogResultIfWatched(this, `moving to ${String(structure.pos)}`, result);
       result = this.moveTo(structure, {
