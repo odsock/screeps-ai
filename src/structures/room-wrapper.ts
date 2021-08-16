@@ -8,6 +8,21 @@ export class RoomWrapper extends Room {
     // Object.create(RoomPosition.prototype, Object.getOwnPropertyDescriptors(pos));
   }
 
+  // TODO cache this as well
+  public get deposits(): Deposit[] {
+    return this.room.find(FIND_DEPOSITS);
+  }
+
+  // TODO cache this too
+  public get sources(): Source[] {
+    return this.room.find(FIND_SOURCES);
+  }
+
+  // TODO cache this
+  public get spawns(): StructureSpawn[] {
+    return this.room.find(FIND_MY_SPAWNS);
+  }
+
   public get controller(): StructureController | undefined {
     return this.room.controller;
   }
@@ -59,8 +74,7 @@ export class RoomWrapper extends Room {
   }
 
   private findHarvestPositions(): RoomPosition[] {
-    return this.room
-      .find(FIND_SOURCES)
+    return this.sources
       .reduce<RoomPosition[]>((positions: RoomPosition[], source) => {
         return positions.concat(PlannerUtils.getPositionSpiral(source.pos, 1));
       }, [])

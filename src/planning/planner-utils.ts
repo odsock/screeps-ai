@@ -11,24 +11,33 @@ export class PlannerUtils {
     return `${pos.x}:${pos.y}:${pos.roomName}`;
   }
 
-  // TODO: don't assume spawn for center
-  public static findSiteForPattern(pattern: string[], room: Room): StructurePlan {
+  public static findSiteForPattern(
+    pattern: string[],
+    room: Room,
+    nearPosition: RoomPosition,
+    ignoreStructures = false
+  ): StructurePlan {
+    console.log(`finding site`);
     const structurePlan = StructurePlan.buildStructurePlan(pattern, room);
+    console.log(`${String(structurePlan)}`);
     const patternWidth = structurePlan.getWidth();
     const patternHeight = structurePlan.getHeight();
     const searchWidth = Constants.ROOM_SIZE - 1 - patternWidth;
     const searchHeight = Constants.ROOM_SIZE - 1 - patternHeight;
-    let closestSite: { x: number; y: number } | undefined;
-    let shortestRange: number = Constants.MAX_DISTANCE;
 
     // search whole room
+    let closestSite: { x: number; y: number } | undefined;
+    let shortestRange: number = Constants.MAX_DISTANCE;
     for (let x = 1; x < searchWidth; x++) {
       for (let y = 1; y < searchHeight; y++) {
-        const range = this.getPatternRangeFromSpawn(x, patternWidth, y, patternHeight, room);
+        console.log(`trying pos: ${x},${y}`);
+        const range = nearPosition.getRangeTo(
+          new RoomPosition(x + patternWidth / 2, y + patternHeight / 2, nearPosition.roomName)
+        );
         if (range) {
           if (range >= shortestRange) {
             continue;
-          } else if (structurePlan.translate(x, y)) {
+          } else if (structurePlan.translate(x, y, ignoreStructures)) {
             shortestRange = range;
             closestSite = { x, y };
           }
@@ -46,21 +55,17 @@ export class PlannerUtils {
     return structurePlan;
   }
 
-  // TODO allow range check from other position
-  public static getPatternRangeFromSpawn(
-    x: number,
-    patternWidth: number,
-    y: number,
-    patternHeight: number,
-    room: Room
-  ): number | undefined {
-    // use center of pattern for ranging
-    const posCenter = room.getPositionAt(x + patternWidth / 2, y + patternHeight / 2);
-    const closestSpawn = posCenter?.findClosestByRange(FIND_MY_SPAWNS);
-    if (closestSpawn) {
-      return posCenter?.getRangeTo(closestSpawn);
-    }
-    return undefined;
+  public static findMidpoint(positions: RoomPosition[]): RoomPosition {
+    console.log(`finding midpoint`);
+    const pointSum = positions.reduce(
+      (midpoint: { x: number; y: number }, pos) => {
+        midpoint.x += pos.x;
+        midpoint.y += pos.y;
+        return midpoint;
+      },
+      { x: 0, y: 0 }
+    );
+    return new RoomPosition(pointSum.x / positions.length, pointSum.y / positions.length, positions[0].roomName);
   }
 
   public static placeStructureAdjacent(

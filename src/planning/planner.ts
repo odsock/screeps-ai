@@ -5,6 +5,7 @@ import { RoadPlan } from "./road-plan";
 import { PlannerUtils } from "./planner-utils";
 import { MemoryUtils } from "./memory-utils";
 import { CreepUtils } from "creep-utils";
+import { StructurePatterns } from "structure-patterns";
 
 export class Planner {
   private readonly room: RoomWrapper;
@@ -16,6 +17,22 @@ export class Planner {
   public run(): ScreepsReturnCode {
     console.log(`${this.room.name}: running planning`);
     MemoryUtils.refreshRoomMemory(this.room);
+
+    // POC - draw planned whole colony
+    const sourcePositions = this.room.sources.map(source => source.pos);
+    const depositPositions = this.room.deposits.map(deposit => deposit.pos);
+    const controllerPos = this.room.controller?.pos;
+    if (controllerPos) {
+      console.log("POC colonly layout");
+      const midpoint = PlannerUtils.findMidpoint([controllerPos, ...sourcePositions, ...depositPositions]);
+      const plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, this.room, midpoint, true);
+      console.log(`poc plan: ${String(plan.getPlan())}`);
+
+      this.room.visual.clear();
+      this.room.memory.visualString = undefined;
+      this.room.visual.circle(midpoint.x, midpoint.y);
+      this.room.memory.visualString = plan.drawPattern();
+    }
 
     if (this.room.controller) {
       if (this.room.controller?.level >= 1) {

@@ -11,6 +11,12 @@ export class Sockpuppet {
     // Run each room
     for (const roomId in Game.rooms) {
       const room = new RoomWrapper(Game.rooms[roomId]);
+
+      // draw colony poc
+      if (room.memory.visualString) {
+        room.visual.import(room.memory.visualString);
+      }
+
       const planner = new Planner(room);
       // TODO refresh every turn maybe excessive?
       MemoryUtils.refreshRoomMemory(room);

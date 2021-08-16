@@ -7,7 +7,6 @@ import "./utils/console-scripts.js";
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  Game.rooms['E17N55'].visual.poly([[13,23], [21,31], [13,39], [5,31]], {fill: 'aqua'});
   // check version
   try {
     const version = process.env.npm_package_version;

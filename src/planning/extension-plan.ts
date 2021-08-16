@@ -13,7 +13,11 @@ export class ExtensionPlan {
   public planExtensionGroup(): ScreepsReturnCode {
     const numAvailableExtensions = this.getNumAvailableExtensions();
     if (numAvailableExtensions >= 5) {
-      const structurePlan = PlannerUtils.findSiteForPattern(StructurePatterns.EXTENSION_GROUP, this.room);
+      const structurePlan = PlannerUtils.findSiteForPattern(
+        StructurePatterns.EXTENSION_GROUP,
+        this.room,
+        this.room.spawns[0].pos
+      );
       return this.placeStructurePlan(structurePlan);
     }
     return OK;
