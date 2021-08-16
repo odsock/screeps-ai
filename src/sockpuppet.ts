@@ -9,7 +9,7 @@ import { TowerWrapper } from "structures/tower-wrapper";
 export class Sockpuppet {
   public run(): void {
     // refresh global cache if missing
-    MemoryUtils.readCacheFromMemory();
+    // MemoryUtils.readCacheFromMemory();
 
     // Run each room
     for (const roomId in Game.rooms) {
@@ -46,7 +46,7 @@ export class Sockpuppet {
     this.runCreeps();
 
     // write global cache to memory
-    MemoryUtils.writeCacheToMemory();
+    // MemoryUtils.writeCacheToMemory();
   }
 
   public runCreeps(): void {
