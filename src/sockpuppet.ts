@@ -46,7 +46,6 @@ export class Sockpuppet {
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       if (!creep.spawning) {
-        // console.log(`running creep: ${creep.name}`);
         CreepFactory.getCreep(creep).run();
       }
     }

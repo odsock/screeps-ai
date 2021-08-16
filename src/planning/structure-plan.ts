@@ -11,7 +11,6 @@ export class StructurePlan {
   public constructor(pattern: StructurePatternPosition[], private readonly room: Room) {
     this.terrain = room.getTerrain();
     this.pattern = pattern;
-    this.printPattern();
     this.roomw = new RoomWrapper(room);
   }
 
@@ -21,7 +20,7 @@ export class StructurePlan {
     }
   }
 
-  public static buildStructurePlan(pattern: string[], room: Room): StructurePlan {
+  public static parseStructurePlan(pattern: string[], room: Room): StructurePlan {
     const structurePattern: StructurePatternPosition[] = [];
     for (let i = 0; i < pattern.length; i++) {
       for (let j = 0; j < pattern[i]?.length; j++) {
@@ -79,28 +78,23 @@ export class StructurePlan {
     if (this.room.lookForAt(LOOK_SOURCES, pos).length > 0) {
       return false;
     }
-    // can be blocked by non-road structure or construction site
 
+    // can be blocked by non-road structure or construction site
     if (!ignoreStructures) {
       const posStructures = this.room.lookForAt(LOOK_STRUCTURES, pos);
-      if (posStructures.filter(s => s.structureType !== STRUCTURE_ROAD).length > 0) {
+      if (posStructures.some(s => s.structureType !== STRUCTURE_ROAD)) {
         return false;
       }
       const posConstSites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, pos);
-      if (posConstSites.filter(s => s.structureType !== STRUCTURE_ROAD).length > 0) {
+      if (posConstSites.some(s => s.structureType !== STRUCTURE_ROAD)) {
         return false;
       }
 
       // road overlap is ok, but don't place new construction site
       if (
         planPosition.structure === STRUCTURE_ROAD &&
-        posStructures.filter(s => s.structureType === STRUCTURE_ROAD).length > 0
-      ) {
-        return true;
-      }
-      if (
-        planPosition.structure === STRUCTURE_ROAD &&
-        posConstSites.filter(s => s.structureType === STRUCTURE_ROAD).length > 0
+        (posStructures.some(s => s.structureType === STRUCTURE_ROAD) ||
+          posConstSites.some(s => s.structureType === STRUCTURE_ROAD))
       ) {
         return true;
       }

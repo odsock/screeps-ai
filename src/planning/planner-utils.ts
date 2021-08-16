@@ -18,8 +18,7 @@ export class PlannerUtils {
     ignoreStructures = false
   ): StructurePlan {
     console.log(`finding site`);
-    const structurePlan = StructurePlan.buildStructurePlan(pattern, room);
-    console.log(`${String(structurePlan)}`);
+    const structurePlan = StructurePlan.parseStructurePlan(pattern, room);
     const patternWidth = structurePlan.getWidth();
     const patternHeight = structurePlan.getHeight();
     const searchWidth = Constants.ROOM_SIZE - 1 - patternWidth;
@@ -30,7 +29,6 @@ export class PlannerUtils {
     let shortestRange: number = Constants.MAX_DISTANCE;
     for (let x = 1; x < searchWidth; x++) {
       for (let y = 1; y < searchHeight; y++) {
-        console.log(`trying pos: ${x},${y}`);
         const range = nearPosition.getRangeTo(
           new RoomPosition(x + patternWidth / 2, y + patternHeight / 2, nearPosition.roomName)
         );
@@ -47,7 +45,7 @@ export class PlannerUtils {
 
     // return best site found
     if (closestSite) {
-      structurePlan.translate(closestSite.x, closestSite.y);
+      structurePlan.translate(closestSite.x, closestSite.y, ignoreStructures);
       console.log(`closest site: ${closestSite.x},${closestSite.y}`);
     } else {
       console.log(`No site for pattern found.`);
@@ -56,7 +54,6 @@ export class PlannerUtils {
   }
 
   public static findMidpoint(positions: RoomPosition[]): RoomPosition {
-    console.log(`finding midpoint`);
     const pointSum = positions.reduce(
       (midpoint: { x: number; y: number }, pos) => {
         midpoint.x += pos.x;

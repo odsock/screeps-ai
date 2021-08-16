@@ -26,8 +26,8 @@ export class Planner {
       console.log("POC colonly layout");
       const midpoint = PlannerUtils.findMidpoint([controllerPos, ...sourcePositions, ...depositPositions]);
       const plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, this.room, midpoint, true);
-      console.log(`poc plan: ${String(plan.getPlan())}`);
 
+      // clear visual, redraw, and cache serialized version
       this.room.visual.clear();
       this.room.memory.visualString = undefined;
       this.room.visual.circle(midpoint.x, midpoint.y);

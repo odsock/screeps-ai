@@ -1,11 +1,12 @@
 {
   "name": "mburnham-screeps-ai",
-  "version": "1.89.0",
+  "version": "1.89.1-4",
   "description": "Screeps AI built from screeps-typescript-starter",
   "main": "index.js",
   "scripts": {
     "lint": "eslint \"src/**/*.ts\"",
     "build": "rollup -c",
+    "prerelease": "npm run build && npm version prerelease && npm run push-main",
     "release": "npm run build && npm version minor && npm run push-main",
     "rollup-help": "rollup --help",
     "push-main": "rollup -c --environment DEST:main",
