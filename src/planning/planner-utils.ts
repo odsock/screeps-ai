@@ -222,8 +222,9 @@ export class PlannerUtils {
       for (const planPosition of plan) {
         const result = structurePlan.roomw.createConstructionSite(planPosition.pos, planPosition.structure);
         if (result !== OK) {
+          console.log(`${planPosition.structure} failed: ${result}, pos: ${String(planPosition.pos)}`);
           structurePlan.roomw.roomMemoryLog(
-            `${planPosition.structure} failed: ${result}, pos: ${String(planPosition)}`
+            `${planPosition.structure} failed: ${result}, pos: ${String(planPosition.pos)}`
           );
           return result;
         }

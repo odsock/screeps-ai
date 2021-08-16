@@ -98,6 +98,7 @@ export class Planner {
 
     // try to construct any missing structures
     result = PlannerUtils.placeStructurePlan(plan);
+    console.log(`place colony result ${result}`);
 
     return result;
   }
