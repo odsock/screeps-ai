@@ -76,6 +76,7 @@ interface CreepBodyProfile {
 }
 
 interface Memory {
+  cache: Map<string, any>;
   version?: string;
 }
 

@@ -8,12 +8,15 @@ import { TowerWrapper } from "structures/tower-wrapper";
 
 export class Sockpuppet {
   public run(): void {
+    // refresh global cache if missing
+    MemoryUtils.readCacheFromMemory();
+
     // Run each room
     for (const roomId in Game.rooms) {
       const room = new RoomWrapper(Game.rooms[roomId]);
 
       // draw colony poc
-      const planVisual = MemoryUtils.getCache<string>(`${room.name}_planVisual`);
+      const planVisual = room.planVisual;
       if (planVisual) {
         room.visual.import(planVisual);
       }
@@ -41,6 +44,9 @@ export class Sockpuppet {
     }
 
     this.runCreeps();
+
+    // write global cache to memory
+    MemoryUtils.writeCacheToMemory();
   }
 
   public runCreeps(): void {

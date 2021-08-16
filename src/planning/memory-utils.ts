@@ -3,6 +3,17 @@ export class MemoryUtils {
     this.refreshContainerMemory(room);
   }
 
+  public static readCacheFromMemory(): void {
+    if (!global.cache) {
+      global.cache = Memory.cache;
+    }
+  }
+
+  public static writeCacheToMemory(): void {
+    const cacheMap = global.cache;
+    Memory.cache = cacheMap;
+  }
+
   public static setCache<T>(key: string, item: T): void {
     if (!global.cache) {
       global.cache = new Map<string, any>();

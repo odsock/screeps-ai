@@ -18,6 +18,10 @@ export class RoomWrapper extends Room {
     return queue;
   }
 
+  public get planVisual(): string {
+    return MemoryUtils.getCache<string>(`${this.room.name}_planVisual`);
+  }
+
   // TODO cache this as well
   public get deposits(): Deposit[] {
     return this.room.find(FIND_DEPOSITS);
