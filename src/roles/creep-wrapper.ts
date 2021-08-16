@@ -341,19 +341,19 @@ export abstract class CreepWrapper extends Creep {
 
   protected repairStructures(): ScreepsReturnCode {
     // repair walls
-    const wall = this.findWeakestWall();
+    const wall = this.roomw.findWeakestWall();
     if (wall) {
       return this.moveToAndRepair(wall);
     }
 
     // repair structures
-    const structure = this.findClosestDamagedNonRoad();
+    const structure = this.roomw.findClosestDamagedNonRoad(this.pos);
     if (structure) {
       return this.moveToAndRepair(structure);
     }
 
     // repair roads
-    const road = this.findClosestDamagedRoad();
+    const road = this.roomw.findClosestDamagedRoad(this.pos);
     if (road) {
       return this.moveToAndRepair(road);
     }
@@ -395,42 +395,6 @@ export abstract class CreepWrapper extends Creep {
       });
     }
     return result;
-  }
-
-  private findClosestDamagedNonRoad(): AnyStructure | null {
-    return this.pos.findClosestByRange(FIND_STRUCTURES, {
-      filter: structure =>
-        structure.hits < structure.hitsMax &&
-        structure.structureType !== STRUCTURE_ROAD &&
-        structure.structureType !== STRUCTURE_WALL &&
-        !this.roomw.dismantleQueue.find(dismantle => dismantle.id === structure.id)
-    });
-  }
-
-  private findClosestDamagedRoad(): StructureRoad | null {
-    return this.pos.findClosestByRange<StructureRoad>(FIND_STRUCTURES, {
-      filter: structure =>
-        structure.hits < structure.hitsMax &&
-        structure.structureType === STRUCTURE_ROAD &&
-        !this.roomw.dismantleQueue.find(dismantle => dismantle.id === structure.id)
-    });
-  }
-
-  private findWeakestWall(): StructureWall | null {
-    const wallsToRepair = this.room.find<StructureWall>(FIND_STRUCTURES, {
-      filter: structure =>
-        structure.hits < Constants.MAX_HITS_WALL &&
-        (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) &&
-        !this.roomw.dismantleQueue.find(dismantle => dismantle.id === structure.id)
-    });
-
-    if (wallsToRepair.length > 0) {
-      return wallsToRepair.reduce((weakestWall, wall) => {
-        return weakestWall.hits < wall.hits ? weakestWall : wall;
-      });
-    } else {
-      return null;
-    }
   }
 
   /* Ability calculations */

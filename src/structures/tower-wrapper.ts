@@ -1,5 +1,6 @@
 import { Constants } from "../constants";
 import { CreepUtils } from "creep-utils";
+import { RoomWrapper } from "./room-wrapper";
 
 export class TowerWrapper extends StructureTower {
   public constructor(private readonly tower: StructureTower) {
@@ -18,6 +19,10 @@ export class TowerWrapper extends StructureTower {
     if (this.repairStructures() !== ERR_NOT_FOUND) {
       return;
     }
+  }
+
+  public get roomw(): RoomWrapper {
+    return new RoomWrapper(this.room);
   }
 
   private healCreeps(): ScreepsReturnCode {
@@ -59,7 +64,7 @@ export class TowerWrapper extends StructureTower {
   // try to repair structures within optimal range only, and only when damaged enough to use full energy
   private repairStructures(): ScreepsReturnCode {
     // repair structures
-    const structure = this.findClosestDamagedNonRoad();
+    const structure = this.roomw.findClosestDamagedNonRoad(this.pos);
     if (
       structure &&
       structure.hitsMax - structure.hits > TOWER_POWER_REPAIR &&
@@ -69,7 +74,7 @@ export class TowerWrapper extends StructureTower {
     }
 
     // repair roads
-    const road = this.findClosestDamagedRoad();
+    const road = this.roomw.findClosestDamagedRoad(this.pos);
     if (
       road &&
       road.hitsMax - road.hits > TOWER_POWER_REPAIR &&
@@ -79,7 +84,7 @@ export class TowerWrapper extends StructureTower {
     }
 
     // repair walls
-    const wall = this.findWeakestWall();
+    const wall = this.roomw.findWeakestWall();
     if (
       wall &&
       wall.hitsMax - wall.hits > TOWER_POWER_REPAIR &&
@@ -89,36 +94,6 @@ export class TowerWrapper extends StructureTower {
     }
 
     return ERR_NOT_FOUND;
-  }
-
-  private findClosestDamagedNonRoad(): AnyStructure | null {
-    return this.pos.findClosestByRange(FIND_STRUCTURES, {
-      filter: structure =>
-        structure.hits < structure.hitsMax &&
-        structure.structureType !== STRUCTURE_ROAD &&
-        structure.structureType !== STRUCTURE_WALL
-    });
-  }
-
-  private findClosestDamagedRoad(): StructureRoad | null {
-    return this.pos.findClosestByRange<StructureRoad>(FIND_STRUCTURES, {
-      filter: structure => structure.hits < structure.hitsMax && structure.structureType === STRUCTURE_ROAD
-    });
-  }
-
-  private findWeakestWall(): StructureWall | null {
-    const MAX_HITS_WALL = 10000000;
-    const wallsToRepair = this.room.find<StructureWall>(FIND_STRUCTURES, {
-      filter: structure => structure.hits < MAX_HITS_WALL && structure.structureType === STRUCTURE_WALL
-    });
-
-    if (wallsToRepair.length > 0) {
-      return wallsToRepair.reduce((weakestWall, wall) => {
-        return weakestWall.hits < wall.hits ? weakestWall : wall;
-      });
-    } else {
-      return null;
-    }
   }
 
   // unused for now

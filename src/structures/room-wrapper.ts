@@ -1,3 +1,4 @@
+import { Constants } from "../constants";
 import { MemoryUtils } from "planning/memory-utils";
 import { PlannerUtils } from "planning/planner-utils";
 
@@ -140,5 +141,41 @@ export class RoomWrapper extends Room {
       this.memory.log = [];
     }
     this.memory.log.push(`${Game.time}: ${message}`);
+  }
+
+  public findClosestDamagedNonRoad(pos: RoomPosition): AnyStructure | null {
+    return pos.findClosestByRange(FIND_STRUCTURES, {
+      filter: structure =>
+        structure.hits < structure.hitsMax &&
+        structure.structureType !== STRUCTURE_ROAD &&
+        structure.structureType !== STRUCTURE_WALL &&
+        !this.dismantleQueue.find(dismantle => dismantle.id === structure.id)
+    });
+  }
+
+  public findClosestDamagedRoad(pos: RoomPosition): StructureRoad | null {
+    return pos.findClosestByRange<StructureRoad>(FIND_STRUCTURES, {
+      filter: structure =>
+        structure.hits < structure.hitsMax &&
+        structure.structureType === STRUCTURE_ROAD &&
+        !this.dismantleQueue.find(dismantle => dismantle.id === structure.id)
+    });
+  }
+
+  public findWeakestWall(): StructureWall | null {
+    const wallsToRepair = this.room.find<StructureWall>(FIND_STRUCTURES, {
+      filter: structure =>
+        structure.hits < Constants.MAX_HITS_WALL &&
+        (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) &&
+        !this.dismantleQueue.find(dismantle => dismantle.id === structure.id)
+    });
+
+    if (wallsToRepair.length > 0) {
+      return wallsToRepair.reduce((weakestWall, wall) => {
+        return weakestWall.hits < wall.hits ? weakestWall : wall;
+      });
+    } else {
+      return null;
+    }
   }
 }
