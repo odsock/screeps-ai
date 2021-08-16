@@ -15,7 +15,6 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
-  visualString?: string;
   harvestPositions: string[];
   costMatrix?: { [name: string]: number[] };
   roadUseLog: { [pos: string]: number };

@@ -15,8 +15,6 @@ export class Sockpuppet {
     for (const roomId in Game.rooms) {
       const room = new RoomWrapper(Game.rooms[roomId]);
 
-      room.visual.circle(20, 20);
-
       // draw colony poc
       const planVisual = room.planVisual;
       if (planVisual) {
@@ -28,8 +26,6 @@ export class Sockpuppet {
       if (dismantleVisual) {
         room.visual.import(dismantleVisual);
       }
-
-      room.visual.circle(10, 10);
 
       const planner = new Planner(room);
       // TODO refresh every turn maybe excessive?

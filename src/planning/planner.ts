@@ -52,13 +52,13 @@ export class Planner {
         // draw plan visual
         const visualBackup = this.room.visual.export();
         this.room.visual.clear();
-        this.room.memory.visualString = undefined;
         this.room.visual.circle(centerPoint.x, centerPoint.y, { fill: "#FF0000" });
         plan.drawPattern();
         this.room.planVisual = this.room.visual.export();
         this.room.visual.import(visualBackup);
 
         // cache plan
+        // TODO put this in room wrapper
         MemoryUtils.setCache(`${this.room.name}_plan`, plan);
         MemoryUtils.setCache(`${this.room.name}_centerPoint`, centerPoint);
       }
@@ -85,11 +85,11 @@ export class Planner {
       );
 
       if (wrongStructure?.structure && wrongStructure.structure) {
-        console.log(
-          `DISMANTLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
-        );
         const dismantleQueue = this.room.dismantleQueue;
         if (!dismantleQueue.find(item => item.id === wrongStructure.structure?.id)) {
+          console.log(
+            `DISMANTLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
+          );
           dismantleQueue.push(wrongStructure.structure);
         }
       }
