@@ -104,13 +104,12 @@ export class StructurePlan {
     return true;
   }
 
-  public drawPattern(): string {
+  public drawPattern(): void {
     const plan = this.getPlan();
     if (plan) {
       plan.forEach(planPos => {
         this.roomw.visual.circle(planPos.pos);
       });
     }
-    return this.roomw.visual.export();
   }
 }

@@ -3,6 +3,20 @@ export class MemoryUtils {
     this.refreshContainerMemory(room);
   }
 
+  public static setCache<T>(key: string, item: T): void {
+    if (!global.cache) {
+      global.cache = new Map<string, any>();
+    }
+    global.cache.set(key, item);
+  }
+
+  public static getCache<T>(key: string): T {
+    if (!global.cache) {
+      global.cache = new Map<string, any>();
+    }
+    return global.cache.get(key) as T;
+  }
+
   public static refreshContainerMemory(room: Room): void {
     // init container memory
     if (!room.memory.containers) {

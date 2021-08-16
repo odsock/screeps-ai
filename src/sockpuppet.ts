@@ -13,8 +13,9 @@ export class Sockpuppet {
       const room = new RoomWrapper(Game.rooms[roomId]);
 
       // draw colony poc
-      if (room.memory.visualString) {
-        room.visual.import(room.memory.visualString);
+      const planVisual = MemoryUtils.getCache<string>(`${room.name}_planVisual`);
+      if (planVisual) {
+        room.visual.import(planVisual);
       }
 
       const planner = new Planner(room);

@@ -6,6 +6,7 @@ import { PlannerUtils } from "./planner-utils";
 import { MemoryUtils } from "./memory-utils";
 import { CreepUtils } from "creep-utils";
 import { StructurePatterns } from "structure-patterns";
+import { StructurePlan } from "./structure-plan";
 
 export class Planner {
   private readonly room: RoomWrapper;
@@ -18,21 +19,7 @@ export class Planner {
     console.log(`${this.room.name}: running planning`);
     MemoryUtils.refreshRoomMemory(this.room);
 
-    // POC - draw planned whole colony
-    const sourcePositions = this.room.sources.map(source => source.pos);
-    const depositPositions = this.room.deposits.map(deposit => deposit.pos);
-    const controllerPos = this.room.controller?.pos;
-    if (controllerPos) {
-      console.log("POC colonly layout");
-      const midpoint = PlannerUtils.findMidpoint([controllerPos, ...sourcePositions, ...depositPositions]);
-      const plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, this.room, midpoint, true);
-
-      // clear visual, redraw, and cache serialized version
-      this.room.visual.clear();
-      this.room.memory.visualString = undefined;
-      this.room.visual.circle(midpoint.x, midpoint.y, { fill: "#FF0000" });
-      this.room.memory.visualString = plan.drawPattern();
-    }
+    this.planFullColony();
 
     if (this.room.controller) {
       if (this.room.controller?.level >= 1) {
@@ -47,6 +34,35 @@ export class Planner {
     }
     return OK;
   }
+
+  private planFullColony(): void {
+    let plan: StructurePlan = MemoryUtils.getCache<StructurePlan>(`${this.room.name}_plan`);
+    if (!plan) {
+      const controllerPos = this.room.controller?.pos;
+      if (controllerPos) {
+        console.log("POC colonly layout");
+        const sourcePositions = this.room.sources.map(source => source.pos);
+        const depositPositions = this.room.deposits.map(deposit => deposit.pos);
+
+        // find the best colony placement
+        const centerPoint = PlannerUtils.findMidpoint([controllerPos, ...sourcePositions, ...depositPositions]);
+        plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, this.room, centerPoint, true);
+
+        // draw plan visual
+        this.room.visual.clear();
+        this.room.memory.visualString = undefined;
+        this.room.visual.circle(centerPoint.x, centerPoint.y, { fill: "#FF0000" });
+        plan.drawPattern();
+
+        // cache plan
+        MemoryUtils.setCache(`${this.room.name}_plan`, plan);
+        MemoryUtils.setCache(`${this.room.name}_centerPoint`, centerPoint);
+        MemoryUtils.setCache(`${this.room.name}_planVisual`, this.room.visual.export());
+      }
+    }
+  }
+
+  // private convertColonlyToPlan(): ScreepsReturnCode {}
 
   private planLevel1(): ScreepsReturnCode {
     if (this.room.find(FIND_MY_SPAWNS).length === 0) {
