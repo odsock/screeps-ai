@@ -82,11 +82,15 @@ export class Planner {
         lookResult => lookResult.structure?.structureType && lookResult.structure.structureType !== planPos.structure
       );
 
-      if (wrongStructure?.structure) {
+      if (wrongStructure?.structure && wrongStructure.structure) {
         // TODO create a task system for disassembly as least
         console.log(
           `DISASSEMBLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
         );
+        const dismantleQueue = this.room.dismantleQueue;
+        if (!dismantleQueue.find(item => item.id === wrongStructure.structure?.id)) {
+          dismantleQueue.push(wrongStructure.structure);
+        }
         result = ERR_FULL;
       }
       return !!wrongStructure;

@@ -361,9 +361,31 @@ export abstract class CreepWrapper extends Creep {
     return ERR_NOT_FOUND;
   }
 
+  protected dismantleStructures(): ScreepsReturnCode {
+    const dismantleQueue = this.roomw.dismantleQueue;
+    if (dismantleQueue.length > 0) {
+      return this.moveToAndDismantle(dismantleQueue[0]);
+    }
+    return ERR_NOT_FOUND;
+  }
+
   private moveToAndRepair(structure: Structure<StructureConstant>): ScreepsReturnCode {
     let result: ScreepsReturnCode = this.repair(structure);
     CreepUtils.consoleLogResultIfWatched(this, `repairing ${structure.structureType}`, result);
+    if (result === ERR_NOT_IN_RANGE) {
+      CreepUtils.consoleLogResultIfWatched(this, `moving to ${String(structure.pos)}`, result);
+      result = this.moveTo(structure, {
+        costCallback: (roomName, costMatrix) => {
+          this.roomw.getCostMatrix("avoidHarvestPositions", costMatrix);
+        }
+      });
+    }
+    return result;
+  }
+
+  private moveToAndDismantle(structure: Structure<StructureConstant>): ScreepsReturnCode {
+    let result: ScreepsReturnCode = this.dismantle(structure);
+    CreepUtils.consoleLogResultIfWatched(this, `dismatling ${structure.structureType}`, result);
     if (result === ERR_NOT_IN_RANGE) {
       CreepUtils.consoleLogResultIfWatched(this, `moving to ${String(structure.pos)}`, result);
       result = this.moveTo(structure, {

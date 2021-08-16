@@ -1,3 +1,4 @@
+import { MemoryUtils } from "planning/memory-utils";
 import { PlannerUtils } from "planning/planner-utils";
 
 // TODO: figure out how to make a singleton for each room
@@ -6,6 +7,15 @@ export class RoomWrapper extends Room {
     super(room.name);
     // does this work?
     // Object.create(RoomPosition.prototype, Object.getOwnPropertyDescriptors(pos));
+  }
+
+  public get dismantleQueue(): Structure[] {
+    const queue = MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueue`);
+    if (!queue) {
+      MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, []);
+      return [];
+    }
+    return queue;
   }
 
   // TODO cache this as well
