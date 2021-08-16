@@ -20,6 +20,7 @@ export class Planner {
     MemoryUtils.refreshRoomMemory(this.room);
 
     this.planFullColony();
+    this.assimilateColonlyToPlan();
 
     if (this.room.controller) {
       if (this.room.controller?.level >= 1) {
@@ -62,7 +63,35 @@ export class Planner {
     }
   }
 
-  // private convertColonlyToPlan(): ScreepsReturnCode {}
+  private assimilateColonlyToPlan(): ScreepsReturnCode {
+    const plan = MemoryUtils.getCache<StructurePlan>(`${this.room.name}_plan`);
+    if (!plan) {
+      return OK;
+    }
+
+    const planPositions = plan.getPlan();
+    if (!planPositions) {
+      return OK;
+    }
+
+    let result: ScreepsReturnCode = OK;
+    planPositions.some(planPos => {
+      const posLook = planPos.pos.look();
+      const wrongStructure = posLook.find(
+        lookResult => lookResult.structure?.structureType && lookResult.structure.structureType !== planPos.structure
+      );
+
+      if (wrongStructure?.structure) {
+        console.log(
+          `DISASSEMBLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
+        );
+        result = ERR_FULL;
+      }
+      return !!wrongStructure;
+    });
+
+    return result;
+  }
 
   private planLevel1(): ScreepsReturnCode {
     if (this.room.find(FIND_MY_SPAWNS).length === 0) {
