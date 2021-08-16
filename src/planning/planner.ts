@@ -50,15 +50,17 @@ export class Planner {
         plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, this.room, centerPoint, true);
 
         // draw plan visual
+        const visualBackup = this.room.visual.export();
         this.room.visual.clear();
         this.room.memory.visualString = undefined;
         this.room.visual.circle(centerPoint.x, centerPoint.y, { fill: "#FF0000" });
         plan.drawPattern();
+        this.room.planVisual = this.room.visual.export();
+        this.room.visual.import(visualBackup);
 
         // cache plan
         MemoryUtils.setCache(`${this.room.name}_plan`, plan);
         MemoryUtils.setCache(`${this.room.name}_centerPoint`, centerPoint);
-        this.room.planVisual = this.room.visual.export();
       }
     }
   }
