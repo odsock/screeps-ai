@@ -30,7 +30,7 @@ export class Planner {
       // clear visual, redraw, and cache serialized version
       this.room.visual.clear();
       this.room.memory.visualString = undefined;
-      this.room.visual.circle(midpoint.x, midpoint.y);
+      this.room.visual.circle(midpoint.x, midpoint.y, { fill: "#FF0000" });
       this.room.memory.visualString = plan.drawPattern();
     }
 
