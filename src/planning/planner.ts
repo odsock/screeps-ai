@@ -74,6 +74,7 @@ export class Planner {
       return OK;
     }
 
+    // mark one structure for disassembly if mismatch found
     let result: ScreepsReturnCode = OK;
     planPositions.some(planPos => {
       const posLook = planPos.pos.look();
@@ -82,6 +83,7 @@ export class Planner {
       );
 
       if (wrongStructure?.structure) {
+        // TODO create a task system for disassembly as least
         console.log(
           `DISASSEMBLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
         );
@@ -89,6 +91,9 @@ export class Planner {
       }
       return !!wrongStructure;
     });
+
+    // try to construct any missing structures
+    result = PlannerUtils.placeStructurePlan(plan);
 
     return result;
   }

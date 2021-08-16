@@ -18,24 +18,9 @@ export class ExtensionPlan {
         this.room,
         this.room.spawns[0].pos
       );
-      return this.placeStructurePlan(structurePlan);
+      return PlannerUtils.placeStructurePlan(structurePlan);
     }
     return OK;
-  }
-
-  private placeStructurePlan(structurePlan: StructurePlan): ScreepsReturnCode {
-    const plan = structurePlan.getPlan();
-    if (plan) {
-      for (const planPosition of plan) {
-        const result = this.room.createConstructionSite(planPosition.pos, planPosition.structure);
-        if (result !== OK) {
-          this.room.roomMemoryLog(`${planPosition.structure} failed: ${result}, pos: ${String(planPosition)}`);
-          return result;
-        }
-      }
-    }
-    console.log(`${this.room.name}: no site found for extension plan`);
-    return ERR_NOT_FOUND;
   }
 
   private getNumAvailableExtensions(): number {

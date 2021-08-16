@@ -6,7 +6,7 @@ export class StructurePlan {
   private planned = false;
   private readonly pattern: StructurePatternPosition[];
   private plan: StructurePlanPosition[] = [];
-  private roomw: RoomWrapper;
+  public readonly roomw: RoomWrapper;
 
   public constructor(pattern: StructurePatternPosition[], private readonly room: Room) {
     this.terrain = room.getTerrain();

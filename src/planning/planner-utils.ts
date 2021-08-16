@@ -215,4 +215,21 @@ export class PlannerUtils {
     // }
     return ERR_INVALID_TARGET;
   }
+
+  public static placeStructurePlan(structurePlan: StructurePlan): ScreepsReturnCode {
+    const plan = structurePlan.getPlan();
+    if (plan) {
+      for (const planPosition of plan) {
+        const result = structurePlan.roomw.createConstructionSite(planPosition.pos, planPosition.structure);
+        if (result !== OK) {
+          structurePlan.roomw.roomMemoryLog(
+            `${planPosition.structure} failed: ${result}, pos: ${String(planPosition)}`
+          );
+          return result;
+        }
+      }
+    }
+    console.log(`${structurePlan.roomw.name}: no site found for extension plan`);
+    return ERR_NOT_FOUND;
+  }
 }
