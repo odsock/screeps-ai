@@ -192,8 +192,20 @@ export abstract class CreepWrapper extends Creep {
       return;
     }
 
+    const dismantleResult = this.doDismantleJob();
+    if (dismantleResult !== ERR_NOT_FOUND) {
+      return;
+    }
+
     this.say("🤔");
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
+  }
+
+  protected doDismantleJob(): ScreepsReturnCode {
+    this.updateJob("dismantle?");
+    const result: ScreepsReturnCode = this.dismantleStructures();
+    CreepUtils.consoleLogResultIfWatched(this, `dismantle result`, result);
+    return result;
   }
 
   protected withdrawEnergyFromOrMoveTo(structure: Tombstone | Ruin | StructureContainer): ScreepsReturnCode {
