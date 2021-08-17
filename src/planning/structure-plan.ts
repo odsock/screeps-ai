@@ -104,12 +104,24 @@ export class StructurePlan {
     return true;
   }
 
+  // draw circles for incomplete parts of plan
   public drawPattern(): void {
     const plan = this.getPlan();
     if (plan) {
-      plan.forEach(planPos => {
-        this.roomw.visual.circle(planPos.pos);
-      });
+      plan
+        .filter(
+          planPos =>
+            !planPos.pos
+              .look()
+              .some(
+                item =>
+                  item.structure?.structureType === planPos.structure ||
+                  item.constructionSite?.structureType === planPos.structure
+              )
+        )
+        .forEach(planPos => {
+          this.roomw.visual.circle(planPos.pos);
+        });
     }
   }
 }
