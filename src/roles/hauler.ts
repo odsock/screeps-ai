@@ -81,7 +81,8 @@ export class Hauler extends CreepWrapper {
       }
     } else {
       result = this.loadEnergy();
-      // TODO this causes a loop, find a better way
+      // TODO when no energy found, try to work when partly full
+      // this causes a loop, find a better way
       // if (result === ERR_NOT_FOUND) {
       //   // nowhere to get energy - start working if not empty
       //   if (this.store.energy > 0) {

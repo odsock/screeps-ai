@@ -17,7 +17,7 @@ export class Constants {
   };
 
   public static readonly BODY_PROFILE_WORKER: CreepBodyProfile = {
-    profile: [WORK, MOVE, CARRY],
+    profile: [WORK, MOVE, MOVE, CARRY],
     seed: [],
     maxBodyParts: MAX_CREEP_SIZE
   };
