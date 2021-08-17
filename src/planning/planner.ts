@@ -50,12 +50,10 @@ export class Planner {
         plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, this.room, centerPoint, true);
 
         // draw plan visual
-        const visualBackup = this.room.visual.export();
         this.room.visual.clear();
         this.room.visual.circle(centerPoint.x, centerPoint.y, { fill: "#FF0000" });
         plan.drawPattern();
         this.room.planVisual = this.room.visual.export();
-        this.room.visual.import(visualBackup);
 
         // cache plan
         // TODO put this in room wrapper
@@ -97,13 +95,11 @@ export class Planner {
     });
 
     // draw dismantle queue
-    const visualBackup = this.room.visual.export();
     this.room.visual.clear();
     this.room.dismantleQueue.forEach(structure => {
       this.room.visual.circle(structure.pos, { fill: "#FF0000" });
     });
     this.room.dismantleVisual = this.room.visual.export();
-    this.room.visual.import(visualBackup);
 
     // try to construct any missing structures
     const result = PlannerUtils.placeStructurePlan(plan);
