@@ -24,13 +24,4 @@ export class Fixer extends CreepWrapper {
       return OK;
     }
   }
-
-  private doDismantleJob(): ScreepsReturnCode {
-    if (this.memory.job !== "dismantle") {
-      this.updateJob("dismantle");
-    }
-    const result: ScreepsReturnCode = this.dismantleStructures();
-    CreepUtils.consoleLogResultIfWatched(this, `dismantle result`, result);
-    return result;
-  }
 }
