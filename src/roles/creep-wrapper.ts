@@ -181,6 +181,11 @@ export abstract class CreepWrapper extends Creep {
       }
     }
 
+    const dismantleResult = this.doDismantleJob();
+    if (dismantleResult !== ERR_NOT_FOUND) {
+      return;
+    }
+
     const inactiveSource = this.findClosestEnergySource();
     CreepUtils.consoleLogIfWatched(
       this,
@@ -188,11 +193,6 @@ export abstract class CreepWrapper extends Creep {
     );
     if (inactiveSource) {
       this.moveTo(inactiveSource, { visualizePathStyle: { stroke: "#ffaa00" } });
-      return;
-    }
-
-    const dismantleResult = this.doDismantleJob();
-    if (dismantleResult !== ERR_NOT_FOUND) {
       return;
     }
 
