@@ -1,7 +1,6 @@
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
-import { Constants } from "../constants";
 
 export abstract class CreepWrapper extends Creep {
   public constructor(private readonly creep: Creep) {
