@@ -23,12 +23,12 @@ export class Builder extends CreepWrapper {
       this.memory.constructionSiteId = site.id;
       this.updateJob("building");
       this.stopWorkingIfEmpty();
-      this.startWorkingIfFull("🚧 build");
-      this.workIfCloseToJobsite(site.pos);
+      this.startWorkingIfFull();
+      this.startWorkingInRange(site.pos);
 
       CreepUtils.consoleLogIfWatched(this, `working: ${String(this.memory.working)}`);
       if (this.memory.working) {
-        // don't block the source while working
+        // don't block a source while working
         const closestEnergySource = this.findClosestActiveEnergySource();
         if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource) && this.pos.inRangeTo(site.pos, 3)) {
           CreepUtils.consoleLogIfWatched(this, `moving away from source`);

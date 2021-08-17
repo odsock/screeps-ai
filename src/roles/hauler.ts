@@ -50,8 +50,8 @@ export class Hauler extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `supply ${target.structureType}`);
     this.updateJob(`${target.structureType}`);
     this.stopWorkingIfEmpty();
-    this.startWorkingIfFull(`⚡ ${target.structureType}`);
-    this.workIfCloseToJobsite(target.pos, 1);
+    this.startWorkingIfFull();
+    this.startWorkingInRange(target.pos, 1);
 
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");

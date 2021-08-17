@@ -24,65 +24,57 @@ export abstract class CreepWrapper extends Creep {
     if (this.memory.working && this.store[RESOURCE_ENERGY] === 0) {
       CreepUtils.consoleLogIfWatched(this, "stop working, empty");
       this.memory.working = false;
-      this.say("🔄 harvest");
+      this.say("⚡");
     }
   }
 
-  protected startWorkingIfFull(message: string): void {
-    const freeCap = this.store.getFreeCapacity();
-    CreepUtils.consoleLogIfWatched(this, `full check: working: ${String(this.memory.working)}, free cap: ${freeCap}`);
-    if (!this.memory.working && freeCap === 0) {
+  protected startWorkingIfFull(): void {
+    if (!this.memory.working && this.store.getFreeCapacity() === 0) {
       CreepUtils.consoleLogIfWatched(this, "start working, full");
       this.memory.working = true;
-      this.say(message);
+      this.say("🚧 ");
     }
   }
 
-  protected workIfCloseToJobsite(jobsite: RoomPosition, range = 3): void {
-    // skip check if full/empty
-    if (this.store.getUsedCapacity() !== 0 && this.store.getFreeCapacity() !== 0) {
-      // skip check if can work from here
-      if (this.pos.inRangeTo(jobsite, range)) {
-        return;
-      }
-      // skip check if no source or next to source already
-      const source = this.findClosestActiveEnergySource();
-      if (!source || this.pos.isNearTo(source)) {
-        return;
-      }
-
-      // calculate efficiency of heading back to refill, then going to job site
-      const sourceCost = PathFinder.search(this.pos, { pos: source.pos, range: 1 }).cost;
-      CreepUtils.consoleLogIfWatched(this, `sourceCost: ${sourceCost}`);
-      // subtract one from runCost because you cannot stand on the source
-      let runCost = PathFinder.search(source.pos, { pos: jobsite, range }).cost;
-      if (runCost > 1) {
-        runCost = runCost - 1;
-      }
-      const refillEfficiency = sourceCost + runCost;
-      CreepUtils.consoleLogIfWatched(this, `runCost: ${runCost}, refillEfficiency: ${refillEfficiency}`);
-
-      // calculate efficiency of going to job site partially full
-      const jobsiteCost = PathFinder.search(this.pos, { pos: jobsite, range }).cost;
-      const storeRatio = this.store.getUsedCapacity() / this.store.getCapacity();
-      const jobsiteEfficiency = jobsiteCost / storeRatio;
-      CreepUtils.consoleLogIfWatched(
-        this,
-        `jobsiteCost: ${jobsiteCost}, storeRatio: ${storeRatio}, jobsiteEfficiency: ${jobsiteEfficiency}`
-      );
-
-      // compare cost/energy delivered working vs refilling first
-      if (jobsiteEfficiency < refillEfficiency) {
-        CreepUtils.consoleLogIfWatched(this, `close to site: starting work`);
-        this.memory.working = true;
-      } else {
-        CreepUtils.consoleLogIfWatched(this, `close to source: stopping work`);
-        this.memory.working = false;
-      }
-    } else {
-      CreepUtils.consoleLogIfWatched(this, `skip jobsite check`);
+  protected startWorkingInRange(jobsite: RoomPosition, range = 3): void {
+    if (this.pos.inRangeTo(jobsite, range)) {
+      CreepUtils.consoleLogIfWatched(this, `in range: starting work`);
+      this.memory.working = true;
+      this.say("🚧 ");
     }
   }
+
+  // TODO this only really works if you know the position of energy harvest (might be ruin, dropped, etc)
+  // protected workIfCloseToJobsite(jobsite: RoomPosition, range = 3): void {
+  //   // calculate efficiency of heading back to refill, then going to job site
+  //   const sourceCost = PathFinder.search(this.pos, { pos: source.pos, range: 1 }).cost;
+  //   CreepUtils.consoleLogIfWatched(this, `sourceCost: ${sourceCost}`);
+  //   // subtract one from runCost because you cannot stand on the source
+  //   let runCost = PathFinder.search(source.pos, { pos: jobsite, range }).cost;
+  //   if (runCost > 1) {
+  //     runCost = runCost - 1;
+  //   }
+  //   const refillEfficiency = sourceCost + runCost;
+  //   CreepUtils.consoleLogIfWatched(this, `runCost: ${runCost}, refillEfficiency: ${refillEfficiency}`);
+
+  //   // calculate efficiency of going to job site partially full
+  //   const jobsiteCost = PathFinder.search(this.pos, { pos: jobsite, range }).cost;
+  //   const storeRatio = this.store.getUsedCapacity() / this.store.getCapacity();
+  //   const jobsiteEfficiency = jobsiteCost / storeRatio;
+  //   CreepUtils.consoleLogIfWatched(
+  //     this,
+  //     `jobsiteCost: ${jobsiteCost}, storeRatio: ${storeRatio}, jobsiteEfficiency: ${jobsiteEfficiency}`
+  //   );
+
+  //   // compare cost/energy delivered working vs refilling first
+  //   if (jobsiteEfficiency < refillEfficiency) {
+  //     CreepUtils.consoleLogIfWatched(this, `close to site: starting work`);
+  //     this.memory.working = true;
+  //   } else {
+  //     CreepUtils.consoleLogIfWatched(this, `close to source: stopping work`);
+  //     this.memory.working = false;
+  //   }
+  // }
 
   protected findClosestTombstoneWithEnergy(): Tombstone | null {
     return this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });

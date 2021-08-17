@@ -52,8 +52,8 @@ export class Worker extends CreepWrapper {
       const controller = this.room.controller;
       this.updateJob("upgrading");
       this.stopWorkingIfEmpty();
-      this.startWorkingIfFull("⚡ upgrade");
-      this.workIfCloseToJobsite(this.room.controller.pos);
+      this.startWorkingIfFull();
+      this.startWorkingInRange(this.room.controller.pos);
 
       if (this.memory.working) {
         if (this.upgradeController(controller) === ERR_NOT_IN_RANGE) {
@@ -82,8 +82,8 @@ export class Worker extends CreepWrapper {
     if (site) {
       this.updateJob("building");
       this.stopWorkingIfEmpty();
-      this.startWorkingIfFull("🚧 build");
-      this.workIfCloseToJobsite(site.pos);
+      this.startWorkingIfFull();
+      this.startWorkingInRange(site.pos);
 
       if (this.memory.working) {
         // don't block the source while working
@@ -107,8 +107,8 @@ export class Worker extends CreepWrapper {
     if (site) {
       this.updateJob("repairing");
       this.stopWorkingIfEmpty();
-      this.startWorkingIfFull("🚧 repair");
-      this.workIfCloseToJobsite(site.pos);
+      this.startWorkingIfFull();
+      this.startWorkingInRange(site.pos);
 
       if (this.memory.working) {
         if (this.repair(site) === ERR_NOT_IN_RANGE) {
@@ -123,7 +123,7 @@ export class Worker extends CreepWrapper {
   private doHarvestJob(): void {
     this.updateJob("harvesting");
     this.stopWorkingIfEmpty();
-    this.startWorkingIfFull("⚡ transfer");
+    this.startWorkingIfFull();
 
     if (this.memory.working) {
       const site = this.findClosestSpawnStorageNotFull();
@@ -140,7 +140,7 @@ export class Worker extends CreepWrapper {
   private doSupplyJob(): void {
     this.updateJob("supply");
     this.stopWorkingIfEmpty();
-    this.startWorkingIfFull("⚡ supply");
+    this.startWorkingIfFull();
 
     if (this.memory.working) {
       const site = this.findClosestTowerNotFull();

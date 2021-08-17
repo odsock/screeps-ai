@@ -13,7 +13,7 @@ export class Fixer extends CreepWrapper {
   private doRepairJob(): ScreepsReturnCode {
     this.updateJob("repairing");
     this.stopWorkingIfEmpty();
-    this.startWorkingIfFull("🚧 repair");
+    this.startWorkingIfFull();
 
     if (this.memory.working) {
       const result = this.repairStructures();
