@@ -216,15 +216,23 @@ export class PlannerUtils {
     return ERR_INVALID_TARGET;
   }
 
-  public static placeStructurePlan(structurePlan: StructurePlan): ScreepsReturnCode {
+  public static placeStructurePlan(
+    structurePlan: StructurePlan,
+    allowOverlap = true,
+    ignoreRCL = true
+  ): ScreepsReturnCode {
     const plan = structurePlan.getPlan();
     if (plan) {
       for (const planPosition of plan) {
         const result = structurePlan.roomw.createConstructionSite(planPosition.pos, planPosition.structure);
-        if (result !== OK) {
-          // fail only if matching structure is not already there
+
+        if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
+          continue;
+        }
+
+        if (result === ERR_INVALID_TARGET && allowOverlap) {
           if (
-            !structurePlan.roomw
+            structurePlan.roomw
               .lookAt(planPosition.pos)
               .some(
                 item =>
@@ -232,7 +240,12 @@ export class PlannerUtils {
                   item.constructionSite?.structureType === planPosition.structure
               )
           ) {
-            console.log(`${planPosition.structure} failed: ${result}, pos: ${String(planPosition.pos)}`);
+            continue;
+          } else {
+            const resultString = String(Constants.ERROR_CODE_LOOKUP.get(result));
+            console.log(
+              `${planPosition.structure} pos: ${String(planPosition.pos)}, failed: ${result} ${resultString}`
+            );
             return result;
           }
         }
