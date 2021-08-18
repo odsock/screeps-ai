@@ -6,8 +6,34 @@ import { PlannerUtils } from "planning/planner-utils";
 export class RoomWrapper extends Room {
   public constructor(private readonly room: Room) {
     super(room.name);
-    // does this work?
-    // Object.create(RoomPosition.prototype, Object.getOwnPropertyDescriptors(pos));
+
+    // console.log(`controller ${String(this.controller)}`);
+    // console.log(`energyAvailable ${String(this.energyAvailable)}`);
+    // console.log(`energyCapacityAvailable ${String(this.energyCapacityAvailable)}`);
+    // console.log(`memory ${String(this.memory)}`);
+    // console.log(`mode ${String(this.mode)}`);
+    // console.log(`name ${String(this.name)}`);
+    // console.log(`storage ${String(this.storage)}`);
+    // console.log(`terminal ${String(this.terminal)}`);
+    // console.log(`visual ${String(this.visual)}`);
+    // console.log(`getEventLog ${String(this.getEventLog())}`);
+
+    // [3:18:12 PM][shard3]controller [structure (controller) #5bbcade89099fc012e6381d9]
+    // [3:18:12 PM][shard3]energyAvailable 0
+    // [3:18:12 PM][shard3]energyCapacityAvailable 0
+    // [3:18:12 PM][shard3]mode undefined
+    // [3:18:12 PM][shard3]name E17N55
+    // [3:18:12 PM][shard3]storage undefined
+    // [3:18:12 PM][shard3]terminal undefined
+    // [3:18:12 PM][shard3]visual [object Object]
+    // [3:18:12 PM][shard3]controller [structure (controller) #5bbcade89099fc012e6381d9]
+    // [3:18:12 PM][shard3]energyAvailable 0
+    // [3:18:12 PM][shard3]energyCapacityAvailable 0
+    // [3:18:12 PM][shard3]mode undefined
+    // [3:18:12 PM][shard3]name E17N55
+    // [3:18:12 PM][shard3]storage undefined
+    // [3:18:12 PM][shard3]terminal undefined
+    // [3:18:12 PM][shard3]visual [object Object]
   }
 
   public get dismantleQueue(): Structure[] {
@@ -57,23 +83,23 @@ export class RoomWrapper extends Room {
   }
 
   public get constructionWork(): number {
-    return this.find(FIND_MY_CONSTRUCTION_SITES).reduce<number>((work: number, site) => {
+    return this.room.find(FIND_MY_CONSTRUCTION_SITES).reduce<number>((work: number, site) => {
       return work + site.progressTotal - site.progress;
     }, 0);
   }
 
   public get constructionSites(): ConstructionSite[] {
-    return this.find(FIND_CONSTRUCTION_SITES);
+    return this.room.find(FIND_CONSTRUCTION_SITES);
   }
 
   public get towers(): StructureTower[] {
-    return this.find(FIND_MY_STRUCTURES, {
+    return this.room.find(FIND_MY_STRUCTURES, {
       filter: structure => structure.structureType === STRUCTURE_TOWER
     }) as StructureTower[];
   }
 
   public get repairSites(): AnyStructure[] {
-    return this.find(FIND_STRUCTURES, { filter: structure => structure.hits < structure.hitsMax });
+    return this.room.find(FIND_STRUCTURES, { filter: structure => structure.hits < structure.hitsMax });
   }
 
   public get sourceContainers(): StructureContainer[] {
@@ -93,11 +119,11 @@ export class RoomWrapper extends Room {
   public get harvestPositions(): RoomPosition[] {
     if (this.harvestPositionsCache) {
       return this.harvestPositionsCache;
-    } else if (this.memory.harvestPositions) {
-      this.harvestPositionsCache = this.memory.harvestPositions.map(pos => PlannerUtils.unpackRoomPosition(pos));
+    } else if (this.room.memory.harvestPositions) {
+      this.harvestPositionsCache = this.room.memory.harvestPositions.map(pos => PlannerUtils.unpackRoomPosition(pos));
     } else {
       this.harvestPositionsCache = this.findHarvestPositions();
-      this.memory.harvestPositions = this.harvestPositionsCache.map(pos => PlannerUtils.packRoomPosition(pos));
+      this.room.memory.harvestPositions = this.harvestPositionsCache.map(pos => PlannerUtils.packRoomPosition(pos));
     }
     return this.harvestPositionsCache;
   }
@@ -113,14 +139,14 @@ export class RoomWrapper extends Room {
   private costMatrixCache: { [name: string]: CostMatrix } = {};
 
   public getCostMatrix(name: string, costMatrix: CostMatrix): CostMatrix {
-    if (!this.memory.costMatrix) {
-      this.memory.costMatrix = {};
+    if (!this.room.memory.costMatrix) {
+      this.room.memory.costMatrix = {};
     }
 
     if (this.costMatrixCache[name]) {
       return this.costMatrixCache[name];
-    } else if (this.memory.costMatrix[name]) {
-      this.costMatrixCache[name] = PathFinder.CostMatrix.deserialize(this.memory.costMatrix[name]);
+    } else if (this.room.memory.costMatrix[name]) {
+      this.costMatrixCache[name] = PathFinder.CostMatrix.deserialize(this.room.memory.costMatrix[name]);
     } else {
       switch (name) {
         case "avoidHarvestPositions":
@@ -131,7 +157,7 @@ export class RoomWrapper extends Room {
           throw new Error(`Unknown cost matrix ${name}`);
       }
       this.costMatrixCache[name] = costMatrix;
-      this.memory.costMatrix[name] = costMatrix.serialize();
+      this.room.memory.costMatrix[name] = costMatrix.serialize();
     }
     return costMatrix;
   }
@@ -149,10 +175,10 @@ export class RoomWrapper extends Room {
   }
 
   public roomMemoryLog(message: string): void {
-    if (!this.memory.log) {
-      this.memory.log = [];
+    if (!this.room.memory.log) {
+      this.room.memory.log = [];
     }
-    this.memory.log.push(`${Game.time}: ${message}`);
+    this.room.memory.log.push(`${Game.time}: ${message}`);
   }
 
   public findClosestDamagedNonRoad(pos: RoomPosition): AnyStructure | null {
