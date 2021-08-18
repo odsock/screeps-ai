@@ -18,7 +18,12 @@ export class Importer extends RemoteWorker {
     }
 
     if (this.targetRoom) {
-      CreepUtils.consoleLogIfWatched(this, "harvesting job");
+      // run home if hostiles seen
+      if (this.room.find(FIND_HOSTILE_CREEPS).length > 0) {
+        const moveResult = this.moveToRoom(this.homeRoom);
+        CreepUtils.consoleLogIfWatched(this, `run from hostiles result`, moveResult);
+        return;
+      }
       const result = this.doHarvestJob();
       CreepUtils.consoleLogIfWatched(this, `job result`, result);
       return;
