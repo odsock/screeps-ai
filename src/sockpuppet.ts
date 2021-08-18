@@ -14,6 +14,9 @@ export class Sockpuppet {
     // Run each room
     for (const roomId in Game.rooms) {
       const room = new RoomWrapper(Game.rooms[roomId]);
+      if (room.controller?.owner?.username !== "odsock") {
+        continue;
+      }
 
       // draw colony poc
       const planVisual = room.planVisual;
