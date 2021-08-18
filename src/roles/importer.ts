@@ -10,7 +10,8 @@ export class Importer extends RemoteWorker {
     }
 
     if (!this.targetRoom) {
-      this.targetRoom = TargetConfig.REMOTE_HARVEST[Game.shard.name].pop();
+      // TODO work out a claim system for this
+      this.targetRoom = TargetConfig.REMOTE_HARVEST[Game.shard.name][0];
 
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
       return;
