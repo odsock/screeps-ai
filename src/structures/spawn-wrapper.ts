@@ -80,7 +80,7 @@ export class SpawnWrapper extends StructureSpawn {
         return;
       }
 
-      if (this.importers.length < TargetConfig.REMOTE_HARVEST[Game.shard.name].length) {
+      if (this.importers.length < TargetConfig.REMOTE_HARVEST[Game.shard.name].length * 2) {
         this.spawnImporter();
         return;
       }
