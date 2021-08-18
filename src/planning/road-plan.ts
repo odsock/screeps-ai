@@ -46,7 +46,7 @@ export class RoadPlan {
         }
       }
     }
-    CreepUtils.consoleLogResultIfWatched(this.room, `spawn road placement result`, result);
+    CreepUtils.consoleLogIfWatched(this.room, `spawn road placement result`, result);
     return result;
   }
 

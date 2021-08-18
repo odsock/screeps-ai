@@ -157,7 +157,7 @@ export abstract class CreepWrapper extends Creep {
     const tombstone = this.findClosestTombstoneWithEnergy();
     if (tombstone) {
       const result = this.withdraw(tombstone, RESOURCE_ENERGY);
-      CreepUtils.consoleLogResultIfWatched(this, `rob grave: ${String(tombstone.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `rob grave: ${String(tombstone.pos)}`, result);
       if (result === OK) {
         return OK;
       }
@@ -165,7 +165,7 @@ export abstract class CreepWrapper extends Creep {
     const ruin = this.findClosestRuinsWithEnergy();
     if (ruin) {
       const result = this.withdraw(ruin, RESOURCE_ENERGY);
-      CreepUtils.consoleLogResultIfWatched(this, `raid ruin: ${String(ruin.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `raid ruin: ${String(ruin.pos)}`, result);
       if (result === OK) {
         return OK;
       }
@@ -173,13 +173,13 @@ export abstract class CreepWrapper extends Creep {
     const resource = this.findClosestDroppedEnergy();
     if (resource) {
       const result = this.pickup(resource);
-      CreepUtils.consoleLogResultIfWatched(this, `pickup resource: ${String(resource.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `pickup resource: ${String(resource.pos)}`, result);
     }
 
     const container = this.findClosestContainerWithEnergy(this.store.getFreeCapacity());
     if (container) {
       const result = this.moveToAndWithdraw(container);
-      CreepUtils.consoleLogResultIfWatched(this, `withdraw from container: ${String(container.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `withdraw from container: ${String(container.pos)}`, result);
       if (result !== ERR_NO_PATH) {
         return result;
       }
@@ -188,7 +188,7 @@ export abstract class CreepWrapper extends Creep {
     const activeSource = this.findClosestActiveEnergySource();
     if (activeSource) {
       const result = this.moveToAndHarvest(activeSource);
-      CreepUtils.consoleLogResultIfWatched(this, `harvest active source: ${String(activeSource.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `harvest active source: ${String(activeSource.pos)}`, result);
       if (result !== ERR_NO_PATH) {
         return result;
       }
@@ -196,7 +196,7 @@ export abstract class CreepWrapper extends Creep {
 
     if (tombstone) {
       const result = this.moveToAndWithdraw(tombstone);
-      CreepUtils.consoleLogResultIfWatched(this, `move to tomb: ${String(tombstone.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `move to tomb: ${String(tombstone.pos)}`, result);
       if (result !== ERR_NO_PATH) {
         return result;
       }
@@ -204,7 +204,7 @@ export abstract class CreepWrapper extends Creep {
 
     if (ruin) {
       const result = this.moveToAndWithdraw(ruin);
-      CreepUtils.consoleLogResultIfWatched(this, `move to ruin: ${String(ruin.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `move to ruin: ${String(ruin.pos)}`, result);
       if (result !== ERR_NO_PATH) {
         return result;
       }
@@ -213,7 +213,7 @@ export abstract class CreepWrapper extends Creep {
     const dismantle = this.findDismantleTarget();
     if (dismantle) {
       const result = this.moveToAndDismantle(dismantle);
-      CreepUtils.consoleLogResultIfWatched(this, `move to dismantle: ${String(dismantle.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `move to dismantle: ${String(dismantle.pos)}`, result);
       if (result !== ERR_NOT_FOUND) {
         return result;
       }
@@ -222,7 +222,7 @@ export abstract class CreepWrapper extends Creep {
     const inactiveSource = this.findClosestEnergySource();
     if (inactiveSource) {
       const result = this.moveTo(inactiveSource, { visualizePathStyle: { stroke: "#ffaa00" } });
-      CreepUtils.consoleLogResultIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
       return result;
     }
 
@@ -241,13 +241,13 @@ export abstract class CreepWrapper extends Creep {
 
   protected moveToAndWithdraw(structure: Tombstone | Ruin | StructureContainer): ScreepsReturnCode {
     let result = this.withdraw(structure, RESOURCE_ENERGY);
-    CreepUtils.consoleLogResultIfWatched(this, `withdraw result`, result);
+    CreepUtils.consoleLogIfWatched(this, `withdraw result`, result);
     if (result === ERR_NOT_IN_RANGE) {
       result = this.moveTo(structure, { range: 1, visualizePathStyle: { stroke: "#ffaa00" } });
-      CreepUtils.consoleLogResultIfWatched(this, `move result`, result);
+      CreepUtils.consoleLogIfWatched(this, `move result`, result);
       if (result === OK) {
         result = this.withdraw(structure, RESOURCE_ENERGY);
-        CreepUtils.consoleLogResultIfWatched(this, `second withdraw result`, result);
+        CreepUtils.consoleLogIfWatched(this, `second withdraw result`, result);
       }
     }
     return result;
@@ -414,9 +414,9 @@ export abstract class CreepWrapper extends Creep {
 
   protected moveToAndRepair(structure: Structure<StructureConstant>): ScreepsReturnCode {
     let result: ScreepsReturnCode = this.repair(structure);
-    CreepUtils.consoleLogResultIfWatched(this, `repairing ${structure.structureType}`, result);
+    CreepUtils.consoleLogIfWatched(this, `repairing ${structure.structureType}`, result);
     if (result === ERR_NOT_IN_RANGE) {
-      CreepUtils.consoleLogResultIfWatched(this, `moving to ${String(structure.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
       result = this.moveTo(structure, {
         costCallback: (roomName, costMatrix) => {
           this.roomw.getCostMatrix("avoidHarvestPositions", costMatrix);
@@ -428,9 +428,9 @@ export abstract class CreepWrapper extends Creep {
 
   protected moveToAndDismantle(structure: Structure<StructureConstant>): ScreepsReturnCode {
     let result: ScreepsReturnCode = this.dismantle(structure);
-    CreepUtils.consoleLogResultIfWatched(this, `dismantling ${structure.structureType}`, result);
+    CreepUtils.consoleLogIfWatched(this, `dismantling ${structure.structureType}`, result);
     if (result === ERR_NOT_IN_RANGE) {
-      CreepUtils.consoleLogResultIfWatched(this, `moving to ${String(structure.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
       result = this.moveTo(structure, {
         costCallback: (roomName, costMatrix) => {
           this.roomw.getCostMatrix("avoidHarvestPositions", costMatrix);
@@ -441,22 +441,30 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected findRoomStorage(): StructureWithStorage | null {
-    if (this.roomw.storage && this.roomw.storage.store.getFreeCapacity() > 0) {
-      return this.roomw.storage;
+    CreepUtils.consoleLogIfWatched(
+      this,
+      `room storage: ${String(this.room.storage)} ${String(this.room.storage?.store.getFreeCapacity())}`
+    );
+    if (this.room.storage && this.room.storage.store.getFreeCapacity() > 0) {
+      CreepUtils.consoleLogIfWatched(this, `room storage: ${String(this.room.storage.store.getFreeCapacity())}`);
+      return this.room.storage;
     }
 
     const spawnStorage = this.findClosestSpawnStorageNotFull();
     if (spawnStorage) {
+      CreepUtils.consoleLogIfWatched(this, `spawn storage: ${String(spawnStorage.pos)}`);
       return spawnStorage;
     }
 
     const tower = this.findClosestTowerNotFull();
     if (tower) {
+      CreepUtils.consoleLogIfWatched(this, `tower storage: ${String(tower.pos)}`);
       return tower;
     }
 
     const container = this.findClosestControllerContainerNotFull();
     if (container) {
+      CreepUtils.consoleLogIfWatched(this, `container storage: ${String(container.pos)}`);
       return container;
     }
 
@@ -465,13 +473,9 @@ export abstract class CreepWrapper extends Creep {
 
   protected moveToAndTransfer(structure: StructureWithStorage): ScreepsReturnCode {
     let result = this.transfer(structure, RESOURCE_ENERGY);
-    CreepUtils.consoleLogResultIfWatched(this, `transfer to ${structure.structureType}`, result);
+    CreepUtils.consoleLogIfWatched(this, `transfer to ${structure.structureType}`, result);
     if (result === ERR_NOT_IN_RANGE) {
-      CreepUtils.consoleLogResultIfWatched(
-        this,
-        `moving to ${structure.structureType} at ${String(structure.pos)}`,
-        result
-      );
+      CreepUtils.consoleLogIfWatched(this, `moving to ${structure.structureType} at ${String(structure.pos)}`, result);
       result = this.moveTo(structure);
     }
     return result;

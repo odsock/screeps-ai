@@ -25,12 +25,12 @@ export class Planner {
     if (this.room.controller) {
       if (this.room.controller?.level >= 1) {
         const result1 = this.planLevel1();
-        CreepUtils.consoleLogResultIfWatched(this.room, `level 1 planning result`, result1);
+        CreepUtils.consoleLogIfWatched(this.room, `level 1 planning result`, result1);
       }
 
       if (this.room.controller?.level >= 2) {
         const result2 = this.planLevel2();
-        CreepUtils.consoleLogResultIfWatched(this.room, `level 2 planning result`, result2);
+        CreepUtils.consoleLogIfWatched(this.room, `level 2 planning result`, result2);
       }
     }
     return OK;

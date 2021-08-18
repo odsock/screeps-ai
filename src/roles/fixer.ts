@@ -25,7 +25,7 @@ export class Fixer extends CreepWrapper {
 
     if (this.memory.working) {
       const result = this.moveToAndRepair(target);
-      CreepUtils.consoleLogResultIfWatched(this, `repair result`, result);
+      CreepUtils.consoleLogIfWatched(this, `repair result`, result);
       return result;
     } else {
       this.harvestByPriority();
@@ -41,7 +41,7 @@ export class Fixer extends CreepWrapper {
 
     if (this.memory.working) {
       const result = this.moveToAndDismantle(target);
-      CreepUtils.consoleLogResultIfWatched(this, `dismantle result`, result);
+      CreepUtils.consoleLogIfWatched(this, `dismantle result`, result);
       return result;
     } else {
       const storage = this.findRoomStorage();

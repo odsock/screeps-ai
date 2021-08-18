@@ -9,6 +9,17 @@ export class Constants {
   public static readonly TOWER_MAX_REPAIR_RANGE = TOWER_OPTIMAL_RANGE;
   public static readonly TOWER_MAX_ATTACK_RANGE = TOWER_OPTIMAL_RANGE * 2;
 
+  //   BODYPART_COST: {
+  //     "move": 50,
+  //     "work": 100,
+  //     "attack": 80,
+  //     "carry": 50,
+  //     "heal": 250,
+  //     "ranged_attack": 150,
+  //     "tough": 10,
+  //     "claim": 600
+  // },
+
   // TODO fixer spawn should scale based on repairs to do?
   public static readonly BODY_PROFILE_FIXER: CreepBodyProfile = {
     profile: [WORK, CARRY, MOVE, MOVE],

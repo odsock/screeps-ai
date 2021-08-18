@@ -56,7 +56,7 @@ export class Minder extends CreepWrapper {
     if (sources.length > 0) {
       result = this.harvest(sources[0]);
     }
-    CreepUtils.consoleLogResultIfWatched(this, `harvest result`, result);
+    CreepUtils.consoleLogIfWatched(this, `harvest result`, result);
     return result;
   }
 
@@ -67,7 +67,7 @@ export class Minder extends CreepWrapper {
     if (myContainer) {
       result = this.transfer(myContainer, RESOURCE_ENERGY);
     }
-    CreepUtils.consoleLogResultIfWatched(this, `fill result`, result);
+    CreepUtils.consoleLogIfWatched(this, `fill result`, result);
     return result;
   }
 
@@ -78,7 +78,7 @@ export class Minder extends CreepWrapper {
     if (site) {
       result = this.build(site);
     }
-    CreepUtils.consoleLogResultIfWatched(this, `build result`, result);
+    CreepUtils.consoleLogIfWatched(this, `build result`, result);
     return result;
   }
 
@@ -89,7 +89,7 @@ export class Minder extends CreepWrapper {
     if (site) {
       result = this.repair(site);
     }
-    CreepUtils.consoleLogResultIfWatched(this, `repair result`, result);
+    CreepUtils.consoleLogIfWatched(this, `repair result`, result);
     return result;
   }
 
@@ -99,7 +99,7 @@ export class Minder extends CreepWrapper {
     if (this.room.controller && this.pos.inRangeTo(this.room.controller.pos, 3)) {
       result = this.upgradeController(this.room.controller);
     }
-    CreepUtils.consoleLogResultIfWatched(this, `upgrade result`, result);
+    CreepUtils.consoleLogIfWatched(this, `upgrade result`, result);
     return result;
   }
 
@@ -109,7 +109,7 @@ export class Minder extends CreepWrapper {
     if (this.room.controller && this.pos.inRangeTo(this.room.controller.pos, 3)) {
       result = this.withdraw(this.getMyContainer() as StructureContainer, RESOURCE_ENERGY);
     }
-    CreepUtils.consoleLogResultIfWatched(this, `withdraw result`, result);
+    CreepUtils.consoleLogIfWatched(this, `withdraw result`, result);
     return result;
   }
 }

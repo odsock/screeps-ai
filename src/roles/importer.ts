@@ -20,7 +20,7 @@ export class Importer extends RemoteWorker {
     if (this.targetRoom) {
       CreepUtils.consoleLogIfWatched(this, "harvesting job");
       const result = this.doHarvestJob();
-      CreepUtils.consoleLogResultIfWatched(this, `job result`, result);
+      CreepUtils.consoleLogIfWatched(this, `job result`, result);
       return;
     }
 
@@ -45,19 +45,20 @@ export class Importer extends RemoteWorker {
     let result: ScreepsReturnCode = OK;
     if (this.memory.working) {
       result = this.moveToRoom(this.targetRoom);
-      CreepUtils.consoleLogResultIfWatched(this, `move to target result`, result);
+      CreepUtils.consoleLogIfWatched(this, `move to target result`, result);
       if (this.pos.roomName === this.targetRoom) {
         result = this.harvestByPriority();
       }
       return result;
     } else {
       result = this.moveToRoom(this.homeRoom);
-      CreepUtils.consoleLogResultIfWatched(this, `move home result`, result);
+      CreepUtils.consoleLogIfWatched(this, `move home result`, result);
       if (this.pos.roomName === this.homeRoom) {
         const storage = this.findRoomStorage();
         if (storage) {
+          CreepUtils.consoleLogIfWatched(this, `storage found: ${storage.structureType} ${String(storage.pos)}`);
           result = this.moveToAndTransfer(storage);
-          CreepUtils.consoleLogResultIfWatched(this, `fill storage result`, result);
+          CreepUtils.consoleLogIfWatched(this, `fill storage result`, result);
         } else {
           CreepUtils.consoleLogIfWatched(this, `no storage found. sitting like a lump.`);
           result = ERR_FULL;

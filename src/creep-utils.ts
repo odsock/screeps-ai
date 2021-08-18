@@ -1,16 +1,18 @@
 import { Constants } from "./constants";
 
 export class CreepUtils {
-  public static consoleLogIfWatched(watchable: Watchable, message: string): void {
+  public static consoleLogIfWatched(
+    watchable: Watchable,
+    message: string,
+    result: ScreepsReturnCode | undefined = undefined
+  ): void {
     if (watchable.memory.watched === true) {
-      console.log(`${watchable.name}: ${message}`);
-    }
-  }
-
-  public static consoleLogResultIfWatched(watchable: Watchable, message: string, result: ScreepsReturnCode): void {
-    if (watchable.memory.watched === true) {
-      const resultString = String(Constants.ERROR_CODE_LOOKUP.get(result));
-      console.log(`${watchable.name}: ${message}: ${result} ${resultString}`);
+      if (result) {
+        const resultString = String(Constants.ERROR_CODE_LOOKUP.get(result));
+        console.log(`${watchable.name}: ${message}: ${result} ${resultString}`);
+      } else {
+        console.log(`${watchable.name}: ${message}`);
+      }
     }
   }
 
