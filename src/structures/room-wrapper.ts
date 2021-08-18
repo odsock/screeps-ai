@@ -6,36 +6,39 @@ import { PlannerUtils } from "planning/planner-utils";
 export class RoomWrapper extends Room {
   public constructor(private readonly room: Room) {
     super(room.name);
-
-    // console.log(`controller ${String(this.controller)}`);
-    // console.log(`energyAvailable ${String(this.energyAvailable)}`);
-    // console.log(`energyCapacityAvailable ${String(this.energyCapacityAvailable)}`);
-    // console.log(`memory ${String(this.memory)}`);
-    // console.log(`mode ${String(this.mode)}`);
-    // console.log(`name ${String(this.name)}`);
-    // console.log(`storage ${String(this.storage)}`);
-    // console.log(`terminal ${String(this.terminal)}`);
-    // console.log(`visual ${String(this.visual)}`);
-    // console.log(`getEventLog ${String(this.getEventLog())}`);
-
-    // [3:18:12 PM][shard3]controller [structure (controller) #5bbcade89099fc012e6381d9]
-    // [3:18:12 PM][shard3]energyAvailable 0
-    // [3:18:12 PM][shard3]energyCapacityAvailable 0
-    // [3:18:12 PM][shard3]mode undefined
-    // [3:18:12 PM][shard3]name E17N55
-    // [3:18:12 PM][shard3]storage undefined
-    // [3:18:12 PM][shard3]terminal undefined
-    // [3:18:12 PM][shard3]visual [object Object]
-    // [3:18:12 PM][shard3]controller [structure (controller) #5bbcade89099fc012e6381d9]
-    // [3:18:12 PM][shard3]energyAvailable 0
-    // [3:18:12 PM][shard3]energyCapacityAvailable 0
-    // [3:18:12 PM][shard3]mode undefined
-    // [3:18:12 PM][shard3]name E17N55
-    // [3:18:12 PM][shard3]storage undefined
-    // [3:18:12 PM][shard3]terminal undefined
-    // [3:18:12 PM][shard3]visual [object Object]
   }
 
+  /** Declare getters for properties that don't seem to get copied in when constructed */
+
+  public get controller(): StructureController | undefined {
+    return this.room.controller;
+  }
+
+  public get energyAvailable(): number {
+    return this.room.energyAvailable;
+  }
+
+  public get energyCapacityAvailable(): number {
+    return this.room.energyCapacityAvailable;
+  }
+
+  public get mode(): string {
+    return this.room.mode;
+  }
+
+  public get storage(): StructureStorage | undefined {
+    return this.room.storage;
+  }
+
+  public get terminal(): StructureTerminal | undefined {
+    return this.room.terminal;
+  }
+
+  /** Getters for some cached properties */
+
+  /**
+   * Structures marked for demolition.
+   */
   public get dismantleQueue(): Structure[] {
     let queue = MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueue`);
     if (!queue) {
@@ -47,21 +50,35 @@ export class RoomWrapper extends Room {
     return queue;
   }
 
+  /**
+   * Cached string export of colony plan visual.
+   */
   public get planVisual(): string {
     return MemoryUtils.getCache<string>(`${this.room.name}_planVisual`);
   }
 
+  /**
+   * Sets cached string export of colony plan visual.
+   */
   public set planVisual(visual: string) {
     MemoryUtils.setCache(`${this.room.name}_planVisual`, visual);
   }
 
+  /**
+   * Cached string export of demolition plan visual.
+   */
   public get dismantleVisual(): string {
     return MemoryUtils.getCache<string>(`${this.room.name}_dismantleVisual`);
   }
 
+  /**
+   * Sets cached string export of demolition plan visual.
+   */
   public set dismantleVisual(visual: string) {
     MemoryUtils.setCache(`${this.room.name}_dismantleVisual`, visual);
   }
+
+  /** stuff that needs caching code */
 
   // TODO cache this as well
   public get deposits(): Deposit[] {
@@ -76,10 +93,6 @@ export class RoomWrapper extends Room {
   // TODO cache this
   public get spawns(): StructureSpawn[] {
     return this.room.find(FIND_MY_SPAWNS);
-  }
-
-  public get controller(): StructureController | undefined {
-    return this.room.controller;
   }
 
   public get constructionWork(): number {
@@ -114,6 +127,29 @@ export class RoomWrapper extends Room {
     }, []);
   }
 
+  public get controllerContainers(): StructureContainer[] {
+    return this.room.memory.containers.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
+      if (containerInfo.nearController) {
+        const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
+        if (container !== null) {
+          list.push(container);
+        }
+      }
+      return list;
+    }, []);
+  }
+
+  /** writes events to memory */
+
+  public roomMemoryLog(message: string): void {
+    if (!this.room.memory.log) {
+      this.room.memory.log = [];
+    }
+    this.room.memory.log.push(`${Game.time}: ${message}`);
+  }
+
+  /** Harvest positions caching */
+
   private harvestPositionsCache: RoomPosition[] | undefined;
 
   public get harvestPositions(): RoomPosition[] {
@@ -135,6 +171,8 @@ export class RoomWrapper extends Room {
       }, [])
       .filter(pos => PlannerUtils.isEnterable(pos));
   }
+
+  /** cost matrix caching */
 
   private costMatrixCache: { [name: string]: CostMatrix } = {};
 
@@ -162,24 +200,7 @@ export class RoomWrapper extends Room {
     return costMatrix;
   }
 
-  public get controllerContainers(): StructureContainer[] {
-    return this.room.memory.containers.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
-      if (containerInfo.nearController) {
-        const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
-        if (container !== null) {
-          list.push(container);
-        }
-      }
-      return list;
-    }, []);
-  }
-
-  public roomMemoryLog(message: string): void {
-    if (!this.room.memory.log) {
-      this.room.memory.log = [];
-    }
-    this.room.memory.log.push(`${Game.time}: ${message}`);
-  }
+  /** various find methods */
 
   public findClosestDamagedNonRoad(pos: RoomPosition): AnyStructure | null {
     return pos.findClosestByRange(FIND_STRUCTURES, {
