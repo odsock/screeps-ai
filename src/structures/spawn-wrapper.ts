@@ -34,11 +34,11 @@ export class SpawnWrapper extends StructureSpawn {
     this.minders = creeps.filter(c => c.memory.role === "minder").map(c => new Minder(c));
     this.haulers = creeps.filter(c => c.memory.role === "hauler").map(c => new Hauler(c));
     this.fixers = creeps.filter(c => c.memory.role === "fixer").map(c => new Fixer(c));
-    this.importers = creeps.filter(c => c.memory.role === "importer").map(c => new Importer(c));
     this.containers = this.room.find(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_CONTAINER });
     this.rcl = this.room.controller?.level ? this.room.controller?.level : 0;
 
     this.claimers = _.filter(Game.creeps, c => c.memory.role === "claimer").map(c => new Claimer(c));
+    this.importers = _.filter(Game.creeps, c => c.memory.role === "importer").map(c => new Importer(c));
   }
 
   public spawnCreeps(): void {
