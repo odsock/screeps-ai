@@ -28,10 +28,10 @@ export class Planner {
         CreepUtils.consoleLogResultIfWatched(this.room, `level 1 planning result`, result1);
       }
 
-      // if (this.room.controller?.level >= 2) {
-      //   const result2 = this.planLevel2();
-      //   CreepUtils.consoleLogResultIfWatched(this.room, `level 2 planning result`, result2);
-      // }
+      if (this.room.controller?.level >= 2) {
+        const result2 = this.planLevel2();
+        CreepUtils.consoleLogResultIfWatched(this.room, `level 2 planning result`, result2);
+      }
     }
     return OK;
   }
@@ -117,11 +117,11 @@ export class Planner {
 
   private planLevel2(): ScreepsReturnCode {
     // place available extensions
-    const extensionPlan = new ExtensionPlan(this.room);
-    const extensionResult = extensionPlan.planExtensionGroup();
-    if (extensionResult !== OK) {
-      return extensionResult;
-    }
+    // const extensionPlan = new ExtensionPlan(this.room);
+    // const extensionResult = extensionPlan.planExtensionGroup();
+    // if (extensionResult !== OK) {
+    //   return extensionResult;
+    // }
 
     // place source containers
     const containerPlan = new ContainerPlan(this.room);
@@ -144,10 +144,10 @@ export class Planner {
     }
 
     // place roads to all extensions
-    const extensionRoadResult = roadPlan.placeRoadSpawnToExtensions();
-    if (extensionRoadResult !== OK) {
-      return extensionRoadResult;
-    }
+    // const extensionRoadResult = roadPlan.placeRoadSpawnToExtensions();
+    // if (extensionRoadResult !== OK) {
+    //   return extensionRoadResult;
+    // }
 
     // place road from controller to spawn
     const controllerRoadResult = roadPlan.placeRoadControllerToSpawn();
