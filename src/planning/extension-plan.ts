@@ -4,10 +4,10 @@ import { PlannerUtils } from "./planner-utils";
 import { StructurePlan } from "./structure-plan";
 
 export class ExtensionPlan {
-  private readonly room: RoomWrapper;
+  private readonly roomw: RoomWrapper;
 
   public constructor(room: Room) {
-    this.room = new RoomWrapper(room);
+    this.roomw = new RoomWrapper(room);
   }
 
   public planExtensionGroup(): ScreepsReturnCode {
@@ -15,8 +15,8 @@ export class ExtensionPlan {
     if (numAvailableExtensions >= 5) {
       const structurePlan = PlannerUtils.findSiteForPattern(
         StructurePatterns.EXTENSION_GROUP,
-        this.room,
-        this.room.spawns[0].pos
+        this.roomw,
+        this.roomw.spawns[0].pos
       );
       return PlannerUtils.placeStructurePlan(structurePlan);
     }
@@ -25,18 +25,18 @@ export class ExtensionPlan {
 
   private getNumAvailableExtensions(): number {
     let availableExtensions = 0;
-    const conLevel = this.room.controller?.level;
+    const conLevel = this.roomw.controller?.level;
     if (conLevel) {
       const maxExtensions = CONTROLLER_STRUCTURES.extension[conLevel];
-      const builtExtensions = this.room.find(FIND_MY_STRUCTURES, {
+      const builtExtensions = this.roomw.find(FIND_MY_STRUCTURES, {
         filter: s => s.structureType === STRUCTURE_EXTENSION
       }).length;
-      const placedExtensions = this.room.find(FIND_MY_CONSTRUCTION_SITES, {
+      const placedExtensions = this.roomw.find(FIND_MY_CONSTRUCTION_SITES, {
         filter: s => s.structureType === STRUCTURE_EXTENSION
       }).length;
       availableExtensions = maxExtensions - builtExtensions - placedExtensions;
     }
-    console.log(`${this.room.name}: extensions available: ${availableExtensions}`);
+    console.log(`${this.roomw.name}: extensions available: ${availableExtensions}`);
     return availableExtensions;
   }
 }

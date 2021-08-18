@@ -9,62 +9,62 @@ import { StructurePatterns } from "structure-patterns";
 import { StructurePlan } from "./structure-plan";
 
 export class Planner {
-  private readonly room: RoomWrapper;
+  private readonly roomw: RoomWrapper;
 
   public constructor(room: Room) {
-    this.room = new RoomWrapper(room);
+    this.roomw = new RoomWrapper(room);
   }
 
   public run(): ScreepsReturnCode {
-    console.log(`${this.room.name}: running planning`);
-    MemoryUtils.refreshRoomMemory(this.room);
+    console.log(`${this.roomw.name}: running planning`);
+    MemoryUtils.refreshRoomMemory(this.roomw);
 
     this.planFullColony();
     this.assimilateColonlyToPlan();
 
-    if (this.room.controller) {
-      if (this.room.controller?.level >= 1) {
+    if (this.roomw.controller) {
+      if (this.roomw.controller?.level >= 1) {
         const result1 = this.planLevel1();
-        CreepUtils.consoleLogIfWatched(this.room, `level 1 planning result`, result1);
+        CreepUtils.consoleLogIfWatched(this.roomw, `level 1 planning result`, result1);
       }
 
-      if (this.room.controller?.level >= 2) {
+      if (this.roomw.controller?.level >= 2) {
         const result2 = this.planLevel2();
-        CreepUtils.consoleLogIfWatched(this.room, `level 2 planning result`, result2);
+        CreepUtils.consoleLogIfWatched(this.roomw, `level 2 planning result`, result2);
       }
     }
     return OK;
   }
 
   private planFullColony(): void {
-    let plan: StructurePlan = MemoryUtils.getCache<StructurePlan>(`${this.room.name}_plan`);
+    let plan: StructurePlan = MemoryUtils.getCache<StructurePlan>(`${this.roomw.name}_plan`);
     if (!plan) {
-      const controllerPos = this.room.controller?.pos;
+      const controllerPos = this.roomw.controller?.pos;
       if (controllerPos) {
         console.log("POC colonly layout");
-        const sourcePositions = this.room.sources.map(source => source.pos);
-        const depositPositions = this.room.deposits.map(deposit => deposit.pos);
+        const sourcePositions = this.roomw.sources.map(source => source.pos);
+        const depositPositions = this.roomw.deposits.map(deposit => deposit.pos);
 
         // find the best colony placement
         const centerPoint = PlannerUtils.findMidpoint([controllerPos, ...sourcePositions, ...depositPositions]);
-        plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, this.room, centerPoint, true);
+        plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, this.roomw, centerPoint, true);
 
         // draw plan visual
-        this.room.visual.clear();
-        this.room.visual.circle(centerPoint.x, centerPoint.y, { fill: "#FF0000" });
+        this.roomw.visual.clear();
+        this.roomw.visual.circle(centerPoint.x, centerPoint.y, { fill: "#FF0000" });
         plan.drawPattern();
-        this.room.planVisual = this.room.visual.export();
+        this.roomw.planVisual = this.roomw.visual.export();
 
         // cache plan
         // TODO put this in room wrapper
-        MemoryUtils.setCache(`${this.room.name}_plan`, plan);
-        MemoryUtils.setCache(`${this.room.name}_centerPoint`, centerPoint);
+        MemoryUtils.setCache(`${this.roomw.name}_plan`, plan);
+        MemoryUtils.setCache(`${this.roomw.name}_centerPoint`, centerPoint);
       }
     }
   }
 
   private assimilateColonlyToPlan(): ScreepsReturnCode {
-    const plan = MemoryUtils.getCache<StructurePlan>(`${this.room.name}_plan`);
+    const plan = MemoryUtils.getCache<StructurePlan>(`${this.roomw.name}_plan`);
     if (!plan) {
       return OK;
     }
@@ -83,7 +83,7 @@ export class Planner {
       );
 
       if (wrongStructure?.structure && wrongStructure.structure) {
-        const dismantleQueue = this.room.dismantleQueue;
+        const dismantleQueue = this.roomw.dismantleQueue;
         if (!dismantleQueue.find(item => item.id === wrongStructure.structure?.id)) {
           console.log(
             `DISMANTLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
@@ -95,11 +95,11 @@ export class Planner {
     });
 
     // draw dismantle queue
-    this.room.visual.clear();
-    this.room.dismantleQueue.forEach(structure => {
-      this.room.visual.circle(structure.pos, { fill: "#FF0000" });
+    this.roomw.visual.clear();
+    this.roomw.dismantleQueue.forEach(structure => {
+      this.roomw.visual.circle(structure.pos, { fill: "#FF0000" });
     });
-    this.room.dismantleVisual = this.room.visual.export();
+    this.roomw.dismantleVisual = this.roomw.visual.export();
 
     // try to construct any missing structures
     const result = PlannerUtils.placeStructurePlan(plan);
@@ -109,8 +109,8 @@ export class Planner {
   }
 
   private planLevel1(): ScreepsReturnCode {
-    if (this.room.find(FIND_MY_SPAWNS).length === 0) {
-      return PlannerUtils.placeFirstSpawn(this.room);
+    if (this.roomw.find(FIND_MY_SPAWNS).length === 0) {
+      return PlannerUtils.placeFirstSpawn(this.roomw);
     }
     return OK;
   }
@@ -124,7 +124,7 @@ export class Planner {
     // }
 
     // place source containers
-    const containerPlan = new ContainerPlan(this.room);
+    const containerPlan = new ContainerPlan(this.roomw);
     const sourceContainerResult = containerPlan.placeSourceContainer();
     if (sourceContainerResult !== OK) {
       return sourceContainerResult;
@@ -137,7 +137,7 @@ export class Planner {
     }
 
     // place road from source containers to controller containers
-    const roadPlan = new RoadPlan(this.room);
+    const roadPlan = new RoadPlan(this.roomw);
     const containerRoadResult = roadPlan.placeRoadSourceContainersToControllerContainers();
     if (containerRoadResult !== OK) {
       return containerRoadResult;
@@ -156,8 +156,8 @@ export class Planner {
     }
 
     // place towers
-    if (PlannerUtils.getAvailableStructureCount(STRUCTURE_TOWER, this.room) > 0) {
-      const towerResult = PlannerUtils.placeTowerAtCenterOfColony(this.room);
+    if (PlannerUtils.getAvailableStructureCount(STRUCTURE_TOWER, this.roomw) > 0) {
+      const towerResult = PlannerUtils.placeTowerAtCenterOfColony(this.roomw);
       if (towerResult !== OK) {
         return towerResult;
       }

@@ -13,37 +13,37 @@ export class Sockpuppet {
 
     // Run each room
     for (const roomId in Game.rooms) {
-      const room = new RoomWrapper(Game.rooms[roomId]);
-      if (room.controller?.owner?.username !== "odsock") {
+      const roomw = new RoomWrapper(Game.rooms[roomId]);
+      if (roomw.controller?.owner?.username !== "odsock") {
         continue;
       }
 
       // draw colony poc
-      const planVisual = room.planVisual;
+      const planVisual = roomw.planVisual;
       if (planVisual) {
-        room.visual.import(planVisual);
+        roomw.visual.import(planVisual);
       }
 
       // draw dismantle queue
-      const dismantleVisual = room.dismantleVisual;
+      const dismantleVisual = roomw.dismantleVisual;
       if (dismantleVisual) {
-        room.visual.import(dismantleVisual);
+        roomw.visual.import(dismantleVisual);
       }
 
-      const planner = new Planner(room);
+      const planner = new Planner(roomw);
       // TODO refresh every turn maybe excessive?
-      MemoryUtils.refreshRoomMemory(room);
+      MemoryUtils.refreshRoomMemory(roomw);
 
       // Run spawners
-      CreepUtils.consoleLogIfWatched(room, `running spawns`);
-      const spawns = room.find(FIND_MY_SPAWNS);
+      CreepUtils.consoleLogIfWatched(roomw, `running spawns`);
+      const spawns = roomw.find(FIND_MY_SPAWNS);
       for (const spawn of spawns) {
         const spawner = new SpawnWrapper(spawn);
         spawner.spawnCreeps();
       }
 
-      CreepUtils.consoleLogIfWatched(room, `running towers`);
-      this.runTowers(room);
+      CreepUtils.consoleLogIfWatched(roomw, `running towers`);
+      this.runTowers(roomw);
 
       // Plan each room every 10 ticks
       if (Game.time % 10 === 0) {
