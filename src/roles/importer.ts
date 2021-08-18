@@ -1,4 +1,5 @@
 import { CreepUtils } from "creep-utils";
+import { TargetConfig } from "target-config";
 import { RemoteWorker } from "./remote-worker";
 
 export class Importer extends RemoteWorker {
@@ -9,7 +10,7 @@ export class Importer extends RemoteWorker {
     }
 
     if (!this.targetRoom) {
-      this.targetRoom = "my cool neighbor";
+      this.targetRoom = TargetConfig.REMOTE_HARVEST[Game.shard.name].pop();
 
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
       return;
