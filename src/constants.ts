@@ -1,6 +1,7 @@
 export class Constants {
   public static readonly MAX_WORKERS: number = 8;
   public static readonly MAX_FIXER_CREEPS: number = 1;
+  public static readonly MAX_IMPORTER_CREEPS: number = 0;
 
   public static readonly WORK_PER_WORKER_PART = 1000;
 
@@ -43,6 +44,12 @@ export class Constants {
   public static readonly BODY_PROFILE_CLAIMER: CreepBodyProfile = {
     profile: [MOVE, WORK, CARRY],
     seed: [MOVE, CLAIM],
+    maxBodyParts: MAX_CREEP_SIZE
+  };
+
+  public static readonly BODY_PROFILE_IMPORTER: CreepBodyProfile = {
+    profile: [WORK, CARRY, MOVE, MOVE],
+    seed: [],
     maxBodyParts: MAX_CREEP_SIZE
   };
 

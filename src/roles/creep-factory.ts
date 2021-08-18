@@ -5,6 +5,7 @@ import { Hauler } from "./hauler";
 import { Builder } from "./builder";
 import { Claimer } from "./claimer";
 import { Fixer } from "./fixer";
+import { Importer } from "./importer";
 
 export class CreepFactory {
   public static getCreep(creep: Creep): CreepWrapper {
@@ -21,6 +22,8 @@ export class CreepFactory {
         return new Claimer(creep);
       case "fixer":
         return new Fixer(creep);
+      case "importer":
+        return new Importer(creep);
 
       default:
         throw new Error(`Unknown creep role: ${creep.memory.role}`);

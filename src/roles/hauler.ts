@@ -95,14 +95,6 @@ export class Hauler extends CreepWrapper {
     return result;
   }
 
-  private findClosestControllerContainerNotFull(): StructureContainer | null {
-    const containersNotFull = this.roomw.controllerContainers.filter(
-      container => container.store.getFreeCapacity() > 0
-    );
-    CreepUtils.consoleLogIfWatched(this, `controller containers not full: ${containersNotFull.length}`);
-    return this.pos.findClosestByPath(containersNotFull);
-  }
-
   private findClosestSourceContainerNotEmpty(): StructureContainer | null {
     const sources = this.room.find(FIND_SOURCES);
     const containers: StructureContainer[] = [];
@@ -191,28 +183,28 @@ export class Hauler extends CreepWrapper {
     const myContainer = this.getMyContainer();
     if (myContainer && myContainer.store.energy > 0) {
       CreepUtils.consoleLogIfWatched(this, `moving to my container: ${myContainer.pos.x},${myContainer.pos.y}`);
-      return this.withdrawEnergyFromOrMoveTo(myContainer);
+      return this.moveToAndWithdraw(myContainer);
     }
 
     const container = this.findClosestSourceContainerNotEmpty();
     if (container) {
       CreepUtils.consoleLogIfWatched(this, `moving to container: ${container.pos.x},${container.pos.y}`);
-      return this.withdrawEnergyFromOrMoveTo(container);
+      return this.moveToAndWithdraw(container);
     }
 
     if (tombstone) {
       CreepUtils.consoleLogIfWatched(this, `moving to tombstone: ${tombstone.pos.x},${tombstone.pos.y}`);
-      return this.withdrawEnergyFromOrMoveTo(tombstone);
+      return this.moveToAndWithdraw(tombstone);
     }
 
     if (ruin) {
       CreepUtils.consoleLogIfWatched(this, `moving to ruin: ${ruin.pos.x},${ruin.pos.y}`);
-      return this.withdrawEnergyFromOrMoveTo(ruin);
+      return this.moveToAndWithdraw(ruin);
     }
 
     if (droppedEnergy) {
       CreepUtils.consoleLogIfWatched(this, `moving to ruin: ${droppedEnergy.pos.x},${droppedEnergy.pos.y}`);
-      return this.pickupFromOrMoveTo(droppedEnergy);
+      return this.moveToAndPickup(droppedEnergy);
     }
 
     this.say("🤔");

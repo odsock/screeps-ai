@@ -65,8 +65,8 @@ interface Watchable {
   memory: { watched?: boolean };
 }
 
-interface StructureWithStorage {
-  store: Store<RESOURCE_ENERGY, false>;
+interface StructureWithStorage extends Structure {
+  store: StoreDefinition;
 }
 
 interface CreepBodyProfile {

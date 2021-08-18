@@ -4,6 +4,7 @@ import { Claimer } from "roles/claimer";
 import { CreepFactory } from "roles/creep-factory";
 import { Fixer } from "roles/fixer";
 import { Hauler } from "roles/hauler";
+import { Importer } from "roles/importer";
 import { Minder } from "roles/minder";
 import { Worker } from "roles/worker";
 import { TargetConfig } from "target-config";
@@ -16,6 +17,7 @@ export class SpawnWrapper extends StructureSpawn {
   private readonly haulers: Hauler[];
   private readonly builders: Builder[];
   private readonly fixers: Fixer[];
+  private readonly importers: Importer[];
 
   private readonly containers: AnyStructure[];
   private readonly rcl: number;
@@ -32,6 +34,7 @@ export class SpawnWrapper extends StructureSpawn {
     this.minders = creeps.filter(c => c.memory.role === "minder").map(c => new Minder(c));
     this.haulers = creeps.filter(c => c.memory.role === "hauler").map(c => new Hauler(c));
     this.fixers = creeps.filter(c => c.memory.role === "fixer").map(c => new Fixer(c));
+    this.importers = creeps.filter(c => c.memory.role === "importer").map(c => new Importer(c));
     this.containers = this.room.find(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_CONTAINER });
     this.rcl = this.room.controller?.level ? this.room.controller?.level : 0;
 
@@ -77,6 +80,11 @@ export class SpawnWrapper extends StructureSpawn {
         return;
       }
 
+      if (this.importers.length < Constants.MAX_IMPORTER_CREEPS) {
+        this.spawnImporter();
+        return;
+      }
+
       // make builders if there's something to build and past level 1
       const workPartsNeeded = this.getBuilderWorkPartsNeeded();
       if (this.workers.length === 0 && this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
@@ -103,9 +111,15 @@ export class SpawnWrapper extends StructureSpawn {
       });
     }
   }
+
   private spawnFixer(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `- spawning fixer`);
     return this.spawn(this.getMaxBody(Constants.BODY_PROFILE_FIXER), "fixer");
+  }
+
+  private spawnImporter(): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `- spawning Importer`);
+    return this.spawn(this.getMaxBody(Constants.BODY_PROFILE_IMPORTER), "Importer");
   }
 
   private spawnClaimer(): ScreepsReturnCode {
