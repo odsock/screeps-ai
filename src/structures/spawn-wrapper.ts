@@ -119,7 +119,7 @@ export class SpawnWrapper extends StructureSpawn {
 
   private spawnImporter(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `- spawning Importer`);
-    return this.spawn(this.getMaxBody(Constants.BODY_PROFILE_IMPORTER), "Importer");
+    return this.spawn(this.getMaxBody(Constants.BODY_PROFILE_IMPORTER), "importer");
   }
 
   private spawnClaimer(): ScreepsReturnCode {
