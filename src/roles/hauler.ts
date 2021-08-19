@@ -40,6 +40,7 @@ export class Hauler extends CreepWrapper {
     const container = this.findClosestControllerContainerNotFull();
     if (container) {
       this.supplyStructure(container);
+      return;
     }
 
     // otherwise supply storage
