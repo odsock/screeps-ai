@@ -9,40 +9,24 @@ export class Importer extends RemoteWorker {
       this.homeRoom = this.pos.roomName;
     }
 
+    const result = this.fleeIfHostiles();
+    if (result !== ERR_NOT_FOUND) {
+      return;
+    }
+
     if (!this.targetRoom) {
       // TODO work out a claim system for this
       this.targetRoom = TargetConfig.REMOTE_HARVEST[Game.shard.name][0];
+    }
 
+    if (!this.targetRoom) {
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
       return;
-    }
-
-    if (this.targetRoom) {
-      // run home if hostiles seen
-      if (this.room.find(FIND_HOSTILE_CREEPS).length > 0) {
-        const moveResult = this.moveToRoom(this.homeRoom);
-        const tower = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-          filter: structure => {
-            return structure.structureType === STRUCTURE_TOWER && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
-          }
-        });
-        if (tower) {
-          this.moveTo(tower);
-        }
-        CreepUtils.consoleLogIfWatched(this, `run from hostiles result`, moveResult);
-        return;
-      }
-      const result = this.doHarvestJob();
-      CreepUtils.consoleLogIfWatched(this, `job result`, result);
+    } else {
+      const harvestResult = this.doHarvestJob();
+      CreepUtils.consoleLogIfWatched(this, `job result`, harvestResult);
       return;
     }
-
-    // move to active source
-    // harvest until full
-    // move to home room
-    // move to container with space
-    // transfer resource
-    // repeat until death
   }
 
   private doHarvestJob(): ScreepsReturnCode {

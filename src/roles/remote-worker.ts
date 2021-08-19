@@ -82,4 +82,32 @@ export class RemoteWorker extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `claiming controller: ${String(this.roomw.controller.pos)}`, claimRet);
     return ret;
   }
+
+  /**
+   * Returns creep to tower in home room if hostile creeps seen.
+   * @returns ScreepsReturnCode
+   */
+  protected fleeIfHostiles(): ScreepsReturnCode {
+    if (this.roomw.hostileCreeps.length === 0) {
+      return ERR_NOT_FOUND;
+    }
+
+    CreepUtils.consoleLogIfWatched(this, `found ${this.roomw.hostileCreeps.length} hostile creep(s)`);
+    if (this.homeRoom && this.room.name !== this.homeRoom) {
+      const result = this.moveToRoom(this.homeRoom);
+      CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
+      return result;
+    }
+
+    const tower = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+      filter: structure => structure.structureType === STRUCTURE_TOWER
+    });
+    if (tower) {
+      const result = this.moveTo(tower);
+      CreepUtils.consoleLogIfWatched(this, `moving to tower`, result);
+      return result;
+    }
+
+    return ERR_INVALID_TARGET;
+  }
 }

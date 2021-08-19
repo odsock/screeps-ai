@@ -4,8 +4,11 @@ import { PlannerUtils } from "planning/planner-utils";
 
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
+  public readonly hostileCreeps: Creep[];
+
   public constructor(private readonly room: Room) {
     super(room.name);
+    this.hostileCreeps = this.room.find(FIND_HOSTILE_CREEPS);
   }
 
   /** Declare getters for properties that don't seem to get copied in when constructed */
