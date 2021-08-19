@@ -36,15 +36,20 @@ export class Hauler extends CreepWrapper {
       }
     }
 
-    // otherwise supply controller
+    // supply controller
     const container = this.findClosestControllerContainerNotFull();
     if (container) {
       this.supplyStructure(container);
     }
+
+    // otherwise supply storage
+    if (this.room.storage) {
+      this.supplyStructure(this.room.storage);
+    }
   }
 
   private supplyStructure(
-    target: StructureSpawn | StructureExtension | StructureContainer | StructureTower
+    target: StructureSpawn | StructureExtension | StructureContainer | StructureTower | StructureStorage
   ): ScreepsReturnCode {
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
     CreepUtils.consoleLogIfWatched(this, `supply ${target.structureType}`);
@@ -201,6 +206,12 @@ export class Hauler extends CreepWrapper {
     if (droppedEnergy) {
       CreepUtils.consoleLogIfWatched(this, `moving to ruin: ${droppedEnergy.pos.x},${droppedEnergy.pos.y}`);
       return this.moveToAndPickup(droppedEnergy);
+    }
+
+    const storage = this.room.storage;
+    if (storage) {
+      CreepUtils.consoleLogIfWatched(this, `moving to storage: ${String(storage.pos)}`);
+      return this.moveToAndWithdraw(storage);
     }
 
     this.say("🤔");

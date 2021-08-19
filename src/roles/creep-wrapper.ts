@@ -239,7 +239,7 @@ export abstract class CreepWrapper extends Creep {
     return this.pos.findClosestByPath(containersNotFull);
   }
 
-  protected moveToAndWithdraw(structure: Tombstone | Ruin | StructureContainer): ScreepsReturnCode {
+  protected moveToAndWithdraw(structure: Tombstone | Ruin | StructureContainer | StructureStorage): ScreepsReturnCode {
     let result = this.withdraw(structure, RESOURCE_ENERGY);
     CreepUtils.consoleLogIfWatched(this, `withdraw result`, result);
     if (result === ERR_NOT_IN_RANGE) {
