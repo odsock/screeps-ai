@@ -21,6 +21,14 @@ export class Importer extends RemoteWorker {
       // run home if hostiles seen
       if (this.room.find(FIND_HOSTILE_CREEPS).length > 0) {
         const moveResult = this.moveToRoom(this.homeRoom);
+        const tower = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+          filter: structure => {
+            return structure.structureType === STRUCTURE_TOWER && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
+          }
+        });
+        if (tower) {
+          this.moveTo(tower);
+        }
         CreepUtils.consoleLogIfWatched(this, `run from hostiles result`, moveResult);
         return;
       }
