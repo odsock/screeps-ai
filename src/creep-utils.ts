@@ -7,8 +7,7 @@ export class CreepUtils {
     result: ScreepsReturnCode | undefined = undefined
   ): void {
     if (watchable.memory.watched === true) {
-      console.log(result);
-      if (result) {
+      if (result === undefined) {
         const resultString = String(Constants.ERROR_CODE_LOOKUP.get(result));
         console.log(`${watchable.name}: ${message}: ${result} ${resultString}`);
       } else {
