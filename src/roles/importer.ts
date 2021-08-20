@@ -24,6 +24,7 @@ export class Importer extends RemoteWorker {
       return;
     } else {
       const harvestResult = this.doHarvestJob();
+      console.log(`${result}`);
       CreepUtils.consoleLogIfWatched(this, `job result`, harvestResult);
       return;
     }
@@ -42,6 +43,7 @@ export class Importer extends RemoteWorker {
     let result: ScreepsReturnCode = OK;
     if (this.memory.working) {
       result = this.moveToRoom(this.targetRoom);
+      console.log(`${result}`);
       CreepUtils.consoleLogIfWatched(this, `move to target result`, result);
       if (this.pos.roomName === this.targetRoom) {
         result = this.harvestByPriority();
