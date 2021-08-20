@@ -110,4 +110,32 @@ export class RemoteWorker extends CreepWrapper {
 
     return ERR_INVALID_TARGET;
   }
+
+  /**
+   * Returns creep to tower in home room if damaged.
+   * @returns ScreepsReturnCode
+   */
+  protected findHealingIfDamaged(): ScreepsReturnCode {
+    if (this.hits === this.hitsMax) {
+      return ERR_FULL;
+    }
+
+    CreepUtils.consoleLogIfWatched(this, `hits ${this.hits}/${this.hitsMax}`);
+    if (this.homeRoom && this.room.name !== this.homeRoom) {
+      const result = this.moveToRoom(this.homeRoom);
+      CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
+      return result;
+    }
+
+    const tower = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+      filter: structure => structure.structureType === STRUCTURE_TOWER
+    });
+    if (tower) {
+      const result = this.moveTo(tower);
+      CreepUtils.consoleLogIfWatched(this, `moving to tower`, result);
+      return result;
+    }
+
+    return ERR_INVALID_TARGET;
+  }
 }

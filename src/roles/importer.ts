@@ -14,6 +14,11 @@ export class Importer extends RemoteWorker {
       return;
     }
 
+    const damagedResult = this.findHealingIfDamaged();
+    if (damagedResult !== ERR_FULL) {
+      return;
+    }
+
     if (!this.targetRoom) {
       // TODO work out a claim system for this
       this.targetRoom = TargetConfig.REMOTE_HARVEST[Game.shard.name][0];
