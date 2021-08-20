@@ -24,7 +24,7 @@ export class Importer extends RemoteWorker {
       return;
     } else {
       const harvestResult = this.doHarvestJob();
-      console.log(`${result}`);
+      console.log(`${harvestResult}`);
       CreepUtils.consoleLogIfWatched(this, `job result`, harvestResult);
       return;
     }
