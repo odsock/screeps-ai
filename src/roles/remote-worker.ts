@@ -83,6 +83,23 @@ export class RemoteWorker extends CreepWrapper {
     return ret;
   }
 
+  protected reserveTargetRoom(): ScreepsReturnCode {
+    if (this.room.name !== this.targetRoom) {
+      return ERR_NOT_IN_RANGE;
+    }
+
+    if (!this.roomw.controller) {
+      return ERR_INVALID_TARGET;
+    }
+
+    // go to controller and reserve it
+    const ret = this.moveTo(this.roomw.controller);
+    CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, ret);
+    const claimRet = this.reserveController(this.roomw.controller);
+    CreepUtils.consoleLogIfWatched(this, `reserving controller: ${String(this.roomw.controller.pos)}`, claimRet);
+    return ret;
+  }
+
   /**
    * Returns creep to tower in home room if hostile creeps seen.
    * @returns ScreepsReturnCode

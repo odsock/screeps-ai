@@ -1,8 +1,8 @@
-import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
 import { TargetConfig } from "target-config";
+import { RemoteWorker } from "./remote-worker";
 
-export class Claimer extends CreepWrapper {
+export class Claimer extends RemoteWorker {
   public run(): void {
     this.touchRoad();
 
@@ -15,27 +15,17 @@ export class Claimer extends CreepWrapper {
 
     // go to the room if not in it
     if (this.pos.roomName !== targetRoom) {
-      const exitDirection = this.roomw.findExitTo(targetRoom);
-      if (exitDirection === -2 || exitDirection === -10) {
-        CreepUtils.consoleLogIfWatched(this, `can't get to room: ${targetRoom}, error: ${exitDirection}`);
-        return;
-      }
-      const exitPos = this.pos.findClosestByPath(exitDirection);
-      if (!exitPos) {
-        CreepUtils.consoleLogIfWatched(this, `can't find exit to room: ${targetRoom}`);
-        return;
-      }
-      const ret = this.moveTo(exitPos);
-      CreepUtils.consoleLogIfWatched(this, `moving to exit: ${String(exitPos)}, ret: ${ret}`);
+      const result = this.moveToRoom(targetRoom);
+      CreepUtils.consoleLogIfWatched(this, `move to target room ${targetRoom}`, result);
       return;
     }
 
     // go to controller and claim it
     if (this.roomw.controller) {
-      const ret = this.moveTo(this.roomw.controller);
-      CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller)}, ret: ${ret}`);
-      const claimRet = this.claimController(this.roomw.controller);
-      CreepUtils.consoleLogIfWatched(this, `claiming controller: ${String(this.roomw.controller)}, ret: ${claimRet}`);
+      // const result = this.claimTargetRoom();
+      // CreepUtils.consoleLogIfWatched(this, `claim controller: ${String(this.roomw.controller)}`, result);
+      const result = this.reserveTargetRoom();
+      CreepUtils.consoleLogIfWatched(this, `reserve controller: ${String(this.roomw.controller)}`, result);
       return;
     }
   }
