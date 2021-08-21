@@ -34,7 +34,7 @@ export class Claimer extends RemoteWorker {
     if (!this.memory.targetRoom) {
       // find a target room
       const targetRooms: string[] = TargetConfig.TARGETS[Game.shard.name];
-      const targetRoomsNotOwned = targetRooms.filter(r => !Game.rooms[r]);
+      const targetRoomsNotOwned = targetRooms.filter(r => !Game.rooms[r].controller?.my);
 
       // store my target room in my memory
       this.memory.targetRoom = targetRoomsNotOwned[0];
