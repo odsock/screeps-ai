@@ -135,7 +135,7 @@ export class SpawnWrapper extends StructureSpawn {
     const targetRoomNames = TargetConfig.TARGETS[Game.shard.name];
     if (targetRoomNames) {
       return targetRoomNames.filter(roomName => {
-        if (Game.rooms[roomName]) {
+        if (Game.rooms[roomName].controller?.my) {
           return false;
         }
         try {
