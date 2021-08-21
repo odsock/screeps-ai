@@ -52,9 +52,9 @@ export class Constants {
   };
 
   public static readonly BODY_PROFILE_CLAIMER: CreepBodyProfile = {
-    profile: [MOVE, WORK, CARRY],
-    seed: [MOVE, CLAIM],
-    maxBodyParts: MAX_CREEP_SIZE
+    profile: [MOVE, CLAIM],
+    seed: [],
+    maxBodyParts: 4
   };
 
   public static readonly BODY_PROFILE_IMPORTER: CreepBodyProfile = {
