@@ -176,19 +176,19 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `pickup resource: ${String(resource.pos)}`, result);
     }
 
+    const storage = this.room.storage;
+    if (storage && storage.store.energy > 0) {
+      const result = this.moveToAndWithdraw(storage);
+      CreepUtils.consoleLogIfWatched(this, `load from storage: ${String(storage.pos)}`, result);
+      if (result === OK) {
+        return OK;
+      }
+    }
+
     const container = this.findClosestContainerWithEnergy(this.store.getFreeCapacity());
     if (container) {
       const result = this.moveToAndWithdraw(container);
       CreepUtils.consoleLogIfWatched(this, `withdraw from container: ${String(container.pos)}`, result);
-      if (result !== ERR_NO_PATH) {
-        return result;
-      }
-    }
-
-    const activeSource = this.findClosestActiveEnergySource();
-    if (activeSource) {
-      const result = this.moveToAndHarvest(activeSource);
-      CreepUtils.consoleLogIfWatched(this, `harvest active source: ${String(activeSource.pos)}`, result);
       if (result !== ERR_NO_PATH) {
         return result;
       }
@@ -205,6 +205,15 @@ export abstract class CreepWrapper extends Creep {
     if (ruin) {
       const result = this.moveToAndWithdraw(ruin);
       CreepUtils.consoleLogIfWatched(this, `move to ruin: ${String(ruin.pos)}`, result);
+      if (result !== ERR_NO_PATH) {
+        return result;
+      }
+    }
+
+    const activeSource = this.findClosestActiveEnergySource();
+    if (activeSource) {
+      const result = this.moveToAndHarvest(activeSource);
+      CreepUtils.consoleLogIfWatched(this, `harvest active source: ${String(activeSource.pos)}`, result);
       if (result !== ERR_NO_PATH) {
         return result;
       }
