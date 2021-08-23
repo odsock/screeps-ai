@@ -40,7 +40,12 @@ export class Builder extends CreepWrapper {
         }
       } else {
         CreepUtils.consoleLogIfWatched(this, `going to harvest`);
-        this.harvestByPriority();
+        // this.harvestByPriority();
+        const storage = this.room.storage;
+        if (storage) {
+          CreepUtils.consoleLogIfWatched(this, `moving to storage: ${String(storage.pos)}`);
+          this.moveToAndWithdraw(storage);
+        }
       }
     }
   }
