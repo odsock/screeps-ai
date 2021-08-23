@@ -8,7 +8,7 @@ export class StructurePatterns {
     "    reeereeer",
     "   rererrrerer",
     "  reeersssreeer",
-    " rererrSmlrrerer",
+    " rererrSrlrrerer",
     "reeerLrTPFrLreeer",
     " rererLLrLLrerer",
     "  reeerLLLreeer",
@@ -28,28 +28,16 @@ export class StructurePatterns {
     "  r"
   ];
 
-  public static readonly SPAWN_GROUP: string[] = [
-    "  r",
-    " rPr",
-    "rsssr",
-    " rcr",
-    "  r"
-  ];
-
-  public static readonly LAB_GROUP: string[] = [
-    "  r",
-    " rLr",
-    "rLLLr",
-    " rLr",
-    "  r"
-  ];
-
-  public static readonly RESOURCE_GROUP: string[] = [
-    "  r",
-    " rFr",
-    "rlSTr",
-    " r r",
-    "  r"
+  public static readonly CONTROL_GROUP: string[] = [
+    "    r",
+    "   rrr",
+    "  rsssr",
+    " rrSrlrr",
+    "rLrTPFrLr",
+    " rLLrLLr",
+    "  rLLLr",
+    "   rLr",
+    "    r"
   ];
 
   public static readonly CHARACTERS: {[x: string]: StructureConstant | null} = {
