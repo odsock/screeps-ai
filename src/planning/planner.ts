@@ -154,13 +154,13 @@ export class Planner {
       return controllerRoadResult;
     }
 
-    // place towers
-    if (PlannerUtils.getAvailableStructureCount(STRUCTURE_TOWER, this.roomw) > 0) {
-      const towerResult = PlannerUtils.placeTowerAtCenterOfColony(this.roomw);
-      if (towerResult !== OK) {
-        return towerResult;
-      }
-    }
+    // // place towers
+    // if (PlannerUtils.getAvailableStructureCount(STRUCTURE_TOWER, this.roomw) > 0) {
+    //   const towerResult = PlannerUtils.placeTowerAtCenterOfColony(this.roomw);
+    //   if (towerResult !== OK) {
+    //     return towerResult;
+    //   }
+    // }
 
     // TODO: place ramparts over containers
     return OK;
