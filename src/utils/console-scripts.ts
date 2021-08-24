@@ -1,7 +1,4 @@
-import { watch } from "fs";
-
-/* eslint-disable */
-global.watch = function (key: Id<any>) {
+global.watch = (key: Id<any>) => {
   let watchable: Watchable | null = Game.getObjectById(key) as Watchable;
   if (Game.creeps[key]) {
     watchable = Game.creeps[key] as Watchable;
@@ -12,7 +9,8 @@ global.watch = function (key: Id<any>) {
     watchable.memory.watched = true;
   }
 };
-global.unwatch = function (key: Id<any>) {
+
+global.unwatch = (key: Id<any>) => {
   let watchable: Watchable | null = Game.getObjectById(key) as Watchable;
   if (Game.creeps[key]) {
     watchable = Game.creeps[key] as Watchable;

@@ -80,5 +80,7 @@ declare namespace NodeJS {
   interface Global {
     log: any;
     cache: Map<string, any>;
+    watch: (key: Id<any>) => void;
+    unwatch: (key: Id<any>) => void;
   }
 }
