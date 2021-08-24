@@ -135,16 +135,19 @@ export class SpawnWrapper extends StructureSpawn {
     const targetRoomNames = TargetConfig.TARGETS[Game.shard.name];
     if (targetRoomNames) {
       return targetRoomNames.filter(roomName => {
+        // validate room name
         try {
           new RoomPosition(0, 0, roomName);
-          if (Game.rooms[roomName].controller?.my) {
-            return false;
-          }
-          return true;
+          // can't do this without a creep in the room
         } catch (error) {
           console.log(`ERROR: bad target config: ${roomName}`);
           return false;
         }
+        // don't spawn claimers for rooms we own
+        if (Game.rooms[roomName]?.controller?.my) {
+          return false;
+        }
+        return true;
       }).length;
     }
     return 0;
