@@ -11,6 +11,7 @@ import { TargetConfig } from "target-config";
 import { Constants } from "../constants";
 import { RoomWrapper } from "./room-wrapper";
 
+// TODO spawn wrapper needs to scale for multiple spawns
 export class SpawnWrapper extends StructureSpawn {
   private readonly workers: Worker[];
   private readonly minders: Minder[];
