@@ -80,7 +80,8 @@ export class SpawnWrapper extends StructureSpawn {
         return;
       }
 
-      if (this.importers.length < TargetConfig.REMOTE_HARVEST[Game.shard.name].length * 2) {
+      // TODO importer numbers should depend on room reserved or not, etc
+      if (this.importers.length < TargetConfig.REMOTE_HARVEST[Game.shard.name].length * 3) {
         this.spawnImporter();
         return;
       }
