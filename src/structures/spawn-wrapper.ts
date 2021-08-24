@@ -299,9 +299,15 @@ export class SpawnWrapper extends StructureSpawn {
     return result;
   }
 
+  /**
+   * Creates creep body profile based on array of body constants and max size allowed.
+   */
   private getMaxBody({ profile, seed = [], maxBodyParts = MAX_CREEP_SIZE }: CreepBodyProfile) {
     let body: BodyPartConstant[] = seed.slice();
     let finalBody: BodyPartConstant[] = [];
+    if (maxBodyParts > MAX_CREEP_SIZE) {
+      maxBodyParts = MAX_CREEP_SIZE;
+    }
     const energyCapacity = this.room.energyCapacityAvailable;
     do {
       finalBody = body.slice();
