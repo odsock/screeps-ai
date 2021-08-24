@@ -224,8 +224,8 @@ export abstract class CreepWrapper extends Creep {
     if (storage && storage.store.energy > 0) {
       const result = this.moveToAndWithdraw(storage);
       CreepUtils.consoleLogIfWatched(this, `load from storage: ${String(storage.pos)}`, result);
-      if (result === OK) {
-        return OK;
+      if (result !== ERR_NO_PATH) {
+        return result;
       }
     }
 
@@ -310,7 +310,7 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `move result`, result);
       if (result === OK) {
         result = this.withdraw(structure, RESOURCE_ENERGY);
-        CreepUtils.consoleLogIfWatched(this, `second withdraw result`, result);
+        CreepUtils.consoleLogIfWatched(this, `withdraw result`, result);
       }
     }
     return result;
