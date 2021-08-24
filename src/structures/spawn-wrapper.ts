@@ -43,6 +43,10 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   public spawnCreeps(): void {
+    // TODO only handling one spawn to avoid doubled creep counts
+    if (this.name !== "Spawn1") {
+      return;
+    }
     if (!this.spawning) {
       CreepUtils.consoleLogIfWatched(this, `spawn creeps`);
 
