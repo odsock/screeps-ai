@@ -92,10 +92,12 @@ export abstract class CreepWrapper extends Creep {
   //   }
   // }
 
+  // TODO cache result
   protected findClosestTombstoneWithEnergy(): Tombstone | null {
     return this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   }
 
+  // TODO cache result
   protected findClosestContainerWithEnergy(min = 0): StructureContainer | null {
     const container = this.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: s => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0 && s.store.energy > min
@@ -103,20 +105,56 @@ export abstract class CreepWrapper extends Creep {
     return container as StructureContainer;
   }
 
+  protected findClosestSourceContainer(): StructureContainer | null {
+    const sources = this.room.find(FIND_SOURCES);
+    const containers: StructureContainer[] = [];
+    if (sources.length > 0) {
+      for (const source of sources) {
+        const container = source.pos.findInRange(FIND_STRUCTURES, 1, {
+          filter: s => s.structureType === STRUCTURE_CONTAINER
+        });
+        if (container.length > 0) {
+          containers.push(container[0] as StructureContainer);
+        }
+      }
+    }
+    return this.pos.findClosestByPath(containers);
+  }
+
+  protected findClosestSourceContainerNotEmpty(): StructureContainer | null {
+    const sources = this.room.find(FIND_SOURCES);
+    const containers: StructureContainer[] = [];
+    if (sources.length > 0) {
+      for (const source of sources) {
+        const container = source.pos.findInRange(FIND_STRUCTURES, 1, {
+          filter: s => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0
+        });
+        if (container.length > 0) {
+          containers.push(container[0] as StructureContainer);
+        }
+      }
+    }
+    return this.pos.findClosestByPath(containers);
+  }
+
+  // TODO cache result
   protected findClosestRuinsWithEnergy(): Ruin | null {
     return this.pos.findClosestByPath(FIND_RUINS, { filter: r => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   }
 
+  // TODO cache result
   protected findClosestDroppedEnergy(): Resource<RESOURCE_ENERGY> | null {
     return this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
       filter: r => r.resourceType === RESOURCE_ENERGY
     }) as Resource<RESOURCE_ENERGY>;
   }
 
+  // TODO cache result
   protected findClosestActiveEnergySource(): Source | null {
     return this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
   }
 
+  // TODO cache result
   protected findClosestEnergySource(): Source | null {
     let source = this.pos.findClosestByPath(FIND_SOURCES);
     if (!source) {
@@ -125,6 +163,7 @@ export abstract class CreepWrapper extends Creep {
     return source;
   }
 
+  // TODO cache result
   protected findClosestTowerNotFull(): StructureTower | null {
     return this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: structure => {
@@ -133,6 +172,7 @@ export abstract class CreepWrapper extends Creep {
     }) as StructureTower | null;
   }
 
+  // TODO cache result
   protected findClosestSpawnStorageNotFull(): StructureSpawn | StructureExtension | null {
     return this.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: structure => {
@@ -153,6 +193,10 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected harvestByPriority(): ScreepsReturnCode {
+    if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
+      return ERR_FULL;
+    }
+
     // harvest if adjacent to tombstone or ruin
     const tombstone = this.findClosestTombstoneWithEnergy();
     if (tombstone) {
@@ -185,10 +229,9 @@ export abstract class CreepWrapper extends Creep {
       }
     }
 
-    const container = this.findClosestContainerWithEnergy(this.store.getFreeCapacity());
-    if (container) {
-      const result = this.moveToAndWithdraw(container);
-      CreepUtils.consoleLogIfWatched(this, `withdraw from container: ${String(container.pos)}`, result);
+    if (resource) {
+      const result = this.moveToAndPickup(resource);
+      CreepUtils.consoleLogIfWatched(this, `picking up resource: ${String(resource.pos)}`, result);
       if (result !== ERR_NO_PATH) {
         return result;
       }
@@ -210,29 +253,40 @@ export abstract class CreepWrapper extends Creep {
       }
     }
 
-    const activeSource = this.findClosestActiveEnergySource();
-    if (activeSource) {
-      const result = this.moveToAndHarvest(activeSource);
-      CreepUtils.consoleLogIfWatched(this, `harvest active source: ${String(activeSource.pos)}`, result);
+    const container = this.findClosestContainerWithEnergy(this.store.getFreeCapacity());
+    if (container) {
+      const result = this.moveToAndWithdraw(container);
+      CreepUtils.consoleLogIfWatched(this, `withdraw from container: ${String(container.pos)}`, result);
       if (result !== ERR_NO_PATH) {
         return result;
       }
     }
 
-    const dismantle = this.findDismantleTarget();
-    if (dismantle) {
-      const result = this.moveToAndDismantle(dismantle);
-      CreepUtils.consoleLogIfWatched(this, `move to dismantle: ${String(dismantle.pos)}`, result);
-      if (result !== ERR_NOT_FOUND) {
+    if (this.getActiveBodyparts(WORK) > 0) {
+      const activeSource = this.findClosestActiveEnergySource();
+      if (activeSource) {
+        const result = this.moveToAndHarvest(activeSource);
+        CreepUtils.consoleLogIfWatched(this, `harvest active source: ${String(activeSource.pos)}`, result);
+        if (result !== ERR_NO_PATH) {
+          return result;
+        }
+      }
+
+      const dismantle = this.findDismantleTarget();
+      if (dismantle) {
+        const result = this.moveToAndDismantle(dismantle);
+        CreepUtils.consoleLogIfWatched(this, `move to dismantle: ${String(dismantle.pos)}`, result);
+        if (result !== ERR_NOT_FOUND) {
+          return result;
+        }
+      }
+
+      const inactiveSource = this.findClosestEnergySource();
+      if (inactiveSource) {
+        const result = this.moveTo(inactiveSource, { visualizePathStyle: { stroke: "#ffaa00" } });
+        CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
         return result;
       }
-    }
-
-    const inactiveSource = this.findClosestEnergySource();
-    if (inactiveSource) {
-      const result = this.moveTo(inactiveSource, { visualizePathStyle: { stroke: "#ffaa00" } });
-      CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
-      return result;
     }
 
     this.say("🤔");

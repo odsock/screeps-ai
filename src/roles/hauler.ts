@@ -22,11 +22,12 @@ export class Hauler extends CreepWrapper {
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
       const target = this.findClosestSpawnStorageNotFull();
       if (target) {
-        this.supplyStructure(target);
+        this.supplySpawn(target);
         return;
       }
     }
 
+    // TODO make tower supply prefer energy from storage
     // fill closest tower if any fall below threshold
     if (this.memory.job === "tower" || this.findTowersBelowThreshold().length > 0) {
       const target = this.findClosestTowerNotFull();
@@ -97,36 +98,45 @@ export class Hauler extends CreepWrapper {
     return result;
   }
 
-  private findClosestSourceContainerNotEmpty(): StructureContainer | null {
-    const sources = this.room.find(FIND_SOURCES);
-    const containers: StructureContainer[] = [];
-    if (sources.length > 0) {
-      for (const source of sources) {
-        const container = source.pos.findInRange(FIND_STRUCTURES, 1, {
-          filter: s => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0
-        });
-        if (container.length > 0) {
-          containers.push(container[0] as StructureContainer);
-        }
-      }
-    }
-    return this.pos.findClosestByPath(containers);
-  }
+  // When supplying spawn, use priority to prefer storage
+  private supplySpawn(target: StructureSpawn | StructureExtension): ScreepsReturnCode {
+    let result: ScreepsReturnCode = ERR_NOT_FOUND;
+    CreepUtils.consoleLogIfWatched(this, `supply ${target.structureType}`);
+    this.updateJob(`${target.structureType}`);
+    this.stopWorkingIfEmpty();
+    this.startWorkingIfFull();
+    this.startWorkingInRange(target.pos, 1);
 
-  private findClosestSourceContainer(): StructureContainer | null {
-    const sources = this.room.find(FIND_SOURCES);
-    const containers: StructureContainer[] = [];
-    if (sources.length > 0) {
-      for (const source of sources) {
-        const container = source.pos.findInRange(FIND_STRUCTURES, 1, {
-          filter: s => s.structureType === STRUCTURE_CONTAINER
-        });
-        if (container.length > 0) {
-          containers.push(container[0] as StructureContainer);
+    if (this.memory.working) {
+      CreepUtils.consoleLogIfWatched(this, "working");
+      result = this.transfer(target, RESOURCE_ENERGY);
+      CreepUtils.consoleLogIfWatched(this, `transfer result`, result);
+      if (result === ERR_NOT_IN_RANGE) {
+        result = this.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
+        CreepUtils.consoleLogIfWatched(this, `moving to ${target.structureType} at ${String(target.pos)}`, result);
+      } else {
+        // Stop if structure is full now
+        const targetFreeCap = target.store.getFreeCapacity(RESOURCE_ENERGY);
+        const creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
+        if (result === OK && targetFreeCap < creepStoredEnergy) {
+          CreepUtils.consoleLogIfWatched(this, `${target.structureType} is full: ${String(target.pos)}`);
+          this.updateJob("idle");
         }
       }
+    } else {
+      result = this.harvestByPriority();
+      // TODO when no energy found, try to work when partly full
+      // this causes a loop, find a better way
+      // if (result === ERR_NOT_FOUND) {
+      //   // nowhere to get energy - start working if not empty
+      //   if (this.store.energy > 0) {
+      //     this.memory.working = true;
+      //     CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
+      //     result = this.supplyStructure(target);
+      //   }
+      // }
     }
-    return this.pos.findClosestByPath(containers);
+    return result;
   }
 
   private findTowersBelowThreshold(): StructureTower[] {
