@@ -75,14 +75,10 @@ export class Planner {
     }
 
     // mark each structure for dismantling if mismatch found
-
     planPositions.forEach(planPos => {
       const posLook = planPos.pos.look();
       const wrongStructure = posLook.find(
-        lookResult =>
-          lookResult.structure?.structureType &&
-          lookResult.structure.structureType !== planPos.structure &&
-          lookResult.structure.structureType !== STRUCTURE_ROAD
+        lookResult => lookResult.structure?.structureType && lookResult.structure.structureType !== planPos.structure
       );
 
       if (wrongStructure?.structure && wrongStructure.structure) {
