@@ -135,16 +135,16 @@ export class SpawnWrapper extends StructureSpawn {
     const targetRoomNames = TargetConfig.TARGETS[Game.shard.name];
     if (targetRoomNames) {
       return targetRoomNames.filter(roomName => {
-        if (Game.rooms[roomName].controller?.my) {
-          return false;
-        }
         try {
           new RoomPosition(0, 0, roomName);
+          if (Game.rooms[roomName].controller?.my) {
+            return false;
+          }
+          return true;
         } catch (error) {
           console.log(`ERROR: bad target config: ${roomName}`);
           return false;
         }
-        return true;
       }).length;
     }
     return 0;
