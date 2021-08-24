@@ -24,12 +24,7 @@ interface RoomMemory {
   extensionCount: number;
   watched?: boolean;
   containers: ContainerInfo[];
-}
-
-interface SourceInfo {
-  sourceId: string;
-  containerId?: string;
-  minderId?: string;
+  sources?: Id<Source>[];
 }
 
 interface ContainerInfo {

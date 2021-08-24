@@ -88,9 +88,29 @@ export class RoomWrapper extends Room {
     return this.room.find(FIND_DEPOSITS);
   }
 
-  // TODO cache this too
+  /**
+   * Gets sources in room, cached, from memory, or by calling find.
+   */
   public get sources(): Source[] {
-    return this.room.find(FIND_SOURCES);
+    let sources = MemoryUtils.getCache<Source[]>(`${this.room.name}_sources`);
+    if (sources) {
+      return sources;
+    } else {
+      const sourceMemory = this.memory.sources;
+      if (sourceMemory) {
+        sources = sourceMemory.reduce<Source[]>((sourceList, sourceId) => {
+          const source = Game.getObjectById(sourceId);
+          if (source) {
+            sourceList.push(source);
+          }
+          return sourceList;
+        }, []);
+      } else {
+        sources = this.room.find(FIND_SOURCES);
+      }
+      MemoryUtils.setCache(`${this.room.name}_sources`, sources);
+      return sources;
+    }
   }
 
   // TODO cache this
