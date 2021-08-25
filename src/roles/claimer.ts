@@ -4,7 +4,10 @@ import { RemoteWorker } from "./remote-worker";
 
 export class Claimer extends RemoteWorker {
   public run(): void {
-    this.touchRoad();
+    const fleeResult = this.fleeIfHostiles();
+    if (fleeResult !== ERR_NOT_FOUND) {
+      return;
+    }
 
     // make sure we have a target room
     const targetRoom = this.getTargetRoom();
