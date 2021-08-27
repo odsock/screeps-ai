@@ -1,4 +1,13 @@
 export class MemoryUtils {
+  public static unpackRoomPosition(positionString: string): RoomPosition {
+    const positionArray: string[] = positionString.split(":");
+    return new RoomPosition(Number(positionArray[0]), Number(positionArray[1]), positionArray[2]);
+  }
+
+  public static packRoomPosition(pos: RoomPosition): string {
+    return `${pos.x}:${pos.y}:${pos.roomName}`;
+  }
+
   public static refreshRoomMemory(room: Room): void {
     this.refreshContainerMemory(room);
   }

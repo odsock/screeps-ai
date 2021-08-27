@@ -179,10 +179,10 @@ export class RoomWrapper extends Room {
     if (this.harvestPositionsCache) {
       return this.harvestPositionsCache;
     } else if (this.room.memory.harvestPositions) {
-      this.harvestPositionsCache = this.room.memory.harvestPositions.map(pos => PlannerUtils.unpackRoomPosition(pos));
+      this.harvestPositionsCache = this.room.memory.harvestPositions.map(pos => MemoryUtils.unpackRoomPosition(pos));
     } else {
       this.harvestPositionsCache = this.findHarvestPositions();
-      this.room.memory.harvestPositions = this.harvestPositionsCache.map(pos => PlannerUtils.packRoomPosition(pos));
+      this.room.memory.harvestPositions = this.harvestPositionsCache.map(pos => MemoryUtils.packRoomPosition(pos));
     }
     return this.harvestPositionsCache;
   }

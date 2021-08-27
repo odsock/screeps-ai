@@ -2,15 +2,6 @@ import { Constants } from "../constants";
 import { StructurePlan } from "planning/structure-plan";
 
 export class PlannerUtils {
-  public static unpackRoomPosition(positionString: string): RoomPosition {
-    const positionArray: string[] = positionString.split(":");
-    return new RoomPosition(Number(positionArray[0]), Number(positionArray[1]), positionArray[2]);
-  }
-
-  public static packRoomPosition(pos: RoomPosition): string {
-    return `${pos.x}:${pos.y}:${pos.roomName}`;
-  }
-
   public static findSiteForPattern(
     pattern: string[],
     room: Room,
