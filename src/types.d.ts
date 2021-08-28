@@ -16,6 +16,7 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  spawns?: Id<StructureSpawn>[];
   harvestPositions: string[];
   costMatrix?: { [name: string]: number[] };
   roadUseLog: { [pos: string]: number };
@@ -71,15 +72,20 @@ interface CreepBodyProfile {
 }
 
 interface Memory {
-  cache: Map<string, any>;
+  cache?: string;
   version?: string;
+}
+
+interface CacheValue {
+  item: any;
+  expires: number;
 }
 
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {
     log: any;
-    cache: Map<string, any>;
+    cache: Map<string, CacheValue>;
     watch: (key: Id<any>) => void;
     unwatch: (key: Id<any>) => void;
   }

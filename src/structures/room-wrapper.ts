@@ -1,6 +1,7 @@
 import { Constants } from "../constants";
 import { MemoryUtils } from "planning/memory-utils";
 import { PlannerUtils } from "planning/planner-utils";
+import { SpawnWrapper } from "./spawn-wrapper";
 
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
@@ -107,25 +108,44 @@ export class RoomWrapper extends Room {
         }, []);
       } else {
         sources = this.room.find(FIND_SOURCES);
+        this.memory.sources = sources.map(source => source.id);
       }
       MemoryUtils.setCache(`${this.room.name}_sources`, sources);
       return sources;
     }
   }
 
-  // TODO cache this
-  public get spawns(): StructureSpawn[] {
-    return this.room.find(FIND_MY_SPAWNS);
+  public get spawns(): SpawnWrapper[] {
+    let spawns = MemoryUtils.getCache<SpawnWrapper[]>(`${this.room.name}_spawns`);
+    if (!spawns) {
+      spawns = this.room.find(FIND_MY_SPAWNS).map(spawn => new SpawnWrapper(spawn));
+      MemoryUtils.setCache(`${this.room.name}_spawns`, spawns);
+    }
+    return spawns;
   }
 
   public get constructionWork(): number {
-    return this.room.find(FIND_MY_CONSTRUCTION_SITES).reduce<number>((work: number, site) => {
+    return this.myConstructionSites.reduce<number>((work: number, site) => {
       return work + site.progressTotal - site.progress;
     }, 0);
   }
 
+  public get myConstructionSites(): ConstructionSite[] {
+    let constructionSites = MemoryUtils.getCache<ConstructionSite[]>(`${this.room.name}_myConstructionSites`);
+    if (!constructionSites) {
+      constructionSites = this.room.find(FIND_MY_CONSTRUCTION_SITES);
+      MemoryUtils.setCache(`${this.room.name}_myConstructionSites`, constructionSites);
+    }
+    return constructionSites;
+  }
+
   public get constructionSites(): ConstructionSite[] {
-    return this.room.find(FIND_CONSTRUCTION_SITES);
+    let constructionSites = MemoryUtils.getCache<ConstructionSite[]>(`${this.room.name}_constructionSites`);
+    if (!constructionSites) {
+      constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
+      MemoryUtils.setCache(`${this.room.name}_constructionSites`, constructionSites);
+    }
+    return constructionSites;
   }
 
   public get towers(): StructureTower[] {

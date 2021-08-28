@@ -13,28 +13,41 @@ export class MemoryUtils {
   }
 
   public static readCacheFromMemory(): void {
-    if (!global.cache) {
-      global.cache = Memory.cache;
+    if (!global.cache && Memory.cache) {
+      global.cache = JSON.parse(Memory.cache) as Map<string, CacheValue>;
     }
   }
 
   public static writeCacheToMemory(): void {
-    const cacheMap = global.cache;
-    Memory.cache = cacheMap;
+    global.cache.forEach((value, key) => {
+      if (value.expires > Game.time) {
+        global.cache.delete(key);
+      }
+    });
+    Memory.cache = JSON.stringify(global.cache);
   }
 
-  public static setCache<T>(key: string, item: T): void {
-    if (!global.cache) {
-      global.cache = new Map<string, any>();
-    }
-    global.cache.set(key, item);
+  private static initCache() {
+    global.cache = new Map<string, CacheValue>();
   }
 
-  public static getCache<T>(key: string): T {
+  public static setCache<T>(key: string, item: T, ttl = 1): void {
     if (!global.cache) {
-      global.cache = new Map<string, any>();
+      MemoryUtils.initCache();
     }
-    return global.cache.get(key) as T;
+    global.cache.set(key, { item, expires: Game.time + ttl } as CacheValue);
+  }
+
+  public static getCache<T>(key: string): T | undefined {
+    if (!global.cache) {
+      MemoryUtils.initCache();
+    }
+
+    const value = global.cache.get(key);
+    if (value) {
+      return value.item as T;
+    }
+    return undefined;
   }
 
   public static refreshContainerMemory(room: Room): void {
