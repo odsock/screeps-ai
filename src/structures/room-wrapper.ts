@@ -58,7 +58,11 @@ export class RoomWrapper extends Room {
    * Cached string export of colony plan visual.
    */
   public get planVisual(): string {
-    return MemoryUtils.getCache<string>(`${this.room.name}_planVisual`);
+    const visual = MemoryUtils.getCache<string>(`${this.room.name}_planVisual`);
+    if (visual) {
+      return visual;
+    }
+    return "";
   }
 
   /**
@@ -72,7 +76,11 @@ export class RoomWrapper extends Room {
    * Cached string export of demolition plan visual.
    */
   public get dismantleVisual(): string {
-    return MemoryUtils.getCache<string>(`${this.room.name}_dismantleVisual`);
+    const visual = MemoryUtils.getCache<string>(`${this.room.name}_dismantleVisual`);
+    if (visual) {
+      return visual;
+    }
+    return "";
   }
 
   /**
