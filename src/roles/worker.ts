@@ -1,8 +1,16 @@
 import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
 import { Constants } from "../constants";
+import { CreepRole } from "../population-control";
 
 export class Worker extends CreepWrapper {
+  public static readonly ROLE = CreepRole.WORKER;
+  public static readonly BODY_PROFILE: CreepBodyProfile = {
+    profile: [WORK, MOVE, MOVE, CARRY],
+    seed: [],
+    maxBodyParts: MAX_CREEP_SIZE
+  };
+
   public run(): void {
     this.touchRoad();
 

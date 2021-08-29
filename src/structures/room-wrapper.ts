@@ -5,11 +5,8 @@ import { SpawnWrapper } from "./spawn-wrapper";
 
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
-  public readonly hostileCreeps: Creep[];
-
   public constructor(private readonly room: Room) {
     super(room.name);
-    this.hostileCreeps = this.room.find(FIND_HOSTILE_CREEPS);
   }
 
   /** Declare getters for properties that don't seem to get copied in when constructed */
@@ -39,6 +36,22 @@ export class RoomWrapper extends Room {
   }
 
   /** Getters for some cached properties */
+
+  public get hostileCreeps(): Creep[] {
+    return this.room.find(FIND_HOSTILE_CREEPS);
+  }
+
+  public get creeps(): Creep[] {
+    return this.room.find(FIND_MY_CREEPS);
+  }
+
+  public get deposits(): Deposit[] {
+    return this.room.find(FIND_DEPOSITS);
+  }
+
+  public get spawns(): SpawnWrapper[] {
+    return this.room.find(FIND_MY_SPAWNS).map(spawn => new SpawnWrapper(spawn));
+  }
 
   /**
    * Structures marked for demolition.
@@ -92,11 +105,6 @@ export class RoomWrapper extends Room {
 
   /** stuff that needs caching code */
 
-  // TODO cache this as well
-  public get deposits(): Deposit[] {
-    return this.room.find(FIND_DEPOSITS);
-  }
-
   /**
    * Gets sources in room, cached, from memory, or by calling find.
    */
@@ -121,15 +129,6 @@ export class RoomWrapper extends Room {
       MemoryUtils.setCache(`${this.room.name}_sources`, sources);
       return sources;
     }
-  }
-
-  public get spawns(): SpawnWrapper[] {
-    let spawns = MemoryUtils.getCache<SpawnWrapper[]>(`${this.room.name}_spawns`);
-    if (!spawns) {
-      spawns = this.room.find(FIND_MY_SPAWNS).map(spawn => new SpawnWrapper(spawn));
-      MemoryUtils.setCache(`${this.room.name}_spawns`, spawns);
-    }
-    return spawns;
   }
 
   public get constructionWork(): number {

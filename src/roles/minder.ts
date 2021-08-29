@@ -1,7 +1,15 @@
 import { CreepUtils } from "creep-utils";
+import { CreepRole } from "../population-control";
 import { CreepWrapper } from "./creep-wrapper";
 
 export class Minder extends CreepWrapper {
+  public static readonly ROLE = CreepRole.MINDER;
+  public static readonly BODY_PROFILE: CreepBodyProfile = {
+    profile: [WORK],
+    seed: [MOVE, CARRY],
+    maxBodyParts: 10
+  };
+
   public run(): void {
     this.touchRoad();
 

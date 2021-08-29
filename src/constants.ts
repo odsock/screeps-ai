@@ -20,49 +20,6 @@ export class Constants {
   //     "claim": 600
   // },
 
-  // TODO fixer spawn should scale based on repairs to do?
-  public static readonly BODY_PROFILE_FIXER: CreepBodyProfile = {
-    profile: [WORK, CARRY, MOVE, MOVE],
-    seed: [],
-    maxBodyParts: 16
-  };
-
-  public static readonly BODY_PROFILE_WORKER: CreepBodyProfile = {
-    profile: [WORK, MOVE, MOVE, CARRY],
-    seed: [],
-    maxBodyParts: MAX_CREEP_SIZE
-  };
-
-  public static readonly BODY_PROFILE_MINDER: CreepBodyProfile = {
-    profile: [WORK],
-    seed: [MOVE, CARRY],
-    maxBodyParts: 10
-  };
-
-  public static readonly BODY_PROFILE_HAULER: CreepBodyProfile = {
-    profile: [MOVE, CARRY, CARRY],
-    seed: [],
-    maxBodyParts: 27
-  };
-
-  public static readonly BODY_PROFILE_BUILDER: CreepBodyProfile = {
-    profile: [WORK, MOVE, CARRY],
-    seed: [],
-    maxBodyParts: MAX_CREEP_SIZE
-  };
-
-  public static readonly BODY_PROFILE_CLAIMER: CreepBodyProfile = {
-    profile: [MOVE, CLAIM],
-    seed: [],
-    maxBodyParts: 4
-  };
-
-  public static readonly BODY_PROFILE_IMPORTER: CreepBodyProfile = {
-    profile: [WORK, CARRY, MOVE, MOVE],
-    seed: [],
-    maxBodyParts: MAX_CREEP_SIZE
-  };
-
   public static readonly ROOM_SIZE = 50;
   public static readonly MAX_DISTANCE = 99999;
   public static readonly TOWER_RESUPPLY_THRESHOLD = 0.1;

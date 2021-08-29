@@ -1,11 +1,19 @@
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
+import { CreepRole } from "../population-control";
 import { Constants } from "../constants";
 import { CreepWrapper } from "./creep-wrapper";
 
 // TODO: assign to source containers or something so they don't only use closest
 // TODO: get hauler to pull harvester to container
 export class Hauler extends CreepWrapper {
+  public static readonly ROLE = CreepRole.HAULER;
+  public static readonly BODY_PROFILE: CreepBodyProfile = {
+    profile: [MOVE, CARRY, CARRY],
+    seed: [],
+    maxBodyParts: 27
+  };
+
   public run(): void {
     this.touchRoad();
 

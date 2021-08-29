@@ -1,6 +1,7 @@
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { Planner } from "planning/planner";
+import { PopulationControl } from "population-control";
 import { CreepFactory } from "roles/creep-factory";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
@@ -36,11 +37,8 @@ export class Sockpuppet {
 
       // Run spawners
       CreepUtils.consoleLogIfWatched(roomw, `running spawns`);
-      const spawns = roomw.find(FIND_MY_SPAWNS);
-      for (const spawn of spawns) {
-        const spawner = new SpawnWrapper(spawn);
-        spawner.spawnCreeps();
-      }
+      const populationControl = new PopulationControl(roomw);
+      populationControl.run();
 
       CreepUtils.consoleLogIfWatched(roomw, `running towers`);
       this.runTowers(roomw);

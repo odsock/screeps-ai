@@ -69,6 +69,7 @@ interface CreepBodyProfile {
   profile: BodyPartConstant[];
   seed: BodyPartConstant[];
   maxBodyParts: number;
+  maxWorkParts?: number;
 }
 
 interface Memory {

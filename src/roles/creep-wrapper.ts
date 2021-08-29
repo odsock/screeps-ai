@@ -1,8 +1,12 @@
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
+import { CreepRole } from "../population-control";
 import { RoomWrapper } from "structures/room-wrapper";
 
 export abstract class CreepWrapper extends Creep {
+  public static readonly BODY_PROFILE: CreepBodyProfile;
+  public static readonly ROLE: CreepRole;
+
   public constructor(private readonly creep: Creep) {
     super(creep.id);
   }

@@ -1,6 +1,5 @@
 import { RoomWrapper } from "structures/room-wrapper";
 import { ContainerPlan } from "./container-plan";
-import { ExtensionPlan } from "./extension-plan";
 import { RoadPlan } from "./road-plan";
 import { PlannerUtils } from "./planner-utils";
 import { MemoryUtils } from "./memory-utils";
@@ -37,7 +36,7 @@ export class Planner {
   }
 
   private planFullColony(): void {
-    let plan: StructurePlan = MemoryUtils.getCache<StructurePlan>(`${this.roomw.name}_plan`);
+    let plan = MemoryUtils.getCache<StructurePlan>(`${this.roomw.name}_plan`);
     if (!plan) {
       const controllerPos = this.roomw.controller?.pos;
       if (controllerPos) {

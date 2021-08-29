@@ -1,8 +1,16 @@
 import { CreepUtils } from "creep-utils";
+import { CreepRole } from "../population-control";
 import { TargetConfig } from "target-config";
 import { RemoteWorker } from "./remote-worker";
 
 export class Claimer extends RemoteWorker {
+  public static readonly ROLE = CreepRole.CLAIMER;
+  public static readonly BODY_PROFILE: CreepBodyProfile = {
+    profile: [MOVE, CLAIM],
+    seed: [],
+    maxBodyParts: 4
+  };
+
   public run(): void {
     const fleeResult = this.fleeIfHostiles();
     if (fleeResult !== ERR_NOT_FOUND) {

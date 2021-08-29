@@ -1,8 +1,16 @@
 import { CreepUtils } from "creep-utils";
+import { CreepRole } from "../population-control";
 import { TargetConfig } from "target-config";
 import { RemoteWorker } from "./remote-worker";
 
 export class Importer extends RemoteWorker {
+  public static readonly ROLE = CreepRole.IMPORTER;
+  public static readonly BODY_PROFILE: CreepBodyProfile = {
+    profile: [WORK, CARRY, MOVE, MOVE],
+    seed: [],
+    maxBodyParts: MAX_CREEP_SIZE
+  };
+
   public run(): void {
     // use current room for home (room spawned in)
     if (!this.homeRoom) {
