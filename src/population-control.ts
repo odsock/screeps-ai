@@ -11,6 +11,7 @@ import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
 import { TargetConfig } from "target-config";
 import { SpawnWrapper } from "structures/spawn-wrapper";
+import { Guard } from "roles/guard";
 
 export const enum CreepRole {
   BUILDER = "builder",
@@ -19,38 +20,43 @@ export const enum CreepRole {
   HAULER = "hauler",
   IMPORTER = "importer",
   MINDER = "minder",
-  WORKER = "worker"
+  WORKER = "worker",
+  GUARD = "guard"
 }
 
 export class PopulationControl {
-  private readonly workers: Worker[];
-  private readonly minders: Minder[];
-  private readonly haulers: Hauler[];
-  private readonly builders: Builder[];
-  private readonly fixers: Fixer[];
-  private readonly importers: Importer[];
+  private readonly workers: Creep[];
+  private readonly minders: Creep[];
+  private readonly haulers: Creep[];
+  private readonly builders: Creep[];
+  private readonly fixers: Creep[];
+  private readonly importers: Creep[];
+  private readonly guards: Creep[];
+
   private readonly minderCount: number;
   private readonly haulerCount: number;
   private readonly workerCount: number;
   private readonly fixerCount: number;
   private readonly importerCount: number;
   private readonly claimerCount: number;
+  private readonly guardCount: number;
 
   private readonly containers: AnyStructure[];
   private readonly rcl: number;
   private readonly claimers: Claimer[];
-  private spawns: SpawnWrapper[];
+  private readonly spawns: SpawnWrapper[];
 
   public constructor(private readonly roomw: RoomWrapper) {
     this.spawns = this.roomw.spawns;
     const creeps = this.roomw.find(FIND_MY_CREEPS);
 
     // TODO don't new up wrappers each tick
-    this.workers = creeps.filter(c => c.memory.role === CreepRole.WORKER).map(c => new Worker(c));
-    this.builders = creeps.filter(c => c.memory.role === CreepRole.BUILDER).map(c => new Builder(c));
-    this.minders = creeps.filter(c => c.memory.role === CreepRole.MINDER).map(c => new Minder(c));
-    this.haulers = creeps.filter(c => c.memory.role === CreepRole.HAULER).map(c => new Hauler(c));
-    this.fixers = creeps.filter(c => c.memory.role === CreepRole.FIXER).map(c => new Fixer(c));
+    this.workers = creeps.filter(c => c.memory.role === CreepRole.WORKER);
+    this.builders = creeps.filter(c => c.memory.role === CreepRole.BUILDER);
+    this.minders = creeps.filter(c => c.memory.role === CreepRole.MINDER);
+    this.haulers = creeps.filter(c => c.memory.role === CreepRole.HAULER);
+    this.fixers = creeps.filter(c => c.memory.role === CreepRole.FIXER);
+    this.guards = creeps.filter(c => c.memory.role === CreepRole.GUARD);
 
     this.minderCount =
       this.minders.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Minder.ROLE)).length;
@@ -63,6 +69,9 @@ export class PopulationControl {
 
     this.fixerCount =
       this.fixers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Fixer.ROLE)).length;
+
+    this.guardCount =
+      this.guards.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Guard.ROLE)).length;
 
     this.containers = this.roomw.find(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_CONTAINER });
     this.rcl = this.roomw.controller?.level ? this.roomw.controller?.level : 0;
@@ -81,6 +90,11 @@ export class PopulationControl {
     this.spawns
       .filter(spawnw => !spawnw.spawning)
       .some(spawnw => {
+        // spawn guard if there are hostiles, or if reported by a target room
+        if (this.roomw.hostileCreeps.length > this.guardCount) {
+          return this.spawnGuardCreep(Guard.BODY_PROFILE, Guard.ROLE, spawnw) !== OK;
+        }
+
         // make sure there is at least one minder if there is a container
         if (this.containers.length > 0 && this.minderCount === 0) {
           return this.spawnBootstrapCreep(Minder.BODY_PROFILE, Minder.ROLE, spawnw) !== OK;
@@ -143,7 +157,12 @@ export class PopulationControl {
     });
   }
 
-  private spawnBootstrapCreep(profile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper) {
+  private spawnGuardCreep(profile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper): ScreepsReturnCode {
+    const result = spawnw.spawn(profile.profile, role);
+    return result;
+  }
+
+  private spawnBootstrapCreep(profile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper): ScreepsReturnCode {
     let body: BodyPartConstant[];
     if (this.minders.length <= 0) {
       body = this.getMaxBodyNow(profile, spawnw);
@@ -225,7 +244,10 @@ export class PopulationControl {
 
   private getBuilderWorkPartsNeeded(): number {
     const conWork = this.roomw.constructionWork;
-    const activeWorkParts = this.builders.reduce<number>((count: number, creep) => count + creep.countParts(WORK), 0);
+    const activeWorkParts = this.builders.reduce<number>(
+      (count: number, creep) => count + CreepUtils.countParts(creep, WORK),
+      0
+    );
     const workPartsNeeded = Math.ceil(conWork / Constants.WORK_PER_WORKER_PART);
     const workPartsDeficit = workPartsNeeded - activeWorkParts;
     return workPartsDeficit > 0 ? workPartsDeficit : 0;

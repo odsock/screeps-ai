@@ -37,6 +37,9 @@ export class RoomWrapper extends Room {
 
   /** Getters for some cached properties */
 
+  public get hasHostiles(): boolean {
+    return this.hostileCreeps.length > 0;
+  }
   public get hostileCreeps(): Creep[] {
     return this.room.find(FIND_HOSTILE_CREEPS);
   }

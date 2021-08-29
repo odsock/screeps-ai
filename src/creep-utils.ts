@@ -73,4 +73,8 @@ export class CreepUtils {
       }
     }
   }
+
+  public static countParts(creep: Creep, type: BodyPartConstant): number {
+    return creep.body.filter(part => part.type === type).length;
+  }
 }

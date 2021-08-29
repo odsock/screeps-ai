@@ -344,6 +344,14 @@ export abstract class CreepWrapper extends Creep {
     return result;
   }
 
+  protected moveToAndAttack(target: Creep | Structure): ScreepsReturnCode {
+    let result: ScreepsReturnCode = this.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ff0000" } });
+    CreepUtils.consoleLogIfWatched(this, `move to ${typeof target}: ${String(target.pos)}`, result);
+    result = this.attack(target);
+    CreepUtils.consoleLogIfWatched(this, `attack ${typeof target}`, result);
+    return result;
+  }
+
   public calcWalkTime(path: PathFinderPath): number {
     let roadCount = 0;
     let plainCount = 0;
