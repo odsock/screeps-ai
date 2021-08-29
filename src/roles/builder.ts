@@ -12,8 +12,6 @@ export class Builder extends CreepWrapper {
   };
 
   public run(): void {
-    this.touchRoad();
-
     // build if anything to build
     if (this.roomw.constructionSites.length > 0) {
       CreepUtils.consoleLogIfWatched(this, "building job");

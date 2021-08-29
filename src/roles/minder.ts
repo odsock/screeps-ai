@@ -11,8 +11,6 @@ export class Minder extends CreepWrapper {
   };
 
   public run(): void {
-    this.touchRoad();
-
     // move to retire old creep
     if (this.memory.retiree) {
       if (this.moveToRetiree() !== ERR_NOT_FOUND) {

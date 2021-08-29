@@ -12,8 +12,6 @@ export class Fixer extends CreepWrapper {
   };
 
   public run(): void {
-    this.touchRoad();
-
     let target = this.findStructureForRepair();
     if (target) {
       this.doRepairJob(target);
