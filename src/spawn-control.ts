@@ -24,7 +24,7 @@ export const enum CreepRole {
   GUARD = "guard"
 }
 
-export class PopulationControl {
+export class SpawnControl {
   private readonly workers: Creep[];
   private readonly minders: Creep[];
   private readonly haulers: Creep[];
