@@ -5,6 +5,7 @@ import { SpawnControl } from "spawn-control";
 import { CreepFactory } from "roles/creep-factory";
 import { RoomWrapper } from "structures/room-wrapper";
 import { TowerWrapper } from "structures/tower-wrapper";
+import { Constants } from "./constants";
 
 export class Sockpuppet {
   public run(): void {
@@ -14,7 +15,9 @@ export class Sockpuppet {
     // Run each room
     for (const roomId in Game.rooms) {
       const roomw = new RoomWrapper(Game.rooms[roomId]);
-      if (roomw.controller?.owner?.username !== "odsock") {
+
+      // only consider rooms we own
+      if (roomw.controller?.owner?.username !== Constants.USERNAME) {
         continue;
       }
 
