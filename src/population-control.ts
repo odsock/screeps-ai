@@ -29,6 +29,12 @@ export class PopulationControl {
   private readonly builders: Builder[];
   private readonly fixers: Fixer[];
   private readonly importers: Importer[];
+  private readonly minderCount: number;
+  private readonly haulerCount: number;
+  private readonly workerCount: number;
+  private readonly fixerCount: number;
+  private readonly importerCount: number;
+  private readonly claimerCount: number;
 
   private readonly containers: AnyStructure[];
   private readonly rcl: number;
@@ -46,11 +52,29 @@ export class PopulationControl {
     this.haulers = creeps.filter(c => c.memory.role === CreepRole.HAULER).map(c => new Hauler(c));
     this.fixers = creeps.filter(c => c.memory.role === CreepRole.FIXER).map(c => new Fixer(c));
 
+    this.minderCount =
+      this.minders.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Minder.ROLE)).length;
+
+    this.haulerCount =
+      this.haulers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Hauler.ROLE)).length;
+
+    this.workerCount =
+      this.workers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Worker.ROLE)).length;
+
+    this.fixerCount =
+      this.fixers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Fixer.ROLE)).length;
+
     this.containers = this.roomw.find(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_CONTAINER });
     this.rcl = this.roomw.controller?.level ? this.roomw.controller?.level : 0;
 
     this.claimers = _.filter(Game.creeps, c => c.memory.role === CreepRole.CLAIMER).map(c => new Claimer(c));
     this.importers = _.filter(Game.creeps, c => c.memory.role === CreepRole.IMPORTER).map(c => new Importer(c));
+
+    this.importerCount =
+      this.importers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Importer.ROLE)).length;
+
+    this.claimerCount =
+      this.claimers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Claimer.ROLE)).length;
   }
 
   public run(): void {
@@ -58,47 +82,47 @@ export class PopulationControl {
       .filter(spawnw => !spawnw.spawning)
       .some(spawnw => {
         // make sure there is at least one minder if there is a container
-        if (this.containers.length > 0 && this.minders.length === 0) {
+        if (this.containers.length > 0 && this.minderCount === 0) {
           return this.spawnBootstrapCreep(Minder.BODY_PROFILE, Minder.ROLE, spawnw) !== OK;
         }
 
         // make sure there is at least one hauler if there is a container
         const maxHaulerCount = this.getMaxHaulerCount();
-        if (maxHaulerCount > 0 && this.haulers.length === 0) {
+        if (maxHaulerCount > 0 && this.haulerCount === 0) {
           return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw) !== OK;
         }
 
         // spawn minder for each container
-        if (this.minders.length < this.containers.length) {
+        if (this.minderCount < this.containers.length) {
           return this.spawnBootstrapCreep(Minder.BODY_PROFILE, Minder.ROLE, spawnw) !== OK;
         }
 
         // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
-        if (this.haulers.length < maxHaulerCount) {
+        if (this.haulerCount < maxHaulerCount) {
           return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw) !== OK;
         }
 
-        if (this.workers.length < this.getMaxWorkerCount()) {
+        if (this.workerCount < this.getMaxWorkerCount()) {
           return this.spawnBootstrapCreep(Worker.BODY_PROFILE, Worker.ROLE, spawnw);
         }
 
-        if (this.fixers.length < Constants.MAX_FIXER_CREEPS) {
+        if (this.fixerCount < Constants.MAX_FIXER_CREEPS) {
           return spawnw.spawn(this.getMaxBody(Fixer.BODY_PROFILE), Fixer.ROLE) !== OK;
         }
 
         // TODO importer numbers should depend on room reserved or not, etc
-        if (this.importers.length < TargetConfig.REMOTE_HARVEST[Game.shard.name].length * 3) {
+        if (this.importerCount < TargetConfig.REMOTE_HARVEST[Game.shard.name].length * 3) {
           return spawnw.spawn(this.getMaxBody(Importer.BODY_PROFILE), Importer.ROLE) !== OK;
         }
 
         // make builders if there's something to build and past level 1
         const workPartsNeeded = this.getBuilderWorkPartsNeeded();
-        if (this.workers.length === 0 && this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
+        if (this.workerCount === 0 && this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
           return spawnw.spawn(this.getBuilderBody(Builder.BODY_PROFILE, workPartsNeeded), Builder.ROLE) !== OK;
         }
 
         const maxClaimers = this.getMaxClaimerCount();
-        if (this.claimers.length < maxClaimers) {
+        if (this.claimerCount < maxClaimers) {
           return spawnw.spawn(this.getMaxBody(Claimer.BODY_PROFILE), Claimer.ROLE) !== OK;
         }
 
