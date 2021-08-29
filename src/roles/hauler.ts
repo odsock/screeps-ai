@@ -1,6 +1,6 @@
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
-import { CreepRole } from "../population-control";
+import { CreepRole } from "../spawn-control";
 import { Constants } from "../constants";
 import { CreepWrapper } from "./creep-wrapper";
 

@@ -1,7 +1,7 @@
 import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
 import { Constants } from "../constants";
-import { CreepRole } from "../population-control";
+import { CreepRole } from "../spawn-control";
 
 export class Builder extends CreepWrapper {
   public static readonly ROLE = CreepRole.BUILDER;
