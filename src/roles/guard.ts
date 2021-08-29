@@ -22,20 +22,21 @@ export class Guard extends RemoteWorker {
       this.targetRoom = TargetConfig.REMOTE_HARVEST[Game.shard.name][0];
     }
 
+    if (this.roomw.hasHostiles) {
+      const closestHostile = this.pos.findClosestByPath(this.roomw.hostileCreeps);
+      if (closestHostile) {
+        const attackResult = this.moveToAndAttack(closestHostile);
+        CreepUtils.consoleLogIfWatched(this, `attack`, attackResult);
+        return;
+      }
+    }
+
     if (!this.targetRoom) {
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
       return;
     } else {
       const result = this.moveToRoom(this.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
-      if (this.roomw.hasHostiles) {
-        const closestHostile = this.pos.findClosestByPath(this.roomw.hostileCreeps);
-        if (closestHostile) {
-          const attackResult = this.moveToAndAttack(closestHostile);
-          CreepUtils.consoleLogIfWatched(this, `attack`, attackResult);
-          return;
-        }
-      }
       return;
     }
   }
