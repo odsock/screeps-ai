@@ -63,6 +63,7 @@ export class RoomWrapper extends Room {
    */
   public get dismantleQueue(): Structure[] {
     let queue = MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueue`);
+    console.log(queue);
     if (!queue) {
       MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, [], Constants.PLANNING_INTERVAL);
       return [];
@@ -161,7 +162,6 @@ export class RoomWrapper extends Room {
   public get planVisual(): string {
     const visual = MemoryUtils.getCache<string>(`${this.room.name}_planVisual`);
     if (visual) {
-      console.log(`Plan visual: ${visual}`);
       return visual;
     }
     return "";
