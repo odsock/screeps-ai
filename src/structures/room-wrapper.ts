@@ -274,7 +274,9 @@ export class RoomWrapper extends Room {
 
   private findHarvestPositions(): RoomPosition[] {
     const positionsAroundSources = this.sources.reduce<RoomPosition[]>((positions: RoomPosition[], source) => {
-      return positions.concat(PlannerUtils.getPositionSpiral(source.pos, 1));
+      const surroundingPositions = PlannerUtils.getPositionSpiral(source.pos, 1);
+      CreepUtils.consoleLogIfWatched(this, `positions around ${String(source)}: ${surroundingPositions.length}`);
+      return positions.concat(surroundingPositions);
     }, []);
     CreepUtils.consoleLogIfWatched(this, `positions around sources: ${positionsAroundSources.length}`);
 
