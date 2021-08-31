@@ -10,6 +10,7 @@ export class Constants {
   public static readonly TOWER_MAX_REPAIR_RANGE = TOWER_OPTIMAL_RANGE;
   public static readonly TOWER_MAX_ATTACK_RANGE = TOWER_OPTIMAL_RANGE * 2;
 
+  public static readonly PLANNING_INTERVAL = 100;
   //   BODYPART_COST: {
   //     "move": 50,
   //     "work": 100,

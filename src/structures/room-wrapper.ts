@@ -63,11 +63,11 @@ export class RoomWrapper extends Room {
   public get dismantleQueue(): Structure[] {
     let queue = MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueue`);
     if (!queue) {
-      MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, []);
+      MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, [], Constants.PLANNING_INTERVAL);
       return [];
     }
     queue = queue.filter(structure => !!Game.getObjectById(structure.id));
-    MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue);
+    MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, Constants.PLANNING_INTERVAL);
     return queue;
   }
 
@@ -87,7 +87,7 @@ export class RoomWrapper extends Room {
       }
     }
     queue = queue.filter(claim => !Game.rooms[claim.name].controller?.my);
-    MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue);
+    MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
     this.memory.remoteQueue = queue;
     return queue;
   }
@@ -96,7 +96,7 @@ export class RoomWrapper extends Room {
    * update remote queue
    */
   public set remoteQueue(queue: ClaimCount[]) {
-    MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue);
+    MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
     this.memory.remoteQueue = queue;
   }
 
@@ -134,7 +134,7 @@ export class RoomWrapper extends Room {
       }
     }
     queue.filter(name => !Game.rooms[name].controller?.my);
-    MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue);
+    MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, 1000);
     this.memory.claimQueue = queue;
     return queue;
   }
@@ -143,7 +143,7 @@ export class RoomWrapper extends Room {
    * update claim queue
    */
   public set claimQueue(queue: string[]) {
-    MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue);
+    MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, 1000);
     this.memory.claimQueue = queue;
   }
 
@@ -177,7 +177,7 @@ export class RoomWrapper extends Room {
    * Sets cached string export of colony plan visual.
    */
   public set planVisual(visual: string) {
-    MemoryUtils.setCache(`${this.room.name}_planVisual`, visual);
+    MemoryUtils.setCache(`${this.room.name}_planVisual`, visual, Constants.PLANNING_INTERVAL);
   }
 
   /**
@@ -195,36 +195,17 @@ export class RoomWrapper extends Room {
    * Sets cached string export of demolition plan visual.
    */
   public set dismantleVisual(visual: string) {
-    MemoryUtils.setCache(`${this.room.name}_dismantleVisual`, visual);
+    MemoryUtils.setCache(`${this.room.name}_dismantleVisual`, visual, Constants.PLANNING_INTERVAL);
+  }
+
+  /**
+   * Gets sources in room by calling find.
+   */
+  public get sources(): Source[] {
+    return this.room.find(FIND_SOURCES);
   }
 
   /** stuff that needs caching code */
-
-  /**
-   * Gets sources in room, cached, from memory, or by calling find.
-   */
-  public get sources(): Source[] {
-    let sources = MemoryUtils.getCache<Source[]>(`${this.room.name}_sources`);
-    if (sources) {
-      return sources;
-    } else {
-      const sourceMemory = this.memory.sources;
-      if (sourceMemory) {
-        sources = sourceMemory.reduce<Source[]>((sourceList, sourceId) => {
-          const source = Game.getObjectById(sourceId);
-          if (source) {
-            sourceList.push(source);
-          }
-          return sourceList;
-        }, []);
-      } else {
-        sources = this.room.find(FIND_SOURCES);
-        this.memory.sources = sources.map(source => source.id);
-      }
-      MemoryUtils.setCache(`${this.room.name}_sources`, sources);
-      return sources;
-    }
-  }
 
   public get constructionWork(): number {
     return this.myConstructionSites.reduce<number>((work: number, site) => {
