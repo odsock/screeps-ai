@@ -38,7 +38,7 @@ export class MemoryUtils {
     if (!global.cache) {
       MemoryUtils.initCache();
     }
-    console.log(`set cache: ${key} => ${String(item)}, ttl ${ttl}`);
+    console.log(`set cache: ${key} => ${String(item).slice(0, 100)}, ttl ${ttl}`);
     global.cache.set(key, { item, expires: Game.time + ttl } as CacheValue);
   }
 
@@ -48,7 +48,7 @@ export class MemoryUtils {
     }
 
     const value = global.cache.get(key);
-    console.log(`get cache: ${key} => ${String(value)}, ${String(value?.item)}`);
+    console.log(`get cache: ${key} => ${String(value)}, ${String(value?.item).slice(0, 100)}`);
     if (value) {
       return value.item as T;
     }
