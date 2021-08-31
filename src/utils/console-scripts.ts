@@ -24,6 +24,6 @@ global.unwatch = (key: Id<any>) => {
 
 global.showCache = () => {
   for (const key in global.cache) {
-    console.log(`${key}: ${String(global.cache.get(key))}`);
+    console.log(`${key}: ${String(global.cache.get(key)?.item)}, ${String(global.cache.get(key)?.expires)}`);
   }
 };
