@@ -12,6 +12,7 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { TargetConfig } from "target-config";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 import { Guard } from "roles/guard";
+import { MemoryUtils } from "planning/memory-utils";
 
 export const enum CreepRole {
   BUILDER = "builder",
@@ -233,16 +234,45 @@ export class SpawnControl {
   private getMaxWorkerCount(): number {
     // make workers in early stages
     if (this.rcl <= 1 || (this.containers.length === 0 && this.minders.length === 0)) {
-      // const workPartCount = this.workers.reduce<number>(
-      //   (count, creep) => count + CreepUtils.countParts(creep, WORK),
-      //   0
-      // );
-      // const partsPerSource = workPartCount / this.roomw.sources.length;
-      // if (partsPerSource < 10) {
-      //   return this.workerCount + 1;
-      // }
-      // return this.roomw.harvestPositions.length;
-      return Constants.MAX_WORKERS;
+      // make at least one worker per harvest position
+      const harvestPositions = this.roomw.harvestPositions.length;
+      if (harvestPositions > this.workerCount) {
+        return harvestPositions;
+      }
+
+      // limit at 20 WORK per source because 10 will empty it, but supplement energy with importers
+      const workPartCount = this.workers.reduce<number>(
+        (count, creep) => count + CreepUtils.countParts(creep, WORK),
+        0
+      );
+      const partsPerSource = workPartCount / this.roomw.sources.length;
+      if (partsPerSource >= 20) {
+        return this.workerCount;
+      }
+
+      // calculate time to harvest
+      const carryPartCount = this.workers.reduce<number>(
+        (count, creep) => count + CreepUtils.countParts(creep, CARRY),
+        0
+      );
+      const averageStoragePerWorker = (carryPartCount * CARRY_CAPACITY) / this.workerCount;
+      const ticksToHarvest = averageStoragePerWorker / (partsPerSource * HARVEST_POWER);
+
+      // cache this expensive nested loop
+      let longestSourceRangeToSpawn = MemoryUtils.getCache<number>(`${this.roomw.name}_longestSourceRangeToSpawn`);
+      if (!longestSourceRangeToSpawn) {
+        longestSourceRangeToSpawn = this.roomw.sources.reduce<number>((outerRange, source) => {
+          return this.roomw.spawns.reduce<number>((innerRange, spawn) => {
+            const range = source.pos.getRangeTo(spawn.pos.x, spawn.pos.y);
+            return innerRange > range ? innerRange : range;
+          }, outerRange);
+        }, 0);
+        MemoryUtils.setCache(`${this.roomw.name}_longestSourceRangeToSpawn`, longestSourceRangeToSpawn, 1000);
+      }
+
+      const harvestCyclesPerTransit = (longestSourceRangeToSpawn * 2) / ticksToHarvest;
+
+      return harvestPositions + harvestCyclesPerTransit;
     }
     return 0;
   }
