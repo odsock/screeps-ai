@@ -12,6 +12,9 @@ export class SpawnWrapper extends StructureSpawn {
     }
     const result = this.spawnCreep(body, newName, { memory });
     CreepUtils.consoleLogIfWatched(this, `spawning: ${role} ${CreepUtils.creepBodyToString(body)}`, result);
+    if (result === ERR_INVALID_ARGS) {
+      console.log(`Invalid spawn: ${role} ${CreepUtils.creepBodyToString(body)}`)
+    }
     return result;
   }
 }
