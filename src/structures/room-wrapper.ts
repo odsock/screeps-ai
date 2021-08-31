@@ -273,11 +273,14 @@ export class RoomWrapper extends Room {
   }
 
   private findHarvestPositions(): RoomPosition[] {
-    return this.sources
-      .reduce<RoomPosition[]>((positions: RoomPosition[], source) => {
-        return positions.concat(PlannerUtils.getPositionSpiral(source.pos, 1));
-      }, [])
-      .filter(pos => PlannerUtils.isEnterable(pos));
+    const positionsAroundSources = this.sources.reduce<RoomPosition[]>((positions: RoomPosition[], source) => {
+      return positions.concat(PlannerUtils.getPositionSpiral(source.pos, 1));
+    }, []);
+    CreepUtils.consoleLogIfWatched(this, `positions around sources: ${positionsAroundSources.length}`);
+
+    const harvestPositions = positionsAroundSources.filter(pos => PlannerUtils.isEnterable(pos));
+    CreepUtils.consoleLogIfWatched(this, `harvest positions: ${harvestPositions.length}`);
+    return harvestPositions;
   }
 
   /** cost matrix caching */

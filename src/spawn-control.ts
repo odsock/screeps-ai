@@ -246,9 +246,9 @@ export class SpawnControl {
         (count, creep) => count + CreepUtils.countParts(creep, WORK),
         0
       );
-      const workPartsPerSource = workPartCount / this.roomw.sources.length;
-      CreepUtils.consoleLogIfWatched(this.roomw, `work parts per source: ${workPartsPerSource}`);
-      if (workPartsPerSource >= 20) {
+      const avgWorkerWorkParts = workPartCount / this.workerCount;
+      CreepUtils.consoleLogIfWatched(this.roomw, `average worker work parts: ${avgWorkerWorkParts}`);
+      if (avgWorkerWorkParts >= 20) {
         return this.workerCount;
       }
 
@@ -259,7 +259,7 @@ export class SpawnControl {
       );
       const avgWorkerCarry = (carryPartCount * CARRY_CAPACITY) / this.workerCount;
       CreepUtils.consoleLogIfWatched(this.roomw, `average worker carry: ${avgWorkerCarry}`);
-      const ticksToHarvest = avgWorkerCarry / (workPartsPerSource * HARVEST_POWER);
+      const ticksToHarvest = avgWorkerCarry / (avgWorkerWorkParts * HARVEST_POWER);
       CreepUtils.consoleLogIfWatched(this.roomw, `ticks to harvest: ${ticksToHarvest}`);
 
       // cache this expensive nested loop
