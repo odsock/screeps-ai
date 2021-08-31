@@ -38,7 +38,15 @@ export class MemoryUtils {
     if (!global.cache) {
       MemoryUtils.initCache();
     }
-    console.log(`set cache: ${key} => ${String(item)}`);
+    console.log(`set cache: ${key} => ${String(item)}, ttl ${ttl}`);
+    global.cache.set(key, { item, expires: Game.time + ttl } as CacheValue);
+  }
+
+  public static setCacheString(key: string, item: string, ttl = 1): void {
+    if (!global.cache) {
+      MemoryUtils.initCache();
+    }
+    console.log(`set cache: ${key} => ${item}`);
     global.cache.set(key, { item, expires: Game.time + ttl } as CacheValue);
   }
 
