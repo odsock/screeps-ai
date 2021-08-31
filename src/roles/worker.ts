@@ -89,7 +89,8 @@ export class Worker extends CreepWrapper {
       this.updateJob("building");
       this.stopWorkingIfEmpty();
       this.startWorkingIfFull();
-      this.startWorkingInRange(site.pos);
+      // TODO doesn't work well on first container
+      // this.startWorkingInRange(site.pos);
 
       if (this.memory.working) {
         // don't block the source while working
