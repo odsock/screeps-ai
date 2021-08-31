@@ -3,6 +3,7 @@ import { MemoryUtils } from "planning/memory-utils";
 import { PlannerUtils } from "planning/planner-utils";
 import { SpawnWrapper } from "./spawn-wrapper";
 import { TargetConfig } from "target-config";
+import { CreepUtils } from "creep-utils";
 
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
@@ -97,9 +98,11 @@ export class RoomWrapper extends Room {
 
   /** get target room from queue */
   public getRoomRemote(): string | undefined {
+    CreepUtils.consoleLogIfWatched(this, `getting remote from queue`);
     const index = this.remoteQueue.findIndex(claim => claim.count < TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
     if (index !== -1) {
       const claim = this.remoteQueue[index];
+      CreepUtils.consoleLogIfWatched(this, `found ${String(claim)}`);
       this.remoteQueue[index] = { name: claim.name, count: claim.count++ };
       return claim.name;
     }
