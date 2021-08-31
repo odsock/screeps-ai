@@ -3,7 +3,6 @@ import { MemoryUtils } from "planning/memory-utils";
 import { PlannerUtils } from "planning/planner-utils";
 import { SpawnWrapper } from "./spawn-wrapper";
 import { TargetConfig } from "target-config";
-import { times } from "lodash";
 
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
@@ -75,17 +74,19 @@ export class RoomWrapper extends Room {
   /**
    * Room remote harvest queue.
    */
-  public get remoteQueue(): string[] {
-    let queue = MemoryUtils.getCache<string[]>(`${this.room.name}_remoteQueue`);
+  public get remoteQueue(): ClaimCount[] {
+    let queue = MemoryUtils.getCache<ClaimCount[]>(`${this.room.name}_remoteQueue`);
     if (!queue) {
       queue = this.memory.remoteQueue;
       if (!queue) {
-        queue = times(TargetConfig.IMPORTERS_PER_REMOTE_ROOM, () => TargetConfig.REMOTE_HARVEST[Game.shard.name])
-          .flat()
-          .filter(name => !Game.rooms[name].controller?.my);
+        queue = TargetConfig.REMOTE_HARVEST[Game.shard.name]
+          .filter(name => !Game.rooms[name].controller?.my)
+          .map(name => {
+            return { name, count: 0 } as ClaimCount;
+          });
       }
     }
-    queue.filter(name => !Game.rooms[name].controller?.my);
+    queue = queue.filter(claim => !Game.rooms[claim.name].controller?.my);
     MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue);
     this.memory.remoteQueue = queue;
     return queue;
@@ -94,24 +95,30 @@ export class RoomWrapper extends Room {
   /**
    * update remote queue
    */
-  public set remoteQueue(queue: string[]) {
+  public set remoteQueue(queue: ClaimCount[]) {
     MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue);
     this.memory.remoteQueue = queue;
   }
 
   /** get target room from queue */
   public getRoomRemote(): string | undefined {
-    const queue = this.remoteQueue;
-    const name = queue.pop();
-    this.remoteQueue = queue;
-    return name;
+    const index = this.remoteQueue.findIndex(claim => claim.count < TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
+    if (index !== -1) {
+      const claim = this.remoteQueue[index];
+      this.remoteQueue[index] = { name: claim.name, count: claim.count++ };
+      return claim.name;
+    }
+    return undefined;
   }
 
   /** release target room to queue */
   public releaseRoomRemote(name: string): void {
-    const queue = this.remoteQueue;
-    queue.push(name);
-    this.remoteQueue = queue;
+    const index = this.remoteQueue.findIndex(claim => claim.name === name);
+    if (index !== -1) {
+      const claim = this.remoteQueue[index];
+      const newCount = claim.count > 0 ? claim.count-- : 0;
+      this.remoteQueue[index] = { name: claim.name, count: newCount };
+    }
   }
 
   /**
