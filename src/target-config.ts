@@ -11,5 +11,5 @@ export class TargetConfig {
     "shard3": ["E17N55", "E18N55"]
   };
 
-  public static readonly IMPORTERS_PER_REMOTE_ROOM = 2;
+  public static readonly IMPORTERS_PER_REMOTE_ROOM = 4;
 }
