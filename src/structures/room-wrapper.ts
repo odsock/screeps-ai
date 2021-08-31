@@ -99,8 +99,8 @@ export class RoomWrapper extends Room {
       const claim = queue[index];
       claim.count = claim.count++;
       queue[index] = claim;
-      console.log(String(claim));
-      queue.forEach(claimobj => console.log(claimobj));
+      console.log(claim.name, claim.count);
+      queue.forEach(claimobj => console.log(claimobj.name, claimobj.count));
       CreepUtils.consoleLogIfWatched(this, `found ${String(claim)}`);
       MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
       return claim.name;
