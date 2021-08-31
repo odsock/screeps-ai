@@ -239,14 +239,16 @@ export class SpawnControl {
       if (harvestPositions > this.workerCount) {
         return harvestPositions;
       }
+      CreepUtils.consoleLogIfWatched(this.roomw, `harvest positions: ${harvestPositions}`);
 
       // limit at 20 WORK per source because 10 will empty it, but supplement energy with importers
       const workPartCount = this.workers.reduce<number>(
         (count, creep) => count + CreepUtils.countParts(creep, WORK),
         0
       );
-      const partsPerSource = workPartCount / this.roomw.sources.length;
-      if (partsPerSource >= 20) {
+      const workPartsPerSource = workPartCount / this.roomw.sources.length;
+      CreepUtils.consoleLogIfWatched(this.roomw, `work parts per source: ${workPartsPerSource}`);
+      if (workPartsPerSource >= 20) {
         return this.workerCount;
       }
 
@@ -255,8 +257,10 @@ export class SpawnControl {
         (count, creep) => count + CreepUtils.countParts(creep, CARRY),
         0
       );
-      const averageStoragePerWorker = (carryPartCount * CARRY_CAPACITY) / this.workerCount;
-      const ticksToHarvest = averageStoragePerWorker / (partsPerSource * HARVEST_POWER);
+      const avgWorkerCarry = (carryPartCount * CARRY_CAPACITY) / this.workerCount;
+      CreepUtils.consoleLogIfWatched(this.roomw, `average worker carry: ${avgWorkerCarry}`);
+      const ticksToHarvest = avgWorkerCarry / (workPartsPerSource * HARVEST_POWER);
+      CreepUtils.consoleLogIfWatched(this.roomw, `ticks to harvest: ${ticksToHarvest}`);
 
       // cache this expensive nested loop
       let longestSourceRangeToSpawn = MemoryUtils.getCache<number>(`${this.roomw.name}_longestSourceRangeToSpawn`);
@@ -269,10 +273,14 @@ export class SpawnControl {
         }, 0);
         MemoryUtils.setCache(`${this.roomw.name}_longestSourceRangeToSpawn`, longestSourceRangeToSpawn, 1000);
       }
+      CreepUtils.consoleLogIfWatched(this.roomw, `longest source range from spawn: ${longestSourceRangeToSpawn}`);
 
       const harvestCyclesPerTransit = (longestSourceRangeToSpawn * 2) / ticksToHarvest;
+      CreepUtils.consoleLogIfWatched(this.roomw, `harvest cycles per transit: ${harvestCyclesPerTransit}`);
+      const maxWorkerCount = harvestPositions + harvestCyclesPerTransit;
+      CreepUtils.consoleLogIfWatched(this.roomw, `max workers: ${maxWorkerCount}`);
 
-      return harvestPositions + harvestCyclesPerTransit;
+      return maxWorkerCount;
     }
     return 0;
   }
