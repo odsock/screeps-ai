@@ -21,11 +21,15 @@ export class Planner {
     if (this.roomw.controller) {
       if (this.roomw.controller?.level >= 1) {
         const result1 = this.planLevel1();
+        this.planFullColony();
+        this.assimilateColonlyToPlan(true);
         CreepUtils.consoleLogIfWatched(this.roomw, `level 1 planning result`, result1);
       }
 
       if (this.roomw.controller?.level >= 2) {
         const result2 = this.planLevel2();
+        this.planFullColony();
+        this.assimilateColonlyToPlan(true);
         CreepUtils.consoleLogIfWatched(this.roomw, `level 2 planning result`, result2);
       }
 
@@ -64,7 +68,7 @@ export class Planner {
     }
   }
 
-  private assimilateColonlyToPlan(): ScreepsReturnCode {
+  private assimilateColonlyToPlan(skipRoads = false): ScreepsReturnCode {
     const plan = MemoryUtils.getCache<StructurePlan>(`${this.roomw.name}_plan`);
     if (!plan) {
       return OK;
@@ -105,7 +109,7 @@ export class Planner {
     this.roomw.dismantleVisual = this.roomw.visual.export();
 
     // try to construct any missing structures
-    const result = PlannerUtils.placeStructurePlan(plan);
+    const result = PlannerUtils.placeStructurePlan(plan, true, true, skipRoads);
     console.log(`place colony result ${result}`);
 
     return result;

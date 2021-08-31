@@ -210,11 +210,16 @@ export class PlannerUtils {
   public static placeStructurePlan(
     structurePlan: StructurePlan,
     allowOverlap = true,
-    ignoreRCL = true
+    ignoreRCL = true,
+    skipRoads = false
   ): ScreepsReturnCode {
     const plan = structurePlan.getPlan();
     if (plan) {
       for (const planPosition of plan) {
+        if (skipRoads && planPosition.structure === STRUCTURE_ROAD) {
+          continue;
+        }
+
         const result = structurePlan.roomw.createConstructionSite(planPosition.pos, planPosition.structure);
 
         if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
