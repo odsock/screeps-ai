@@ -239,7 +239,7 @@ export class SpawnControl {
       //   return this.workerCount + 1;
       // }
       // return this.roomw.harvestPositions.length;
-      return 5;
+      return 3;
     }
     return 0;
   }
