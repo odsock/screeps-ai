@@ -124,7 +124,7 @@ export class SpawnControl {
           return this.spawnBootstrapCreep(Worker.BODY_PROFILE, Worker.ROLE, spawnw);
         }
 
-        if (this.fixerCount < Constants.MAX_FIXER_CREEPS) {
+        if (this.roomw.repairSites.length > 0 && this.fixerCount < Constants.MAX_FIXER_CREEPS) {
           return spawnw.spawn(this.getMaxBody(Fixer.BODY_PROFILE), Fixer.ROLE) !== OK;
         }
 
