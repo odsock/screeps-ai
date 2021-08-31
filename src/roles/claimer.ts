@@ -31,12 +31,15 @@ export class Claimer extends RemoteWorker {
       return;
     }
 
-    // go to controller and claim it
+    // go to controller and claim or reserve it
     if (this.roomw.controller) {
-      // const result = this.claimTargetRoom();
-      // CreepUtils.consoleLogIfWatched(this, `claim controller: ${String(this.roomw.controller)}`, result);
-      const result = this.reserveTargetRoom();
-      CreepUtils.consoleLogIfWatched(this, `reserve controller: ${String(this.roomw.controller)}`, result);
+      if (TargetConfig.REMOTE_HARVEST[Game.shard.name].includes(targetRoom)) {
+        const reserveResult = this.reserveTargetRoom();
+        CreepUtils.consoleLogIfWatched(this, `reserve controller: ${String(this.roomw.controller)}`, reserveResult);
+      } else {
+        const result = this.claimTargetRoom();
+        CreepUtils.consoleLogIfWatched(this, `claim controller: ${String(this.roomw.controller)}`, result);
+      }
       return;
     }
   }
