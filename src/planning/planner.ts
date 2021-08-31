@@ -18,9 +18,6 @@ export class Planner {
     console.log(`${this.roomw.name}: running planning`);
     MemoryUtils.refreshRoomMemory(this.roomw);
 
-    this.planFullColony();
-    this.assimilateColonlyToPlan();
-
     if (this.roomw.controller) {
       if (this.roomw.controller?.level >= 1) {
         const result1 = this.planLevel1();
@@ -30,6 +27,11 @@ export class Planner {
       if (this.roomw.controller?.level >= 2) {
         const result2 = this.planLevel2();
         CreepUtils.consoleLogIfWatched(this.roomw, `level 2 planning result`, result2);
+      }
+
+      if (this.roomw.controller?.level >= 3) {
+        this.planFullColony();
+        this.assimilateColonlyToPlan();
       }
     }
     return OK;
