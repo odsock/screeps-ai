@@ -90,8 +90,12 @@ export class SpawnControl {
     this.spawns
       .filter(spawnw => !spawnw.spawning)
       .some(spawnw => {
-        // spawn guard if there are hostiles, or if reported by a target room
+        // spawn guard if there are hostiles,
+        // TODO or if reported by a target room
         if (this.roomw.hostileCreeps.length > this.guardCount) {
+          if (this.roomw.controller) {
+            this.roomw.controller.activateSafeMode();
+          }
           return this.spawnGuardCreep(Guard.BODY_PROFILE, Guard.ROLE, spawnw) !== OK;
         }
 
