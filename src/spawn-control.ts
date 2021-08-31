@@ -230,15 +230,16 @@ export class SpawnControl {
   private getMaxWorkerCount(): number {
     // make workers in early stages
     if (this.rcl <= 1 || (this.containers.length === 0 && this.minders.length === 0)) {
-      const workPartCount = this.workers.reduce<number>(
-        (count, creep) => count + CreepUtils.countParts(creep, WORK),
-        0
-      );
-      const partsPerSource = workPartCount / this.roomw.sources.length;
-      if (partsPerSource < 10) {
-        return this.workerCount + 1;
-      }
-      return this.roomw.harvestPositions.length;
+      // const workPartCount = this.workers.reduce<number>(
+      //   (count, creep) => count + CreepUtils.countParts(creep, WORK),
+      //   0
+      // );
+      // const partsPerSource = workPartCount / this.roomw.sources.length;
+      // if (partsPerSource < 10) {
+      //   return this.workerCount + 1;
+      // }
+      // return this.roomw.harvestPositions.length;
+      return 5;
     }
     return 0;
   }
