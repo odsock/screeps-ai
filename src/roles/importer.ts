@@ -88,6 +88,7 @@ export class Importer extends RemoteWorker {
     let targetRoom = this.memory.targetRoom;
     if (!targetRoom) {
       // find a target room
+      // TODO use room factory to get target through home room
       targetRoom = this.roomw.getRoomRemote();
 
       if (targetRoom) {
