@@ -161,6 +161,7 @@ export class RoomWrapper extends Room {
   public get planVisual(): string {
     const visual = MemoryUtils.getCache<string>(`${this.room.name}_planVisual`);
     if (visual) {
+      console.log(`Plan visual: ${visual}`);
       return visual;
     }
     return "";
