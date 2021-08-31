@@ -10,7 +10,7 @@ import { Constants } from "./constants";
 export class Sockpuppet {
   public run(): void {
     // refresh global cache if missing
-    // MemoryUtils.readCacheFromMemory();
+    MemoryUtils.writeCacheToMemory();
 
     // Run each room
     for (const roomId in Game.rooms) {
