@@ -1,6 +1,6 @@
 {
   "name": "mburnham-screeps-ai",
-  "version": "1.98.1-46",
+  "version": "1.98.1-47",
   "description": "Screeps AI built from screeps-typescript-starter",
   "main": "index.js",
   "scripts": {
