@@ -272,9 +272,13 @@ export class SpawnControl {
   /**
    * Creates creep body profile based on array of body constants and max size allowed.
    */
-  // TODO implement maxWorkParts and other checks
-  private getMaxBody(creepBodyProfile: CreepBodyProfile) {
+  // TODO implement maxWorkParts and other part type checks
+  private getMaxBody(creepBodyProfile: CreepBodyProfile): BodyPartConstant[] {
     let body: BodyPartConstant[] = creepBodyProfile.seed.slice();
+    // if no seed start with one instance of profile
+    if (body.length === 0) {
+      body = creepBodyProfile.profile.slice();
+    }
     let finalBody: BodyPartConstant[] = [];
     if (creepBodyProfile.maxBodyParts > MAX_CREEP_SIZE) {
       creepBodyProfile.maxBodyParts = MAX_CREEP_SIZE;
