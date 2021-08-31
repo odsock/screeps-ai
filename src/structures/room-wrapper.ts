@@ -141,21 +141,11 @@ export class RoomWrapper extends Room {
   }
 
   public get myConstructionSites(): ConstructionSite[] {
-    let constructionSites = MemoryUtils.getCache<ConstructionSite[]>(`${this.room.name}_myConstructionSites`);
-    if (!constructionSites) {
-      constructionSites = this.room.find(FIND_MY_CONSTRUCTION_SITES);
-      MemoryUtils.setCache(`${this.room.name}_myConstructionSites`, constructionSites);
-    }
-    return constructionSites;
+    return this.room.find(FIND_MY_CONSTRUCTION_SITES);
   }
 
   public get constructionSites(): ConstructionSite[] {
-    let constructionSites = MemoryUtils.getCache<ConstructionSite[]>(`${this.room.name}_constructionSites`);
-    if (!constructionSites) {
-      constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
-      MemoryUtils.setCache(`${this.room.name}_constructionSites`, constructionSites);
-    }
-    return constructionSites;
+    return this.room.find(FIND_CONSTRUCTION_SITES);
   }
 
   public get towers(): StructureTower[] {
