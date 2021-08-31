@@ -129,7 +129,7 @@ export class SpawnControl {
         }
 
         // TODO importer numbers should depend on room reserved or not, etc
-        if (this.importerCount < TargetConfig.REMOTE_HARVEST[Game.shard.name].length * 3) {
+        if (this.importerCount < TargetConfig.REMOTE_HARVEST[Game.shard.name].length * 2) {
           return spawnw.spawn(this.getMaxBody(Importer.BODY_PROFILE), Importer.ROLE) !== OK;
         }
 
