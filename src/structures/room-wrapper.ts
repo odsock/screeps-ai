@@ -90,7 +90,7 @@ export class RoomWrapper extends Room {
   }
 
   /** get target room from queue */
-  // TODO refactor this when more awake
+  // TODO validate claims at some point
   public getRoomRemote(): string | undefined {
     CreepUtils.consoleLogIfWatched(this, `getting remote from queue`);
     const queue = this.remoteQueue;
@@ -98,9 +98,8 @@ export class RoomWrapper extends Room {
     if (index !== -1) {
       const claim = queue[index];
       claim.count = claim.count + 1;
-      console.log(claim.name, claim.count);
+      console.log(`get claim: ${claim.name}, ${claim.count} claims now`);
       queue[index] = claim;
-      queue.forEach(claimobj => console.log(claimobj.name, claimobj.count));
       CreepUtils.consoleLogIfWatched(this, `found ${claim.name}, ${claim.count} claims`);
       MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
       return claim.name;
@@ -110,11 +109,14 @@ export class RoomWrapper extends Room {
 
   /** release target room to queue */
   public releaseRoomRemote(name: string): void {
-    const index = this.remoteQueue.findIndex(claim => claim.name === name);
+    const queue = this.remoteQueue;
+    const index = queue.findIndex(claim => claim.name === name);
     if (index !== -1) {
-      const claim = this.remoteQueue[index];
-      const newCount = claim.count > 0 ? claim.count-- : 0;
-      this.remoteQueue[index] = { name: claim.name, count: newCount };
+      const claim = queue[index];
+      claim.count = claim.count > 0 ? claim.count - 1 : 0;
+      console.log(`release claim: ${claim.name}, ${claim.count} claims now`);
+      queue[index] = claim;
+      MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
     }
   }
 
