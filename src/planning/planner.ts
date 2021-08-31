@@ -77,7 +77,10 @@ export class Planner {
     planPositions.forEach(planPos => {
       const posLook = planPos.pos.look();
       const wrongStructure = posLook.find(
-        lookResult => lookResult.structure?.structureType && lookResult.structure.structureType !== planPos.structure
+        lookResult =>
+          lookResult.structure?.structureType &&
+          lookResult.structure.structureType !== planPos.structure &&
+          lookResult.structure.structureType !== STRUCTURE_SPAWN
       );
 
       if (wrongStructure?.structure && wrongStructure.structure) {
