@@ -10,4 +10,6 @@ export class TargetConfig {
   public static readonly REMOTE_HARVEST: {[x: string]: string[]} = {
     "shard3": ["E18N55", "E18N55"]
   };
+
+  public static readonly IMPORTERS_PER_REMOTE_ROOM = 2;
 }
