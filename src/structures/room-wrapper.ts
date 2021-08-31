@@ -93,18 +93,22 @@ export class RoomWrapper extends Room {
   /**
    * update remote queue
    */
-  public set remoteQueue(queue: ClaimCount[]) {
+  private setRemoteQueue(queue: ClaimCount[]) {
     MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
   }
 
   /** get target room from queue */
+  // TODO refactor this when more awake
   public getRoomRemote(): string | undefined {
     CreepUtils.consoleLogIfWatched(this, `getting remote from queue`);
-    const index = this.remoteQueue.findIndex(claim => claim.count < TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
+    const queue = this.remoteQueue;
+    const index = queue.findIndex(claim => claim.count < TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
     if (index !== -1) {
-      const claim = this.remoteQueue[index];
+      const claim = queue[index];
+      claim.count = claim.count++;
+      queue[index] = claim;
       CreepUtils.consoleLogIfWatched(this, `found ${String(claim)}`);
-      this.remoteQueue[index] = { name: claim.name, count: claim.count++ };
+      this.setRemoteQueue(queue);
       return claim.name;
     }
     return undefined;
