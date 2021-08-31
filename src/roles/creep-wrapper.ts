@@ -544,7 +544,9 @@ export abstract class CreepWrapper extends Creep {
     }
 
     const creepWithSpace = this.pos.findClosestByPath(
-      this.roomw.creeps.filter(creep => creep.store.getFreeCapacity() > 0)
+      this.roomw.creeps.filter(
+        creep => creep.id !== this.id && creep.memory.role !== this.memory.role && creep.store.getFreeCapacity() > 0
+      )
     );
     if (creepWithSpace) {
       CreepUtils.consoleLogIfWatched(this, `creep with space: ${String(creepWithSpace)}`);
