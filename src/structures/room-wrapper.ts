@@ -171,7 +171,6 @@ export class RoomWrapper extends Room {
    * Sets cached string export of colony plan visual.
    */
   public set planVisual(visual: string) {
-    console.log(`set plan visual cache ${visual}`);
     MemoryUtils.setCache(`${this.room.name}_planVisual`, visual, Constants.PLANNING_INTERVAL);
   }
 

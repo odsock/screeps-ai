@@ -42,20 +42,13 @@ export class MemoryUtils {
     global.cache.set(key, { item, expires: Game.time + ttl } as CacheValue);
   }
 
-  public static setCacheString(key: string, item: string, ttl = 1): void {
-    if (!global.cache) {
-      MemoryUtils.initCache();
-    }
-    console.log(`set cache: ${key} => ${item}`);
-    global.cache.set(key, { item, expires: Game.time + ttl } as CacheValue);
-  }
-
   public static getCache<T>(key: string): T | undefined {
     if (!global.cache) {
       MemoryUtils.initCache();
     }
 
     const value = global.cache.get(key);
+    console.log(`get cache: ${key} => ${String(value)}`);
     if (value) {
       return value.item as T;
     }
