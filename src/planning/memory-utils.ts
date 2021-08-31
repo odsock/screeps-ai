@@ -19,6 +19,9 @@ export class MemoryUtils {
   }
 
   public static writeCacheToMemory(): void {
+    if (!global.cache) {
+      MemoryUtils.initCache();
+    }
     global.cache.forEach((value, key) => {
       if (value.expires > Game.time) {
         global.cache.delete(key);
