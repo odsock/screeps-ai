@@ -38,6 +38,7 @@ export class MemoryUtils {
     if (!global.cache) {
       MemoryUtils.initCache();
     }
+    console.log(`set cache: ${key} => ${String(item)}`);
     global.cache.set(key, { item, expires: Game.time + ttl } as CacheValue);
   }
 
