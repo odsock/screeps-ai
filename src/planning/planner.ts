@@ -46,7 +46,6 @@ export class Planner {
     if (!plan) {
       const controllerPos = this.roomw.controller?.pos;
       if (controllerPos) {
-        console.log("POC colonly layout");
         const sourcePositions = this.roomw.sources.map(source => source.pos);
         const depositPositions = this.roomw.deposits.map(deposit => deposit.pos);
 

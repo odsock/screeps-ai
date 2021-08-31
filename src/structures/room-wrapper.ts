@@ -63,7 +63,6 @@ export class RoomWrapper extends Room {
    */
   public get dismantleQueue(): Structure[] {
     let queue = MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueue`);
-    console.log(queue);
     if (!queue) {
       MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, [], Constants.PLANNING_INTERVAL);
       return [];
@@ -90,13 +89,6 @@ export class RoomWrapper extends Room {
     return queue;
   }
 
-  /**
-   * update remote queue
-   */
-  private setRemoteQueue(queue: ClaimCount[]) {
-    MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
-  }
-
   /** get target room from queue */
   // TODO refactor this when more awake
   public getRoomRemote(): string | undefined {
@@ -107,8 +99,10 @@ export class RoomWrapper extends Room {
       const claim = queue[index];
       claim.count = claim.count++;
       queue[index] = claim;
+      console.log(String(claim));
+      queue.forEach(claimobj => console.log(claimobj));
       CreepUtils.consoleLogIfWatched(this, `found ${String(claim)}`);
-      this.setRemoteQueue(queue);
+      MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
       return claim.name;
     }
     return undefined;
