@@ -79,12 +79,12 @@ export class RoomWrapper extends Room {
     let queue = MemoryUtils.getCache<ClaimCount[]>(`${this.room.name}_remoteQueue`);
     if (!queue) {
       queue = TargetConfig.REMOTE_HARVEST[Game.shard.name]
-        .filter(name => !Game.rooms[name].controller?.my)
+        .filter(name => !Game.rooms[name]?.controller?.my)
         .map(name => {
           return { name, count: 0 } as ClaimCount;
         });
     }
-    queue = queue.filter(claim => !Game.rooms[claim.name].controller?.my);
+    queue = queue.filter(claim => !Game.rooms[claim.name]?.controller?.my);
     MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
     return queue;
   }
@@ -128,7 +128,7 @@ export class RoomWrapper extends Room {
       queue = TargetConfig.TARGETS[Game.shard.name];
       queue.concat(TargetConfig.REMOTE_HARVEST[Game.shard.name]);
     }
-    queue.filter(name => !Game.rooms[name].controller?.my);
+    queue.filter(name => !Game.rooms[name]?.controller?.my);
     MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, 1000);
     return queue;
   }
