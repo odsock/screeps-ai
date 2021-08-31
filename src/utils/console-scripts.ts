@@ -21,3 +21,9 @@ global.unwatch = (key: Id<any>) => {
     watchable.memory.watched = false;
   }
 };
+
+global.showCache = () => {
+  for (const key in global.cache) {
+    console.log(`${key}: ${String(global.cache.get(key))}`);
+  }
+};

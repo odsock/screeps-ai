@@ -77,18 +77,14 @@ export class RoomWrapper extends Room {
   public get remoteQueue(): ClaimCount[] {
     let queue = MemoryUtils.getCache<ClaimCount[]>(`${this.room.name}_remoteQueue`);
     if (!queue) {
-      queue = this.memory.remoteQueue;
-      if (!queue) {
-        queue = TargetConfig.REMOTE_HARVEST[Game.shard.name]
-          .filter(name => !Game.rooms[name].controller?.my)
-          .map(name => {
-            return { name, count: 0 } as ClaimCount;
-          });
-      }
+      queue = TargetConfig.REMOTE_HARVEST[Game.shard.name]
+        .filter(name => !Game.rooms[name].controller?.my)
+        .map(name => {
+          return { name, count: 0 } as ClaimCount;
+        });
     }
     queue = queue.filter(claim => !Game.rooms[claim.name].controller?.my);
     MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
-    this.memory.remoteQueue = queue;
     return queue;
   }
 
@@ -97,7 +93,6 @@ export class RoomWrapper extends Room {
    */
   public set remoteQueue(queue: ClaimCount[]) {
     MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
-    this.memory.remoteQueue = queue;
   }
 
   /** get target room from queue */
@@ -127,15 +122,11 @@ export class RoomWrapper extends Room {
   public get claimQueue(): string[] {
     let queue = MemoryUtils.getCache<string[]>(`${this.room.name}_claimQueue`);
     if (!queue) {
-      queue = this.memory.claimQueue;
-      if (!queue) {
-        queue = TargetConfig.TARGETS[Game.shard.name];
-        queue.concat(TargetConfig.REMOTE_HARVEST[Game.shard.name]);
-      }
+      queue = TargetConfig.TARGETS[Game.shard.name];
+      queue.concat(TargetConfig.REMOTE_HARVEST[Game.shard.name]);
     }
     queue.filter(name => !Game.rooms[name].controller?.my);
     MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, 1000);
-    this.memory.claimQueue = queue;
     return queue;
   }
 
@@ -144,7 +135,6 @@ export class RoomWrapper extends Room {
    */
   public set claimQueue(queue: string[]) {
     MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, 1000);
-    this.memory.claimQueue = queue;
   }
 
   /** get target room from queue */
