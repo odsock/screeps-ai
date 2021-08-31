@@ -16,6 +16,8 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  claimQueue?: string[];
+  remoteQueue?: string[];
   spawns?: Id<StructureSpawn>[];
   harvestPositions: string[];
   costMatrix?: { [name: string]: number[] };

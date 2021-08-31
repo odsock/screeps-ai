@@ -12,6 +12,11 @@ export class Claimer extends RemoteWorker {
   };
 
   public run(): void {
+    // don't carry target room to grave
+    if (this.ticksToLive === 1 && this.targetRoom) {
+      this.roomw.releaseRoomClaim(this.targetRoom);
+    }
+
     const fleeResult = this.fleeIfHostiles();
     if (fleeResult !== ERR_NOT_FOUND) {
       return;
@@ -44,28 +49,17 @@ export class Claimer extends RemoteWorker {
     }
   }
 
-  // TODO make this use some kind of claim system
   private getTargetRoom(): string | undefined {
-    if (!this.memory.targetRoom) {
+    let targetRoom = this.memory.targetRoom;
+    if (!targetRoom) {
       // find a target room
-      const targetRooms: string[] = TargetConfig.TARGETS[Game.shard.name];
-      const targetRoomsNotOwned = targetRooms.filter(r => !Game.rooms[r].controller?.my);
+      targetRoom = this.roomw.getRoomClaim();
 
-      if (targetRoomsNotOwned.length === 0) {
-        const targetRoom = targetRoomsNotOwned[0];
+      if (targetRoom) {
+        // store my target room in my memory
         this.memory.targetRoom = targetRoom;
-        return targetRoom;
-      } else {
-        const remoteRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(r => !Game.rooms[r].controller?.my);
-        if (remoteRooms.length > 0) {
-          const targetRoom = remoteRooms[0];
-          this.memory.targetRoom = targetRoom;
-          return targetRoom;
-        }
       }
-
-      // store my target room in my memory
     }
-    return this.memory.targetRoom;
+    return targetRoom;
   }
 }

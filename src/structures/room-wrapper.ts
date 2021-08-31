@@ -2,6 +2,8 @@ import { Constants } from "../constants";
 import { MemoryUtils } from "planning/memory-utils";
 import { PlannerUtils } from "planning/planner-utils";
 import { SpawnWrapper } from "./spawn-wrapper";
+import { TargetConfig } from "target-config";
+import { times } from "lodash";
 
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
@@ -68,6 +70,89 @@ export class RoomWrapper extends Room {
     queue = queue.filter(structure => !!Game.getObjectById(structure.id));
     MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue);
     return queue;
+  }
+
+  /**
+   * Room remote harvest queue.
+   */
+  public get remoteQueue(): string[] {
+    let queue = MemoryUtils.getCache<string[]>(`${this.room.name}_remoteQueue`);
+    if (!queue) {
+      queue = this.memory.remoteQueue;
+      if (!queue) {
+        queue = times(TargetConfig.IMPORTERS_PER_REMOTE_ROOM, () => TargetConfig.REMOTE_HARVEST[Game.shard.name])
+          .flat()
+          .filter(name => !Game.rooms[name].controller?.my);
+      }
+    }
+    queue.filter(name => !Game.rooms[name].controller?.my);
+    MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue);
+    this.memory.remoteQueue = queue;
+    return queue;
+  }
+
+  /**
+   * update remote queue
+   */
+  public set remoteQueue(queue: string[]) {
+    MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue);
+    this.memory.remoteQueue = queue;
+  }
+
+  /** get target room from queue */
+  public getRoomRemote(): string | undefined {
+    const queue = this.remoteQueue;
+    const name = queue.pop();
+    this.remoteQueue = queue;
+    return name;
+  }
+
+  /** release target room to queue */
+  public releaseRoomRemote(name: string): void {
+    const queue = this.remoteQueue;
+    queue.push(name);
+    this.remoteQueue = queue;
+  }
+
+  /**
+   * Room claim/reserve queue.
+   */
+  public get claimQueue(): string[] {
+    let queue = MemoryUtils.getCache<string[]>(`${this.room.name}_claimQueue`);
+    if (!queue) {
+      queue = this.memory.claimQueue;
+      if (!queue) {
+        queue = TargetConfig.TARGETS[Game.shard.name];
+        queue.concat(TargetConfig.REMOTE_HARVEST[Game.shard.name]);
+      }
+    }
+    queue.filter(name => !Game.rooms[name].controller?.my);
+    MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue);
+    this.memory.claimQueue = queue;
+    return queue;
+  }
+
+  /**
+   * update claim queue
+   */
+  public set claimQueue(queue: string[]) {
+    MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue);
+    this.memory.claimQueue = queue;
+  }
+
+  /** get target room from queue */
+  public getRoomClaim(): string | undefined {
+    const queue = this.claimQueue;
+    const name = queue.pop();
+    this.claimQueue = queue;
+    return name;
+  }
+
+  /** release target room to queue */
+  public releaseRoomClaim(name: string): void {
+    const queue = this.claimQueue;
+    queue.push(name);
+    this.claimQueue = queue;
   }
 
   /**

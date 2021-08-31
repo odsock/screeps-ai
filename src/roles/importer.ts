@@ -12,6 +12,11 @@ export class Importer extends RemoteWorker {
   };
 
   public run(): void {
+    // don't carry target room to grave
+    if (this.ticksToLive === 1 && this.targetRoom) {
+      this.roomw.releaseRoomClaim(this.targetRoom);
+    }
+
     // use current room for home (room spawned in)
     if (!this.homeRoom) {
       this.homeRoom = this.pos.roomName;
@@ -27,9 +32,11 @@ export class Importer extends RemoteWorker {
       return;
     }
 
-    if (!this.targetRoom) {
-      // TODO work out a claim system for this
-      this.targetRoom = TargetConfig.REMOTE_HARVEST[Game.shard.name][0];
+    // make sure we have a target room
+    const targetRoom = this.getTargetRoom();
+    if (!targetRoom) {
+      CreepUtils.consoleLogIfWatched(this, `no room targeted for remote. sitting like a lump.`);
+      return;
     }
 
     if (!this.targetRoom) {
@@ -76,5 +83,19 @@ export class Importer extends RemoteWorker {
       }
     }
     return result;
+  }
+
+  private getTargetRoom(): string | undefined {
+    let targetRoom = this.memory.targetRoom;
+    if (!targetRoom) {
+      // find a target room
+      targetRoom = this.roomw.getRoomRemote();
+
+      if (targetRoom) {
+        // store my target room in my memory
+        this.memory.targetRoom = targetRoom;
+      }
+    }
+    return targetRoom;
   }
 }
