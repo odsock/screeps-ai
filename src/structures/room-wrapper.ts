@@ -97,11 +97,11 @@ export class RoomWrapper extends Room {
     const index = queue.findIndex(claim => claim.count < TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
     if (index !== -1) {
       const claim = queue[index];
-      claim.count = claim.count++;
-      queue[index] = claim;
+      claim.count = claim.count + 1;
       console.log(claim.name, claim.count);
+      queue[index] = claim;
       queue.forEach(claimobj => console.log(claimobj.name, claimobj.count));
-      CreepUtils.consoleLogIfWatched(this, `found ${String(claim)}`);
+      CreepUtils.consoleLogIfWatched(this, `found ${claim.name}, ${claim.count} claims`);
       MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
       return claim.name;
     }
