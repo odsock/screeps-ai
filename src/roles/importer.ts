@@ -1,6 +1,5 @@
 import { CreepUtils } from "creep-utils";
 import { CreepRole } from "../spawn-control";
-import { TargetConfig } from "target-config";
 import { RemoteWorker } from "./remote-worker";
 
 export class Importer extends RemoteWorker {
@@ -73,7 +72,7 @@ export class Importer extends RemoteWorker {
       if (this.pos.roomName === this.homeRoom) {
         const storage = this.findRoomStorage();
         if (storage) {
-          CreepUtils.consoleLogIfWatched(this, `storage found: ${storage.structureType} ${String(storage.pos)}`);
+          CreepUtils.consoleLogIfWatched(this, `storage found: ${String(storage)} ${String(storage.pos)}`);
           result = this.moveToAndTransfer(storage);
           CreepUtils.consoleLogIfWatched(this, `fill storage result`, result);
         } else {

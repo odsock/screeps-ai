@@ -515,7 +515,7 @@ export abstract class CreepWrapper extends Creep {
     return result;
   }
 
-  protected findRoomStorage(): StructureWithStorage | null {
+  protected findRoomStorage(): StructureWithStorage | Creep | null {
     CreepUtils.consoleLogIfWatched(
       this,
       `room storage: ${String(this.room.storage)} ${String(this.room.storage?.store.getFreeCapacity())}`
@@ -543,15 +543,23 @@ export abstract class CreepWrapper extends Creep {
       return container;
     }
 
+    const creepWithSpace = this.pos.findClosestByPath(
+      this.roomw.creeps.filter(creep => creep.store.getFreeCapacity() > 0)
+    );
+    if (creepWithSpace) {
+      CreepUtils.consoleLogIfWatched(this, `creep with space: ${String(creepWithSpace)}`);
+      return creepWithSpace;
+    }
+
     return null;
   }
 
-  protected moveToAndTransfer(structure: StructureWithStorage): ScreepsReturnCode {
-    let result = this.transfer(structure, RESOURCE_ENERGY);
-    CreepUtils.consoleLogIfWatched(this, `transfer to ${structure.structureType}`, result);
+  protected moveToAndTransfer(target: StructureWithStorage | Creep): ScreepsReturnCode {
+    let result = this.transfer(target, RESOURCE_ENERGY);
+    CreepUtils.consoleLogIfWatched(this, `transfer to ${String(target)}`, result);
     if (result === ERR_NOT_IN_RANGE) {
-      CreepUtils.consoleLogIfWatched(this, `moving to ${structure.structureType} at ${String(structure.pos)}`, result);
-      result = this.moveTo(structure);
+      CreepUtils.consoleLogIfWatched(this, `moving to ${String(target)} at ${String(target.pos)}`, result);
+      result = this.moveTo(target);
     }
     return result;
   }
