@@ -48,7 +48,7 @@ export class MemoryUtils {
     }
 
     const value = global.cache.get(key);
-    console.log(`get cache: ${key} => ${String(value)}`);
+    console.log(`get cache: ${key} => ${String(value)}, ${String(value?.item)}`);
     if (value) {
       return value.item as T;
     }
