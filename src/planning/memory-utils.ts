@@ -23,7 +23,7 @@ export class MemoryUtils {
       MemoryUtils.initCache();
     }
     global.cache.forEach((value, key) => {
-      if (value.expires > Game.time) {
+      if (value.expires < Game.time) {
         global.cache.delete(key);
       }
     });
