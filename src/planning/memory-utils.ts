@@ -45,7 +45,9 @@ export class MemoryUtils {
 
     const value = global.cache.get(key);
     if (value) {
-      return value.item as T;
+      const item = value.item as T;
+      console.log(String(item));
+      return item;
     }
     return undefined;
   }
