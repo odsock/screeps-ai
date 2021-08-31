@@ -33,25 +33,38 @@ export class Claimer extends RemoteWorker {
 
     // go to controller and claim or reserve it
     if (this.roomw.controller) {
-      if (TargetConfig.REMOTE_HARVEST[Game.shard.name].includes(targetRoom)) {
-        const reserveResult = this.reserveTargetRoom();
-        CreepUtils.consoleLogIfWatched(this, `reserve controller: ${String(this.roomw.controller)}`, reserveResult);
-      } else {
+      if (TargetConfig.TARGETS[Game.shard.name].includes(targetRoom)) {
         const result = this.claimTargetRoom();
         CreepUtils.consoleLogIfWatched(this, `claim controller: ${String(this.roomw.controller)}`, result);
+      } else {
+        const reserveResult = this.reserveTargetRoom();
+        CreepUtils.consoleLogIfWatched(this, `reserve controller: ${String(this.roomw.controller)}`, reserveResult);
       }
       return;
     }
   }
 
+  // TODO make this use some kind of claim system
   private getTargetRoom(): string | undefined {
     if (!this.memory.targetRoom) {
       // find a target room
       const targetRooms: string[] = TargetConfig.TARGETS[Game.shard.name];
       const targetRoomsNotOwned = targetRooms.filter(r => !Game.rooms[r].controller?.my);
 
+      if (targetRoomsNotOwned.length === 0) {
+        const targetRoom = targetRoomsNotOwned[0];
+        this.memory.targetRoom = targetRoom;
+        return targetRoom;
+      } else {
+        const remoteRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(r => !Game.rooms[r].controller?.my);
+        if (remoteRooms.length > 0) {
+          const targetRoom = remoteRooms[0];
+          this.memory.targetRoom = targetRoom;
+          return targetRoom;
+        }
+      }
+
       // store my target room in my memory
-      this.memory.targetRoom = targetRoomsNotOwned[0];
     }
     return this.memory.targetRoom;
   }
