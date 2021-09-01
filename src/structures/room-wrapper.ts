@@ -85,6 +85,8 @@ export class RoomWrapper extends Room {
         });
     }
     queue = queue.filter(claim => !Game.rooms[claim.name]?.controller?.my);
+    const queueString = queue.reduce<string>((str, claim) => str + `{ ${claim.name}: ${claim.count} }, `, "");
+    CreepUtils.consoleLogIfWatched(this, `remote queue: ${queueString}`);
     MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
     return queue;
   }
@@ -94,6 +96,8 @@ export class RoomWrapper extends Room {
   public getRoomRemote(): string | undefined {
     CreepUtils.consoleLogIfWatched(this, `getting remote from queue`);
     const queue = this.remoteQueue;
+    const queueString = queue.reduce<string>((str, claim) => str + `{ ${claim.name}: ${claim.count} }, `, "");
+    CreepUtils.consoleLogIfWatched(this, `remote queue: ${queueString}`);
     const index = queue.findIndex(claim => claim.count < TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
     if (index !== -1) {
       const claim = queue[index];
@@ -104,6 +108,7 @@ export class RoomWrapper extends Room {
       MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
       return claim.name;
     }
+    CreepUtils.consoleLogIfWatched(this, `no unclaimed remote found`);
     return undefined;
   }
 
