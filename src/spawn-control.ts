@@ -14,7 +14,7 @@ import { SpawnWrapper } from "structures/spawn-wrapper";
 import { Guard } from "roles/guard";
 import { MemoryUtils } from "planning/memory-utils";
 
-export const enum CreepRole {
+export enum CreepRole {
   BUILDER = "builder",
   CLAIMER = "claimer",
   FIXER = "fixer",
@@ -26,65 +26,36 @@ export const enum CreepRole {
 }
 
 export class SpawnControl {
-  private readonly workers: Creep[];
-  private readonly minders: Creep[];
-  private readonly haulers: Creep[];
-  private readonly builders: Creep[];
-  private readonly fixers: Creep[];
-  private readonly importers: Creep[];
-  private readonly guards: Creep[];
-
-  private readonly minderCount: number;
-  private readonly haulerCount: number;
-  private readonly workerCount: number;
-  private readonly fixerCount: number;
-  private readonly importerCount: number;
-  private readonly claimerCount: number;
-  private readonly guardCount: number;
-
   private readonly containers: AnyStructure[];
   private readonly rcl: number;
-  private readonly claimers: Claimer[];
   private readonly spawns: SpawnWrapper[];
+
+  private readonly creepCountsByRole: { [x: string]: number } = {};
 
   public constructor(private readonly roomw: RoomWrapper) {
     this.spawns = this.roomw.spawns;
-    const creeps = this.roomw.find(FIND_MY_CREEPS);
-
-    // TODO don't new up wrappers each tick
-    this.workers = creeps.filter(c => c.memory.role === CreepRole.WORKER);
-    this.builders = creeps.filter(c => c.memory.role === CreepRole.BUILDER);
-    this.minders = creeps.filter(c => c.memory.role === CreepRole.MINDER);
-    this.haulers = creeps.filter(c => c.memory.role === CreepRole.HAULER);
-    this.fixers = creeps.filter(c => c.memory.role === CreepRole.FIXER);
-    this.guards = creeps.filter(c => c.memory.role === CreepRole.GUARD);
-
-    this.minderCount =
-      this.minders.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Minder.ROLE)).length;
-
-    this.haulerCount =
-      this.haulers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Hauler.ROLE)).length;
-
-    this.workerCount =
-      this.workers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Worker.ROLE)).length;
-
-    this.fixerCount =
-      this.fixers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Fixer.ROLE)).length;
-
-    this.guardCount =
-      this.guards.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Guard.ROLE)).length;
-
     this.containers = this.roomw.find(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_CONTAINER });
     this.rcl = this.roomw.controller?.level ? this.roomw.controller?.level : 0;
 
-    this.claimers = _.filter(Game.creeps, c => c.memory.role === CreepRole.CLAIMER).map(c => new Claimer(c));
-    this.importers = _.filter(Game.creeps, c => c.memory.role === CreepRole.IMPORTER).map(c => new Importer(c));
+    for (const role of Object.values(CreepRole)) {
+      this.creepCountsByRole[role] = this.getCreepCountForRole(role);
+    }
 
-    this.importerCount =
-      this.importers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Importer.ROLE)).length;
+    const importers = _.filter(Game.creeps, c => c.memory.role === CreepRole.IMPORTER).map(c => new Importer(c));
+    const importerCount =
+      importers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Importer.ROLE)).length;
+    this.creepCountsByRole[CreepRole.IMPORTER] = importerCount;
 
-    this.claimerCount =
-      this.claimers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Claimer.ROLE)).length;
+    const claimers = _.filter(Game.creeps, c => c.memory.role === CreepRole.CLAIMER).map(c => new Claimer(c));
+    const claimerCount =
+      claimers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Claimer.ROLE)).length;
+    this.creepCountsByRole[CreepRole.CLAIMER] = claimerCount;
+  }
+
+  private getCreepCountForRole(role: CreepRole): number {
+    const count = this.roomw.find(FIND_MY_CREEPS).filter(creep => creep.memory.role === role).length;
+    const numSpawning = this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Minder.ROLE)).length;
+    return count + numSpawning;
   }
 
   public run(): void {
@@ -93,7 +64,7 @@ export class SpawnControl {
       .some(spawnw => {
         // spawn guard if there are hostiles,
         // TODO or if reported by a target room
-        if (this.roomw.hostileCreeps.length > this.guardCount) {
+        if (this.roomw.hostileCreeps.length > this.creepCountsByRole[CreepRole.GUARD]) {
           if (this.roomw.controller) {
             this.roomw.controller.activateSafeMode();
           }
@@ -101,49 +72,56 @@ export class SpawnControl {
         }
 
         // make sure there is at least one minder if there is a container
-        if (this.containers.length > 0 && this.minderCount === 0) {
+        if (this.containers.length > 0 && this.creepCountsByRole[CreepRole.MINDER] === 0) {
           return this.spawnBootstrapCreep(Minder.BODY_PROFILE, Minder.ROLE, spawnw) !== OK;
         }
 
         // make sure there is at least one hauler if there is a container
         const maxHaulerCount = this.getMaxHaulerCount();
-        if (maxHaulerCount > 0 && this.haulerCount === 0) {
+        if (maxHaulerCount > 0 && this.creepCountsByRole[CreepRole.HAULER] === 0) {
           return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw) !== OK;
         }
 
         // spawn minder for each container
-        if (this.minderCount < this.containers.length) {
+        if (this.creepCountsByRole[CreepRole.MINDER] < this.containers.length) {
           return this.spawnBootstrapCreep(Minder.BODY_PROFILE, Minder.ROLE, spawnw) !== OK;
         }
 
         // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
-        if (this.haulerCount < maxHaulerCount) {
+        if (this.creepCountsByRole[CreepRole.HAULER] < maxHaulerCount) {
           return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw) !== OK;
         }
 
-        if (this.workerCount < this.getMaxWorkerCount()) {
+        if (this.creepCountsByRole[CreepRole.WORKER] < this.getMaxWorkerCount()) {
           return this.spawnBootstrapCreep(Worker.BODY_PROFILE, Worker.ROLE, spawnw);
         }
 
-        if (this.roomw.repairSites.length > 0 && this.fixerCount < Constants.MAX_FIXER_CREEPS) {
+        if (this.roomw.repairSites.length > 0 && this.creepCountsByRole[CreepRole.FIXER] < Constants.MAX_FIXER_CREEPS) {
           return spawnw.spawn(this.getMaxBody(Fixer.BODY_PROFILE), Fixer.ROLE) !== OK;
         }
 
         const remoteHarvestTargetCount = TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => {
           return !Game.rooms[name]?.controller?.my;
         }).length;
-        if (this.importerCount < remoteHarvestTargetCount * TargetConfig.IMPORTERS_PER_REMOTE_ROOM) {
+        if (
+          this.creepCountsByRole[CreepRole.IMPORTER] <
+          remoteHarvestTargetCount * TargetConfig.IMPORTERS_PER_REMOTE_ROOM
+        ) {
           return spawnw.spawn(this.getMaxBody(Importer.BODY_PROFILE), Importer.ROLE) !== OK;
         }
 
         // make builders if there's something to build and past level 1
         const workPartsNeeded = this.getBuilderWorkPartsNeeded();
-        if (this.workerCount === 0 && this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
+        if (
+          this.creepCountsByRole[CreepRole.WORKER] === 0 &&
+          this.roomw.constructionSites.length > 0 &&
+          workPartsNeeded > 0
+        ) {
           return spawnw.spawn(this.getBuilderBody(Builder.BODY_PROFILE, workPartsNeeded), Builder.ROLE) !== OK;
         }
 
         const maxClaimers = this.getMaxClaimerCount();
-        if (this.claimerCount < maxClaimers) {
+        if (this.creepCountsByRole[CreepRole.CLAIMER] < maxClaimers) {
           return spawnw.spawn(this.getMaxBody(Claimer.BODY_PROFILE), Claimer.ROLE) !== OK;
         }
 
@@ -171,7 +149,7 @@ export class SpawnControl {
 
   private spawnBootstrapCreep(profile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper): ScreepsReturnCode {
     let body: BodyPartConstant[];
-    if (this.minders.length <= 0) {
+    if (this.creepCountsByRole[CreepRole.MINDER] <= 0) {
       body = this.getMaxBodyNow(profile, spawnw);
     } else {
       body = this.getMaxBody(profile);
@@ -181,7 +159,8 @@ export class SpawnControl {
   }
 
   private replaceOldMinders(spawnw: SpawnWrapper): ScreepsReturnCode {
-    for (const creep of this.minders) {
+    const minders = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === CreepRole.MINDER });
+    for (const creep of minders) {
       const minder = CreepFactory.getCreep(creep);
       if (!minder.spawning && !minder.memory.retiring === true) {
         const body = this.getMaxBody(Minder.BODY_PROFILE);
@@ -232,31 +211,26 @@ export class SpawnControl {
   // TODO seems like this belongs in planner
   private getMaxWorkerCount(): number {
     // make workers in early stages
-    if (this.rcl <= 1 || (this.containers.length === 0 && this.minders.length === 0)) {
+    if (this.rcl <= 1 || (this.containers.length === 0 && this.creepCountsByRole[CreepRole.MINDER] === 0)) {
       // make at least one worker per harvest position
       const harvestPositions = this.roomw.harvestPositions.length;
-      if (harvestPositions > this.workerCount) {
+      if (harvestPositions > this.creepCountsByRole[CreepRole.WORKER]) {
         return harvestPositions;
       }
       CreepUtils.consoleLogIfWatched(this.roomw, `harvest positions: ${harvestPositions}`);
 
       // limit at 20 WORK per source because 10 will empty it, but supplement energy with importers
-      const workPartCount = this.workers.reduce<number>(
-        (count, creep) => count + CreepUtils.countParts(creep, WORK),
-        0
-      );
-      const avgWorkerWorkParts = workPartCount / this.workerCount;
+      const workers = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === CreepRole.WORKER });
+      const workPartCount = workers.reduce<number>((count, creep) => count + CreepUtils.countParts(creep, WORK), 0);
+      const avgWorkerWorkParts = workPartCount / this.creepCountsByRole[CreepRole.WORKER];
       CreepUtils.consoleLogIfWatched(this.roomw, `average worker work parts: ${avgWorkerWorkParts}`);
       if (avgWorkerWorkParts >= 20) {
-        return this.workerCount;
+        return this.creepCountsByRole[CreepRole.WORKER];
       }
 
       // calculate time to harvest
-      const carryPartCount = this.workers.reduce<number>(
-        (count, creep) => count + CreepUtils.countParts(creep, CARRY),
-        0
-      );
-      const avgWorkerCarry = (carryPartCount * CARRY_CAPACITY) / this.workerCount;
+      const carryPartCount = workers.reduce<number>((count, creep) => count + CreepUtils.countParts(creep, CARRY), 0);
+      const avgWorkerCarry = (carryPartCount * CARRY_CAPACITY) / this.creepCountsByRole[CreepRole.WORKER];
       CreepUtils.consoleLogIfWatched(this.roomw, `average worker carry: ${avgWorkerCarry}`);
       const ticksToHarvest = avgWorkerCarry / (avgWorkerWorkParts * HARVEST_POWER);
       CreepUtils.consoleLogIfWatched(this.roomw, `ticks to harvest: ${ticksToHarvest}`);
@@ -297,7 +271,8 @@ export class SpawnControl {
 
   private getBuilderWorkPartsNeeded(): number {
     const conWork = this.roomw.constructionWork;
-    const activeWorkParts = this.builders.reduce<number>(
+    const builders = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === CreepRole.BUILDER });
+    const activeWorkParts = builders.reduce<number>(
       (count: number, creep) => count + CreepUtils.countParts(creep, WORK),
       0
     );
