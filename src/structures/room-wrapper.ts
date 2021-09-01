@@ -135,7 +135,7 @@ export class RoomWrapper extends Room {
    */
   public get claimQueue(): string[] {
     let queue = MemoryUtils.getCache<string[]>(`${this.room.name}_claimQueue`);
-    if (!queue) {
+    if (!queue || queue.length === 0) {
       queue = TargetConfig.TARGETS[Game.shard.name];
       queue.concat(TargetConfig.REMOTE_HARVEST[Game.shard.name]);
     }
