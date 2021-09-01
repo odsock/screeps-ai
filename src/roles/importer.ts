@@ -1,6 +1,6 @@
 import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
-import { CreepRole } from "../spawn-control";
+import { CreepRole } from "../constants";
 import { RemoteWorker } from "./remote-worker";
 
 export class Importer extends RemoteWorker {

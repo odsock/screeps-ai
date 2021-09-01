@@ -60,3 +60,14 @@ export class Constants {
     [-15, "ERR_GCL_NOT_ENOUGH"]
   ]);
 }
+
+export enum CreepRole {
+  BUILDER = "builder",
+  CLAIMER = "claimer",
+  FIXER = "fixer",
+  HAULER = "hauler",
+  IMPORTER = "importer",
+  MINDER = "minder",
+  WORKER = "worker",
+  GUARD = "guard"
+}

@@ -1,5 +1,5 @@
+import { CreepRole } from "../constants";
 import { CreepUtils } from "creep-utils";
-import { CreepRole } from "../spawn-control";
 import { CreepWrapper } from "./creep-wrapper";
 
 export class Fixer extends CreepWrapper {

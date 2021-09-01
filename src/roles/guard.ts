@@ -1,5 +1,5 @@
 import { CreepUtils } from "creep-utils";
-import { CreepRole } from "spawn-control";
+import { CreepRole } from "../constants";
 import { TargetConfig } from "target-config";
 import { RemoteWorker } from "./remote-worker";
 

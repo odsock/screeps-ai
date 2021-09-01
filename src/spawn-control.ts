@@ -1,4 +1,4 @@
-import { Constants } from "./constants";
+import { Constants, CreepRole } from "./constants";
 import { CreepUtils } from "creep-utils";
 import { Builder } from "roles/builder";
 import { Claimer } from "roles/claimer";
@@ -13,17 +13,6 @@ import { TargetConfig } from "target-config";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 import { Guard } from "roles/guard";
 import { MemoryUtils } from "planning/memory-utils";
-
-export enum CreepRole {
-  BUILDER = "builder",
-  CLAIMER = "claimer",
-  FIXER = "fixer",
-  HAULER = "hauler",
-  IMPORTER = "importer",
-  MINDER = "minder",
-  WORKER = "worker",
-  GUARD = "guard"
-}
 
 export class SpawnControl {
   private readonly containers: AnyStructure[];

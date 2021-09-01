@@ -1,8 +1,8 @@
 import { CreepUtils } from "creep-utils";
-import { CreepRole } from "../spawn-control";
 import { TargetConfig } from "target-config";
 import { RemoteWorker } from "./remote-worker";
 import { RoomWrapper } from "structures/room-wrapper";
+import { CreepRole } from "../constants";
 
 export class Claimer extends RemoteWorker {
   public static readonly ROLE = CreepRole.CLAIMER;
