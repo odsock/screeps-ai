@@ -18,11 +18,6 @@ export class Claimer extends RemoteWorker {
       new RoomWrapper(Game.rooms[this.homeRoom]).releaseRoomClaim(this.targetRoom);
     }
 
-    const fleeResult = this.fleeIfHostiles();
-    if (fleeResult !== ERR_NOT_FOUND) {
-      return;
-    }
-
     // make sure we have a target room
     const targetRoom = this.getTargetRoom();
     if (!targetRoom) {
