@@ -1,31 +1,35 @@
-import { CreepWrapper } from "./creep-wrapper";
 import { Worker } from "./worker";
-import { Minder } from "./minder";
 import { Hauler } from "./hauler";
 import { Builder } from "./builder";
 import { Claimer } from "./claimer";
 import { Fixer } from "./fixer";
 import { Importer } from "./importer";
 import { Guard } from "./guard";
+import { Upgrader } from "./upgrader";
+import { CreepRole } from "config/creep-types";
+import { Harvester } from "./harvester";
+import { CreepWrapper } from "./creep-wrapper";
 
 export class CreepFactory {
   public static getCreep(creep: Creep): CreepWrapper {
     switch (creep.memory.role) {
-      case "worker":
+      case CreepRole.WORKER:
         return new Worker(creep);
-      case "minder":
-        return new Minder(creep);
-      case "hauler":
+      case CreepRole.HARVESTER:
+        return new Harvester(creep);
+      case CreepRole.UPGRADER:
+        return new Upgrader(creep);
+      case CreepRole.HAULER:
         return new Hauler(creep);
-      case "builder":
+      case CreepRole.BUILDER:
         return new Builder(creep);
-      case "claimer":
+      case CreepRole.CLAIMER:
         return new Claimer(creep);
-      case "fixer":
+      case CreepRole.FIXER:
         return new Fixer(creep);
-      case "importer":
+      case CreepRole.IMPORTER:
         return new Importer(creep);
-      case "guard":
+      case CreepRole.GUARD:
         return new Guard(creep);
 
       default:

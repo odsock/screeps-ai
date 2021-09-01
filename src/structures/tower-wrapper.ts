@@ -1,5 +1,4 @@
-import { Constants } from "../constants";
-import { CreepUtils } from "creep-utils";
+import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { RoomWrapper } from "./room-wrapper";
 
 export class TowerWrapper extends StructureTower {
@@ -48,7 +47,7 @@ export class TowerWrapper extends StructureTower {
     // list hostiles in close range, by number of heal parts
     const hostileCreeps = this.room
       .find(FIND_HOSTILE_CREEPS)
-      .filter(creep => this.pos.getRangeTo(creep.pos) < Constants.TOWER_MAX_ATTACK_RANGE)
+      .filter(creep => this.pos.getRangeTo(creep.pos) < SockPuppetConstants.TOWER_MAX_ATTACK_RANGE)
       .sort((a, b) => {
         const aHealParts = a.getActiveBodyparts(HEAL);
         const bHealParts = b.getActiveBodyparts(HEAL);
@@ -68,7 +67,7 @@ export class TowerWrapper extends StructureTower {
     if (
       structure &&
       structure.hitsMax - structure.hits > TOWER_POWER_REPAIR &&
-      this.pos.inRangeTo(structure.pos.x, structure.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)
+      this.pos.inRangeTo(structure.pos.x, structure.pos.y, SockPuppetConstants.TOWER_MAX_REPAIR_RANGE)
     ) {
       return this.repair(structure);
     }
@@ -78,7 +77,7 @@ export class TowerWrapper extends StructureTower {
     if (
       road &&
       road.hitsMax - road.hits > TOWER_POWER_REPAIR &&
-      this.pos.inRangeTo(road.pos.x, road.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)
+      this.pos.inRangeTo(road.pos.x, road.pos.y, SockPuppetConstants.TOWER_MAX_REPAIR_RANGE)
     ) {
       return this.repair(road);
     }
@@ -88,30 +87,11 @@ export class TowerWrapper extends StructureTower {
     if (
       wall &&
       wall.hitsMax - wall.hits > TOWER_POWER_REPAIR &&
-      this.pos.inRangeTo(wall.pos.x, wall.pos.y, Constants.TOWER_MAX_REPAIR_RANGE)
+      this.pos.inRangeTo(wall.pos.x, wall.pos.y, SockPuppetConstants.TOWER_MAX_REPAIR_RANGE)
     ) {
       return this.repair(wall);
     }
 
     return ERR_NOT_FOUND;
-  }
-
-  // unused for now
-  // new road construction is triggered when unused road to extension decays, which triggers a builder spawn
-  // seems better to just repair them (or not make dumb roads!)
-  private findClosestDamagedUsedRoad(): StructureRoad | null {
-    return this.pos.findClosestByRange<StructureRoad>(FIND_STRUCTURES, {
-      filter: structure => {
-        if (!(structure.structureType === STRUCTURE_ROAD)) {
-          return false;
-        }
-        const isDamagedRoad = structure.hits < structure.hitsMax;
-        const isUsedRoad = this.room.memory.roadUseLog[`${structure.pos.x},${structure.pos.y}`] > 0;
-        if (!isUsedRoad && isDamagedRoad) {
-          CreepUtils.consoleLogIfWatched(this.room, `not repairing unused road: ${structure.pos.x},${structure.pos.y}`);
-        }
-        return isDamagedRoad && isUsedRoad;
-      }
-    });
   }
 }

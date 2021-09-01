@@ -1,6 +1,7 @@
 import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
-import { Constants, CreepRole } from "../constants";
+import { CreepRole } from "config/creep-types";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 
 export class Builder extends CreepWrapper {
   public static readonly ROLE = CreepRole.BUILDER;
@@ -54,10 +55,14 @@ export class Builder extends CreepWrapper {
     const siteId: string | undefined = this.memory.constructionSiteId;
     let site: ConstructionSite | null = Game.getObjectById(siteId as Id<ConstructionSite>);
     if (!site) {
-      const centerPos = new RoomPosition(Constants.ROOM_SIZE / 2, Constants.ROOM_SIZE / 2, this.room.name);
-      for (let i = 0; !site && i < Constants.CONSTRUCTION_PRIORITY.length; i++) {
+      const centerPos = new RoomPosition(
+        SockPuppetConstants.ROOM_SIZE / 2,
+        SockPuppetConstants.ROOM_SIZE / 2,
+        this.room.name
+      );
+      for (let i = 0; !site && i < SockPuppetConstants.CONSTRUCTION_PRIORITY.length; i++) {
         site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
-          filter: s => s.structureType === Constants.CONSTRUCTION_PRIORITY[i]
+          filter: s => s.structureType === SockPuppetConstants.CONSTRUCTION_PRIORITY[i]
         });
       }
       if (!site) {

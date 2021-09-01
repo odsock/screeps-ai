@@ -1,6 +1,6 @@
+import { CreepRole } from "config/creep-types";
+import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
-import { TargetConfig } from "target-config";
-import { CreepRole } from "../constants";
 import { RemoteWorker } from "./remote-worker";
 
 export class Importer extends RemoteWorker {

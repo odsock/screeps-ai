@@ -4,7 +4,7 @@ import { RoadPlan } from "./road-plan";
 import { PlannerUtils } from "./planner-utils";
 import { MemoryUtils } from "./memory-utils";
 import { CreepUtils } from "creep-utils";
-import { StructurePatterns } from "structure-patterns";
+import { StructurePatterns } from "config/structure-patterns";
 import { StructurePlan } from "./structure-plan";
 
 export class Planner {

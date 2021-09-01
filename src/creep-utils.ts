@@ -1,4 +1,4 @@
-import { Constants } from "./constants";
+import { SockPuppetConstants } from "./config/sockpuppet-constants";
 
 export class CreepUtils {
   public static consoleLogIfWatched(
@@ -8,7 +8,7 @@ export class CreepUtils {
   ): void {
     if (watchable.memory.watched === true) {
       if (result !== undefined) {
-        const resultString = String(Constants.ERROR_CODE_LOOKUP.get(result));
+        const resultString = String(SockPuppetConstants.ERROR_CODE_LOOKUP.get(result));
         console.log(`${watchable.name}: ${message}: ${result} ${resultString}`);
       } else {
         console.log(`${watchable.name}: ${message}`);

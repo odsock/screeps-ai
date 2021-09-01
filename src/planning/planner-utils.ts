@@ -1,4 +1,4 @@
-import { Constants } from "../constants";
+import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { StructurePlan } from "planning/structure-plan";
 import { CreepUtils } from "creep-utils";
 
@@ -13,12 +13,12 @@ export class PlannerUtils {
     const structurePlan = StructurePlan.parseStructurePlan(pattern, room);
     const patternWidth = structurePlan.getWidth();
     const patternHeight = structurePlan.getHeight();
-    const searchWidth = Constants.ROOM_SIZE - 1 - patternWidth;
-    const searchHeight = Constants.ROOM_SIZE - 1 - patternHeight;
+    const searchWidth = SockPuppetConstants.ROOM_SIZE - 1 - patternWidth;
+    const searchHeight = SockPuppetConstants.ROOM_SIZE - 1 - patternHeight;
 
     // search whole room
     let closestSite: { x: number; y: number } | undefined;
-    let shortestRange: number = Constants.MAX_DISTANCE;
+    let shortestRange: number = SockPuppetConstants.MAX_DISTANCE;
     for (let x = 1; x < searchWidth; x++) {
       for (let y = 1; y < searchHeight; y++) {
         const range = nearPosition.getRangeTo(
@@ -101,9 +101,9 @@ export class PlannerUtils {
 
     for (let i = 0; i < Math.pow(maxRange * 2, 2); i++) {
       if (
-        centerPos.x + x < Constants.ROOM_SIZE - 2 &&
+        centerPos.x + x < SockPuppetConstants.ROOM_SIZE - 2 &&
         centerPos.x + x > 1 &&
-        centerPos.y + y < Constants.ROOM_SIZE - 2 &&
+        centerPos.y + y < SockPuppetConstants.ROOM_SIZE - 2 &&
         centerPos.y + y > 1
       ) {
         pos = new RoomPosition(centerPos.x + x, centerPos.y + y, centerPos.roomName);
@@ -244,7 +244,7 @@ export class PlannerUtils {
           ) {
             continue;
           } else {
-            const resultString = String(Constants.ERROR_CODE_LOOKUP.get(result));
+            const resultString = String(SockPuppetConstants.ERROR_CODE_LOOKUP.get(result));
             console.log(
               `${planPosition.structure} pos: ${String(planPosition.pos)}, failed: ${result} ${resultString}`
             );

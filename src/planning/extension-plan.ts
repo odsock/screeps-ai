@@ -1,7 +1,6 @@
-import { StructurePatterns } from "structure-patterns";
+import { StructurePatterns } from "config/structure-patterns";
 import { RoomWrapper } from "structures/room-wrapper";
 import { PlannerUtils } from "./planner-utils";
-import { StructurePlan } from "./structure-plan";
 
 export class ExtensionPlan {
   private readonly roomw: RoomWrapper;

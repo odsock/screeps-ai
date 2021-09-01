@@ -1,4 +1,4 @@
-import { CreepRole } from "../constants";
+import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { CreepWrapper } from "./creep-wrapper";
 

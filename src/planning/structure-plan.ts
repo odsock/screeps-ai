@@ -1,4 +1,4 @@
-import { StructurePatterns } from "structure-patterns";
+import { StructurePatterns } from "config/structure-patterns";
 import { RoomWrapper } from "structures/room-wrapper";
 
 export class StructurePlan {

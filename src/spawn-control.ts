@@ -1,4 +1,4 @@
-import { Constants, CreepRole } from "./constants";
+import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 import { Builder } from "roles/builder";
 import { Claimer } from "roles/claimer";
@@ -6,13 +6,15 @@ import { CreepFactory } from "roles/creep-factory";
 import { Fixer } from "roles/fixer";
 import { Hauler } from "roles/hauler";
 import { Importer } from "roles/importer";
-import { Minder } from "roles/minder";
 import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
-import { TargetConfig } from "target-config";
+import { TargetConfig } from "config/target-config";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 import { Guard } from "roles/guard";
 import { MemoryUtils } from "planning/memory-utils";
+import { CreepRole } from "config/creep-types";
+import { Harvester } from "roles/harvester";
+import { Upgrader } from "roles/upgrader";
 
 export class SpawnControl {
   private readonly containers: AnyStructure[];
@@ -43,7 +45,7 @@ export class SpawnControl {
 
   private getCreepCountForRole(role: CreepRole): number {
     const count = this.roomw.find(FIND_MY_CREEPS).filter(creep => creep.memory.role === role).length;
-    const numSpawning = this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Minder.ROLE)).length;
+    const numSpawning = this.spawns.filter(spawn => spawn.spawning?.name.startsWith(role)).length;
     return count + numSpawning;
   }
 
@@ -60,20 +62,19 @@ export class SpawnControl {
           return this.spawnGuardCreep(Guard.BODY_PROFILE, Guard.ROLE, spawnw) !== OK;
         }
 
-        // make sure there is at least one minder if there is a container
-        if (this.containers.length > 0 && this.creepCountsByRole[CreepRole.MINDER] === 0) {
-          return this.spawnBootstrapCreep(Minder.BODY_PROFILE, Minder.ROLE, spawnw) !== OK;
+        // make sure there is at least one harvester if there is a container
+        if (this.containers.length > 0 && this.creepCountsByRole[CreepRole.HARVESTER] === 0) {
+          return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw) !== OK;
         }
 
-        // make sure there is at least one hauler if there is a container
         const maxHaulerCount = this.getMaxHaulerCount();
         if (maxHaulerCount > 0 && this.creepCountsByRole[CreepRole.HAULER] === 0) {
           return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw) !== OK;
         }
 
-        // spawn minder for each container
-        if (this.creepCountsByRole[CreepRole.MINDER] < this.containers.length) {
-          return this.spawnBootstrapCreep(Minder.BODY_PROFILE, Minder.ROLE, spawnw) !== OK;
+        // spawn harvester for each source container
+        if (this.creepCountsByRole[CreepRole.HARVESTER] < this.roomw.sourceContainers.length) {
+          return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw) !== OK;
         }
 
         // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
@@ -81,11 +82,19 @@ export class SpawnControl {
           return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw) !== OK;
         }
 
+        // spawn upgrader for each controller container
+        if (this.creepCountsByRole[CreepRole.UPGRADER] < this.roomw.controllerContainers.length) {
+          return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw) !== OK;
+        }
+
         if (this.creepCountsByRole[CreepRole.WORKER] < this.getMaxWorkerCount()) {
           return this.spawnBootstrapCreep(Worker.BODY_PROFILE, Worker.ROLE, spawnw);
         }
 
-        if (this.roomw.repairSites.length > 0 && this.creepCountsByRole[CreepRole.FIXER] < Constants.MAX_FIXER_CREEPS) {
+        if (
+          this.roomw.repairSites.length > 0 &&
+          this.creepCountsByRole[CreepRole.FIXER] < SockPuppetConstants.MAX_FIXER_CREEPS
+        ) {
           return spawnw.spawn(this.getMaxBody(Fixer.BODY_PROFILE), Fixer.ROLE) !== OK;
         }
 
@@ -138,7 +147,7 @@ export class SpawnControl {
 
   private spawnBootstrapCreep(profile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper): ScreepsReturnCode {
     let body: BodyPartConstant[];
-    if (this.creepCountsByRole[CreepRole.MINDER] <= 0) {
+    if (this.creepCountsByRole[role] <= 0) {
       body = this.getMaxBodyNow(profile, spawnw);
     } else {
       body = this.getMaxBody(profile);
@@ -148,16 +157,31 @@ export class SpawnControl {
   }
 
   private replaceOldMinders(spawnw: SpawnWrapper): ScreepsReturnCode {
-    const minders = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === CreepRole.MINDER });
-    for (const creep of minders) {
+    const upgraders = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Upgrader.ROLE });
+    let result = this.spawnNewMinder(spawnw, upgraders, Upgrader);
+    if (result === OK) {
+      return result;
+    }
+
+    const harvesters = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE });
+    result = this.spawnNewMinder(spawnw, harvesters, Harvester);
+    return result;
+  }
+
+  private spawnNewMinder(
+    spawnw: SpawnWrapper,
+    creeps: Creep[],
+    type: typeof Upgrader | typeof Harvester
+  ): ScreepsReturnCode {
+    for (const creep of creeps) {
       const minder = CreepFactory.getCreep(creep);
       if (!minder.spawning && !minder.memory.retiring === true) {
-        const body = this.getMaxBody(Minder.BODY_PROFILE);
+        const body = this.getMaxBody(type.BODY_PROFILE);
         const ticksToSpawn = body.length * CREEP_SPAWN_TIME;
         const pathToReplace = CreepUtils.getPath(spawnw.pos, minder.pos);
         const ticksToReplace = minder.calcWalkTime(pathToReplace);
         if (minder.ticksToLive && minder.ticksToLive <= ticksToSpawn + ticksToReplace) {
-          const result = this.spawnBootstrapCreep(Minder.BODY_PROFILE, Minder.ROLE, spawnw);
+          const result = this.spawnBootstrapCreep(type.BODY_PROFILE, type.ROLE, spawnw);
           if (result === OK) {
             minder.memory.retiring = true;
           }
@@ -165,7 +189,7 @@ export class SpawnControl {
         }
       }
     }
-    return OK;
+    return ERR_NOT_FOUND;
   }
 
   /** plan creep count functions */
@@ -200,7 +224,12 @@ export class SpawnControl {
   // TODO seems like this belongs in planner
   private getMaxWorkerCount(): number {
     // make workers in early stages
-    if (this.rcl <= 1 || (this.containers.length === 0 && this.creepCountsByRole[CreepRole.MINDER] === 0)) {
+    if (
+      this.rcl <= 1 ||
+      (this.containers.length === 0 &&
+        this.creepCountsByRole[CreepRole.HARVESTER] === 0 &&
+        this.creepCountsByRole[CreepRole.UPGRADER] === 0)
+    ) {
       // make at least one worker per harvest position
       const harvestPositions = this.roomw.harvestPositions.length;
       if (harvestPositions > this.creepCountsByRole[CreepRole.WORKER]) {
@@ -265,7 +294,7 @@ export class SpawnControl {
       (count: number, creep) => count + CreepUtils.countParts(creep, WORK),
       0
     );
-    const workPartsNeeded = Math.ceil(conWork / Constants.WORK_PER_WORKER_PART);
+    const workPartsNeeded = Math.ceil(conWork / SockPuppetConstants.WORK_PER_WORKER_PART);
     const workPartsDeficit = workPartsNeeded - activeWorkParts;
     return workPartsDeficit > 0 ? workPartsDeficit : 0;
   }

@@ -1,15 +1,7 @@
 import { CreepUtils } from "creep-utils";
-import { CreepRole } from "../constants";
 import { CreepWrapper } from "./creep-wrapper";
 
-export class Minder extends CreepWrapper {
-  public static readonly ROLE = CreepRole.MINDER;
-  public static readonly BODY_PROFILE: CreepBodyProfile = {
-    profile: [WORK],
-    seed: [MOVE, CARRY],
-    maxBodyParts: 10
-  };
-
+export abstract class Minder extends CreepWrapper {
   public run(): void {
     // move to retire old creep
     if (this.memory.retiree) {
@@ -20,16 +12,7 @@ export class Minder extends CreepWrapper {
 
     // claim container if free
     if (!this.getMyContainer()) {
-      const claimSourceResult = this.claimFreeSourceContainerAsMinder();
-      CreepUtils.consoleLogIfWatched(this, `claim source container result: ${claimSourceResult}`);
-      if (claimSourceResult !== OK) {
-        const claimControllerResult = this.claimFreeControllerContainerAsMinder();
-        CreepUtils.consoleLogIfWatched(this, `claim controller container result: ${claimControllerResult}`);
-        if (claimControllerResult !== OK) {
-          CreepUtils.consoleLogIfWatched(this, `no free containers`);
-          return;
-        }
-      }
+      this.claimContainer();
     }
 
     // move to claimed container
@@ -54,6 +37,8 @@ export class Minder extends CreepWrapper {
 
     CreepUtils.consoleLogIfWatched(this, `stumped. sitting like a lump`);
   }
+
+  protected abstract claimContainer(): ScreepsReturnCode;
 
   protected harvestFromNearbySource(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `harvesting from source`);

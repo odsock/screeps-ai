@@ -1,12 +1,8 @@
-import { CreepRole } from "../constants";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 
 export abstract class CreepWrapper extends Creep {
-  public static readonly BODY_PROFILE: CreepBodyProfile;
-  public static readonly ROLE: CreepRole;
-
   public constructor(private readonly creep: Creep) {
     super(creep.id);
   }
@@ -376,21 +372,6 @@ export abstract class CreepWrapper extends Creep {
     const swampCost = Math.ceil(10 * moveRatio) * swampCount;
 
     return roadCost + plainCost + swampCost + 1;
-  }
-
-  protected touchRoad(): void {
-    const onRoad = this.pos.lookFor(LOOK_STRUCTURES).filter(s => s.structureType === STRUCTURE_ROAD).length > 0;
-    if (onRoad) {
-      const roadUseLog = this.room.memory.roadUseLog;
-      if (!roadUseLog) {
-        this.room.memory.roadUseLog = {};
-      }
-      let timesUsed = this.room.memory.roadUseLog[`${this.pos.x},${this.pos.y}`];
-      if (!timesUsed) {
-        timesUsed = 0;
-      }
-      this.room.memory.roadUseLog[`${this.pos.x},${this.pos.y}`] = timesUsed + 1;
-    }
   }
 
   public countParts(type: BodyPartConstant): number {

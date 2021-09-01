@@ -1,4 +1,4 @@
-export class Constants {
+export class SockPuppetConstants {
   public static readonly USERNAME = "odsock";
   public static readonly MAX_WORKERS: number = 8;
   public static readonly MAX_FIXER_CREEPS: number = 1;
@@ -59,15 +59,4 @@ export class Constants {
     [-14, "ERR_RCL_NOT_ENOUGH"],
     [-15, "ERR_GCL_NOT_ENOUGH"]
   ]);
-}
-
-export enum CreepRole {
-  BUILDER = "builder",
-  CLAIMER = "claimer",
-  FIXER = "fixer",
-  HAULER = "hauler",
-  IMPORTER = "importer",
-  MINDER = "minder",
-  WORKER = "worker",
-  GUARD = "guard"
 }

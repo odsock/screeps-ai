@@ -1,8 +1,8 @@
-import { Constants } from "../constants";
+import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { MemoryUtils } from "planning/memory-utils";
 import { PlannerUtils } from "planning/planner-utils";
 import { SpawnWrapper } from "./spawn-wrapper";
-import { TargetConfig } from "target-config";
+import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 
 // TODO: figure out how to make a singleton for each room
@@ -64,11 +64,11 @@ export class RoomWrapper extends Room {
   public get dismantleQueue(): Structure[] {
     let queue = MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueue`);
     if (!queue) {
-      MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, [], Constants.PLANNING_INTERVAL);
+      MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, [], SockPuppetConstants.PLANNING_INTERVAL);
       return [];
     }
     queue = queue.filter(structure => !!Game.getObjectById(structure.id));
-    MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, Constants.PLANNING_INTERVAL);
+    MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, SockPuppetConstants.PLANNING_INTERVAL);
     return queue;
   }
 
@@ -180,7 +180,7 @@ export class RoomWrapper extends Room {
    * Sets cached string export of colony plan visual.
    */
   public set planVisual(visual: string) {
-    MemoryUtils.setCache(`${this.room.name}_planVisual`, visual, Constants.PLANNING_INTERVAL);
+    MemoryUtils.setCache(`${this.room.name}_planVisual`, visual, SockPuppetConstants.PLANNING_INTERVAL);
   }
 
   /**
@@ -198,7 +198,7 @@ export class RoomWrapper extends Room {
    * Sets cached string export of demolition plan visual.
    */
   public set dismantleVisual(visual: string) {
-    MemoryUtils.setCache(`${this.room.name}_dismantleVisual`, visual, Constants.PLANNING_INTERVAL);
+    MemoryUtils.setCache(`${this.room.name}_dismantleVisual`, visual, SockPuppetConstants.PLANNING_INTERVAL);
   }
 
   /**
@@ -348,7 +348,7 @@ export class RoomWrapper extends Room {
   public findWeakestWall(): StructureWall | null {
     const wallsToRepair = this.room.find<StructureWall>(FIND_STRUCTURES, {
       filter: structure =>
-        structure.hits < Constants.MAX_HITS_WALL &&
+        structure.hits < SockPuppetConstants.MAX_HITS_WALL &&
         (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) &&
         !this.dismantleQueue.find(dismantle => dismantle.id === structure.id)
     });

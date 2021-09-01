@@ -1,6 +1,7 @@
+import { CreepRole } from "config/creep-types";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
-import { Constants, CreepRole } from "../constants";
 import { CreepWrapper } from "./creep-wrapper";
 
 // TODO: assign to source containers or something so they don't only use closest
@@ -14,8 +15,6 @@ export class Hauler extends CreepWrapper {
   };
 
   public run(): void {
-    this.touchRoad();
-
     // claim container if free
     if (!this.getMyContainer()) {
       const claimSourceResult = this.claimSourceContainer();
@@ -156,7 +155,7 @@ export class Hauler extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `towers not full: ${towers.length}`);
 
     const towersBelowThreshold = towersNotFull.filter(tower => {
-      return CreepUtils.getEnergyStoreRatioFree(tower) > Constants.TOWER_RESUPPLY_THRESHOLD;
+      return CreepUtils.getEnergyStoreRatioFree(tower) > SockPuppetConstants.TOWER_RESUPPLY_THRESHOLD;
     });
     CreepUtils.consoleLogIfWatched(this, `towers below threshold: ${towersBelowThreshold.length}`);
 

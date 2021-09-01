@@ -1,7 +1,7 @@
 import { Sockpuppet } from "sockpuppet";
 import { ErrorMapper } from "utils/ErrorMapper";
 import { Logger } from "./logger";
-import { Constants } from "./constants";
+import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import "./utils/console-scripts.js";
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
@@ -12,10 +12,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
     const version = process.env.npm_package_version;
     if (!Memory.version || Memory.version !== version) {
       Memory.version = version;
-      console.log(Constants.BANNER_HEADER);
-      console.log(Constants.BANNER_BODY);
+      console.log(SockPuppetConstants.BANNER_HEADER);
+      console.log(SockPuppetConstants.BANNER_BODY);
       console.log(`Version: ${String(version)}`);
-      console.log(Constants.BANNER_FOOTER);
+      console.log(SockPuppetConstants.BANNER_FOOTER);
     }
   } catch (error) {
     console.log(error);

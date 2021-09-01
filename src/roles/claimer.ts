@@ -1,7 +1,7 @@
+import { CreepRole } from "config/creep-types";
+import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
-import { TargetConfig } from "target-config";
 import { RemoteWorker } from "./remote-worker";
-import { CreepRole } from "../constants";
 
 export class Claimer extends RemoteWorker {
   public static readonly ROLE = CreepRole.CLAIMER;

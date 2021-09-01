@@ -1,6 +1,7 @@
 import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
-import { Constants, CreepRole } from "../constants";
+import { CreepRole } from "config/creep-types";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 
 export class Worker extends CreepWrapper {
   public static readonly ROLE = CreepRole.WORKER;
@@ -74,10 +75,14 @@ export class Worker extends CreepWrapper {
   private doBuildJob(): void {
     let site: ConstructionSite | null = null;
     // TODO think of a better priority reference than the center of the room
-    const centerPos = new RoomPosition(Constants.ROOM_SIZE / 2, Constants.ROOM_SIZE / 2, this.room.name);
-    for (let i = 0; !site && i < Constants.CONSTRUCTION_PRIORITY.length; i++) {
+    const centerPos = new RoomPosition(
+      SockPuppetConstants.ROOM_SIZE / 2,
+      SockPuppetConstants.ROOM_SIZE / 2,
+      this.room.name
+    );
+    for (let i = 0; !site && i < SockPuppetConstants.CONSTRUCTION_PRIORITY.length; i++) {
       site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
-        filter: s => s.structureType === Constants.CONSTRUCTION_PRIORITY[i]
+        filter: s => s.structureType === SockPuppetConstants.CONSTRUCTION_PRIORITY[i]
       });
     }
     if (!site) {
