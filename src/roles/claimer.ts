@@ -1,7 +1,6 @@
 import { CreepUtils } from "creep-utils";
 import { TargetConfig } from "target-config";
 import { RemoteWorker } from "./remote-worker";
-import { RoomWrapper } from "structures/room-wrapper";
 import { CreepRole } from "../constants";
 
 export class Claimer extends RemoteWorker {
@@ -13,11 +12,6 @@ export class Claimer extends RemoteWorker {
   };
 
   public run(): void {
-    // don't carry target room to grave
-    if (this.ticksToLive === 1 && this.targetRoom && this.homeRoom) {
-      new RoomWrapper(Game.rooms[this.homeRoom]).releaseRoomClaim(this.targetRoom);
-    }
-
     // make sure we have a target room
     const targetRoom = this.getTargetRoom();
     if (!targetRoom) {
@@ -51,7 +45,7 @@ export class Claimer extends RemoteWorker {
     let targetRoom = this.memory.targetRoom;
     if (!targetRoom) {
       // find a target room
-      targetRoom = this.roomw.getRoomClaim();
+      targetRoom = this.roomw.getRoomClaim(this);
 
       if (targetRoom) {
         // store my target room in my memory

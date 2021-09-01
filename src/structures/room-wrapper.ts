@@ -120,42 +120,49 @@ export class RoomWrapper extends Room {
   /**
    * Room claim/reserve queue.
    */
-  public get claimQueue(): string[] {
-    let queue = MemoryUtils.getCache<string[]>(`${this.room.name}_claimQueue`);
+  public get claimQueue(): RoomClaim[] {
+    CreepUtils.consoleLogIfWatched(this, `getting claim queue`);
+    let queue = MemoryUtils.getCache<RoomClaim[]>(`${this.room.name}_claimQueue`);
     if (!queue) {
+      CreepUtils.consoleLogIfWatched(this, `load claim queue from config`);
       const claimTargets = TargetConfig.TARGETS[Game.shard.name];
       const remoteHarvestTargets = TargetConfig.REMOTE_HARVEST[Game.shard.name];
-      queue = claimTargets.concat(remoteHarvestTargets);
-      CreepUtils.consoleLogIfWatched(this, `claim queue: ${queue.join()}`);
+      queue = claimTargets
+        .concat(remoteHarvestTargets)
+        .filter(name => !Game.rooms[name]?.controller?.my)
+        .map(name => {
+          return { name, claims: [] } as RoomClaim;
+        });
     }
-    queue.filter(name => !Game.rooms[name]?.controller?.my);
-    CreepUtils.consoleLogIfWatched(this, `claim queue filtered: ${queue.join()}`);
+    // filter out claimed rooms, and remote claims by dead creeps
+    queue = queue
+      .filter(claim => !Game.rooms[claim.name]?.controller?.my)
+      .filter(claim => claim.claims.filter(id => !!Game.getObjectById(id)));
+    const queueString = queue.join();
+    CreepUtils.consoleLogIfWatched(this, `claim queue: ${queueString}`);
     MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, 1000);
     return queue;
   }
 
-  /**
-   * update claim queue
-   */
-  public set claimQueue(queue: string[]) {
-    MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, 1000);
-  }
-
   /** get target room from queue */
-  public getRoomClaim(): string | undefined {
+  public getRoomClaim(creep: Creep): string | undefined {
+    CreepUtils.consoleLogIfWatched(this, `getting claim target from queue`);
     const queue = this.claimQueue;
-    CreepUtils.consoleLogIfWatched(this, `get room claim: ${queue.join()}`);
-    const name = queue.pop();
-    CreepUtils.consoleLogIfWatched(this, `got: ${String(name)}`);
-    this.claimQueue = queue;
-    return name;
-  }
-
-  /** release target room to queue */
-  public releaseRoomClaim(name: string): void {
-    const queue = this.claimQueue;
-    queue.push(name);
-    this.claimQueue = queue;
+    const queueString = queue.join();
+    CreepUtils.consoleLogIfWatched(this, `claim queue: ${queueString}`);
+    const MAX_CLAIMERS_PER_ROOM = 1;
+    const index = queue.findIndex(claim => claim.claims.length < MAX_CLAIMERS_PER_ROOM);
+    if (index !== -1) {
+      const claim = queue[index];
+      claim.claims.push(creep.id);
+      console.log(`get claim: ${claim.name}, ${claim.claims.length} claims now`);
+      queue[index] = claim;
+      CreepUtils.consoleLogIfWatched(this, `found ${claim.name}, ${claim.claims.length} claims`);
+      MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
+      return claim.name;
+    }
+    CreepUtils.consoleLogIfWatched(this, `no unclaimed target rooms found`);
+    return undefined;
   }
 
   /**
