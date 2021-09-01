@@ -109,9 +109,12 @@ export class RoomWrapper extends Room {
 
   /** release target room to queue */
   public releaseRoomRemote(name: string): void {
+    CreepUtils.consoleLogIfWatched(this, `releasing remote ${name} to queue`);
     const queue = this.remoteQueue;
     const index = queue.findIndex(claim => claim.name === name);
-    if (index !== -1) {
+    if (index === -1) {
+      CreepUtils.consoleLogIfWatched(this, `ERROR: claim not found`);
+    } else {
       const claim = queue[index];
       claim.count = claim.count > 0 ? claim.count - 1 : 0;
       console.log(`release claim: ${claim.name}, ${claim.count} claims now`);

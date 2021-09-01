@@ -2,6 +2,7 @@ import { CreepUtils } from "creep-utils";
 import { CreepRole } from "../spawn-control";
 import { TargetConfig } from "target-config";
 import { RemoteWorker } from "./remote-worker";
+import { RoomWrapper } from "structures/room-wrapper";
 
 export class Claimer extends RemoteWorker {
   public static readonly ROLE = CreepRole.CLAIMER;
@@ -13,8 +14,8 @@ export class Claimer extends RemoteWorker {
 
   public run(): void {
     // don't carry target room to grave
-    if (this.ticksToLive === 1 && this.targetRoom) {
-      this.roomw.releaseRoomClaim(this.targetRoom);
+    if (this.ticksToLive === 1 && this.targetRoom && this.homeRoom) {
+      new RoomWrapper(Game.rooms[this.homeRoom]).releaseRoomClaim(this.targetRoom);
     }
 
     const fleeResult = this.fleeIfHostiles();
