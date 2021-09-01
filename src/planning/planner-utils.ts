@@ -1,5 +1,6 @@
 import { Constants } from "../constants";
 import { StructurePlan } from "planning/structure-plan";
+import { CreepUtils } from "creep-utils";
 
 export class PlannerUtils {
   public static findSiteForPattern(
@@ -215,6 +216,7 @@ export class PlannerUtils {
   ): ScreepsReturnCode {
     const plan = structurePlan.getPlan();
     if (plan) {
+      CreepUtils.consoleLogIfWatched(structurePlan.roomw, `found placement for plan`);
       for (const planPosition of plan) {
         if (skipRoads && planPosition.structure === STRUCTURE_ROAD) {
           continue;
@@ -247,7 +249,7 @@ export class PlannerUtils {
         }
       }
     }
-    console.log(`${structurePlan.roomw.name}: failed to place plan`);
+    CreepUtils.consoleLogIfWatched(structurePlan.roomw, `failed to place plan`);
     return ERR_NOT_FOUND;
   }
 }
