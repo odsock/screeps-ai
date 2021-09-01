@@ -1,5 +1,6 @@
 import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
+import { TargetConfig } from "target-config";
 import { CreepRole } from "../constants";
 import { RemoteWorker } from "./remote-worker";
 
@@ -38,6 +39,9 @@ export class Importer extends RemoteWorker {
       CreepUtils.consoleLogIfWatched(this, `no room targeted for remote. sitting like a lump.`);
       return;
     }
+
+    const claimFlag = TargetConfig.TARGETS[Game.shard.name].includes(targetRoom);
+    CreepUtils.consoleLogIfWatched(this, `room ${this.room.name} planned for claim? ${String(claimFlag)}`);
 
     if (!this.targetRoom) {
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
