@@ -135,11 +135,13 @@ export class RoomWrapper extends Room {
    */
   public get claimQueue(): string[] {
     let queue = MemoryUtils.getCache<string[]>(`${this.room.name}_claimQueue`);
-    if (!queue || queue.length === 0) {
+    if (!queue) {
       queue = TargetConfig.TARGETS[Game.shard.name];
       queue.concat(TargetConfig.REMOTE_HARVEST[Game.shard.name]);
+      CreepUtils.consoleLogIfWatched(this, `claim queue: ${queue.join()}`);
     }
     queue.filter(name => !Game.rooms[name]?.controller?.my);
+    CreepUtils.consoleLogIfWatched(this, `claim queue filtered: ${queue.join()}`);
     MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, 1000);
     return queue;
   }
@@ -154,7 +156,7 @@ export class RoomWrapper extends Room {
   /** get target room from queue */
   public getRoomClaim(): string | undefined {
     const queue = this.claimQueue;
-    CreepUtils.consoleLogIfWatched(this, `get room claim: ${String(queue)}`);
+    CreepUtils.consoleLogIfWatched(this, `get room claim: ${queue.join()}`);
     const name = queue.pop();
     CreepUtils.consoleLogIfWatched(this, `got: ${String(name)}`);
     this.claimQueue = queue;
