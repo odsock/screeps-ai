@@ -6,7 +6,7 @@ import { RemoteWorker } from "./remote-worker";
 export class Guard extends RemoteWorker {
   public static readonly ROLE = CreepRole.GUARD;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
-    profile: [TOUGH, ATTACK, MOVE, MOVE],
+    profile: [TOUGH, ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE],
     seed: [],
     maxBodyParts: MAX_CREEP_SIZE
   };
