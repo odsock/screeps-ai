@@ -13,11 +13,6 @@ export class Importer extends RemoteWorker {
   };
 
   public run(): void {
-    // don't carry target room to grave
-    if (this.ticksToLive === 1 && this.targetRoom && this.homeRoom) {
-      new RoomWrapper(Game.rooms[this.homeRoom]).releaseRoomClaim(this.targetRoom);
-    }
-
     // use current room for home (room spawned in)
     if (!this.homeRoom) {
       this.homeRoom = this.pos.roomName;
