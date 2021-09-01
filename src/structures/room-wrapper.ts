@@ -154,7 +154,9 @@ export class RoomWrapper extends Room {
   /** get target room from queue */
   public getRoomClaim(): string | undefined {
     const queue = this.claimQueue;
+    CreepUtils.consoleLogIfWatched(this, `get room claim: ${String(queue)}`);
     const name = queue.pop();
+    CreepUtils.consoleLogIfWatched(this, `got: ${String(name)}`);
     this.claimQueue = queue;
     return name;
   }
