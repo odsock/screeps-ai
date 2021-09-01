@@ -39,7 +39,9 @@ export class Claimer extends RemoteWorker {
 
     // go to controller and claim or reserve it
     if (this.roomw.controller) {
-      if (TargetConfig.TARGETS[Game.shard.name].includes(targetRoom)) {
+      const claimFlag = TargetConfig.TARGETS[Game.shard.name].includes(targetRoom);
+      CreepUtils.consoleLogIfWatched(this, `claim target room? ${String(claimFlag)}`);
+      if (claimFlag) {
         const result = this.claimTargetRoom();
         CreepUtils.consoleLogIfWatched(this, `claim controller: ${String(this.roomw.controller)}`, result);
       } else {
