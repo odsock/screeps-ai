@@ -171,7 +171,7 @@ export class SpawnControl {
   /** plan creep count functions */
 
   private getMaxClaimerCount(): number {
-    const targetRoomNames = TargetConfig.TARGETS[Game.shard.name];
+    const targetRoomNames = TargetConfig.TARGETS[Game.shard.name].concat(TargetConfig.REMOTE_HARVEST[Game.shard.name]);
     if (targetRoomNames) {
       return targetRoomNames.filter(roomName => {
         // validate room name
