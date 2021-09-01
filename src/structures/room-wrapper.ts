@@ -76,6 +76,7 @@ export class RoomWrapper extends Room {
    * Room remote harvest queue.
    */
   public get remoteQueue(): ClaimCount[] {
+    CreepUtils.consoleLogIfWatched(this, `getting remote queue`);
     let queue = MemoryUtils.getCache<ClaimCount[]>(`${this.room.name}_remoteQueue`);
     if (!queue) {
       queue = TargetConfig.REMOTE_HARVEST[Game.shard.name]
