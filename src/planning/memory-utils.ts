@@ -82,11 +82,8 @@ export class MemoryUtils {
       .filter(containerInfo => !!Game.getObjectById(containerInfo.containerId as Id<StructureContainer>))
       // remove id's for creeps that don't exist
       .map(containerInfo => {
-        if (containerInfo.minderId) {
-          const creep = Game.getObjectById(containerInfo.minderId as Id<Creep>);
-          if (!creep || creep.memory.role !== "minder") {
-            containerInfo.minderId = undefined;
-          }
+        if (containerInfo.minderId && !Game.getObjectById(containerInfo.minderId as Id<Creep>)) {
+          containerInfo.minderId = undefined;
         }
         const currentHaulers = containerInfo.haulers ? containerInfo.haulers : [];
         containerInfo.haulers = currentHaulers.filter(haulerId => !!Game.getObjectById(haulerId as Id<Creep>));
