@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint \"src/**/*.ts\"",
     "build": "rollup -c",
-    "prerelease": "npm run build && npm version prerelease && npm run push-main",
+    "patch": "npm run build && npm version prerelease && npm run push-main",
     "release": "npm run build && npm version minor && npm run push-main",
     "rollup-help": "rollup --help",
     "push-main": "rollup -c --environment DEST:main",
