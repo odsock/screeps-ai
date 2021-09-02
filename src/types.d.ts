@@ -15,14 +15,7 @@ interface CreepMemory {
   watched?: boolean;
 }
 
-interface RoomClaim {
-  name: string;
-  claims: Id<Creep>[];
-}
-
 interface RoomMemory {
-  claimQueue?: string[];
-  remoteQueue?: RoomClaim[];
   spawns?: Id<StructureSpawn>[];
   harvestPositions: string[];
   costMatrix?: { [name: string]: number[] };

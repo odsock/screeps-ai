@@ -4,6 +4,7 @@ import { PlannerUtils } from "planning/planner-utils";
 import { SpawnWrapper } from "./spawn-wrapper";
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
+import { RoomClaim } from "room-claim";
 
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
@@ -82,14 +83,12 @@ export class RoomWrapper extends Room {
       CreepUtils.consoleLogIfWatched(this, `load remote queue from config`);
       queue = TargetConfig.REMOTE_HARVEST[Game.shard.name]
         .filter(name => !Game.rooms[name]?.controller?.my)
-        .map(name => {
-          return { name, claims: [] } as RoomClaim;
-        });
+        .map(name => new RoomClaim(name));
     }
     // filter out claimed rooms, and remote claims by dead creeps
     queue = queue
-      .filter(claim => !Game.rooms[claim.name]?.controller?.my)
-      .filter(claim => claim.claims.filter(id => !!Game.getObjectById(id)));
+      .filter(roomClaim => !Game.rooms[roomClaim.name]?.controller?.my)
+      .map(roomClaim => roomClaim.purgeDeadCreeps());
     const queueString = queue.join();
     CreepUtils.consoleLogIfWatched(this, `remote queue: ${queueString}`);
     MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
@@ -103,15 +102,13 @@ export class RoomWrapper extends Room {
     const queue = this.remoteQueue;
     const queueString = queue.join();
     CreepUtils.consoleLogIfWatched(this, `remote queue: ${queueString}`);
-    const index = queue.findIndex(claim => claim.claims.length < TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
-    if (index !== -1) {
-      const claim = queue[index];
-      claim.claims.push(creep.id);
-      console.log(`get claim: ${claim.name}, ${claim.claims.length} claims now`);
-      queue[index] = claim;
-      CreepUtils.consoleLogIfWatched(this, `found ${claim.name}, ${claim.claims.length} claims`);
+    const roomClaim = queue.find(claim => claim.count < TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
+    if (roomClaim) {
+      roomClaim.get(creep.id);
+      console.log(`get claim: ${roomClaim.name}, ${roomClaim.count} claims now`);
+      CreepUtils.consoleLogIfWatched(this, `found ${roomClaim.name}, ${roomClaim.count} claims`);
       MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
-      return claim.name;
+      return roomClaim.name;
     }
     CreepUtils.consoleLogIfWatched(this, `no unclaimed remote found`);
     return undefined;
@@ -131,13 +128,11 @@ export class RoomWrapper extends Room {
         .concat(remoteHarvestTargets)
         .filter(name => !Game.rooms[name]?.controller?.my)
         .map(name => {
-          return { name, claims: [] } as RoomClaim;
+          return new RoomClaim(name);
         });
     }
     // filter out claimed rooms, and remote claims by dead creeps
-    queue = queue
-      .filter(claim => !Game.rooms[claim.name]?.controller?.my)
-      .filter(claim => claim.claims.filter(id => !!Game.getObjectById(id)));
+    queue = queue.filter(claim => !Game.rooms[claim.name]?.controller?.my).map(claim => claim.purgeDeadCreeps());
     const queueString = queue.join();
     CreepUtils.consoleLogIfWatched(this, `claim queue: ${queueString}`);
     MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, 1000);
@@ -151,15 +146,13 @@ export class RoomWrapper extends Room {
     const queueString = queue.join();
     CreepUtils.consoleLogIfWatched(this, `claim queue: ${queueString}`);
     const MAX_CLAIMERS_PER_ROOM = 1;
-    const index = queue.findIndex(claim => claim.claims.length < MAX_CLAIMERS_PER_ROOM);
-    if (index !== -1) {
-      const claim = queue[index];
-      claim.claims.push(creep.id);
-      console.log(`get claim: ${claim.name}, ${claim.claims.length} claims now`);
-      queue[index] = claim;
-      CreepUtils.consoleLogIfWatched(this, `found ${claim.name}, ${claim.claims.length} claims`);
+    const roomClaim = queue.find(claim => claim.count < MAX_CLAIMERS_PER_ROOM);
+    if (roomClaim) {
+      roomClaim.get(creep.id);
+      console.log(`get claim: ${roomClaim.name}, ${roomClaim.count} claims now`);
+      CreepUtils.consoleLogIfWatched(this, `found ${roomClaim.name}, ${roomClaim.count} claims`);
       MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
-      return claim.name;
+      return roomClaim.name;
     }
     CreepUtils.consoleLogIfWatched(this, `no unclaimed target rooms found`);
     return undefined;
