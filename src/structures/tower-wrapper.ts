@@ -26,7 +26,8 @@ export class TowerWrapper extends StructureTower {
 
   private healCreeps(): ScreepsReturnCode {
     const closestInjuredCreep = this.pos.findClosestByRange(FIND_MY_CREEPS, {
-      filter: creep => creep.hits < creep.hitsMax
+      filter: creep =>
+        creep.hits < creep.hitsMax && this.pos.getRangeTo(creep.pos) < SockPuppetConstants.TOWER_MAX_HEAL_RANGE
     });
     if (closestInjuredCreep) {
       return this.heal(closestInjuredCreep);
