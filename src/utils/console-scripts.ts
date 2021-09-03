@@ -22,8 +22,7 @@ global.unwatch = (key: Id<any>) => {
   }
 };
 
-global.showCache = () => {
-  for (const key in global.cache) {
-    console.log(`${key}: ${String(global.cache.get(key)?.item)}, ${String(global.cache.get(key)?.expires)}`);
-  }
+global.placeExt = (pos: RoomPosition, structure: StructureConstant) => {
+  const result = Game.rooms[pos.roomName].createConstructionSite(pos, structure);
+  console.log(Game.rooms[pos.roomName], `place ${String(pos)} ${structure}`, result);
 };

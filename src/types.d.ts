@@ -89,6 +89,6 @@ declare namespace NodeJS {
     cache: Map<string, CacheValue>;
     watch: (key: Id<any>) => void;
     unwatch: (key: Id<any>) => void;
-    showCache: () => void;
+    placeExt: (pos: RoomPosition, structure: StructureConstant) => void;
   }
 }
