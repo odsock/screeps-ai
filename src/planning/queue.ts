@@ -16,10 +16,8 @@ export class Queue<T> {
   ) {
     const queue = MemoryUtils.getCache<Ticket<T>[]>(this.cacheKey);
     if (queue) {
-      console.log(`found queue in memory: ${cacheKey}`);
       this.store = queue;
     } else if (this.initializer) {
-      console.log(`queue not found in memory: ${cacheKey}, calling initializer`);
       this.store = this.initializer().map(item => {
         return { item } as Ticket<T>;
       });
