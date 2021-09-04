@@ -88,7 +88,7 @@ export class RoomWrapper extends Room {
     );
     let index = 0;
     TargetConfig.REMOTE_HARVEST[Game.shard.name].forEach(name => {
-      queue.fill(name, index, TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
+      queue.fill(name, index, index + TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
       index += TargetConfig.IMPORTERS_PER_REMOTE_ROOM;
     });
     return queue;
