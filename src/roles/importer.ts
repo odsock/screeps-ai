@@ -1,6 +1,7 @@
 import { CreepRole } from "config/creep-types";
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
+import { RoomWrapper } from "structures/room-wrapper";
 import { RemoteWorker } from "./remote-worker";
 
 export class Importer extends RemoteWorker {
@@ -85,11 +86,11 @@ export class Importer extends RemoteWorker {
 
   private getTargetRoom(): string | undefined {
     let targetRoom = this.memory.targetRoom;
-    if (!targetRoom) {
+    if (!targetRoom && this.homeRoom) {
       CreepUtils.consoleLogIfWatched(this, `getting remote from queue`);
       // find a target room
       // TODO use room factory to get target through home room
-      targetRoom = this.roomw.remoteQueue.claim(this.id);
+      targetRoom = new RoomWrapper(Game.rooms[this.homeRoom]).remoteQueue.claim(this.id);
 
       if (targetRoom) {
         // store my target room in my memory
