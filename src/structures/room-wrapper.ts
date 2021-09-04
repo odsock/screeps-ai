@@ -4,12 +4,20 @@ import { PlannerUtils } from "planning/planner-utils";
 import { SpawnWrapper } from "./spawn-wrapper";
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
-import { RoomClaim } from "room-claim";
+import { Queue } from "planning/queue";
+import { RoomClaim } from "planning/room-claim";
 
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
+  private readonly remoteQueueStore: Queue<string>;
+
   public constructor(private readonly room: Room) {
     super(room.name);
+    this.remoteQueueStore = new Queue<string>(
+      `${this.name}_remoteQueue`,
+      this.initRemoteQueue,
+      this.validateRemoteQueue
+    );
   }
 
   /** Declare getters for properties that don't seem to get copied in when constructed */
@@ -73,45 +81,32 @@ export class RoomWrapper extends Room {
     return queue;
   }
 
+  /** add remote harvest room names to queue once for each importer */
+  private initRemoteQueue = () => {
+    const queue: string[] = Array<string>(
+      TargetConfig.REMOTE_HARVEST[Game.shard.name].length * TargetConfig.IMPORTERS_PER_REMOTE_ROOM
+    );
+    let index = 0;
+    TargetConfig.REMOTE_HARVEST[Game.shard.name].forEach(name => {
+      queue.fill(name, index, TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
+      index += TargetConfig.IMPORTERS_PER_REMOTE_ROOM;
+    });
+    return queue;
+  };
+
+  /** check remote harvest room names against config, and drop owned rooms */
+  private validateRemoteQueue = (roomName: string) => {
+    return (
+      TargetConfig.REMOTE_HARVEST[Game.shard.name].some(name => name === roomName) &&
+      !Game.rooms[roomName]?.controller?.my
+    );
+  };
+
   /**
    * Room remote harvest queue.
    */
-  public get remoteQueue(): RoomClaim[] {
-    CreepUtils.consoleLogIfWatched(this, `getting remote queue`);
-    let queue = MemoryUtils.getCache<RoomClaim[]>(`${this.room.name}_remoteQueue`);
-    if (!queue) {
-      CreepUtils.consoleLogIfWatched(this, `load remote queue from config`);
-      queue = TargetConfig.REMOTE_HARVEST[Game.shard.name]
-        .filter(name => !Game.rooms[name]?.controller?.my)
-        .map(name => new RoomClaim(name));
-    }
-    // filter out claimed rooms, and remote claims by dead creeps
-    queue = queue
-      .filter(roomClaim => !Game.rooms[roomClaim.name]?.controller?.my)
-      .map(roomClaim => roomClaim.purgeDeadCreeps());
-    const queueString = queue.join();
-    CreepUtils.consoleLogIfWatched(this, `remote queue: ${queueString}`);
-    MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
-    return queue;
-  }
-
-  /** get target room from queue */
-  // TODO validate claims at some point
-  public getRoomRemote(creep: Creep): string | undefined {
-    CreepUtils.consoleLogIfWatched(this, `getting remote from queue`);
-    const queue = this.remoteQueue;
-    const queueString = queue.join();
-    CreepUtils.consoleLogIfWatched(this, `remote queue: ${queueString}`);
-    const roomClaim = queue.find(claim => claim.count < TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
-    if (roomClaim) {
-      roomClaim.get(creep.id);
-      console.log(`get claim: ${roomClaim.name}, ${roomClaim.count} claims now`);
-      CreepUtils.consoleLogIfWatched(this, `found ${roomClaim.name}, ${roomClaim.count} claims`);
-      MemoryUtils.setCache(`${this.room.name}_remoteQueue`, queue, 1000);
-      return roomClaim.name;
-    }
-    CreepUtils.consoleLogIfWatched(this, `no unclaimed remote found`);
-    return undefined;
+  public get remoteQueue(): Queue<string> {
+    return this.remoteQueueStore;
   }
 
   /**

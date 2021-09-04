@@ -86,13 +86,16 @@ export class Importer extends RemoteWorker {
   private getTargetRoom(): string | undefined {
     let targetRoom = this.memory.targetRoom;
     if (!targetRoom) {
+      CreepUtils.consoleLogIfWatched(this, `getting remote from queue`);
       // find a target room
       // TODO use room factory to get target through home room
-      targetRoom = this.roomw.getRoomRemote(this);
+      targetRoom = this.roomw.remoteQueue.claim(this.id);
 
       if (targetRoom) {
         // store my target room in my memory
         this.memory.targetRoom = targetRoom;
+      } else {
+        CreepUtils.consoleLogIfWatched(this, `no unclaimed remote found`);
       }
     }
     return targetRoom;
