@@ -268,14 +268,12 @@ export class RoomWrapper extends Room {
       this.harvestPositionsCache = this.findHarvestPositions();
       this.room.memory.harvestPositions = this.harvestPositionsCache.map(pos => MemoryUtils.packRoomPosition(pos));
     }
-    this.room.visual.poly(this.room.memory.surroundingPositions);
     return this.harvestPositionsCache;
   }
 
   private findHarvestPositions(): RoomPosition[] {
     const positionsAroundSources = this.sources.reduce<RoomPosition[]>((positions: RoomPosition[], source) => {
       const surroundingPositions = PlannerUtils.getPositionSpiral(source.pos, 1);
-      this.room.memory.surroundingPositions = surroundingPositions;
       return positions.concat(surroundingPositions);
     }, []);
 
