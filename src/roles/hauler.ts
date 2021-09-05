@@ -15,6 +15,23 @@ export class Hauler extends CreepWrapper {
   };
 
   public run(): void {
+    // check haul request queue
+    const haulRequestorName = this.roomw.haulQueue.pop();
+    if (haulRequestorName) {
+      const requestor = Game.creeps[haulRequestorName];
+      if (requestor) {
+        const target = requestor.memory.haulTarget;
+        if (target) {
+          CreepUtils.consoleLogIfWatched(this, `haul request found: ${haulRequestorName} => ${String(target)}`);
+          const result = this.haulCreepJob(requestor, target);
+          CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
+          return;
+        }
+        CreepUtils.consoleLogIfWatched(this, `haul requestor had no target`);
+      }
+      CreepUtils.consoleLogIfWatched(this, `haul requestor was not a valid creep`);
+    }
+
     // claim container if free
     if (!this.getMyContainer()) {
       const claimSourceResult = this.claimSourceContainer();
@@ -28,7 +45,7 @@ export class Hauler extends CreepWrapper {
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
       const target = this.findClosestSpawnStorageNotFull();
       if (target) {
-        this.supplySpawn(target);
+        this.supplySpawnJob(target);
         return;
       }
     }
@@ -38,7 +55,7 @@ export class Hauler extends CreepWrapper {
     if (this.memory.job === "tower" || this.findTowersBelowThreshold().length > 0) {
       const target = this.findClosestTowerNotFull();
       if (target) {
-        this.supplyStructure(target);
+        this.supplyStructureJob(target);
         return;
       }
     }
@@ -46,17 +63,43 @@ export class Hauler extends CreepWrapper {
     // supply controller
     const container = this.findClosestControllerContainerNotFull();
     if (container) {
-      this.supplyStructure(container);
+      this.supplyStructureJob(container);
       return;
     }
 
     // otherwise supply storage
     if (this.room.storage) {
-      this.supplyStructure(this.room.storage);
+      this.supplyStructureJob(this.room.storage);
     }
   }
 
-  private supplyStructure(
+  private haulCreepJob(creep: Creep, target: RoomPosition): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `haul ${creep.name}`);
+    this.updateJob(`tug`);
+    this.startWorkingInRange(creep.pos, 1);
+
+    let result: ScreepsReturnCode;
+    if (this.memory.working) {
+      CreepUtils.consoleLogIfWatched(this, "working");
+      result = this.pull(creep);
+      CreepUtils.consoleLogIfWatched(this, `pull result`, result);
+      if (result === OK && !this.pos.isEqualTo(target)) {
+        result = this.moveTo(target);
+        CreepUtils.consoleLogIfWatched(this, `move result`, result);
+      }
+
+      if (this.pos.isEqualTo(target)) {
+        result = this.moveTo(creep.pos);
+        CreepUtils.consoleLogIfWatched(this, `last move`, result);
+      }
+    } else {
+      result = this.moveTo(creep.pos);
+      CreepUtils.consoleLogIfWatched(this, `move result`, result);
+    }
+    return result;
+  }
+
+  private supplyStructureJob(
     target: StructureSpawn | StructureExtension | StructureContainer | StructureTower | StructureStorage
   ): ScreepsReturnCode {
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
@@ -105,7 +148,7 @@ export class Hauler extends CreepWrapper {
   }
 
   // When supplying spawn, use priority to prefer storage
-  private supplySpawn(target: StructureSpawn | StructureExtension): ScreepsReturnCode {
+  private supplySpawnJob(target: StructureSpawn | StructureExtension): ScreepsReturnCode {
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
     CreepUtils.consoleLogIfWatched(this, `supply ${target.structureType}`);
     this.updateJob(`${target.structureType}`);
