@@ -20,6 +20,10 @@ export class RoomWrapper extends Room {
       this.initRemoteQueue,
       this.validateRemoteQueue
     );
+
+    // debug
+    console.log(`energyAvailable: ${this.energyAvailable}`);
+    console.log(`energyCapacityAvailable: ${this.energyCapacityAvailable}`);
   }
 
   /** Declare getters for properties that don't seem to get copied in when constructed */
