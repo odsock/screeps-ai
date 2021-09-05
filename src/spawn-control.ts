@@ -192,7 +192,12 @@ export class SpawnControl {
         const pathToReplace = CreepUtils.getPath(spawnw.pos, minder.pos);
         const walkTime = minder.calcWalkTime(pathToReplace);
         const BUFFER_TIME = 10;
-        if (minder.ticksToLive && minder.ticksToLive <= spawningTime + walkTime + BUFFER_TIME) {
+        const replacementTime = spawningTime + walkTime;
+        CreepUtils.consoleLogIfWatched(
+          spawnw,
+          `retirement check: ${minder.name}, replacement time: ${replacementTime} + ${BUFFER_TIME} tick buffer`
+        );
+        if (minder.ticksToLive && minder.ticksToLive <= replacementTime + BUFFER_TIME) {
           const result = this.spawnBootstrapCreep(type.BODY_PROFILE, type.ROLE, spawnw);
           if (result === OK) {
             minder.memory.retiring = true;
