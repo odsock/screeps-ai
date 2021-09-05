@@ -20,10 +20,6 @@ export class RoomWrapper extends Room {
       this.initRemoteQueue,
       this.validateRemoteQueue
     );
-
-    // debug
-    // console.log(`energyAvailable: ${this.energyAvailable}`);
-    // console.log(`energyCapacityAvailable: ${this.energyCapacityAvailable}`);
   }
 
   /** Declare getters for properties that don't seem to get copied in when constructed */
@@ -32,14 +28,15 @@ export class RoomWrapper extends Room {
     return this.room.controller;
   }
 
-  // BUG sim room doesn't let these run
-  // public get energyAvailable(): number {
-  //   return this.room.energyAvailable;
-  // }
+  // NOTE sim room doesn't let these run
+  public get energyAvailable(): number {
+    return this.room.energyAvailable;
+  }
 
-  // public get energyCapacityAvailable(): number {
-  //   return this.room.energyCapacityAvailable;
-  // }
+  // NOTE sim room doesn't let these run
+  public get energyCapacityAvailable(): number {
+    return this.room.energyCapacityAvailable;
+  }
 
   public get mode(): string {
     return this.room.mode;
