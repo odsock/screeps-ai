@@ -6,8 +6,8 @@ export class Harvester extends Minder {
   public static ROLE: CreepRole = CreepRole.HARVESTER;
   public static BODY_PROFILE: CreepBodyProfile = {
     profile: [WORK],
-    seed: [MOVE],
-    maxBodyParts: 7
+    seed: [],
+    maxBodyParts: 5
   };
 
   protected claimContainer(): ScreepsReturnCode {
