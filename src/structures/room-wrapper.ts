@@ -32,6 +32,7 @@ export class RoomWrapper extends Room {
     return this.room.controller;
   }
 
+  // BUG sim room doesn't let these run
   // public get energyAvailable(): number {
   //   return this.room.energyAvailable;
   // }
