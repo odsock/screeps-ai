@@ -22,12 +22,11 @@ export abstract class Minder extends CreepWrapper {
 
     // call for tug if not on container and haven't already called
     const container = this.getMyContainer();
-    if (!this.onMyContainer && container && !this.memory.haulTarget) {
-      this.callForTug(container.pos);
-    }
-
-    // TODO clean this up later
-    if (this.onMyContainer) {
+    if (!this.onMyContainer) {
+      if (!this.onMyContainer && container && !this.memory.haulTarget) {
+        this.callForTug(container.pos);
+      }
+    } else {
       this.memory.haulTarget = undefined;
     }
 
