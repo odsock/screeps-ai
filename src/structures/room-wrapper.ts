@@ -28,9 +28,9 @@ export class RoomWrapper extends Room {
     return this.room.controller;
   }
 
-  public get energyAvailable(): number {
-    return this.room.energyAvailable;
-  }
+  // public get energyAvailable(): number {
+  //   return this.room.energyAvailable;
+  // }
 
   public get energyCapacityAvailable(): number {
     return this.room.energyCapacityAvailable;
