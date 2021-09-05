@@ -66,4 +66,12 @@ export class Queue<T> {
     MemoryUtils.setCache(this.cacheKey, this.store);
     return ticket?.item;
   }
+
+  public static creepNameValidator = (name: string): boolean => {
+    return !!Game.creeps[name];
+  };
+
+  public static idValidator = (id: string): boolean => {
+    return !!Game.getObjectById(id);
+  };
 }
