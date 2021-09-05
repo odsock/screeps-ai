@@ -3,6 +3,7 @@ import { CreepWrapper } from "./creep-wrapper";
 
 export abstract class Minder extends CreepWrapper {
   public run(): void {
+    // TODO push request for hauling if no move parts
     // move to retire old creep
     if (this.memory.retiree) {
       if (this.moveToRetiree() !== ERR_NOT_FOUND) {
@@ -10,11 +11,13 @@ export abstract class Minder extends CreepWrapper {
       }
     }
 
+    // TODO claim harvest positions instead, preferring container adjacent
     // claim container if free
     if (!this.getMyContainer()) {
       this.claimContainer();
     }
 
+    // TODO push request for hauling if no move parts
     // move to claimed container
     if (!this.onMyContainer) {
       if (this.moveToMyContainer() === ERR_NOT_FOUND) {
