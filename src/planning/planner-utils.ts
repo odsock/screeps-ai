@@ -99,7 +99,7 @@ export class PlannerUtils {
     let dy = -1;
     let pos: RoomPosition;
 
-    for (let i = 0; i < Math.pow(maxRange * 2, 2); i++) {
+    for (let i = 0; i < Math.pow(maxRange * 2 + 1, 2); i++) {
       if (
         centerPos.x + x < SockPuppetConstants.ROOM_SIZE - 2 &&
         centerPos.x + x > 1 &&
