@@ -91,5 +91,6 @@ declare namespace NodeJS {
     watch: (key: Id<any>) => void;
     unwatch: (key: Id<any>) => void;
     placeExt: (pos: RoomPosition, structure: StructureConstant) => void;
+    getPositionSpiral: (centerPos: RoomPosition, maxRange: number) => void;
   }
 }
