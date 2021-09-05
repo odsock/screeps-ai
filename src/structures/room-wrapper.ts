@@ -22,8 +22,8 @@ export class RoomWrapper extends Room {
     );
 
     // debug
-    console.log(`energyAvailable: ${this.energyAvailable}`);
-    console.log(`energyCapacityAvailable: ${this.energyCapacityAvailable}`);
+    // console.log(`energyAvailable: ${this.energyAvailable}`);
+    // console.log(`energyCapacityAvailable: ${this.energyCapacityAvailable}`);
   }
 
   /** Declare getters for properties that don't seem to get copied in when constructed */
