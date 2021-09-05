@@ -97,7 +97,7 @@ export class PlannerUtils {
     let y = 0;
     let dx = 0;
     let dy = -1;
-    let pos: RoomPosition = new RoomPosition(centerPos.x, centerPos.y, centerPos.roomName);
+    let pos: RoomPosition;
 
     for (let i = 0; i < Math.pow(maxRange * 2, 2); i++) {
       if (
