@@ -5,7 +5,7 @@ export class SpawnWrapper extends StructureSpawn {
     super(spawn.id);
   }
 
-  public get room(): RoomWrapper {
+  public get roomw(): RoomWrapper {
     return new RoomWrapper(this.room);
   }
 

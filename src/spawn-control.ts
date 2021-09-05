@@ -177,10 +177,10 @@ export class SpawnControl {
         // spawn enough harvesters to drain sources if they fit in harvest positions
         const harvesters = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE });
         const harvesterWorkParts = CreepUtils.countParts(WORK, ...harvesters);
-        const harvesterWorkPartsNeeded = spawnw.room.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
+        const harvesterWorkPartsNeeded = spawnw.roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
         if (
           harvesterWorkParts < harvesterWorkPartsNeeded &&
-          this.creepCountsByRole[CreepRole.HARVESTER] < spawnw.room.harvestPositions.length
+          this.creepCountsByRole[CreepRole.HARVESTER] < spawnw.roomw.harvestPositions.length
         ) {
           return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw) !== OK;
         }
@@ -216,7 +216,7 @@ export class SpawnControl {
               structure.structureType === STRUCTURE_CONTROLLER
           })
           .map(structure => structure.pos);
-        const sourcePositions = spawnw.room.sources.map(source => source.pos);
+        const sourcePositions = spawnw.roomw.sources.map(source => source.pos);
         const distance = CreepUtils.calculatePositionSetDistance(sourcePositions, haulerTargets);
         const haulerCarryPartsNeeded = (harvesterWorkParts * HARVEST_POWER * distance * 2) / CARRY_CAPACITY;
         if (haulerCarryParts < haulerCarryPartsNeeded) {
