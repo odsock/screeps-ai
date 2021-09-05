@@ -3,11 +3,14 @@ import { CreepWrapper } from "./creep-wrapper";
 
 export abstract class Minder extends CreepWrapper {
   public run(): void {
-    // TODO push request for hauling if no move parts
     // move to retire old creep
     if (this.memory.retiree) {
-      if (this.moveToRetiree() !== ERR_NOT_FOUND) {
-        return;
+      const retiree = Game.creeps[this.memory.retiree];
+      if (retiree) {
+        if (!this.memory.haulTarget) {
+          this.callForTug(retiree.pos);
+        }
+        this.requestRetireeSuicide(retiree);
       }
     }
 
@@ -17,13 +20,15 @@ export abstract class Minder extends CreepWrapper {
       this.claimContainer();
     }
 
-    // TODO push request for hauling if no move parts
-    // move to claimed container
-    if (!this.onMyContainer) {
-      if (this.moveToMyContainer() === ERR_NOT_FOUND) {
-        CreepUtils.consoleLogIfWatched(this, `container is missing`);
-        return;
-      }
+    // call for tug if not on container and haven't already called
+    const container = this.getMyContainer();
+    if (!this.onMyContainer && container && !this.memory.haulTarget) {
+      this.callForTug(container.pos);
+    }
+
+    // TODO clean this up later
+    if (this.onMyContainer) {
+      this.memory.haulTarget = undefined;
     }
 
     // harvest then transfer until container and store is full or source is inactive
@@ -105,5 +110,21 @@ export abstract class Minder extends CreepWrapper {
     }
     CreepUtils.consoleLogIfWatched(this, `withdraw result`, result);
     return result;
+  }
+
+  protected callForTug(target: RoomPosition): void {
+    CreepUtils.consoleLogIfWatched(this, `calling for tug to: ${String(target)}`);
+    this.memory.haulTarget = target;
+    this.roomw.haulQueue.push(this.name);
+  }
+
+  protected requestRetireeSuicide(retiree: Creep): ScreepsReturnCode {
+    if (retiree.pos.isNearTo(this.pos)) {
+      CreepUtils.consoleLogIfWatched(this, `requesting retirement of ${retiree.name}`);
+      const result = retiree.suicide();
+      this.memory.retiree = undefined;
+      return result;
+    }
+    return ERR_NOT_FOUND;
   }
 }
