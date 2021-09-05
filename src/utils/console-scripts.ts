@@ -57,5 +57,5 @@ global.getPositionSpiral = (centerPos: RoomPosition, maxRange: number): void => 
     x = x + dx;
     y = y + dy;
   }
-  Game.rooms[centerPos.roomName].visual.poly(line);
+  Game.rooms[centerPos.roomName].visual.poly(line, { stroke: "#0000FF" });
 };
