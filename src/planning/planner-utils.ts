@@ -219,6 +219,7 @@ export class PlannerUtils {
       CreepUtils.consoleLogIfWatched(structurePlan.roomw, `found placement for plan`);
       for (const planPosition of plan) {
         if (skipRoads && planPosition.structure === STRUCTURE_ROAD) {
+          CreepUtils.consoleLogIfWatched(structurePlan.roomw, `skipping road at ${String(planPosition.pos)}`);
           continue;
         }
 
