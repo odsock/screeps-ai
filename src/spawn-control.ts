@@ -434,7 +434,7 @@ export class SpawnControl {
     do {
       finalBody = body.slice();
       body = body.concat(bodyProfile.profile);
-    } while (this.calcBodyCost(body) < SPAWN_ENERGY_CAPACITY);
+    } while (this.calcBodyCost(body) <= SPAWN_ENERGY_CAPACITY);
     body = finalBody.slice();
 
     // grow body until all available energy is used
