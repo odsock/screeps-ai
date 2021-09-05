@@ -196,6 +196,11 @@ export class RoomWrapper extends Room {
     return this.room.find(FIND_SOURCES);
   }
 
+  /** Gets total energy available in room when sources full */
+  public get sourcesEnergyCapacity(): number {
+    return this.sources.reduce<number>((capacity, source) => capacity + source.energyCapacity, 0);
+  }
+
   /** stuff that needs caching code */
 
   public get constructionWork(): number {

@@ -74,7 +74,30 @@ export class CreepUtils {
     }
   }
 
-  public static countParts(creep: Creep, type: BodyPartConstant): number {
-    return creep.body.filter(part => part.type === type).length;
+  /** counts creep body parts matching specified type */
+  public static countParts(type: BodyPartConstant, ...creeps: Creep[]): number {
+    return creeps.reduce<number>((count, creep) => {
+      return count + creep.body.filter(part => part.type === type).length;
+    }, 0);
+  }
+
+  /** Calculates the Hausdorff distance between two sets of positions */
+  public static calculatePositionSetDistance(setA: RoomPosition[], setB: RoomPosition[]): number {
+    console.log(`hausdorff: ${setA.toString()}, ${setB.toString()}`);
+    let xRangeMax = 0;
+    const yRangeMax = 0;
+    setA.forEach(posA => {
+      setB.forEach(posB => {
+        const xRange = Math.abs(posA.x - posB.x);
+        if (xRange > xRangeMax) {
+          xRangeMax = xRange;
+        }
+        const yRange = Math.abs(posA.x - posB.x);
+        if (yRange > yRangeMax) {
+          xRangeMax = yRange;
+        }
+      });
+    });
+    return Math.sqrt(Math.pow(xRangeMax, 2) + Math.pow(yRangeMax, 2));
   }
 }

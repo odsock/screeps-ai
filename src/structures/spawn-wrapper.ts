@@ -1,7 +1,12 @@
 import { CreepUtils } from "creep-utils";
+import { RoomWrapper } from "./room-wrapper";
 export class SpawnWrapper extends StructureSpawn {
   public constructor(spawn: StructureSpawn) {
     super(spawn.id);
+  }
+
+  public get room(): RoomWrapper {
+    return new RoomWrapper(this.room);
   }
 
   public spawn(body: BodyPartConstant[], role: string, retiree?: string): ScreepsReturnCode {
@@ -13,7 +18,7 @@ export class SpawnWrapper extends StructureSpawn {
     const result = this.spawnCreep(body, newName, { memory });
     CreepUtils.consoleLogIfWatched(this, `spawning: ${role} ${CreepUtils.creepBodyToString(body)}`, result);
     if (result === ERR_INVALID_ARGS) {
-      console.log(`Invalid spawn: ${role} ${CreepUtils.creepBodyToString(body)}`)
+      console.log(`Invalid spawn: ${role} ${CreepUtils.creepBodyToString(body)}`);
     }
     return result;
   }
