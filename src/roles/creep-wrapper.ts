@@ -419,6 +419,10 @@ export abstract class CreepWrapper extends Creep {
     const retireeName = this.memory.retiree as string;
     const retiree = Game.creeps[retireeName];
     if (retiree) {
+      if (retiree.pos.isNearTo(this.pos)) {
+        CreepUtils.consoleLogIfWatched(this, `requesting retirement of ${retiree.name}`);
+        retiree.suicide();
+      }
       return this.moveTo(retiree.pos, { visualizePathStyle: { stroke: "#ffaa00" } });
     } else {
       this.memory.retiree = undefined;
