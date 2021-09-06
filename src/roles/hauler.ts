@@ -113,7 +113,7 @@ export class Hauler extends CreepWrapper {
       }
 
       // swap positions with creep
-      if (this.pos.isEqualTo(target)) {
+      if (result === OK && this.pos.isEqualTo(target)) {
         result = this.moveTo(creep);
         CreepUtils.consoleLogIfWatched(this, `last move`, result);
       }
