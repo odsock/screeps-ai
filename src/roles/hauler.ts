@@ -99,22 +99,27 @@ export class Hauler extends CreepWrapper {
 
     let result: ScreepsReturnCode;
     if (this.memory.working) {
+      // try to pull
       CreepUtils.consoleLogIfWatched(this, "working");
       result = this.pull(creep);
       CreepUtils.consoleLogIfWatched(this, `pull result`, result);
       result = creep.moveTo(this);
       CreepUtils.consoleLogIfWatched(this, `creep move result`, result);
+
+      // move toward target
       if (result === OK && !this.pos.isEqualTo(target)) {
         result = this.moveTo(target);
         CreepUtils.consoleLogIfWatched(this, `move result`, result);
       }
 
+      // swap positions with creep
       if (this.pos.isEqualTo(target)) {
-        result = this.moveTo(creep.pos);
+        result = this.moveTo(creep);
         CreepUtils.consoleLogIfWatched(this, `last move`, result);
       }
     } else {
-      result = this.moveTo(creep.pos);
+      // go find the creep to haul
+      result = this.moveTo(creep);
       CreepUtils.consoleLogIfWatched(this, `move result`, result);
     }
     return result;
