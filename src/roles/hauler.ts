@@ -117,6 +117,7 @@ export class Hauler extends CreepWrapper {
         result = this.moveTo(creep);
         CreepUtils.consoleLogIfWatched(this, `last move`, result);
         if (result === OK) {
+          CreepUtils.consoleLogIfWatched(this, `clearing haul request`);
           this.memory.haulCreep = undefined;
           this.memory.haulTarget = undefined;
           creep.memory.haulTarget = undefined;
