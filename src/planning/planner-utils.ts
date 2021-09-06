@@ -57,6 +57,10 @@ export class PlannerUtils {
     return new RoomPosition(pointSum.x / positions.length, pointSum.y / positions.length, positions[0].roomName);
   }
 
+  /**
+   * Creates construction site next to position.
+   * Returns ID of construction site, or null if failed to create it.
+   */
   public static placeStructureAdjacent(
     position: RoomPosition,
     structureConstant: BuildableStructureConstant

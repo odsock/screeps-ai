@@ -18,7 +18,6 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
-  surroundingPositions: RoomPosition[];
   spawns?: Id<StructureSpawn>[];
   harvestPositions: string[];
   costMatrix?: { [name: string]: number[] };
