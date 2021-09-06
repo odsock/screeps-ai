@@ -116,6 +116,11 @@ export class Hauler extends CreepWrapper {
       if (result === OK && this.pos.isEqualTo(target)) {
         result = this.moveTo(creep);
         CreepUtils.consoleLogIfWatched(this, `last move`, result);
+        if (result === OK) {
+          this.memory.haulCreep = undefined;
+          this.memory.haulTarget = undefined;
+          creep.memory.haulTarget = undefined;
+        }
       }
     } else {
       // go find the creep to haul
