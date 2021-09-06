@@ -4,27 +4,36 @@ import { CreepWrapper } from "./creep-wrapper";
 
 export abstract class Minder extends CreepWrapper {
   public run(): void {
-    // move to retire old creep
-    if (this.memory.retiree) {
-      const retiree = Game.creeps[this.memory.retiree];
-      if (retiree) {
-        if (!this.memory.haulTarget) {
-          this.callForTug(retiree.pos);
-        }
-        this.requestRetireeSuicide(retiree);
+    // wait for hauler if not at haul target
+    if (this.memory.haulTarget) {
+      const targetPos = MemoryUtils.unpackRoomPosition(this.memory.haulTarget);
+      if (this.pos.isEqualTo(targetPos)) {
+        this.memory.haulTarget = undefined;
+      } else {
+        return;
       }
     }
 
-    // TODO claim harvest positions instead, preferring container adjacent
+    // retire old creep if valid retiree set
+    if (this.memory.retiree) {
+      const retiree = Game.creeps[this.memory.retiree];
+      if (retiree) {
+        this.retireCreep(retiree);
+        return;
+      } else {
+        this.memory.retiree = undefined;
+      }
+    }
+
     // claim container if free
     if (!this.getMyContainer()) {
       this.claimContainer();
     }
 
     // call for tug if not on container and haven't already called
-    const container = this.getMyContainer();
     if (!this.onMyContainer) {
-      if (!this.onMyContainer && container && !this.memory.haulTarget) {
+      const container = this.getMyContainer();
+      if (container && !this.memory.haulTarget) {
         this.callForTug(container.pos);
       }
     } else {
@@ -38,12 +47,31 @@ export abstract class Minder extends CreepWrapper {
 
     // help build if close enough
     // TODO repair if close enough as well
-    if (this.buildNearbySite() !== ERR_NOT_FOUND || this.upgrade() !== ERR_NOT_FOUND) {
+    if (
+      this.buildNearbySite() !== ERR_NOT_FOUND ||
+      this.upgrade() !== ERR_NOT_FOUND ||
+      this.repairNearbySite() !== ERR_NOT_FOUND
+    ) {
       this.withdrawFromMyContainer();
       return;
     }
 
     CreepUtils.consoleLogIfWatched(this, `stumped. sitting like a lump`);
+  }
+
+  private retireCreep(retiree: Creep): ScreepsReturnCode {
+    // call for tug if no haul target set
+    if (!this.memory.haulTarget) {
+      this.callForTug(retiree.pos);
+    }
+    // request suicide if next to retiree
+    if (retiree.pos.isNearTo(this.pos)) {
+      const result = retiree.suicide();
+      CreepUtils.consoleLogIfWatched(this, `requested retirement of ${retiree.name}`, result);
+      this.memory.retiree = undefined;
+      return result;
+    }
+    return OK;
   }
 
   protected abstract claimContainer(): ScreepsReturnCode;
@@ -116,15 +144,5 @@ export abstract class Minder extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `calling for tug to: ${String(target)}`);
     this.memory.haulTarget = MemoryUtils.packRoomPosition(target);
     this.roomw.haulQueue.push(this.name);
-  }
-
-  protected requestRetireeSuicide(retiree: Creep): ScreepsReturnCode {
-    if (retiree.pos.isNearTo(this.pos)) {
-      CreepUtils.consoleLogIfWatched(this, `requesting retirement of ${retiree.name}`);
-      const result = retiree.suicide();
-      this.memory.retiree = undefined;
-      return result;
-    }
-    return ERR_NOT_FOUND;
   }
 }
