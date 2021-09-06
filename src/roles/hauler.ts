@@ -86,7 +86,10 @@ export class Hauler extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `haul ${creepName}`);
     this.updateJob(`tug`);
     const creep = Game.creeps[creepName];
-    if (!creep) return ERR_NOT_FOUND;
+    if (!creep) {
+      CreepUtils.consoleLogIfWatched(this, `invalid creep: ${creepName}`);
+      return ERR_NOT_FOUND;
+    }
     this.startWorkingInRange(creep.pos, 1);
 
     let result: ScreepsReturnCode;
