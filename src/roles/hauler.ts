@@ -90,6 +90,17 @@ export class Hauler extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `invalid creep: ${creepName}`);
       return ERR_NOT_FOUND;
     }
+
+    // clear request
+    // TODO probably losing a tick here
+    if (creep.pos.isEqualTo(target)) {
+      CreepUtils.consoleLogIfWatched(this, `clearing haul request`);
+      this.memory.haulCreep = undefined;
+      this.memory.haulTarget = undefined;
+      creep.memory.haulTarget = undefined;
+      return OK;
+    }
+
     // this.startWorkingInRange(creep.pos, 1);
     if (this.pos.isNearTo(creep.pos)) {
       this.memory.working = true;
@@ -116,12 +127,6 @@ export class Hauler extends CreepWrapper {
       if (result === OK && this.pos.isEqualTo(target)) {
         result = this.moveTo(creep);
         CreepUtils.consoleLogIfWatched(this, `last move`, result);
-        if (result === OK) {
-          CreepUtils.consoleLogIfWatched(this, `clearing haul request`);
-          this.memory.haulCreep = undefined;
-          this.memory.haulTarget = undefined;
-          creep.memory.haulTarget = undefined;
-        }
       }
     } else {
       // go find the creep to haul
