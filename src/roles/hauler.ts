@@ -36,7 +36,7 @@ export class Hauler extends CreepWrapper {
     }
 
     if (this.memory.haulTarget && this.memory.haulCreep) {
-      const result = this.haulCreepJob(this.memory.haulCreep, this.memory.haulTarget);
+      const result = this.haulCreepJob(this.memory.haulCreep, MemoryUtils.unpackRoomPosition(this.memory.haulTarget));
       CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
       return;
     }

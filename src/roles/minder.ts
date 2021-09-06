@@ -1,4 +1,5 @@
 import { CreepUtils } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
 import { CreepWrapper } from "./creep-wrapper";
 
 export abstract class Minder extends CreepWrapper {
@@ -113,7 +114,7 @@ export abstract class Minder extends CreepWrapper {
 
   protected callForTug(target: RoomPosition): void {
     CreepUtils.consoleLogIfWatched(this, `calling for tug to: ${String(target)}`);
-    this.memory.haulTarget = target;
+    this.memory.haulTarget = MemoryUtils.packRoomPosition(target);
     this.roomw.haulQueue.push(this.name);
   }
 
