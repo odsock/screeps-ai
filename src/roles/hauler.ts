@@ -103,7 +103,7 @@ export class Hauler extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, "working");
       result = this.pull(creep);
       CreepUtils.consoleLogIfWatched(this, `pull result`, result);
-      result = creep.moveTo(this);
+      result = creep.move(this);
       CreepUtils.consoleLogIfWatched(this, `creep move result`, result);
 
       // move toward target
