@@ -2,6 +2,7 @@
 
 // memory extension samples
 interface CreepMemory {
+  haulCreep?: string;
   haulTarget?: RoomPosition;
   homeRoom?: string;
   constructionSiteId?: string;
