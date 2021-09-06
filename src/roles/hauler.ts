@@ -90,7 +90,12 @@ export class Hauler extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `invalid creep: ${creepName}`);
       return ERR_NOT_FOUND;
     }
-    this.startWorkingInRange(creep.pos, 1);
+    // this.startWorkingInRange(creep.pos, 1);
+    if (this.pos.isNearTo(creep.pos)) {
+      this.memory.working = true;
+    } else {
+      this.memory.working = false;
+    }
 
     let result: ScreepsReturnCode;
     if (this.memory.working) {
