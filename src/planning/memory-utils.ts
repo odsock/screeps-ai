@@ -1,5 +1,6 @@
 export class MemoryUtils {
   public static unpackRoomPosition(positionString: string): RoomPosition {
+    if (!positionString) throw new Error("Position string is empty or undefined");
     const positionArray: string[] = positionString.split(":");
     return new RoomPosition(Number(positionArray[0]), Number(positionArray[1]), positionArray[2]);
   }
