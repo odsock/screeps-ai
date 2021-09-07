@@ -52,12 +52,15 @@ export class Harvester extends Minder {
     if (this.memory.destination) {
       const destination = MemoryUtils.unpackRoomPosition(this.memory.destination);
       if (this.memory.destinationType === LOOK_SOURCES) {
-        return this.pos.inRangeTo(destination, 1);
+        const result = this.pos.inRangeTo(destination, 1);
+        CreepUtils.consoleLogIfWatched(this, `At destination? ${String(result)}`);
+        return result;
       }
       // if dest isn't source, must be container, so sit on it
       return this.pos.isEqualTo(destination);
     }
     // if no destination, I guess we're here
+    CreepUtils.consoleLogIfWatched(this, `At destination? No destination`);
     return true;
   }
 }
