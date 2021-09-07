@@ -20,7 +20,7 @@ export class Harvester extends Minder {
     // choose new destination
     let destination: RoomPosition | undefined;
     // try to choose container destination
-    const containerId = this.claimContainer(info => info.nearSource && !info.minderId);
+    const containerId = this.claimContainer(info => info.nearSource && (!info.minderId || info.minderId === this.id));
     if (containerId) {
       const container = Game.getObjectById(containerId);
       if (container) {
