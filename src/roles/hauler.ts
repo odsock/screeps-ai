@@ -19,9 +19,9 @@ export class Hauler extends CreepWrapper {
     if (!this.memory.haulTarget) {
       const creepName = this.roomw.haulQueue.pop();
       if (creepName) {
-        const creep = Game.creeps[creepName];
-        if (creep) {
-          const target = creep.memory.haulTarget;
+        const creepToHaul = Game.creeps[creepName];
+        if (creepToHaul) {
+          const target = creepToHaul.memory.haulTarget;
           if (target) {
             this.memory.haulTarget = target;
             this.memory.haulCreep = creepName;
@@ -36,9 +36,12 @@ export class Hauler extends CreepWrapper {
     }
 
     if (this.memory.haulTarget && this.memory.haulCreep) {
-      const result = this.haulCreepJob(this.memory.haulCreep, MemoryUtils.unpackRoomPosition(this.memory.haulTarget));
-      CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
-      return;
+      const creepToHaul = Game.creeps[this.memory.haulCreep];
+      if (creepToHaul.memory.haulTarget) {
+        const result = this.haulCreepJob(this.memory.haulCreep, MemoryUtils.unpackRoomPosition(this.memory.haulTarget));
+        CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
+        return;
+      }
     }
 
     // claim container if free
@@ -89,16 +92,6 @@ export class Hauler extends CreepWrapper {
     if (!creep) {
       CreepUtils.consoleLogIfWatched(this, `invalid creep: ${creepName}`);
       return ERR_NOT_FOUND;
-    }
-
-    // clear request
-    // TODO probably losing a tick here
-    if (creep.pos.isEqualTo(target)) {
-      CreepUtils.consoleLogIfWatched(this, `clearing haul request`);
-      this.memory.haulCreep = undefined;
-      this.memory.haulTarget = undefined;
-      creep.memory.haulTarget = undefined;
-      return OK;
     }
 
     // this.startWorkingInRange(creep.pos, 1);
