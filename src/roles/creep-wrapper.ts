@@ -393,6 +393,7 @@ export abstract class CreepWrapper extends Creep {
     if (containerInfo) {
       const containerId = containerInfo.containerId as Id<StructureContainer>;
       this.memory.containerId = containerId;
+      containerInfo.minderId = this.id;
       return containerId;
     }
     return undefined;
