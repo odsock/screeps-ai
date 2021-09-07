@@ -29,7 +29,7 @@ export abstract class Minder extends CreepWrapper {
     const destination = this.getDestination();
     CreepUtils.consoleLogIfWatched(this, `destination: ${String(destination)}`);
     const atDestination = this.atDestination();
-    CreepUtils.consoleLogIfWatched(this, `at destination: ${String(destination)}`);
+    CreepUtils.consoleLogIfWatched(this, `at destination: ${String(atDestination)}`);
     if (destination && !atDestination && !this.calledTug()) {
       this.callTug(destination);
     }
