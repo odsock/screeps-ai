@@ -25,19 +25,15 @@ export abstract class Minder extends CreepWrapper {
       }
     }
 
-    // claim container if free
-    if (!this.getMyContainer()) {
-      this.claimContainer();
+    // call for tug if needed
+    const destination = this.getDestination();
+    if (destination && !this.atDestination && !this.calledTug()) {
+      this.callTug(destination);
     }
 
-    // call for tug if not on container and haven't already called
-    if (!this.onMyContainer) {
-      const container = this.getMyContainer();
-      if (container && !this.memory.haulTarget) {
-        this.callForTug(container.pos);
-      }
-    } else {
-      this.memory.haulTarget = undefined;
+    // cancel tug if at destination
+    if (this.atDestination()) {
+      this.cancelTug();
     }
 
     // harvest then transfer until container and store is full or source is inactive
@@ -46,7 +42,6 @@ export abstract class Minder extends CreepWrapper {
     }
 
     // help build if close enough
-    // TODO repair if close enough as well
     if (
       this.buildNearbySite() !== ERR_NOT_FOUND ||
       this.upgrade() !== ERR_NOT_FOUND ||
@@ -62,7 +57,7 @@ export abstract class Minder extends CreepWrapper {
   private retireCreep(retiree: Creep): ScreepsReturnCode {
     // call for tug if no haul target set
     if (!this.memory.haulTarget) {
-      this.callForTug(retiree.pos);
+      this.callTug(retiree.pos);
     }
     // request suicide if next to retiree
     if (retiree.pos.isNearTo(this.pos)) {
@@ -74,7 +69,16 @@ export abstract class Minder extends CreepWrapper {
     return OK;
   }
 
-  protected abstract claimContainer(): ScreepsReturnCode;
+  protected atDestination(): boolean {
+    if (this.memory.destination) {
+      const destination = MemoryUtils.unpackRoomPosition(this.memory.destination);
+      return this.pos.isEqualTo(destination);
+    }
+    return true;
+  }
+
+  /** get cached destination, or decide destination if unset */
+  protected abstract getDestination(): RoomPosition | undefined;
 
   protected harvestFromNearbySource(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `harvesting from source`);
@@ -140,9 +144,17 @@ export abstract class Minder extends CreepWrapper {
     return result;
   }
 
-  protected callForTug(target: RoomPosition): void {
-    CreepUtils.consoleLogIfWatched(this, `calling for tug to: ${String(target)}`);
-    this.memory.haulTarget = MemoryUtils.packRoomPosition(target);
+  protected cancelTug(): void {
+    this.memory.haulTarget = undefined;
+  }
+
+  protected calledTug(): boolean {
+    return !!this.memory.haulTarget;
+  }
+
+  protected callTug(destination: RoomPosition): void {
+    CreepUtils.consoleLogIfWatched(this, `calling for tug to: ${String(destination)}`);
+    this.memory.haulTarget = MemoryUtils.packRoomPosition(destination);
     this.roomw.haulQueue.push(this.name);
   }
 }

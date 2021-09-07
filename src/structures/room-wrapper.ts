@@ -207,6 +207,43 @@ export class RoomWrapper extends Room {
     return this.room.find(FIND_SOURCES);
   }
 
+  /** get harvest positions for source */
+  public getHarvestPositions(sourceId: Id<Source>): RoomPosition[] {
+    return this.sourceInfo[sourceId];
+  }
+
+  /** Harvest positions caching */
+  private sourceInfoCache: SourceInfo | undefined;
+
+  public get harvestPositionCount(): number {
+    let count = 0;
+    for (const sourceId in this.sourceInfo) {
+      count += this.sourceInfo[sourceId].length;
+    }
+    return count;
+  }
+
+  private get sourceInfo(): SourceInfo {
+    if (this.sourceInfoCache) {
+      return this.sourceInfoCache;
+    }
+    const cachedSourceInfo = MemoryUtils.getCache<SourceInfo>(`${this.room.name}_sourceInfo`);
+    if (cachedSourceInfo) {
+      this.sourceInfoCache = cachedSourceInfo;
+      return this.sourceInfoCache;
+    }
+    const sourceInfo: SourceInfo = {};
+    this.sources.forEach(source => {
+      const harvestPositions = PlannerUtils.getPositionSpiral(source.pos, 1).filter(pos =>
+        PlannerUtils.isEnterable(pos)
+      );
+      sourceInfo[source.id] = harvestPositions;
+    });
+    this.sourceInfoCache = sourceInfo;
+    MemoryUtils.setCache(`${this.room.name}_sourceInfo`, sourceInfo);
+    return this.sourceInfoCache;
+  }
+
   /** Gets total energy available in room when sources full */
   public get sourcesEnergyCapacity(): number {
     return this.sources.reduce<number>((capacity, source) => capacity + source.energyCapacity, 0);
@@ -242,7 +279,7 @@ export class RoomWrapper extends Room {
     return this.room.memory.containers.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
       if (containerInfo.nearSource) {
         const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
-        if (container !== null) {
+        if (container) {
           list.push(container);
         }
       }
@@ -254,7 +291,7 @@ export class RoomWrapper extends Room {
     return this.room.memory.containers.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
       if (containerInfo.nearController) {
         const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
-        if (container !== null) {
+        if (container) {
           list.push(container);
         }
       }
@@ -269,32 +306,6 @@ export class RoomWrapper extends Room {
       this.room.memory.log = [];
     }
     this.room.memory.log.push(`${Game.time}: ${message}`);
-  }
-
-  /** Harvest positions caching */
-
-  private harvestPositionsCache: RoomPosition[] | undefined;
-
-  public get harvestPositions(): RoomPosition[] {
-    if (this.harvestPositionsCache) {
-      return this.harvestPositionsCache;
-    } else if (this.room.memory.harvestPositions) {
-      this.harvestPositionsCache = this.room.memory.harvestPositions.map(pos => MemoryUtils.unpackRoomPosition(pos));
-    } else {
-      this.harvestPositionsCache = this.findHarvestPositions();
-      this.room.memory.harvestPositions = this.harvestPositionsCache.map(pos => MemoryUtils.packRoomPosition(pos));
-    }
-    return this.harvestPositionsCache;
-  }
-
-  private findHarvestPositions(): RoomPosition[] {
-    const positionsAroundSources = this.sources.reduce<RoomPosition[]>((positions: RoomPosition[], source) => {
-      const surroundingPositions = PlannerUtils.getPositionSpiral(source.pos, 1);
-      return positions.concat(surroundingPositions);
-    }, []);
-
-    const harvestPositions = positionsAroundSources.filter(pos => PlannerUtils.isEnterable(pos));
-    return harvestPositions;
   }
 
   /** cost matrix caching */
@@ -313,7 +324,9 @@ export class RoomWrapper extends Room {
     } else {
       switch (name) {
         case "avoidHarvestPositions":
-          this.harvestPositions.forEach(pos => costMatrix.set(pos.x, pos.y, 0xff));
+          for (const sourceId in this.sourceInfo) {
+            this.sourceInfo[sourceId].forEach(pos => costMatrix.set(pos.x, pos.y, 0xff));
+          }
           break;
 
         default:
@@ -346,7 +359,7 @@ export class RoomWrapper extends Room {
     });
   }
 
-  public findWeakestWall(): StructureWall | null {
+  public findWeakestWall(): StructureWall | undefined {
     const wallsToRepair = this.room.find<StructureWall>(FIND_STRUCTURES, {
       filter: structure =>
         structure.hits < SockPuppetConstants.MAX_HITS_WALL &&
@@ -359,7 +372,7 @@ export class RoomWrapper extends Room {
         return weakestWall.hits < wall.hits ? weakestWall : wall;
       });
     } else {
-      return null;
+      return undefined;
     }
   }
 }

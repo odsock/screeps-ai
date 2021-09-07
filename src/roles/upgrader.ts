@@ -1,5 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
 import { Minder } from "./minder";
 
 export class Upgrader extends Minder {
@@ -10,9 +11,45 @@ export class Upgrader extends Minder {
     maxBodyParts: 10
   };
 
-  protected claimContainer(): ScreepsReturnCode {
-    const result = this.claimFreeControllerContainerAsMinder();
-    CreepUtils.consoleLogIfWatched(this, `claim controller container`, result);
-    return result;
+  protected getDestination(): RoomPosition | undefined {
+    // return cached destination
+    if (this.memory.destination) {
+      return MemoryUtils.unpackRoomPosition(this.memory.destination);
+    }
+
+    // choose new destination
+    let destination: RoomPosition | undefined;
+    // try to choose container destination
+    const containerId = this.claimContainer(info => info.nearController && !info.minderId);
+    if (containerId) {
+      const container = Game.getObjectById(containerId);
+      if (container) {
+        destination = container.pos;
+        this.memory.destination = MemoryUtils.packRoomPosition(destination);
+        this.memory.destinationType = STRUCTURE_CONTAINER;
+        CreepUtils.consoleLogIfWatched(this, `destination controller container: ${String(destination)}`);
+      }
+    }
+    // use the controller as destination
+    if (!destination && this.room.controller) {
+      destination = this.room.controller.pos;
+      this.memory.destination = MemoryUtils.packRoomPosition(destination);
+      this.memory.destinationType = STRUCTURE_CONTROLLER;
+      CreepUtils.consoleLogIfWatched(this, `destination controller: ${String(destination)}`);
+    }
+    return destination;
+  }
+
+  protected atDestination(): boolean {
+    if (this.memory.destination && this.room.controller) {
+      const destination = MemoryUtils.unpackRoomPosition(this.memory.destination);
+      if (this.memory.destinationType === STRUCTURE_CONTROLLER) {
+        return this.pos.inRangeTo(destination, 3);
+      }
+      // if dest isn't controller, must be container, so be in transfer and upgrade range
+      return this.pos.inRangeTo(destination, 1) && this.pos.inRangeTo(this.room.controller, 3);
+    }
+    // if no destination, I guess we're here
+    return true;
   }
 }

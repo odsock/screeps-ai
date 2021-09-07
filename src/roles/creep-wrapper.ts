@@ -387,31 +387,15 @@ export abstract class CreepWrapper extends Creep {
     return ERR_NOT_FOUND;
   }
 
-  protected claimFreeSourceContainerAsMinder(): ScreepsReturnCode {
+  protected claimContainer(findFunction: (info: ContainerInfo) => boolean): Id<StructureContainer> | undefined {
     MemoryUtils.refreshContainerMemory(this.room);
-    const containerInfo = this.room.memory.containers.find(info => info.nearSource && !info.minderId);
+    const containerInfo = this.room.memory.containers.find(findFunction);
     if (containerInfo) {
-      containerInfo.minderId = this.id;
-      this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
-      return OK;
+      const containerId = containerInfo.containerId as Id<StructureContainer>;
+      this.memory.containerId = containerId;
+      return containerId;
     }
-    return ERR_NOT_FOUND;
-  }
-
-  protected claimFreeControllerContainerAsMinder(): ScreepsReturnCode {
-    MemoryUtils.refreshContainerMemory(this.room);
-    const containerInfo = this.room.memory.containers.find(info => info.nearController && !info.minderId);
-    if (containerInfo) {
-      containerInfo.minderId = this.id;
-      this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
-      return OK;
-    }
-    return ERR_NOT_FOUND;
-  }
-
-  protected get onMyContainer(): boolean {
-    const container = this.getMyContainer();
-    return !!container && this.pos.isEqualTo(container.pos);
+    return undefined;
   }
 
   protected moveToRetiree(): ScreepsReturnCode {

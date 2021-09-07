@@ -180,7 +180,7 @@ export class SpawnControl {
         const harvesterWorkPartsNeeded = spawnw.roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
         if (
           harvesterWorkParts < harvesterWorkPartsNeeded &&
-          this.creepCountsByRole[CreepRole.HARVESTER] < spawnw.roomw.harvestPositions.length
+          this.creepCountsByRole[CreepRole.HARVESTER] < spawnw.roomw.harvestPositionCount
         ) {
           return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw) !== OK;
         }
@@ -340,7 +340,7 @@ export class SpawnControl {
         this.creepCountsByRole[CreepRole.UPGRADER] === 0)
     ) {
       // make at least one worker per harvest position
-      const harvestPositions = this.roomw.harvestPositions.length;
+      const harvestPositions = this.roomw.harvestPositionCount;
       if (harvestPositions > this.creepCountsByRole[CreepRole.WORKER]) {
         return harvestPositions;
       }

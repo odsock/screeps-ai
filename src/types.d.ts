@@ -1,7 +1,7 @@
-// example declaration file - remove these and add your own custom typings
-
-// memory extension samples
 interface CreepMemory {
+  destinationType?: string;
+  destination?: string;
+  source?: string;
   haulCreep?: string;
   haulTarget?: string;
   homeRoom?: string;
@@ -18,6 +18,7 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  sourceInfo: { [id: string]: string[] };
   spawns?: Id<StructureSpawn>[];
   harvestPositions: string[];
   costMatrix?: { [name: string]: number[] };
@@ -27,7 +28,10 @@ interface RoomMemory {
   extensionCount: number;
   watched?: boolean;
   containers: ContainerInfo[];
-  sources?: Id<Source>[];
+}
+
+interface SourceInfo {
+  [id: string]: RoomPosition[];
 }
 
 interface ContainerInfo {
