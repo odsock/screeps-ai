@@ -4,11 +4,16 @@ import { CreepWrapper } from "./creep-wrapper";
 
 export abstract class Minder extends CreepWrapper {
   public run(): void {
+    const destination = this.getDestination();
+    CreepUtils.consoleLogIfWatched(this, `destination: ${String(destination)}`);
+    const atDestination = this.atDestination();
+    CreepUtils.consoleLogIfWatched(this, `at destination: ${String(atDestination)}`);
+
     // wait for hauler if not at haul target
-    if (this.memory.haulTarget) {
-      const targetPos = MemoryUtils.unpackRoomPosition(this.memory.haulTarget);
-      if (this.pos.isEqualTo(targetPos)) {
-        this.memory.haulTarget = undefined;
+    if (this.waitingForTug()) {
+      // cancel tug if at destination
+      if (atDestination) {
+        this.cancelTug();
       } else {
         return;
       }
@@ -26,17 +31,8 @@ export abstract class Minder extends CreepWrapper {
     }
 
     // call for tug if needed
-    const destination = this.getDestination();
-    CreepUtils.consoleLogIfWatched(this, `destination: ${String(destination)}`);
-    const atDestination = this.atDestination();
-    CreepUtils.consoleLogIfWatched(this, `at destination: ${String(atDestination)}`);
-    if (destination && !atDestination && !this.calledTug()) {
+    if (destination && !atDestination && !this.waitingForTug()) {
       this.callTug(destination);
-    }
-
-    // cancel tug if at destination
-    if (this.atDestination()) {
-      this.cancelTug();
     }
 
     // harvest then transfer until container and store is full or source is inactive
@@ -155,7 +151,7 @@ export abstract class Minder extends CreepWrapper {
     this.memory.haulTarget = undefined;
   }
 
-  protected calledTug(): boolean {
+  protected waitingForTug(): boolean {
     return !!this.memory.haulTarget;
   }
 
