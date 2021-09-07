@@ -1,3 +1,4 @@
+import { Console } from "console";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 
 export class CreepUtils {
@@ -98,6 +99,8 @@ export class CreepUtils {
         }
       });
     });
-    return Math.sqrt(Math.pow(xRangeMax, 2) + Math.pow(yRangeMax, 2));
+    const result = Math.sqrt(Math.pow(xRangeMax, 2) + Math.pow(yRangeMax, 2));
+    console.log(`result: ${result}`);
+    return result;
   }
 }

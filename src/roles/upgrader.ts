@@ -20,6 +20,7 @@ export class Upgrader extends Minder {
     // choose new destination
     let destination: RoomPosition | undefined;
     // try to choose container destination
+    // TODO allow multiple upgraders at container. They have carry, so adjacent to container is good enough
     const containerId = this.claimContainer(
       info => info.nearController && (!info.minderId || info.minderId === this.id)
     );
@@ -42,6 +43,7 @@ export class Upgrader extends Minder {
     return destination;
   }
 
+  // TODO avoid harvest positions
   protected atDestination(): boolean {
     if (this.memory.destination && this.room.controller) {
       const destination = MemoryUtils.unpackRoomPosition(this.memory.destination);
