@@ -50,7 +50,7 @@ export class SpawnControl {
   }
 
   public run(): void {
-    if (this.rcl === 1) {
+    if (this.rcl <= 4) {
       this.runRCL1();
     } else {
       this.runRCLx();
