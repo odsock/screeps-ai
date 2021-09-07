@@ -72,8 +72,11 @@ export abstract class Minder extends CreepWrapper {
   protected atDestination(): boolean {
     if (this.memory.destination) {
       const destination = MemoryUtils.unpackRoomPosition(this.memory.destination);
-      return this.pos.isEqualTo(destination);
+      const result = this.pos.isEqualTo(destination);
+      CreepUtils.consoleLogIfWatched(this, `At destination? ${String(result)}`);
+      return result;
     }
+    CreepUtils.consoleLogIfWatched(this, `At destination? No destination`);
     return true;
   }
 
