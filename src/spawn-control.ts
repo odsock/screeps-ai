@@ -219,6 +219,7 @@ export class SpawnControl {
         const sourcePositions = spawnw.roomw.sources.map(source => source.pos);
         const distance = CreepUtils.calculatePositionSetDistance(sourcePositions, haulerTargets);
         const haulerCarryPartsNeeded = (harvesterWorkParts * HARVEST_POWER * distance * 2) / CARRY_CAPACITY;
+        CreepUtils.consoleLogIfWatched(spawnw, `hauler parts: ${haulerCarryParts}/${haulerCarryPartsNeeded}`);
         if (haulerCarryParts < haulerCarryPartsNeeded) {
           return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw) !== OK;
         }
