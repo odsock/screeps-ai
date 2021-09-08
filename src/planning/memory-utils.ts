@@ -67,16 +67,16 @@ export class MemoryUtils {
 
     // validate id's
     const controllerInfo = room.memory.controller;
-    if (controllerInfo.containerId && !!Game.getObjectById(controllerInfo.containerId)) {
+    if (controllerInfo.containerId && !Game.getObjectById(controllerInfo.containerId)) {
       controllerInfo.containerId = undefined;
     }
-    if (controllerInfo.linkId && !!Game.getObjectById(controllerInfo.linkId)) {
+    if (controllerInfo.linkId && !Game.getObjectById(controllerInfo.linkId)) {
       controllerInfo.linkId = undefined;
     }
-    if (controllerInfo.minderId && !!Game.getObjectById(controllerInfo.minderId)) {
+    if (controllerInfo.minderId && !Game.getObjectById(controllerInfo.minderId)) {
       controllerInfo.minderId = undefined;
     }
-    if (controllerInfo.haulerId && !!Game.getObjectById(controllerInfo.haulerId)) {
+    if (controllerInfo.haulerId && !Game.getObjectById(controllerInfo.haulerId)) {
       controllerInfo.haulerId = undefined;
     }
   }
@@ -85,7 +85,6 @@ export class MemoryUtils {
     // initialize source memory
     const sourceMemory = room.memory.sources;
     if (!sourceMemory) {
-      console.log(`DEBUG: init source memory`);
       const roomSources: RoomSources = {};
       room.find(FIND_SOURCES).forEach(source => {
         const harvestPositions = PlannerUtils.getPositionSpiral(source.pos, 1)
@@ -103,17 +102,16 @@ export class MemoryUtils {
     // validate id's
     for (const sourceId in room.memory.sources) {
       const sourceInfo = room.memory.sources[sourceId];
-      if (sourceInfo.containerId && !!Game.getObjectById(sourceInfo.containerId)) {
-        console.log(`DEBUG: clear invalid source container`);
+      if (sourceInfo.containerId && !Game.getObjectById(sourceInfo.containerId)) {
         sourceInfo.containerId = undefined;
       }
-      if (sourceInfo.linkId && !!Game.getObjectById(sourceInfo.linkId)) {
+      if (sourceInfo.linkId && !Game.getObjectById(sourceInfo.linkId)) {
         sourceInfo.linkId = undefined;
       }
-      if (sourceInfo.minderId && !!Game.getObjectById(sourceInfo.minderId)) {
+      if (sourceInfo.minderId && !Game.getObjectById(sourceInfo.minderId)) {
         sourceInfo.minderId = undefined;
       }
-      if (sourceInfo.haulerId && !!Game.getObjectById(sourceInfo.haulerId)) {
+      if (sourceInfo.haulerId && !Game.getObjectById(sourceInfo.haulerId)) {
         sourceInfo.haulerId = undefined;
       }
     }
