@@ -104,6 +104,7 @@ export class MemoryUtils {
     for (const sourceId in room.memory.sources) {
       const sourceInfo = room.memory.sources[sourceId];
       if (sourceInfo.containerId && !!Game.getObjectById(sourceInfo.containerId)) {
+        console.log(`DEBUG: clear invalid source container`);
         sourceInfo.containerId = undefined;
       }
       if (sourceInfo.linkId && !!Game.getObjectById(sourceInfo.linkId)) {
