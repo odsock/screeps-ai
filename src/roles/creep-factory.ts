@@ -9,6 +9,7 @@ import { Upgrader } from "./upgrader";
 import { CreepRole } from "config/creep-types";
 import { Harvester } from "./harvester";
 import { CreepWrapper } from "./creep-wrapper";
+import { Minder } from "./minder";
 
 export class CreepFactory {
   public static getCreep(creep: Creep): CreepWrapper {
@@ -31,6 +32,18 @@ export class CreepFactory {
         return new Importer(creep);
       case CreepRole.GUARD:
         return new Guard(creep);
+
+      default:
+        throw new Error(`Unknown creep role: ${creep.memory.role}`);
+    }
+  }
+
+  public static getHaulableCreep(creep: Creep): Minder {
+    switch (creep.memory.role) {
+      case CreepRole.HARVESTER:
+        return new Harvester(creep);
+      case CreepRole.UPGRADER:
+        return new Upgrader(creep);
 
       default:
         throw new Error(`Unknown creep role: ${creep.memory.role}`);

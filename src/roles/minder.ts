@@ -4,7 +4,7 @@ import { CreepWrapper } from "./creep-wrapper";
 export abstract class Minder extends CreepWrapper {
   public run(): void {
     const destination = this.getDestination();
-    const atDestination = this.atDestination();
+    const atDestination = this.atDestination(this.pos);
     CreepUtils.consoleLogIfWatched(this, `at destination ${String(destination)}? ${String(atDestination)}`);
 
     // wait for hauler if not at haul target
@@ -81,7 +81,7 @@ export abstract class Minder extends CreepWrapper {
 
   /** get cached destination, or decide destination if unset */
   protected abstract getDestination(): RoomPosition | undefined;
-  protected abstract atDestination(): boolean;
+  public abstract atDestination(pos: RoomPosition): boolean;
 
   protected harvestFromNearbySource(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `harvesting from source`);

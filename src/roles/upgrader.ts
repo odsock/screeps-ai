@@ -41,14 +41,14 @@ export class Upgrader extends Minder {
   }
 
   // TODO avoid harvest positions
-  protected atDestination(): boolean {
+  public atDestination(pos = this.pos): boolean {
     if (this.memory.destination && this.room.controller) {
       const destination = MemoryUtils.unpackRoomPosition(this.memory.destination);
       if (this.memory.destinationType === STRUCTURE_CONTROLLER) {
-        return this.pos.inRangeTo(destination, 3);
+        return pos.inRangeTo(destination, 3);
       }
       // if dest isn't controller, must be container, so be in transfer and upgrade range
-      return this.pos.inRangeTo(destination, 1) && this.pos.inRangeTo(this.room.controller, 3);
+      return pos.inRangeTo(destination, 1) && pos.inRangeTo(this.room.controller, 3);
     }
     // if no destination, I guess we're here
     return true;

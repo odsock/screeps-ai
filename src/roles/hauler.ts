@@ -2,6 +2,7 @@ import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
+import { CreepFactory } from "./creep-factory";
 import { CreepWrapper } from "./creep-wrapper";
 
 // TODO: assign to source containers or something so they don't only use closest
@@ -93,6 +94,8 @@ export class Hauler extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `haul ${creep.name}`);
     this.updateJob(`tug`);
 
+    const creepw = CreepFactory.getHaulableCreep(creep);
+
     // this.startWorkingInRange(creep.pos, 1);
     if (this.pos.isNearTo(creep.pos)) {
       this.memory.working = true;
@@ -110,13 +113,13 @@ export class Hauler extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `creep move result`, result);
 
       // move toward target
-      if (result === OK && !this.pos.isEqualTo(target)) {
+      if (result === OK && !creepw.atDestination(this.pos)) {
         result = this.moveTo(target);
         CreepUtils.consoleLogIfWatched(this, `move result`, result);
       }
 
       // swap positions with creep
-      if (result === OK && this.pos.isEqualTo(target)) {
+      if (result === OK && creepw.atDestination(this.pos)) {
         result = this.moveTo(creep);
         CreepUtils.consoleLogIfWatched(this, `last move`, result);
       }
