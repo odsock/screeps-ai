@@ -33,8 +33,8 @@ export class StructurePlan {
     return new StructurePlan(structurePattern, room);
   }
 
-  public getPlan(): StructurePlanPosition[] | null {
-    return this.planned ? this.plan : null;
+  public getPlan(): StructurePlanPosition[] | undefined {
+    return this.planned ? this.plan : undefined;
   }
 
   public getWidth(): number {

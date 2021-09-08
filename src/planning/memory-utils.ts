@@ -66,16 +66,16 @@ export class MemoryUtils {
 
     // validate id's
     const controllerInfo = room.memory.controller;
-    if (controllerInfo.containerId && !!Game.getObjectById(controllerInfo.containerId as Id<StructureContainer>)) {
+    if (controllerInfo.containerId && !!Game.getObjectById(controllerInfo.containerId)) {
       controllerInfo.containerId = undefined;
     }
-    if (controllerInfo.linkId && !!Game.getObjectById(controllerInfo.linkId as Id<StructureLink>)) {
+    if (controllerInfo.linkId && !!Game.getObjectById(controllerInfo.linkId)) {
       controllerInfo.linkId = undefined;
     }
-    if (controllerInfo.minderId && !!Game.getObjectById(controllerInfo.minderId as Id<Creep>)) {
+    if (controllerInfo.minderId && !!Game.getObjectById(controllerInfo.minderId)) {
       controllerInfo.minderId = undefined;
     }
-    if (controllerInfo.haulerId && !!Game.getObjectById(controllerInfo.haulerId as Id<Creep>)) {
+    if (controllerInfo.haulerId && !!Game.getObjectById(controllerInfo.haulerId)) {
       controllerInfo.haulerId = undefined;
     }
   }
@@ -101,16 +101,16 @@ export class MemoryUtils {
     // validate id's
     for (const sourceId in room.memory.sources) {
       const sourceInfo = room.memory.sources[sourceId];
-      if (sourceInfo.containerId && !!Game.getObjectById(sourceInfo.containerId as Id<StructureContainer>)) {
+      if (sourceInfo.containerId && !!Game.getObjectById(sourceInfo.containerId)) {
         sourceInfo.containerId = undefined;
       }
-      if (sourceInfo.linkId && !!Game.getObjectById(sourceInfo.linkId as Id<StructureLink>)) {
+      if (sourceInfo.linkId && !!Game.getObjectById(sourceInfo.linkId)) {
         sourceInfo.linkId = undefined;
       }
-      if (sourceInfo.minderId && !!Game.getObjectById(sourceInfo.minderId as Id<Creep>)) {
+      if (sourceInfo.minderId && !!Game.getObjectById(sourceInfo.minderId)) {
         sourceInfo.minderId = undefined;
       }
-      if (sourceInfo.haulerId && !!Game.getObjectById(sourceInfo.haulerId as Id<Creep>)) {
+      if (sourceInfo.haulerId && !!Game.getObjectById(sourceInfo.haulerId)) {
         sourceInfo.haulerId = undefined;
       }
     }

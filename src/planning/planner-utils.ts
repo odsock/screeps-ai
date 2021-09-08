@@ -228,11 +228,12 @@ export class PlannerUtils {
         }
 
         const result = structurePlan.roomw.createConstructionSite(planPosition.pos, planPosition.structure);
-        CreepUtils.consoleLogIfWatched(
-          structurePlan.roomw,
-          `place ${String(planPosition.pos)} ${planPosition.structure}`,
-          result
-        );
+        // BUG this fails to place for RCL, when we have RCL
+        // CreepUtils.consoleLogIfWatched(
+        //   structurePlan.roomw,
+        //   `place ${String(planPosition.pos)} ${planPosition.structure}`,
+        //   result
+        // );
         if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
           continue;
         }
