@@ -1,3 +1,4 @@
+import { CreepUtils } from "creep-utils";
 import { PlannerUtils } from "./planner-utils";
 
 export class MemoryUtils {
@@ -84,6 +85,7 @@ export class MemoryUtils {
     // initialize source memory
     const sourceMemory = room.memory.sources;
     if (!sourceMemory) {
+      console.log(`DEBUG: init source memory`);
       const roomSources: RoomSources = {};
       room.find(FIND_SOURCES).forEach(source => {
         const harvestPositions = PlannerUtils.getPositionSpiral(source.pos, 1)
