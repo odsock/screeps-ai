@@ -4,16 +4,17 @@ import { CreepWrapper } from "./creep-wrapper";
 export abstract class Minder extends CreepWrapper {
   public run(): void {
     const destination = this.getDestination();
-    CreepUtils.consoleLogIfWatched(this, `destination: ${String(destination)}`);
     const atDestination = this.atDestination();
-    CreepUtils.consoleLogIfWatched(this, `at destination: ${String(atDestination)}`);
+    CreepUtils.consoleLogIfWatched(this, `at destination ${String(destination)}? ${String(atDestination)}`);
 
     // wait for hauler if not at haul target
     if (this.waitingForTug()) {
       // cancel tug if at destination
       if (atDestination) {
+        CreepUtils.consoleLogIfWatched(this, `canceling tug request`);
         this.cancelTug();
       } else {
+        CreepUtils.consoleLogIfWatched(this, `waiting for tug`);
         return;
       }
     }
