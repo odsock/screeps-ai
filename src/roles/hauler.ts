@@ -41,6 +41,9 @@ export class Hauler extends CreepWrapper {
         const result = this.haulCreepJob(this.memory.haulCreep, MemoryUtils.unpackRoomPosition(this.memory.haulTarget));
         CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
         return;
+      } else {
+        this.memory.haulCreep = undefined;
+        this.memory.haulTarget = undefined;
       }
     }
 
