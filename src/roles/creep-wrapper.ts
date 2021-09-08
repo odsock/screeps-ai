@@ -194,12 +194,12 @@ export abstract class CreepWrapper extends Creep {
     }) as StructureSpawn | StructureExtension | null;
   }
 
-  protected findDismantleTarget(): Structure | null {
+  protected findDismantleTarget(): Structure | undefined {
     const dismantleQueue = this.roomw.dismantleQueue;
     if (dismantleQueue.length > 0) {
       return dismantleQueue[0];
     }
-    return null;
+    return undefined;
   }
 
   protected harvestByPriority(): ScreepsReturnCode {
@@ -425,19 +425,19 @@ export abstract class CreepWrapper extends Creep {
     }
   }
 
-  protected getMyContainer(): StructureContainer | null {
+  protected getMyContainer(): StructureContainer | undefined {
     if (this.memory.containerId) {
       const container = Game.getObjectById(this.memory.containerId);
-      if (!container) {
-        CreepUtils.consoleLogIfWatched(this, `container id invalid`);
-        this.memory.containerId = undefined;
+      if (container) {
+        return container;
       }
-      return container;
+      CreepUtils.consoleLogIfWatched(this, `container id invalid`);
+      this.memory.containerId = undefined;
     }
-    return null;
+    return undefined;
   }
 
-  protected findStructureForRepair(): Structure | null {
+  protected findStructureForRepair(): Structure | undefined {
     // repair walls
     const wall = this.roomw.findWeakestWall();
     if (wall) {
@@ -456,7 +456,7 @@ export abstract class CreepWrapper extends Creep {
       return road;
     }
 
-    return null;
+    return undefined;
   }
 
   protected dismantleStructures(): ScreepsReturnCode {
@@ -495,7 +495,7 @@ export abstract class CreepWrapper extends Creep {
     return result;
   }
 
-  protected findRoomStorage(): StructureWithStorage | Creep | null {
+  protected findRoomStorage(): StructureWithStorage | Creep | undefined {
     CreepUtils.consoleLogIfWatched(
       this,
       `room storage: ${String(this.room.storage)} ${String(this.room.storage?.store.getFreeCapacity())}`
@@ -533,7 +533,7 @@ export abstract class CreepWrapper extends Creep {
       return creepWithSpace;
     }
 
-    return null;
+    return undefined;
   }
 
   protected moveToAndTransfer(target: StructureWithStorage | Creep): ScreepsReturnCode {
