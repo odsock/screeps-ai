@@ -43,190 +43,163 @@ export class SpawnControl {
     this.creepCountsByRole[CreepRole.CLAIMER] = claimerCount;
   }
 
-  private getCreepCountForRole(role: CreepRole): number {
-    const count = this.roomw.find(FIND_MY_CREEPS).filter(creep => creep.memory.role === role).length;
-    const numSpawning = this.spawns.filter(spawn => spawn.spawning?.name.startsWith(role)).length;
-    return count + numSpawning;
-  }
-
   public run(): void {
-    if (this.rcl <= 4) {
-      this.runRCL1();
+    // try to spawn by priorities until spawn fails (low energy for priority creep)
+    if (this.rcl <= 1) {
+      this.spawns.filter(spawnw => !spawnw.spawning).some(spawnw => this.spawnEarlyRCL(spawnw) !== OK);
     } else {
-      this.runRCLx();
+      this.spawns.filter(spawnw => !spawnw.spawning).some(spawnw => this.spawnLaterRCL(spawnw) !== OK);
     }
 
     // print role of spawning creep as visual
     this.printSpawningVisual();
   }
 
-  private runRCLx() {
-    this.spawns
-      .filter(spawnw => !spawnw.spawning)
-      .some(spawnw => {
-        // GUARD
-        // spawn guard if there are hostiles,
-        // TODO or if reported by a target room
-        if (this.roomw.hostileCreeps.length > this.creepCountsByRole[CreepRole.GUARD]) {
-          if (this.roomw.controller) {
-            this.roomw.controller.activateSafeMode();
-          }
-          return this.spawnGuardCreep(Guard.BODY_PROFILE, Guard.ROLE, spawnw) !== OK;
-        }
+  /**
+   * spawn strategy for early RCL
+   * one worker to bootstrap into first hauler/harvester
+   * then spawn enough harvesters to max out sources
+   * then spawn enough upgraders to handle 80% of harvest capacity (tweak this)
+   * then spawn enough haulers to handle harvest capacity to average destination distance (tweak this)
+   */
+  private spawnEarlyRCL(spawnw: SpawnWrapper): ScreepsReturnCode {
+    // SEED WORKER
+    // spawn one worker if no other creeps
+    if (spawnw.room.find(FIND_MY_CREEPS).length === 0) {
+      return this.spawnBootstrapCreep(Worker.BODY_PROFILE, Worker.ROLE, spawnw);
+    }
 
-        // FIRST HARVESTER
-        // make sure there is at least one harvester if there is a container
-        if (this.containers.length > 0 && this.creepCountsByRole[CreepRole.HARVESTER] === 0) {
-          return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw) !== OK;
-        }
+    // FIRST HAULER
+    // always need at least one hauler to fill spawns and move harvesters
+    if (this.creepCountsByRole[CreepRole.HAULER] === 0) {
+      return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw);
+    }
 
-        // FIRST HAULER
-        const maxHaulerCount = this.getMaxHaulerCount();
-        if (maxHaulerCount > 0 && this.creepCountsByRole[CreepRole.HAULER] === 0) {
-          return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw) !== OK;
-        }
+    // FIRST HARVESTER
+    // always need at least one harvester
+    if (this.creepCountsByRole[CreepRole.HARVESTER] === 0) {
+      return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw);
+    }
 
-        // HARVESTER
-        // spawn harvester for each source container
-        if (this.creepCountsByRole[CreepRole.HARVESTER] < this.roomw.sourceContainers.length) {
-          return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw) !== OK;
-        }
+    // HARVESTER
+    // spawn enough harvesters to drain sources if they fit in harvest positions
+    const harvesters = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE });
+    const harvesterWorkParts = CreepUtils.countParts(WORK, ...harvesters);
+    const harvesterWorkPartsNeeded = spawnw.roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
+    if (
+      harvesterWorkParts < harvesterWorkPartsNeeded &&
+      this.creepCountsByRole[CreepRole.HARVESTER] < spawnw.roomw.harvestPositionCount
+    ) {
+      return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw);
+    }
 
-        // HAULER
-        // TODO: probably hauler numbers should depend on the length of route vs upgrade work speed
-        if (this.creepCountsByRole[CreepRole.HAULER] < maxHaulerCount) {
-          return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw) !== OK;
-        }
+    // FIRST UPGRADER
+    // start upgrading once harvesting efficiently
+    if (this.creepCountsByRole[CreepRole.UPGRADER] === 0) {
+      return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw);
+    }
 
-        // UPGRADER
-        // spawn upgrader for each controller container
-        if (this.creepCountsByRole[CreepRole.UPGRADER] < this.roomw.controllerContainers.length) {
-          return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw) !== OK;
-        }
+    // UPGRADER
+    // spawn enough upgraders to match 80% of harvest capacity (accounts for building, spawning, towers)
+    const upgraders = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Upgrader.ROLE });
+    const upgraderWorkParts = CreepUtils.countParts(WORK, ...upgraders);
+    const HARVEST_TO_UPGRADE_RATIO = 0.8;
+    const upgraderWorkPartsNeeded =
+      (harvesterWorkParts * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) / UPGRADE_CONTROLLER_POWER;
+    if (upgraderWorkParts < upgraderWorkPartsNeeded) {
+      return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw);
+    }
 
-        // WORKER
-        if (this.creepCountsByRole[CreepRole.WORKER] < this.getMaxWorkerCount()) {
-          return this.spawnBootstrapCreep(Worker.BODY_PROFILE, Worker.ROLE, spawnw);
-        }
+    // HAULER
+    // spawn enough haulers to keep up with hauling harvested energy average distance
+    const haulers = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Hauler.ROLE });
+    const haulerCarryParts = CreepUtils.countParts(CARRY, ...haulers);
+    const haulerTargets = spawnw.room
+      .find(FIND_MY_STRUCTURES, {
+        filter: structure =>
+          structure.structureType === STRUCTURE_SPAWN ||
+          structure.structureType === STRUCTURE_EXTENSION ||
+          structure.structureType === STRUCTURE_TOWER ||
+          structure.structureType === STRUCTURE_STORAGE ||
+          structure.structureType === STRUCTURE_CONTROLLER
+      })
+      .map(structure => structure.pos);
+    const sourcePositions = spawnw.roomw.sources.map(source => source.pos);
+    const distance = CreepUtils.calculatePositionSetDistance(sourcePositions, haulerTargets);
+    const haulerCarryPartsNeeded = (harvesterWorkParts * HARVEST_POWER * distance * 2) / CARRY_CAPACITY;
+    CreepUtils.consoleLogIfWatched(spawnw, `hauler parts: ${haulerCarryParts}/${haulerCarryPartsNeeded}`);
+    if (haulerCarryParts < haulerCarryPartsNeeded) {
+      return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw);
+    }
 
-        // FIXER
-        if (
-          this.roomw.repairSites.length > 0 &&
-          this.creepCountsByRole[CreepRole.FIXER] < SockPuppetConstants.MAX_FIXER_CREEPS
-        ) {
-          return spawnw.spawn(this.getMaxBody(Fixer.BODY_PROFILE), Fixer.ROLE) !== OK;
-        }
-
-        // IMPORTER
-        const remoteHarvestTargetCount = TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => {
-          return !Game.rooms[name]?.controller?.my;
-        }).length;
-        if (
-          this.creepCountsByRole[CreepRole.IMPORTER] <
-          remoteHarvestTargetCount * TargetConfig.IMPORTERS_PER_REMOTE_ROOM
-        ) {
-          return spawnw.spawn(this.getMaxBody(Importer.BODY_PROFILE), Importer.ROLE) !== OK;
-        }
-
-        // BUILDER
-        // make builders if there's something to build and past level 1
-        const workPartsNeeded = this.getBuilderWorkPartsNeeded();
-        if (
-          this.creepCountsByRole[CreepRole.WORKER] === 0 &&
-          this.roomw.constructionSites.length > 0 &&
-          workPartsNeeded > 0
-        ) {
-          return spawnw.spawn(this.getBuilderBody(Builder.BODY_PROFILE, workPartsNeeded), Builder.ROLE) !== OK;
-        }
-
-        // CLAIMER
-        const maxClaimers = this.getMaxClaimerCount();
-        if (this.creepCountsByRole[CreepRole.CLAIMER] < maxClaimers) {
-          return spawnw.spawn(this.getMaxBody(Claimer.BODY_PROFILE), Claimer.ROLE) !== OK;
-        }
-
-        // TODO: replace small minders early, for faster recovery from attack or mistakes
-        // try to replace any aging minder seamlessly
-        return this.replaceOldMinders(spawnw) !== OK;
-      });
+    // try to replace any aging minder seamlessly
+    return this.replaceOldMinders(spawnw);
   }
 
-  public runRCL1(): void {
-    this.spawns
-      .filter(spawnw => !spawnw.spawning)
-      .some(spawnw => {
-        // SEED WORKER
-        // spawn one worker if no other creeps
-        if (spawnw.room.find(FIND_MY_CREEPS).length === 0) {
-          return this.spawnBootstrapCreep(Worker.BODY_PROFILE, Worker.ROLE, spawnw);
-        }
+  /**
+   * Spawn strategy for later RCL
+   * spawn same as RC1, with guards, builders, importers, claimers, and fixer
+   */
+  private spawnLaterRCL(spawnw: SpawnWrapper): ScreepsReturnCode {
+    // GUARD
+    // spawn guard if there are hostiles,
+    // TODO or if reported by a target room
+    if (this.roomw.hostileCreeps.length > this.creepCountsByRole[CreepRole.GUARD]) {
+      if (this.roomw.controller) {
+        this.roomw.controller.activateSafeMode();
+      }
+      return this.spawnGuardCreep(Guard.BODY_PROFILE, Guard.ROLE, spawnw);
+    }
 
-        // FIRST HAULER
-        // always need at least one hauler to fill spawns and move harvesters
-        if (this.creepCountsByRole[CreepRole.HAULER] === 0) {
-          return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw) !== OK;
-        }
+    // spawn economy creeps with early strategy
+    const result = this.spawnEarlyRCL(spawnw);
+    if (result !== OK) {
+      return result;
+    }
 
-        // FIRST HARVESTER
-        // always need at least one harvester
-        if (this.creepCountsByRole[CreepRole.HARVESTER] === 0) {
-          return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw) !== OK;
-        }
+    // FIXER
+    if (
+      this.roomw.repairSites.length > 0 &&
+      this.creepCountsByRole[CreepRole.FIXER] < SockPuppetConstants.MAX_FIXER_CREEPS
+    ) {
+      return spawnw.spawn(this.getMaxBody(Fixer.BODY_PROFILE), Fixer.ROLE);
+    }
 
-        // HARVESTER
-        // spawn enough harvesters to drain sources if they fit in harvest positions
-        const harvesters = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE });
-        const harvesterWorkParts = CreepUtils.countParts(WORK, ...harvesters);
-        const harvesterWorkPartsNeeded = spawnw.roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
-        if (
-          harvesterWorkParts < harvesterWorkPartsNeeded &&
-          this.creepCountsByRole[CreepRole.HARVESTER] < spawnw.roomw.harvestPositionCount
-        ) {
-          return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw) !== OK;
-        }
+    // IMPORTER
+    const remoteHarvestTargetCount = TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => {
+      return !Game.rooms[name]?.controller?.my;
+    }).length;
+    if (
+      this.creepCountsByRole[CreepRole.IMPORTER] <
+      remoteHarvestTargetCount * TargetConfig.IMPORTERS_PER_REMOTE_ROOM
+    ) {
+      return spawnw.spawn(this.getMaxBody(Importer.BODY_PROFILE), Importer.ROLE);
+    }
 
-        // FIRST UPGRADER
-        // start upgrading once harvesting efficiently
-        if (this.creepCountsByRole[CreepRole.UPGRADER] === 0) {
-          return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw) !== OK;
-        }
+    // BUILDER
+    // make builders if there's something to build
+    const workPartsNeeded = this.getBuilderWorkPartsNeeded();
+    if (
+      this.creepCountsByRole[CreepRole.WORKER] === 0 &&
+      this.roomw.constructionSites.length > 0 &&
+      workPartsNeeded > 0
+    ) {
+      return spawnw.spawn(this.getBuilderBody(Builder.BODY_PROFILE, workPartsNeeded), Builder.ROLE);
+    }
 
-        // UPGRADER
-        // spawn enough upgraders to match 80% of harvest capacity (accounts for building, spawning, towers)
-        const upgraders = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Upgrader.ROLE });
-        const upgraderWorkParts = CreepUtils.countParts(WORK, ...upgraders);
-        const HARVEST_TO_UPGRADE_RATIO = 0.8;
-        const upgraderWorkPartsNeeded =
-          (harvesterWorkParts * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) / UPGRADE_CONTROLLER_POWER;
-        if (upgraderWorkParts < upgraderWorkPartsNeeded) {
-          return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw) !== OK;
-        }
+    // CLAIMER
+    const maxClaimers = this.getMaxClaimerCount();
+    if (this.creepCountsByRole[CreepRole.CLAIMER] < maxClaimers) {
+      return spawnw.spawn(this.getMaxBody(Claimer.BODY_PROFILE), Claimer.ROLE);
+    }
 
-        // HAULER
-        // spawn enough haulers to keep up with hauling harvested energy average distance
-        const haulers = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Hauler.ROLE });
-        const haulerCarryParts = CreepUtils.countParts(CARRY, ...haulers);
-        const haulerTargets = spawnw.room
-          .find(FIND_MY_STRUCTURES, {
-            filter: structure =>
-              structure.structureType === STRUCTURE_SPAWN ||
-              structure.structureType === STRUCTURE_EXTENSION ||
-              structure.structureType === STRUCTURE_TOWER ||
-              structure.structureType === STRUCTURE_STORAGE ||
-              structure.structureType === STRUCTURE_CONTROLLER
-          })
-          .map(structure => structure.pos);
-        const sourcePositions = spawnw.roomw.sources.map(source => source.pos);
-        const distance = CreepUtils.calculatePositionSetDistance(sourcePositions, haulerTargets);
-        const haulerCarryPartsNeeded = (harvesterWorkParts * HARVEST_POWER * distance * 2) / CARRY_CAPACITY;
-        CreepUtils.consoleLogIfWatched(spawnw, `hauler parts: ${haulerCarryParts}/${haulerCarryPartsNeeded}`);
-        if (haulerCarryParts < haulerCarryPartsNeeded) {
-          return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw) !== OK;
-        }
+    return ERR_NOT_FOUND;
+  }
 
-        // try to replace any aging minder seamlessly
-        return this.replaceOldMinders(spawnw) !== OK;
-      });
+  private getCreepCountForRole(role: CreepRole): number {
+    const count = this.roomw.find(FIND_MY_CREEPS).filter(creep => creep.memory.role === role).length;
+    const numSpawning = this.spawns.filter(spawn => spawn.spawning?.name.startsWith(role)).length;
+    return count + numSpawning;
   }
 
   /** prints room visual of spawning role */

@@ -1,4 +1,3 @@
-import { Console } from "console";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 
 export class CreepUtils {
