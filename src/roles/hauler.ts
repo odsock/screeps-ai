@@ -303,6 +303,11 @@ export class Hauler extends CreepWrapper {
       return this.moveToAndWithdraw(storage);
     }
 
+    if (myContainer) {
+      CreepUtils.consoleLogIfWatched(this, `moving to my container: ${String(myContainer)}`);
+      return this.moveToAndWithdraw(myContainer);
+    }
+
     this.say("🤔");
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
     return ERR_NOT_FOUND;
