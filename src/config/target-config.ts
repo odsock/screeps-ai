@@ -7,7 +7,7 @@ export class TargetConfig {
   };
 
   public static readonly REMOTE_HARVEST: { [x: string]: string[] } = {
-    shard3: ["E17N54"],
+    shard3: ["E17N54", "E17N52"],
     sim: []
   };
 
