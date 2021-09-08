@@ -10,11 +10,11 @@ import { RoomClaim } from "planning/room-claim";
 // TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
   private readonly remoteQueueStore: Queue<string>;
-  private readonly haulQueueStore: Queue<string>;
+  // private readonly haulQueueStore: Queue<string>;
 
   public constructor(private readonly room: Room) {
     super(room.name);
-    this.haulQueueStore = new Queue<string>(`${this.name}_haulQueue`, undefined, Queue.creepNameValidator);
+    // this.haulQueueStore = new Queue<string>(`${this.name}_haulQueue`, undefined, Queue.creepNameValidator);
     this.remoteQueueStore = new Queue<string>(
       `${this.name}_remoteQueue`,
       this.initRemoteQueue,
@@ -116,9 +116,9 @@ export class RoomWrapper extends Room {
   /**
    * Room haul request queue.
    */
-  public get haulQueue(): Queue<string> {
-    return this.haulQueueStore;
-  }
+  // public get haulQueue(): Queue<string> {
+  //   return this.haulQueueStore;
+  // }
 
   /**
    * Room claim/reserve queue.

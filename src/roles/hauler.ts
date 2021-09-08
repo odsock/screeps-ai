@@ -16,26 +16,35 @@ export class Hauler extends CreepWrapper {
 
   public run(): void {
     // check haul request queue
-    if (!this.memory.haulCreep) {
+    if (!this.memory.hauleeName) {
       CreepUtils.consoleLogIfWatched(this, `checking haul queue`);
-      const creepName = this.roomw.haulQueue.pop();
-      if (creepName) {
-        CreepUtils.consoleLogIfWatched(this, `haul request for ${creepName}`);
-        this.memory.haulCreep = creepName;
+      const creepToHaul = this.room
+        .find(FIND_MY_CREEPS, {
+          filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
+        })
+        .pop();
+      if (creepToHaul) {
+        CreepUtils.consoleLogIfWatched(this, `haul request for ${creepToHaul.name}`);
+        this.memory.hauleeName = creepToHaul.name;
+        creepToHaul.memory.haulerName = this.name;
       }
     }
 
     // work haul request
-    if (this.memory.haulCreep) {
+    if (this.memory.hauleeName) {
       CreepUtils.consoleLogIfWatched(this, `validate haul request `);
-      const creepToHaul = Game.creeps[this.memory.haulCreep];
-      if (creepToHaul?.memory.haulTarget && creepToHaul.memory.haulTarget) {
-        const haulTarget = MemoryUtils.unpackRoomPosition(creepToHaul.memory.haulTarget);
-        const result = this.haulCreepJob(creepToHaul, haulTarget);
+      const creepToHaul = Game.creeps[this.memory.hauleeName];
+      if (creepToHaul && creepToHaul.memory.haulRequested && creepToHaul.memory.destination) {
+        const haulDestination = MemoryUtils.unpackRoomPosition(creepToHaul.memory.destination);
+        const result = this.haulCreepJob(creepToHaul, haulDestination);
         CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
         return;
       } else {
-        this.memory.haulCreep = undefined;
+        this.memory.hauleeName = undefined;
+        if (creepToHaul) {
+          creepToHaul.memory.haulRequested = false;
+          creepToHaul.memory.haulerName = undefined;
+        }
       }
     }
 

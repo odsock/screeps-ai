@@ -1,5 +1,4 @@
 import { CreepUtils } from "creep-utils";
-import { MemoryUtils } from "planning/memory-utils";
 import { CreepWrapper } from "./creep-wrapper";
 
 export abstract class Minder extends CreepWrapper {
@@ -55,7 +54,7 @@ export abstract class Minder extends CreepWrapper {
 
   private retireCreep(retiree: Creep): ScreepsReturnCode {
     // call for tug if no haul target set
-    if (!this.memory.haulTarget) {
+    if (!this.memory.haulRequested) {
       this.callTug(retiree.pos);
     }
     // request suicide if next to retiree
@@ -148,16 +147,16 @@ export abstract class Minder extends CreepWrapper {
   }
 
   protected cancelTug(): void {
-    this.memory.haulTarget = undefined;
+    this.memory.haulRequested = false;
+    this.memory.haulerName = undefined;
   }
 
   protected waitingForTug(): boolean {
-    return !!this.memory.haulTarget;
+    return !!this.memory.haulRequested;
   }
 
   protected callTug(destination: RoomPosition): void {
     CreepUtils.consoleLogIfWatched(this, `calling for tug to: ${String(destination)}`);
-    this.memory.haulTarget = MemoryUtils.packRoomPosition(destination);
-    this.roomw.haulQueue.push(this.name);
+    this.memory.haulRequested = true;
   }
 }
