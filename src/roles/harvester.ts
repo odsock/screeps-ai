@@ -36,6 +36,7 @@ export class Harvester extends Minder {
       CreepUtils.consoleLogIfWatched(this, `finding source destination`);
       const harvesters = this.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE });
       const harvestersBySource = _.groupBy(harvesters, creep => creep.memory.source);
+      CreepUtils.consoleLogIfWatched(this, String(harvestersBySource));
       const sourceWithRoom = this.roomw.sources.find(
         source => harvestersBySource[source.id]?.length < this.roomw.getHarvestPositions(source.id).length
       );
