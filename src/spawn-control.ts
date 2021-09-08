@@ -144,6 +144,7 @@ export class SpawnControl {
     // GUARD
     // spawn guard if there are hostiles,
     // TODO or if reported by a target room
+    CreepUtils.consoleLogIfWatched(spawnw, `check if guard needed`);
     if (this.roomw.hostileCreeps.length > this.creepCountsByRole[CreepRole.GUARD]) {
       if (this.roomw.controller) {
         this.roomw.controller.activateSafeMode();
@@ -153,9 +154,12 @@ export class SpawnControl {
 
     // spawn economy creeps with early strategy
     const result = this.spawnEarlyRCL(spawnw);
+    CreepUtils.consoleLogIfWatched(spawnw, `early RCL spawn result`, result);
     if (result !== OK) {
       return result;
     }
+
+    CreepUtils.consoleLogIfWatched(spawnw, `check if other creeps needed`);
 
     // FIXER
     if (
