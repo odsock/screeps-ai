@@ -14,6 +14,7 @@ export class Harvester extends Minder {
   protected getDestination(): RoomPosition | undefined {
     // return cached destination if set
     if (this.memory.destination) {
+      CreepUtils.consoleLogIfWatched(this, `destination in memory: ${this.memory.destination}`);
       return MemoryUtils.unpackRoomPosition(this.memory.destination);
     }
 
