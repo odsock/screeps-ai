@@ -16,34 +16,26 @@ export class Hauler extends CreepWrapper {
 
   public run(): void {
     // check haul request queue
-    if (!this.memory.haulTarget) {
+    if (!this.memory.haulCreep) {
+      CreepUtils.consoleLogIfWatched(this, `checking haul queue`);
       const creepName = this.roomw.haulQueue.pop();
       if (creepName) {
-        const creepToHaul = Game.creeps[creepName];
-        if (creepToHaul) {
-          const target = creepToHaul.memory.haulTarget;
-          if (target) {
-            this.memory.haulTarget = target;
-            this.memory.haulCreep = creepName;
-            CreepUtils.consoleLogIfWatched(this, `haul request found: ${creepName} => ${String(target)}`);
-          } else {
-            CreepUtils.consoleLogIfWatched(this, `haul requestor had no target`);
-          }
-        } else {
-          CreepUtils.consoleLogIfWatched(this, `haul requestor was not a valid creep`);
-        }
+        CreepUtils.consoleLogIfWatched(this, `haul request for ${creepName}`);
+        this.memory.haulCreep = creepName;
       }
     }
 
-    if (this.memory.haulTarget && this.memory.haulCreep) {
+    // work haul request
+    if (this.memory.haulCreep) {
+      CreepUtils.consoleLogIfWatched(this, `validate haul request `);
       const creepToHaul = Game.creeps[this.memory.haulCreep];
-      if (creepToHaul.memory.haulTarget) {
-        const result = this.haulCreepJob(this.memory.haulCreep, MemoryUtils.unpackRoomPosition(this.memory.haulTarget));
+      if (creepToHaul?.memory.haulTarget && creepToHaul.memory.haulTarget) {
+        const haulTarget = MemoryUtils.unpackRoomPosition(creepToHaul.memory.haulTarget);
+        const result = this.haulCreepJob(creepToHaul, haulTarget);
         CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
         return;
       } else {
         this.memory.haulCreep = undefined;
-        this.memory.haulTarget = undefined;
       }
     }
 
@@ -88,14 +80,9 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private haulCreepJob(creepName: string, target: RoomPosition): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `haul ${creepName}`);
+  private haulCreepJob(creep: Creep, target: RoomPosition): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `haul ${creep.name}`);
     this.updateJob(`tug`);
-    const creep = Game.creeps[creepName];
-    if (!creep) {
-      CreepUtils.consoleLogIfWatched(this, `invalid creep: ${creepName}`);
-      return ERR_NOT_FOUND;
-    }
 
     // this.startWorkingInRange(creep.pos, 1);
     if (this.pos.isNearTo(creep.pos)) {
