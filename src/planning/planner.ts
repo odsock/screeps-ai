@@ -16,7 +16,6 @@ export class Planner {
 
   public run(): ScreepsReturnCode {
     console.log(`${this.roomw.name}: running planning`);
-    MemoryUtils.refreshRoomMemory(this.roomw);
 
     if (this.roomw.controller) {
       if (this.roomw.controller?.level >= 1) {

@@ -209,39 +209,15 @@ export class RoomWrapper extends Room {
 
   /** get harvest positions for source */
   public getHarvestPositions(sourceId: Id<Source>): RoomPosition[] {
-    return this.sourceInfo[sourceId];
+    return this.memory.sources[sourceId].harvestPositions.map(pos => MemoryUtils.unpackRoomPosition(pos));
   }
-
-  /** Harvest positions caching */
-  private sourceInfoCache: SourceInfo | undefined;
 
   public get harvestPositionCount(): number {
     let count = 0;
-    for (const sourceId in this.sourceInfo) {
-      count += this.sourceInfo[sourceId].length;
+    for (const sourceId in this.memory.sources) {
+      count += this.memory.sources[sourceId].harvestPositions.length;
     }
     return count;
-  }
-
-  private get sourceInfo(): SourceInfo {
-    if (this.sourceInfoCache) {
-      return this.sourceInfoCache;
-    }
-    const cachedSourceInfo = MemoryUtils.getCache<SourceInfo>(`${this.room.name}_sourceInfo`);
-    if (cachedSourceInfo) {
-      this.sourceInfoCache = cachedSourceInfo;
-      return this.sourceInfoCache;
-    }
-    const sourceInfo: SourceInfo = {};
-    this.sources.forEach(source => {
-      const harvestPositions = PlannerUtils.getPositionSpiral(source.pos, 1).filter(pos =>
-        PlannerUtils.isEnterable(pos)
-      );
-      sourceInfo[source.id] = harvestPositions;
-    });
-    this.sourceInfoCache = sourceInfo;
-    MemoryUtils.setCache(`${this.room.name}_sourceInfo`, sourceInfo);
-    return this.sourceInfoCache;
   }
 
   /** Gets total energy available in room when sources full */
@@ -276,27 +252,27 @@ export class RoomWrapper extends Room {
   }
 
   public get sourceContainers(): StructureContainer[] {
-    return this.room.memory.containers.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
-      if (containerInfo.nearSource) {
-        const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
+    const list: StructureContainer[] = [];
+    for (const sourceId in this.room.memory.sources) {
+      const sourceInfo = this.room.memory.sources[sourceId];
+      if (sourceInfo.containerId) {
+        const container = Game.getObjectById(sourceInfo.containerId);
         if (container) {
           list.push(container);
         }
       }
-      return list;
-    }, []);
+    }
+    return list;
   }
 
   public get controllerContainers(): StructureContainer[] {
-    return this.room.memory.containers.reduce<StructureContainer[]>((list: StructureContainer[], containerInfo) => {
-      if (containerInfo.nearController) {
-        const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
-        if (container) {
-          list.push(container);
-        }
+    if (this.memory.controller.containerId) {
+      const container = Game.getObjectById(this.memory.controller.containerId);
+      if (container) {
+        return [container];
       }
-      return list;
-    }, []);
+    }
+    return [];
   }
 
   /** writes events to memory */
@@ -324,9 +300,9 @@ export class RoomWrapper extends Room {
     } else {
       switch (name) {
         case "avoidHarvestPositions":
-          for (const sourceId in this.sourceInfo) {
-            this.sourceInfo[sourceId].forEach(pos => costMatrix.set(pos.x, pos.y, 0xff));
-          }
+          this.sources.forEach(source =>
+            this.getHarvestPositions(source.id).forEach(pos => costMatrix.set(pos.x, pos.y, 0xff))
+          );
           break;
 
         default:

@@ -1,5 +1,4 @@
 import { CreepUtils } from "creep-utils";
-import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 
 export abstract class CreepWrapper extends Creep {
@@ -397,13 +396,25 @@ export abstract class CreepWrapper extends Creep {
     return ERR_NOT_FOUND;
   }
 
-  protected claimContainer(findFunction: (info: ContainerInfo) => boolean): Id<StructureContainer> | undefined {
-    MemoryUtils.refreshContainerMemory(this.room);
-    const containerInfo = this.room.memory.containers.find(findFunction);
-    if (containerInfo) {
-      const containerId = containerInfo.containerId as Id<StructureContainer>;
+  protected claimSourceContainer(): Id<StructureContainer> | undefined {
+    for (const sourceId in this.roomw.memory.sources) {
+      const sourceInfo = this.roomw.memory.sources[sourceId];
+      const containerId = sourceInfo.containerId;
+      if (containerId && (!sourceInfo.minderId || sourceInfo.minderId === this.id)) {
+        sourceInfo.minderId = this.id;
+        this.memory.containerId = containerId;
+        return containerId;
+      }
+    }
+    return undefined;
+  }
+
+  protected claimControllerContainer(): Id<StructureContainer> | undefined {
+    const containerId = this.room.memory.controller.containerId;
+    const minderId = this.room.memory.controller.minderId;
+    if (containerId && (!minderId || minderId === this.id)) {
+      this.room.memory.controller.minderId = this.id;
       this.memory.containerId = containerId;
-      containerInfo.minderId = this.id;
       return containerId;
     }
     return undefined;

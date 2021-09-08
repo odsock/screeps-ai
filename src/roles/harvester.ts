@@ -21,7 +21,7 @@ export class Harvester extends Minder {
     // choose new destination
     let destination: RoomPosition | undefined;
     // try to choose container destination
-    const containerId = this.claimContainer(info => info.nearSource && (!info.minderId || info.minderId === this.id));
+    const containerId = this.claimSourceContainer();
     if (containerId) {
       const container = Game.getObjectById(containerId);
       if (container) {
@@ -36,16 +36,21 @@ export class Harvester extends Minder {
       CreepUtils.consoleLogIfWatched(this, `finding source destination`);
       const harvesters = this.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE });
       const harvestersBySource = _.groupBy(harvesters, creep => creep.memory.source);
-      CreepUtils.consoleLogIfWatched(this, String(harvestersBySource));
-      const sourceWithRoom = this.roomw.sources.find(
-        source => harvestersBySource[source.id]?.length < this.roomw.getHarvestPositions(source.id).length
-      );
-      if (sourceWithRoom) {
-        destination = sourceWithRoom.pos;
-        this.memory.destination = MemoryUtils.packRoomPosition(destination);
-        this.memory.destinationType = LOOK_SOURCES;
-        CreepUtils.consoleLogIfWatched(this, `destination source: ${String(destination)}`);
+      for (const source in harvestersBySource) {
+        const sourceId = source as Id<Source>;
+        const harvesterCount = harvestersBySource[sourceId].length;
+        const harvestPositions = this.roomw.getHarvestPositions(sourceId).length;
+        console.log(`source: ${sourceId}, ${harvesterCount} harvesters`);
+        if (harvesterCount < harvestPositions) {
+          destination = Game.getObjectById(sourceId)?.pos;
+        }
+        if (destination) {
+          this.memory.destination = MemoryUtils.packRoomPosition(destination);
+          this.memory.destinationType = LOOK_SOURCES;
+          this.memory.source = sourceId;
+        }
       }
+      CreepUtils.consoleLogIfWatched(this, `destination source: ${String(destination)}`);
     }
     return destination;
   }

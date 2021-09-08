@@ -1,3 +1,5 @@
+import { PlannerUtils } from "./planner-utils";
+
 export class MemoryUtils {
   public static unpackRoomPosition(positionString: string): RoomPosition {
     if (!positionString) throw new Error("Position string is empty or undefined");
@@ -10,7 +12,8 @@ export class MemoryUtils {
   }
 
   public static refreshRoomMemory(room: Room): void {
-    this.refreshContainerMemory(room);
+    this.refreshSourceMemory(room);
+    this.refreshControllerMemory(room);
   }
 
   public static readCacheFromMemory(): void {
@@ -54,66 +57,63 @@ export class MemoryUtils {
     return undefined;
   }
 
-  public static refreshContainerMemory(room: Room): void {
-    // init container memory
-    if (!room.memory.containers) {
-      room.memory.containers = [];
+  public static refreshControllerMemory(room: Room): void {
+    // initialize controller memory
+    const controllerMemory = room.memory.controller;
+    if (!controllerMemory) {
+      room.memory.controller = {};
     }
 
-    // add missing containers
-    room
-      .find(FIND_STRUCTURES, {
-        filter: c => c.structureType === STRUCTURE_CONTAINER
-      })
-      .forEach(container => {
-        if (!room.memory.containers.find(containerInfo => containerInfo.containerId === container.id)) {
-          room.memory.containers.push({
-            containerId: container.id,
-            nearController: false,
-            nearSource: false,
-            haulers: []
-          });
-        }
-      });
+    // validate id's
+    const controllerInfo = room.memory.controller;
+    if (controllerInfo.containerId && !!Game.getObjectById(controllerInfo.containerId as Id<StructureContainer>)) {
+      controllerInfo.containerId = undefined;
+    }
+    if (controllerInfo.linkId && !!Game.getObjectById(controllerInfo.linkId as Id<StructureLink>)) {
+      controllerInfo.linkId = undefined;
+    }
+    if (controllerInfo.minderId && !!Game.getObjectById(controllerInfo.minderId as Id<Creep>)) {
+      controllerInfo.minderId = undefined;
+    }
+    if (controllerInfo.haulerId && !!Game.getObjectById(controllerInfo.haulerId as Id<Creep>)) {
+      controllerInfo.haulerId = undefined;
+    }
+  }
 
-    // validate containers and claims
-    const currentContainerMemory = room.memory.containers;
-    room.memory.containers = currentContainerMemory
-      // drop containers that don't exist
-      .filter(containerInfo => !!Game.getObjectById(containerInfo.containerId as Id<StructureContainer>))
-      // remove id's for creeps that don't exist
-      .map(containerInfo => {
-        if (containerInfo.minderId && !Game.getObjectById(containerInfo.minderId as Id<Creep>)) {
-          containerInfo.minderId = undefined;
-        }
-        const currentHaulers = containerInfo.haulers ? containerInfo.haulers : [];
-        containerInfo.haulers = currentHaulers.filter(haulerId => !!Game.getObjectById(haulerId as Id<Creep>));
-        return containerInfo;
-      })
-      // mark containers next to sources
-      .map(containerInfo => {
-        containerInfo.nearSource = false;
-        const container = Game.getObjectById(containerInfo.containerId as Id<StructureContainer>);
-        if (container) {
-          const sources = container.pos.findInRange(FIND_SOURCES, 1);
-          if (sources.length > 0) {
-            containerInfo.nearSource = true;
-          }
-        }
-        return containerInfo;
-      })
-      // mark containers next to controllers
-      .map(containerInfo => {
-        containerInfo.nearController = false;
-        if (room.controller && !containerInfo.nearSource) {
-          const containers = room.controller.pos.findInRange(FIND_STRUCTURES, 1, {
-            filter: c => c.structureType === STRUCTURE_CONTAINER && c.id === containerInfo.containerId
-          });
-          if (containers.length > 0) {
-            containerInfo.nearController = true;
-          }
-        }
-        return containerInfo;
+  public static refreshSourceMemory(room: Room): void {
+    // initialize source memory
+    const sourceMemory = room.memory.sources;
+    if (!sourceMemory) {
+      const roomSources: RoomSources = {};
+      room.find(FIND_SOURCES).forEach(source => {
+        const harvestPositions = PlannerUtils.getPositionSpiral(source.pos, 1)
+          .filter(pos => PlannerUtils.isEnterable(pos))
+          .map(pos => this.packRoomPosition(pos));
+        roomSources[source.id] = {
+          id: source.id,
+          pos: this.packRoomPosition(source.pos),
+          harvestPositions
+        };
       });
+      room.memory.sources = roomSources;
+    }
+
+    // validate id's
+    for (const sourceId in room.memory.sources) {
+      const sourceInfo = room.memory.sources[sourceId];
+      if (sourceInfo.containerId && !!Game.getObjectById(sourceInfo.containerId as Id<StructureContainer>)) {
+        sourceInfo.containerId = undefined;
+      }
+      if (sourceInfo.linkId && !!Game.getObjectById(sourceInfo.linkId as Id<StructureLink>)) {
+        sourceInfo.linkId = undefined;
+      }
+      if (sourceInfo.minderId && !!Game.getObjectById(sourceInfo.minderId as Id<Creep>)) {
+        sourceInfo.minderId = undefined;
+      }
+      if (sourceInfo.haulerId && !!Game.getObjectById(sourceInfo.haulerId as Id<Creep>)) {
+        sourceInfo.haulerId = undefined;
+      }
+    }
+    // TODO might have to find adjacent containers here, if id's change after construction
   }
 }

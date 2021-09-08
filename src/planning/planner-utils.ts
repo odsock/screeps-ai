@@ -64,7 +64,7 @@ export class PlannerUtils {
   public static placeStructureAdjacent(
     position: RoomPosition,
     structureConstant: BuildableStructureConstant
-  ): string | null {
+  ): string | undefined {
     let xOffset = 0;
     let yOffset = 0;
     const startPos = new RoomPosition(position.x - 1, position.y - 1, position.roomName);
@@ -82,7 +82,7 @@ export class PlannerUtils {
 
       // Give up if back to start position
       if (xOffset === yOffset && xOffset === 0) {
-        return null;
+        return undefined;
       }
 
       pos = new RoomPosition(startPos.x + xOffset, startPos.y + yOffset, startPos.roomName);
@@ -92,7 +92,7 @@ export class PlannerUtils {
     if (structure.length > 0) {
       return structure[0].id;
     }
-    return null;
+    return undefined;
   }
 
   public static getPositionSpiral(centerPos: RoomPosition, maxRange: number): RoomPosition[] {

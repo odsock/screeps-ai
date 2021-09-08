@@ -19,28 +19,36 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
-  sourceInfo: { [id: string]: string[] };
+  sources: RoomSources;
   spawns?: Id<StructureSpawn>[];
-  harvestPositions: string[];
   costMatrix?: { [name: string]: number[] };
   roadUseLog: { [pos: string]: number };
   log: string[];
   construction: { [id: string]: ConstructionLog };
   extensionCount: number;
   watched?: boolean;
-  containers: ContainerInfo[];
+  controller: ControllerInfo;
 }
 
 interface SourceInfo {
-  [id: string]: RoomPosition[];
+  harvestPositions: string[];
+  id: Id<Source>;
+  pos: string;
+  containerId?: Id<StructureContainer>;
+  minderId?: Id<Creep>;
+  haulerId?: Id<Creep>;
+  linkId?: Id<StructureLink>;
 }
 
-interface ContainerInfo {
-  containerId: string;
-  minderId?: string;
-  nearSource: boolean;
-  nearController: boolean;
-  haulers: string[];
+interface RoomSources {
+  [id: string]: SourceInfo;
+}
+
+interface ControllerInfo {
+  containerId?: Id<StructureContainer>;
+  minderId?: Id<Creep>;
+  haulerId?: Id<Creep>;
+  linkId?: Id<StructureLink>;
 }
 
 interface ConstructionLog {

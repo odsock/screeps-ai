@@ -1,3 +1,4 @@
+import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { PlannerUtils } from "./planner-utils";
 
@@ -9,73 +10,44 @@ export class ContainerPlan {
   }
 
   public placeControllerContainer(): ScreepsReturnCode {
-    if (
-      this.roomw.controller &&
-      !this.roomHasContainersInConstruction() &&
-      this.roomw.sourceContainers.length > this.roomw.controllerContainers.length
-    ) {
-      console.log(` - placing controller container`);
-      const id = PlannerUtils.placeStructureAdjacent(this.roomw.controller.pos, STRUCTURE_CONTAINER);
-      if (id) {
-        this.roomw.memory.containers.push({ containerId: id, nearController: true, nearSource: false, haulers: [] });
+    if (this.roomw.controller) {
+      const controllerContainerId = this.roomw.memory.controller.containerId;
+      if (controllerContainerId && Game.getObjectById(controllerContainerId)) {
+        CreepUtils.consoleLogIfWatched(this.roomw, `controller container already existsÏ`);
         return OK;
       }
-      return ERR_NOT_FOUND;
+      CreepUtils.consoleLogIfWatched(this.roomw, `controller has no container in memory`);
+      const id = PlannerUtils.placeStructureAdjacent(this.roomw.controller.pos, STRUCTURE_CONTAINER);
+      if (id) {
+        CreepUtils.consoleLogIfWatched(this.roomw, `placing controller container`);
+        this.roomw.memory.controller.containerId = id as Id<StructureContainer>;
+        return OK;
+      }
+      CreepUtils.consoleLogIfWatched(this.roomw, `ERROR: failed to place controller container`);
+      return ERR_INVALID_TARGET;
     }
     return OK;
   }
 
   public placeSourceContainer(): ScreepsReturnCode {
-    // TODO: remove requirement for controller
-    if (this.roomw.controller && !this.roomHasContainersInConstruction()) {
-      // find closest source with no adjacent container
-      const source = this.findSourceWithoutContainerCloseToController();
-      if (source) {
-        console.log(` - source without container: ${String(source)}`);
-        const id = PlannerUtils.placeStructureAdjacent(source.pos, STRUCTURE_CONTAINER);
-        if (id) {
-          this.roomw.memory.containers.push({
-            containerId: id,
-            nearSource: true,
-            nearController: false,
-            haulers: []
-          });
-          return OK;
-        }
-        return ERR_NOT_FOUND;
+    for (const source of this.roomw.sources) {
+      // check for existing container at this source
+      const containerIdMemory = this.roomw.memory.sources[source.id].containerId;
+      if (containerIdMemory && Game.getObjectById(containerIdMemory)) {
+        CreepUtils.consoleLogIfWatched(this.roomw, `source already has container: ${String(source)}`);
+        continue;
       }
+      // place container at this source
+      CreepUtils.consoleLogIfWatched(this.roomw, `source without container: ${String(source)}`);
+      const id = PlannerUtils.placeStructureAdjacent(source.pos, STRUCTURE_CONTAINER);
+      if (id) {
+        CreepUtils.consoleLogIfWatched(this.roomw, `placed source container: ${String(id)}`);
+        this.roomw.memory.sources[source.id].containerId = id as Id<StructureContainer>;
+        continue;
+      }
+      CreepUtils.consoleLogIfWatched(this.roomw, `ERROR: failed to place source container at ${String(source)}`);
+      return ERR_INVALID_TARGET;
     }
     return OK;
-  }
-
-  // BUG: returning null when should be 1
-  private findSourceWithoutContainerCloseToController() {
-    if (this.roomw.controller) {
-      return this.roomw.controller.pos.findClosestByPath(FIND_SOURCES, {
-        filter: s =>
-          s.pos.findInRange(FIND_STRUCTURES, 1, {
-            filter: c => c.structureType === STRUCTURE_CONTAINER
-          }).length === 0
-      });
-    } else {
-      return null;
-    }
-  }
-
-  private roomHasContainersInConstruction(): boolean {
-    return (
-      this.roomw.find(FIND_MY_CONSTRUCTION_SITES, {
-        filter: s => s.structureType === STRUCTURE_CONTAINER
-      }).length > 0
-    );
-  }
-
-  public static findClosestSourceWithoutContainer(pos: RoomPosition): Source | null {
-    return pos.findClosestByPath(FIND_SOURCES, {
-      filter: s =>
-        s.pos.findInRange(FIND_STRUCTURES, 1, {
-          filter: c => c.structureType === STRUCTURE_CONTAINER
-        }).length === 0
-    });
   }
 }

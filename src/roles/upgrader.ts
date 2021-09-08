@@ -20,10 +20,7 @@ export class Upgrader extends Minder {
     // choose new destination
     let destination: RoomPosition | undefined;
     // try to choose container destination
-    // TODO allow multiple upgraders at container. They have carry, so adjacent to container is good enough
-    const containerId = this.claimContainer(
-      info => info.nearController && (!info.minderId || info.minderId === this.id)
-    );
+    const containerId = this.claimControllerContainer();
     if (containerId) {
       const container = Game.getObjectById(containerId);
       if (container) {

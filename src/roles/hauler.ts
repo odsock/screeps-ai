@@ -50,11 +50,11 @@ export class Hauler extends CreepWrapper {
 
     // claim container if free
     if (!this.getMyContainer()) {
-      const claimSourceResult = this.claimSourceContainer();
-      CreepUtils.consoleLogIfWatched(this, `claim source container result: ${claimSourceResult}`);
-      if (claimSourceResult !== OK) {
-        CreepUtils.consoleLogIfWatched(this, `no free containers`);
+      const containerId = this.claimSourceContainer();
+      if (containerId) {
+        CreepUtils.consoleLogIfWatched(this, `claimed source container: ${String(containerId)}`);
       }
+      CreepUtils.consoleLogIfWatched(this, `no free containers`);
     }
 
     // supply spawn/extensions if any capacity in room
@@ -313,16 +313,16 @@ export class Hauler extends CreepWrapper {
     return ERR_NOT_FOUND;
   }
 
-  protected claimSourceContainer(): ScreepsReturnCode {
-    MemoryUtils.refreshContainerMemory(this.room);
-    const containerInfos = this.room.memory.containers.filter(info => info.nearSource && info.haulers.length === 0);
-    if (containerInfos.length > 0) {
-      const containerInfo = containerInfos[0];
-      containerInfo.haulers.push(this.id);
-      CreepUtils.consoleLogIfWatched(this, `claimed source container: ${containerInfo.containerId}`);
-      this.memory.containerId = containerInfo.containerId as Id<StructureContainer>;
-      return OK;
+  protected claimSourceContainer(): Id<StructureContainer> | undefined {
+    for (const sourceId in this.roomw.memory.sources) {
+      const sourceInfo = this.roomw.memory.sources[sourceId];
+      const containerId = sourceInfo.containerId;
+      if (containerId && (!sourceInfo.haulerId || sourceInfo.haulerId === this.id)) {
+        sourceInfo.haulerId = this.id;
+        this.memory.containerId = containerId;
+        return containerId;
+      }
     }
-    return ERR_NOT_FOUND;
+    return undefined;
   }
 }
