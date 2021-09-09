@@ -2,7 +2,6 @@ import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 import { Builder } from "roles/builder";
 import { Claimer } from "roles/claimer";
-import { CreepFactory } from "roles/creep-factory";
 import { Fixer } from "roles/fixer";
 import { Hauler } from "roles/hauler";
 import { Importer } from "roles/importer";
@@ -11,7 +10,6 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { TargetConfig } from "config/target-config";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 import { Guard } from "roles/guard";
-import { MemoryUtils } from "planning/memory-utils";
 import { CreepRole } from "config/creep-types";
 import { Harvester } from "roles/harvester";
 import { Upgrader } from "roles/upgrader";
@@ -239,44 +237,45 @@ export class SpawnControl {
 
   private replaceOldMinders(spawnw: SpawnWrapper): ScreepsReturnCode {
     const upgraders = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Upgrader.ROLE });
-    let result = this.spawnNewMinder(spawnw, upgraders, Upgrader);
+    let result = this.spawnReplacementMinder(spawnw, upgraders, Upgrader);
     if (result === OK) {
       return result;
     }
 
     const harvesters = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE });
-    result = this.spawnNewMinder(spawnw, harvesters, Harvester);
+    result = this.spawnReplacementMinder(spawnw, harvesters, Harvester);
     return result;
   }
 
-  private spawnNewMinder(
+  private spawnReplacementMinder(
     spawnw: SpawnWrapper,
     creeps: Creep[],
     type: typeof Upgrader | typeof Harvester
   ): ScreepsReturnCode {
+    const replacementTime = this.calcReplacementTime(type, spawnw);
     for (const creep of creeps) {
-      const minder = CreepFactory.getCreep(creep);
-      if (!minder.spawning && !minder.memory.retiring) {
-        CreepUtils.consoleLogIfWatched(spawnw, `retirement check: ${minder.name}`);
-        const body = this.getMaxBody(type.BODY_PROFILE);
-        const spawningTime = body.length * CREEP_SPAWN_TIME;
-        CreepUtils.consoleLogIfWatched(spawnw, `spawning time: ${spawningTime}`);
-        const pathToReplace = CreepUtils.getPath(spawnw.pos, minder.pos);
-        const walkTime = minder.calcWalkTime(pathToReplace);
-        CreepUtils.consoleLogIfWatched(spawnw, `walk time: ${walkTime}`);
-        const BUFFER_TIME = 10;
-        const replacementTime = spawningTime + walkTime;
-        CreepUtils.consoleLogIfWatched(spawnw, `replacement time: ${replacementTime} + ${BUFFER_TIME} tick buffer`);
-        if (minder.ticksToLive && minder.ticksToLive <= replacementTime + BUFFER_TIME) {
+      if (!creep.spawning && !creep.memory.retiring) {
+        if (creep.ticksToLive && creep.ticksToLive <= replacementTime) {
           const result = this.spawnBootstrapCreep(type.BODY_PROFILE, type.ROLE, spawnw);
           if (result === OK) {
-            minder.memory.retiring = true;
+            creep.memory.retiring = true;
           }
           return result;
         }
       }
     }
     return ERR_NOT_FOUND;
+  }
+
+  private calcReplacementTime(type: typeof Upgrader | typeof Harvester, spawnw: SpawnWrapper) {
+    const body = this.getMaxBody(type.BODY_PROFILE);
+    const spawningTime = body.length * CREEP_SPAWN_TIME;
+    // walk time is hard to calc if using a hauler to tug
+    // overestimate it, and suicide the retiree when you arrive
+    const WALK_TIME = 50;
+    const replacementTime = spawningTime + WALK_TIME;
+    CreepUtils.consoleLogIfWatched(spawnw, `replacement time: ${replacementTime} tick buffer`);
+    return replacementTime;
   }
 
   /** plan creep count functions */
@@ -299,66 +298,6 @@ export class SpawnControl {
         }
         return true;
       }).length;
-    }
-    return 0;
-  }
-
-  // TODO: make this depend on the distance from sources to controller/spawn/storage
-  private getMaxHaulerCount(): number {
-    return this.roomw.sourceContainers.length;
-  }
-
-  // TODO seems like this belongs in planner
-  private getMaxWorkerCount(): number {
-    // make workers in early stages
-    if (
-      this.rcl <= 1 ||
-      (this.containers.length === 0 &&
-        this.creepCountsByRole[CreepRole.HARVESTER] === 0 &&
-        this.creepCountsByRole[CreepRole.UPGRADER] === 0)
-    ) {
-      // make at least one worker per harvest position
-      const harvestPositions = this.roomw.harvestPositionCount;
-      if (harvestPositions > this.creepCountsByRole[CreepRole.WORKER]) {
-        return harvestPositions;
-      }
-      CreepUtils.consoleLogIfWatched(this.roomw, `harvest positions: ${harvestPositions}`);
-
-      // limit at 20 WORK per source because 10 will empty it, but supplement energy with importers
-      const workers = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === CreepRole.WORKER });
-      const workPartCount = workers.reduce<number>((count, creep) => count + CreepUtils.countParts(WORK, creep), 0);
-      const avgWorkerWorkParts = workPartCount / this.creepCountsByRole[CreepRole.WORKER];
-      CreepUtils.consoleLogIfWatched(this.roomw, `average worker work parts: ${avgWorkerWorkParts}`);
-      if (avgWorkerWorkParts >= 20) {
-        return this.creepCountsByRole[CreepRole.WORKER];
-      }
-
-      // calculate time to harvest
-      const carryPartCount = workers.reduce<number>((count, creep) => count + CreepUtils.countParts(CARRY, creep), 0);
-      const avgWorkerCarry = (carryPartCount * CARRY_CAPACITY) / this.creepCountsByRole[CreepRole.WORKER];
-      CreepUtils.consoleLogIfWatched(this.roomw, `average worker carry: ${avgWorkerCarry}`);
-      const ticksToHarvest = avgWorkerCarry / (avgWorkerWorkParts * HARVEST_POWER);
-      CreepUtils.consoleLogIfWatched(this.roomw, `ticks to harvest: ${ticksToHarvest}`);
-
-      // cache this expensive nested loop
-      let longestSourceRangeToSpawn = MemoryUtils.getCache<number>(`${this.roomw.name}_longestSourceRangeToSpawn`);
-      if (!longestSourceRangeToSpawn) {
-        longestSourceRangeToSpawn = this.roomw.sources.reduce<number>((outerRange, source) => {
-          return this.roomw.spawns.reduce<number>((innerRange, spawn) => {
-            const range = source.pos.getRangeTo(spawn.pos.x, spawn.pos.y);
-            return innerRange > range ? innerRange : range;
-          }, outerRange);
-        }, 0);
-        MemoryUtils.setCache(`${this.roomw.name}_longestSourceRangeToSpawn`, longestSourceRangeToSpawn, 1000);
-      }
-      CreepUtils.consoleLogIfWatched(this.roomw, `longest source range from spawn: ${longestSourceRangeToSpawn}`);
-
-      const harvestCyclesPerTransit = (longestSourceRangeToSpawn * 2) / ticksToHarvest;
-      CreepUtils.consoleLogIfWatched(this.roomw, `harvest cycles per transit: ${harvestCyclesPerTransit}`);
-      const maxWorkerCount = harvestPositions + harvestCyclesPerTransit;
-      CreepUtils.consoleLogIfWatched(this.roomw, `max workers: ${maxWorkerCount}`);
-
-      return maxWorkerCount;
     }
     return 0;
   }
