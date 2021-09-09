@@ -1,4 +1,3 @@
-import { CreepUtils } from "creep-utils";
 import { PlannerUtils } from "./planner-utils";
 
 export class MemoryUtils {
@@ -72,9 +71,6 @@ export class MemoryUtils {
     }
     if (controllerInfo.linkId && !Game.getObjectById(controllerInfo.linkId)) {
       controllerInfo.linkId = undefined;
-    }
-    if (controllerInfo.minderId && !Game.getObjectById(controllerInfo.minderId)) {
-      controllerInfo.minderId = undefined;
     }
     if (controllerInfo.haulerId && !Game.getObjectById(controllerInfo.haulerId)) {
       controllerInfo.haulerId = undefined;

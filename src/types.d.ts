@@ -46,7 +46,6 @@ interface RoomSources {
 
 interface ControllerInfo {
   containerId?: Id<StructureContainer>;
-  minderId?: Id<Creep>;
   haulerId?: Id<Creep>;
   linkId?: Id<StructureLink>;
 }

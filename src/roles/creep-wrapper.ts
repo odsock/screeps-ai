@@ -409,17 +409,6 @@ export abstract class CreepWrapper extends Creep {
     return undefined;
   }
 
-  protected claimControllerContainer(): Id<StructureContainer> | undefined {
-    const containerId = this.room.memory.controller.containerId;
-    const minderId = this.room.memory.controller.minderId;
-    if (containerId && (!minderId || minderId === this.id)) {
-      this.room.memory.controller.minderId = this.id;
-      this.memory.containerId = containerId;
-      return containerId;
-    }
-    return undefined;
-  }
-
   protected moveToRetiree(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `moving to retiree`);
     const retireeName = this.memory.retiree as string;
