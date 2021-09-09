@@ -20,7 +20,7 @@ export class Upgrader extends Minder {
     // choose new destination
     let destination: RoomPosition | undefined;
     // try to choose container destination
-    const containerId = this.claimControllerContainer();
+    const containerId = this.roomw.memory.controller.containerId;
     if (containerId) {
       const container = Game.getObjectById(containerId);
       if (container) {
