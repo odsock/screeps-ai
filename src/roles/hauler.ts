@@ -1,8 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
-import { MemoryUtils } from "planning/memory-utils";
-import { CreepFactory } from "./creep-factory";
 import { CreepWrapper } from "./creep-wrapper";
 
 // TODO: assign to source containers or something so they don't only use closest
@@ -101,12 +99,10 @@ export class Hauler extends CreepWrapper {
     }
 
     let result: ScreepsReturnCode;
-    if (this.memory.working) {
-      // try to pull
-    } else {
+    if (!this.memory.working) {
       // go find the creep to haul
       result = this.moveTo(creep);
-      CreepUtils.consoleLogIfWatched(this, `move result`, result);
+      CreepUtils.consoleLogIfWatched(this, `move to creep`, result);
     }
     return OK;
   }

@@ -33,7 +33,7 @@ export class Harvester extends Minder {
     }
 
     if (path && path.length > 0) {
-      this.callTug();
+      this.callHauler();
       if (this.memory.haulerName) {
         const hauler = Game.creeps[this.memory.haulerName];
         if (hauler) {
@@ -50,7 +50,7 @@ export class Harvester extends Minder {
             return ERR_INVALID_ARGS;
           }
         } else {
-          this.cancelTug();
+          this.cancelHauler();
         }
       }
     }
