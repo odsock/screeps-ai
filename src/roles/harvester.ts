@@ -1,6 +1,5 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
-import { MemoryUtils } from "planning/memory-utils";
 import { Minder } from "./minder";
 
 export class Harvester extends Minder {
@@ -11,69 +10,74 @@ export class Harvester extends Minder {
     maxBodyParts: 5
   };
 
-  protected getDestination(): RoomPosition | undefined {
-    // return cached destination if set
-    if (this.memory.destination) {
-      CreepUtils.consoleLogIfWatched(this, `destination in memory: ${this.memory.destination}`);
-      return MemoryUtils.unpackRoomPosition(this.memory.destination);
-    }
-
-    // choose new destination
-    let destination: RoomPosition | undefined;
-    // try to choose container destination
+  public moveToDestination(): ScreepsReturnCode {
+    let path;
+    // move to claimed container if it exists
     const containerId = this.claimSourceContainer();
     if (containerId) {
       const container = Game.getObjectById(containerId);
       if (container) {
-        destination = container.pos;
-        this.memory.destination = MemoryUtils.packRoomPosition(destination);
-        this.memory.destinationType = STRUCTURE_CONTAINER;
-        CreepUtils.consoleLogIfWatched(this, `destination controller container: ${String(destination)}`);
+        path = this.pos.findPathTo(container);
       }
     }
-    // use the source as destination
-    if (!destination) {
-      CreepUtils.consoleLogIfWatched(this, `finding source destination`);
-      const harvestersBySource: { [id: string]: number } = {};
-      this.room.find(FIND_SOURCES).forEach(source => (harvestersBySource[source.id] = 0));
-      this.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE }).forEach(creep => {
-        if (creep.memory.source) {
-          harvestersBySource[creep.memory.source]++;
-        }
-      });
 
-      for (const source in harvestersBySource) {
-        const sourceId = source as Id<Source>;
-        const harvesterCount = harvestersBySource[sourceId];
-        const harvestPositions = this.roomw.getHarvestPositions(sourceId).length;
-        console.log(`source: ${sourceId}, ${harvesterCount} harvesters`);
-        if (harvesterCount < harvestPositions) {
-          destination = Game.getObjectById(sourceId)?.pos;
-        }
-        if (destination) {
-          this.memory.destination = MemoryUtils.packRoomPosition(destination);
-          this.memory.destinationType = LOOK_SOURCES;
-          this.memory.source = sourceId;
+    // choose source if no container
+    if (!this.memory.source) {
+      const sourceId = this.claimSource();
+      if (sourceId) {
+        const source = Game.getObjectById(sourceId);
+        if (source) {
+          path = this.pos.findPathTo(source, { range: 1 });
         }
       }
-      CreepUtils.consoleLogIfWatched(this, `destination source: ${String(destination)}`);
     }
-    return destination;
+
+    if (path && path.length > 0) {
+      this.callTug();
+      if (this.memory.haulerName) {
+        const hauler = Game.creeps[this.memory.haulerName];
+        if (hauler) {
+          const pullResult = hauler.pull(this);
+          const moveResult = this.moveTo(hauler);
+          if (pullResult === OK && moveResult === OK) {
+            if (path.length === 1) {
+              return hauler.moveTo(this);
+            }
+            return hauler.moveByPath(path);
+          } else {
+            CreepUtils.consoleLogIfWatched(this, `failed to pull. pull ${pullResult}, move ${moveResult}`);
+            return ERR_INVALID_ARGS;
+          }
+        } else {
+          this.cancelTug();
+        }
+      }
+    }
+
+    return OK;
   }
 
-  public atDestination(pos = this.pos): boolean {
-    if (this.memory.destination) {
-      const destination = MemoryUtils.unpackRoomPosition(this.memory.destination);
-      if (this.memory.destinationType === LOOK_SOURCES) {
-        const result = pos.inRangeTo(destination, 1);
-        CreepUtils.consoleLogIfWatched(this, `At destination? ${String(result)}`);
-        return result;
+  private claimSource(): Id<Source> | undefined {
+    CreepUtils.consoleLogIfWatched(this, `choosing source`);
+    const harvestersBySource: { [id: string]: Creep[] } = {};
+    this.room.find(FIND_SOURCES).forEach(source => (harvestersBySource[source.id] = []));
+    this.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE }).forEach(creep => {
+      if (creep.memory.source) {
+        harvestersBySource[creep.memory.source].push(creep);
       }
-      // if dest isn't source, must be container, so sit on it
-      return pos.isEqualTo(destination);
+    });
+
+    for (const source in harvestersBySource) {
+      const sourceId = source as Id<Source>;
+      const harvesters = harvestersBySource[sourceId];
+      const workParts = CreepUtils.countParts(WORK, ...harvesters);
+      const harvestPositions = this.roomw.getHarvestPositions(sourceId).length;
+      const WORK_PARTS_PER_SOURCE = 5;
+      if (harvesters.length < harvestPositions && workParts < WORK_PARTS_PER_SOURCE) {
+        this.memory.source = sourceId;
+        return sourceId;
+      }
     }
-    // if no destination, I guess we're here
-    CreepUtils.consoleLogIfWatched(this, `At destination? No destination`);
-    return true;
+    return undefined;
   }
 }

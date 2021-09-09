@@ -35,9 +35,8 @@ export class Hauler extends CreepWrapper {
     if (this.memory.hauleeName) {
       CreepUtils.consoleLogIfWatched(this, `validate haul request `);
       const creepToHaul = Game.creeps[this.memory.hauleeName];
-      if (creepToHaul && creepToHaul.memory.haulRequested && creepToHaul.memory.destination) {
-        const haulDestination = MemoryUtils.unpackRoomPosition(creepToHaul.memory.destination);
-        const result = this.haulCreepJob(creepToHaul, haulDestination);
+      if (creepToHaul && creepToHaul.memory.haulRequested) {
+        const result = this.haulCreepJob(creepToHaul);
         CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
         return;
       } else {
@@ -90,11 +89,9 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private haulCreepJob(creep: Creep, target: RoomPosition): ScreepsReturnCode {
+  private haulCreepJob(creep: Creep): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `haul ${creep.name}`);
     this.updateJob(`tug`);
-
-    const creepw = CreepFactory.getHaulableCreep(creep);
 
     // this.startWorkingInRange(creep.pos, 1);
     if (this.pos.isNearTo(creep.pos)) {
@@ -106,29 +103,12 @@ export class Hauler extends CreepWrapper {
     let result: ScreepsReturnCode;
     if (this.memory.working) {
       // try to pull
-      CreepUtils.consoleLogIfWatched(this, "working");
-      result = this.pull(creep);
-      CreepUtils.consoleLogIfWatched(this, `pull result`, result);
-      result = creep.move(this);
-      CreepUtils.consoleLogIfWatched(this, `creep move result`, result);
-
-      // move toward target
-      if (result === OK && !creepw.atDestination(this.pos)) {
-        result = this.moveTo(target);
-        CreepUtils.consoleLogIfWatched(this, `move result`, result);
-      }
-
-      // swap positions with creep
-      if (result === OK && creepw.atDestination(this.pos)) {
-        result = this.moveTo(creep);
-        CreepUtils.consoleLogIfWatched(this, `last move`, result);
-      }
     } else {
       // go find the creep to haul
       result = this.moveTo(creep);
       CreepUtils.consoleLogIfWatched(this, `move result`, result);
     }
-    return result;
+    return OK;
   }
 
   private supplyStructureJob(

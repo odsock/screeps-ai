@@ -3,21 +3,7 @@ import { CreepWrapper } from "./creep-wrapper";
 
 export abstract class Minder extends CreepWrapper {
   public run(): void {
-    const destination = this.getDestination();
-    const atDestination = this.atDestination(this.pos);
-    CreepUtils.consoleLogIfWatched(this, `at destination ${String(destination)}? ${String(atDestination)}`);
-
-    // wait for hauler if not at haul target
-    if (this.waitingForTug()) {
-      // cancel tug if at destination
-      if (atDestination) {
-        CreepUtils.consoleLogIfWatched(this, `canceling tug request`);
-        this.cancelTug();
-      } else {
-        CreepUtils.consoleLogIfWatched(this, `waiting for tug`);
-        return;
-      }
-    }
+    this.moveToDestination();
 
     // retire old creep if valid retiree set
     if (this.memory.retiree) {
@@ -28,11 +14,6 @@ export abstract class Minder extends CreepWrapper {
       } else {
         this.memory.retiree = undefined;
       }
-    }
-
-    // call for tug if needed
-    if (destination && !atDestination && !this.waitingForTug()) {
-      this.callTug(destination);
     }
 
     // harvest then transfer until container and store is full or source is inactive
@@ -56,7 +37,7 @@ export abstract class Minder extends CreepWrapper {
   private retireCreep(retiree: Creep): ScreepsReturnCode {
     // call for tug if no haul target set
     if (!this.memory.haulRequested) {
-      this.callTug(retiree.pos);
+      this.callTug();
     }
     // request suicide if next to retiree
     if (retiree.pos.isNearTo(this.pos)) {
@@ -68,9 +49,8 @@ export abstract class Minder extends CreepWrapper {
     return OK;
   }
 
-  /** get cached destination, or decide destination if unset */
-  protected abstract getDestination(): RoomPosition | undefined;
-  public abstract atDestination(pos: RoomPosition): boolean;
+  /** use hauler creep to pull to destination */
+  public abstract moveToDestination(): ScreepsReturnCode;
 
   protected harvestFromNearbySource(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `harvesting from source`);
@@ -145,8 +125,8 @@ export abstract class Minder extends CreepWrapper {
     return !!this.memory.haulRequested;
   }
 
-  protected callTug(destination: RoomPosition): void {
-    CreepUtils.consoleLogIfWatched(this, `calling for tug to: ${String(destination)}`);
+  protected callTug(): void {
+    CreepUtils.consoleLogIfWatched(this, `calling for tug`);
     this.memory.haulRequested = true;
   }
 }

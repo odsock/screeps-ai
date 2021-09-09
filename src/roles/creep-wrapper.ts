@@ -404,6 +404,7 @@ export abstract class CreepWrapper extends Creep {
         CreepUtils.consoleLogIfWatched(this, `claimed source container: ${containerId}`);
         sourceInfo.minderId = this.id;
         this.memory.containerId = containerId;
+        this.memory.source = sourceId as Id<Source>;
         return containerId;
       }
     }

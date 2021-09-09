@@ -1,7 +1,5 @@
 interface CreepMemory {
-  destinationType?: string; // type of destination (container, source, controller, etc)
-  destination?: string; // position to be hauled to if requested
-  source?: string;
+  source?: Id<Source>;
   hauleeName?: string; // creep being hauled
   haulerName?: string; // creep doing the hauling
   haulRequested?: boolean; // true if waiting on hauler, or being hauled
