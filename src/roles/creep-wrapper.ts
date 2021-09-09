@@ -401,11 +401,13 @@ export abstract class CreepWrapper extends Creep {
       const sourceInfo = this.roomw.memory.sources[sourceId];
       const containerId = sourceInfo.containerId;
       if (containerId && (!sourceInfo.minderId || sourceInfo.minderId === this.id)) {
+        CreepUtils.consoleLogIfWatched(this, `claimed source container: ${containerId}`);
         sourceInfo.minderId = this.id;
         this.memory.containerId = containerId;
         return containerId;
       }
     }
+    CreepUtils.consoleLogIfWatched(this, `no free source containers`);
     return undefined;
   }
 
