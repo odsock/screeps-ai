@@ -43,7 +43,8 @@ export class Harvester extends Minder {
             if (path.length === 1) {
               return hauler.moveTo(this);
             }
-            return hauler.moveByPath(path);
+            const haulResult = hauler.moveByPath(path);
+            CreepUtils.consoleLogIfWatched(this, `haul result`, haulResult);
           } else {
             CreepUtils.consoleLogIfWatched(this, `failed to pull. pull ${pullResult}, move ${moveResult}`);
             return ERR_INVALID_ARGS;
