@@ -244,6 +244,9 @@ export class SpawnControl {
 
     const harvesters = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE });
     result = this.spawnReplacementMinder(spawnw, harvesters, Harvester);
+    if (result === ERR_NOT_FOUND) {
+      return OK;
+    }
     return result;
   }
 
