@@ -15,54 +15,35 @@ export class Upgrader extends Minder {
     // return cached destination
     if (this.memory.destination) {
       return MemoryUtils.unpackRoomPosition(this.memory.destination);
-    }
-
-    // choose new destination
-    let destination: RoomPosition | undefined;
-    // try to choose container destination
-    const containerId = this.roomw.memory.controller.containerId;
-    if (containerId) {
-      const container = Game.getObjectById(containerId);
-      if (container) {
-        destination = container.pos;
-        this.memory.containerId = containerId;
-        this.memory.destination = MemoryUtils.packRoomPosition(destination);
-        this.memory.destinationType = STRUCTURE_CONTAINER;
-        CreepUtils.consoleLogIfWatched(this, `destination controller container: ${String(destination)}`);
-      }
-    }
-    // use the controller as destination
-    if (!destination && this.room.controller) {
-      destination = this.room.controller.pos;
+    } else if (this.room.controller) {
+      const destination = this.room.controller.pos;
       this.memory.destination = MemoryUtils.packRoomPosition(destination);
-      this.memory.destinationType = STRUCTURE_CONTROLLER;
-      CreepUtils.consoleLogIfWatched(this, `destination controller: ${String(destination)}`);
+      CreepUtils.consoleLogIfWatched(this, `destination set as controller: ${String(destination)}`);
+      return destination;
     }
-    return destination;
+    return undefined;
   }
 
   // TODO avoid harvest positions
   public atDestination(pos = this.pos): boolean {
     CreepUtils.consoleLogIfWatched(this, `atDestination current pos: ${String(pos)}`);
-    if (this.memory.destination && this.room.controller) {
-      const destination = MemoryUtils.unpackRoomPosition(this.memory.destination);
-      CreepUtils.consoleLogIfWatched(this, `destination: ${String(destination)}`);
-      if (this.memory.destinationType === STRUCTURE_CONTROLLER) {
-        const inRangeToDestination = pos.inRangeTo(destination, 3);
-        CreepUtils.consoleLogIfWatched(this, `destination is controller. In range? ${String(inRangeToDestination)}`);
-        return inRangeToDestination;
+    if (this.room.controller) {
+      const controller = this.room.controller;
+      CreepUtils.consoleLogIfWatched(this, `destination: ${String(controller)}`);
+      let inRange = pos.inRangeTo(controller, 3);
+      CreepUtils.consoleLogIfWatched(this, `In range to controller? ${String(inRange)}`);
+      if (this.roomw.memory.controller.containerId) {
+        const container = Game.getObjectById(this.roomw.memory.controller.containerId);
+        if (container) {
+          // if dest isn't controller, must be container, so be in both transfer and upgrade range
+          const inRangeToContainer = pos.inRangeTo(container, 1);
+          CreepUtils.consoleLogIfWatched(this, `In range to container? ${String(inRangeToContainer)}`);
+          inRange = inRangeToContainer && inRange;
+        }
       }
-      const inRangeToController = pos.inRangeTo(this.room.controller, 3);
-      const inRangeToContainer = pos.inRangeTo(destination, 1);
-      // if dest isn't controller, must be container, so be in transfer and upgrade range
-      const inRange = inRangeToContainer && inRangeToController;
-      CreepUtils.consoleLogIfWatched(
-        this,
-        `destination is container. In range? container: ${String(inRangeToContainer)}, controller: ${String(
-          inRangeToContainer
-        )}`
-      );
-      return inRange;
+      // don't upgrade from a harvest position
+      const inRangeToSource = this.roomw.sources.find(source => source.pos.isNearTo(this.pos));
+      return inRange && !inRangeToSource;
     }
     // if no destination, I guess we're here
     return true;
