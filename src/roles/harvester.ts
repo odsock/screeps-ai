@@ -38,7 +38,7 @@ export class Harvester extends Minder {
         const hauler = Game.creeps[this.memory.haulerName];
         if (hauler) {
           const pullResult = hauler.pull(this);
-          const moveResult = this.moveTo(hauler);
+          const moveResult = this.move(hauler);
           if (pullResult === OK && moveResult === OK) {
             if (path.length === 1) {
               return hauler.moveTo(this);

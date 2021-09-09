@@ -46,7 +46,7 @@ export class Upgrader extends Minder {
           if (hauler) {
             CreepUtils.consoleLogIfWatched(this, `already have a tug`);
             const pullResult = hauler.pull(this);
-            const moveResult = this.moveTo(hauler);
+            const moveResult = this.move(hauler);
             if (pullResult === OK && moveResult === OK) {
               if (path.length === 1) {
                 return hauler.moveTo(this);
