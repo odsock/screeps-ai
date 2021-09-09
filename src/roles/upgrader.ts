@@ -25,6 +25,7 @@ export class Upgrader extends Minder {
       const container = Game.getObjectById(containerId);
       if (container) {
         destination = container.pos;
+        this.memory.containerId = containerId;
         this.memory.destination = MemoryUtils.packRoomPosition(destination);
         this.memory.destinationType = STRUCTURE_CONTAINER;
         CreepUtils.consoleLogIfWatched(this, `destination controller container: ${String(destination)}`);

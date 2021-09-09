@@ -425,7 +425,9 @@ export abstract class CreepWrapper extends Creep {
     }
   }
 
+  /** get container from my memory, or an adjacent one if found */
   protected getMyContainer(): StructureContainer | undefined {
+    // return container in memory if valid
     if (this.memory.containerId) {
       const container = Game.getObjectById(this.memory.containerId);
       if (container) {
@@ -434,7 +436,17 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `container id invalid`);
       this.memory.containerId = undefined;
     }
-    return undefined;
+
+    // try to find nearby container
+    const nearbyContainer = this.roomw
+      .find<StructureContainer>(FIND_STRUCTURES, {
+        filter: structure => structure.structureType === STRUCTURE_CONTAINER
+      })
+      .find(container => container.pos.isNearTo(this.pos));
+    if (nearbyContainer) {
+      this.memory.containerId = nearbyContainer.id;
+    }
+    return nearbyContainer;
   }
 
   protected findStructureForRepair(): Structure | undefined {

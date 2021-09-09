@@ -40,11 +40,11 @@ export abstract class Minder extends CreepWrapper {
       return;
     }
 
-    // help build if close enough
+    // build, repair, or upgrade
     if (
       this.buildNearbySite() !== ERR_NOT_FOUND ||
-      this.upgrade() !== ERR_NOT_FOUND ||
-      this.repairNearbySite() !== ERR_NOT_FOUND
+      this.repairNearbySite() !== ERR_NOT_FOUND ||
+      this.upgrade() !== ERR_NOT_FOUND
     ) {
       this.withdrawFromMyContainer();
       return;
@@ -67,17 +67,6 @@ export abstract class Minder extends CreepWrapper {
     }
     return OK;
   }
-
-  // protected atDestination(): boolean {
-  //   if (this.memory.destination) {
-  //     const destination = MemoryUtils.unpackRoomPosition(this.memory.destination);
-  //     const result = this.pos.isEqualTo(destination);
-  //     CreepUtils.consoleLogIfWatched(this, `At destination? ${String(result)}`);
-  //     return result;
-  //   }
-  //   CreepUtils.consoleLogIfWatched(this, `At destination? No destination`);
-  //   return true;
-  // }
 
   /** get cached destination, or decide destination if unset */
   protected abstract getDestination(): RoomPosition | undefined;

@@ -316,6 +316,7 @@ export class Hauler extends CreepWrapper {
     return ERR_NOT_FOUND;
   }
 
+  /** find a source container without a hauler id set */
   protected claimSourceContainer(): Id<StructureContainer> | undefined {
     for (const sourceId in this.roomw.memory.sources) {
       const sourceInfo = this.roomw.memory.sources[sourceId];
