@@ -42,13 +42,26 @@ export class Upgrader extends Minder {
 
   // TODO avoid harvest positions
   public atDestination(pos = this.pos): boolean {
+    CreepUtils.consoleLogIfWatched(this, `atDestination current pos: ${String(pos)}`);
     if (this.memory.destination && this.room.controller) {
       const destination = MemoryUtils.unpackRoomPosition(this.memory.destination);
+      CreepUtils.consoleLogIfWatched(this, `destination: ${String(destination)}`);
       if (this.memory.destinationType === STRUCTURE_CONTROLLER) {
-        return pos.inRangeTo(destination, 3);
+        const inRangeToDestination = pos.inRangeTo(destination, 3);
+        CreepUtils.consoleLogIfWatched(this, `destination is controller. In range? ${String(inRangeToDestination)}`);
+        return inRangeToDestination;
       }
+      const inRangeToController = pos.inRangeTo(this.room.controller, 3);
+      const inRangeToContainer = pos.inRangeTo(destination, 1);
       // if dest isn't controller, must be container, so be in transfer and upgrade range
-      return pos.inRangeTo(destination, 1) && pos.inRangeTo(this.room.controller, 3);
+      const inRange = inRangeToContainer && inRangeToController;
+      CreepUtils.consoleLogIfWatched(
+        this,
+        `destination is container. In range? container: ${String(inRangeToContainer)}, controller: ${String(
+          inRangeToContainer
+        )}`
+      );
+      return inRange;
     }
     // if no destination, I guess we're here
     return true;
