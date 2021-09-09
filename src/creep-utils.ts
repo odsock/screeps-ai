@@ -1,3 +1,4 @@
+import { posix } from "path";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 
 export class CreepUtils {
@@ -81,25 +82,27 @@ export class CreepUtils {
     }, 0);
   }
 
-  /** Calculates the Hausdorff distance between two sets of positions */
+  private static findCentroid = (
+    centroid: { x: number; y: number },
+    pos: RoomPosition,
+    index: number,
+    set: RoomPosition[]
+  ): { x: number; y: number } => {
+    centroid.x += pos.x / set.length;
+    centroid.y += pos.y / set.length;
+    return centroid;
+  };
+
+  /** Calculates the distance between two sets of positions
+   *  Returns the distance between the centroids of each set.
+   */
   public static calculatePositionSetDistance(setA: RoomPosition[], setB: RoomPosition[]): number {
-    console.log(`hausdorff: ${setA.toString()}, ${setB.toString()}`);
-    let xRangeMax = 0;
-    const yRangeMax = 0;
-    setA.forEach(posA => {
-      setB.forEach(posB => {
-        const xRange = Math.abs(posA.x - posB.x);
-        if (xRange > xRangeMax) {
-          xRangeMax = xRange;
-        }
-        const yRange = Math.abs(posA.x - posB.x);
-        if (yRange > yRangeMax) {
-          xRangeMax = yRange;
-        }
-      });
-    });
-    const result = Math.sqrt(Math.pow(xRangeMax, 2) + Math.pow(yRangeMax, 2));
-    console.log(`result: ${result}`);
-    return result;
+    const centroidA = setA.reduce(this.findCentroid, { x: 0, y: 0 });
+    const centroidB = setB.reduce(this.findCentroid, { x: 0, y: 0 });
+    const distance = Math.sqrt(
+      Math.pow(Math.abs(centroidA.x - centroidB.x), 2) + Math.pow(Math.abs(centroidA.x - centroidB.x), 2)
+    );
+    console.log(`result: ${distance}`);
+    return distance;
   }
 }
