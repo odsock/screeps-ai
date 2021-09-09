@@ -17,6 +17,7 @@ export class Upgrader extends Minder {
       if (this.room.memory.controller.containerId) {
         const container = Game.getObjectById(this.room.memory.controller.containerId);
         if (container) {
+          CreepUtils.consoleLogIfWatched(this, `finding path to controller container`);
           path = this.pos.findPathTo(container, {
             range: 1,
             costCallback: (roomName, costMatrix) => {
@@ -26,32 +27,24 @@ export class Upgrader extends Minder {
         }
       }
 
-      // move to controller link if it exists
-      if (this.room.memory.controller.linkId) {
-        const link = Game.getObjectById(this.room.memory.controller.linkId);
-        if (link) {
-          path = this.pos.findPathTo(link, {
-            range: 1,
-            costCallback: (roomName, costMatrix) => {
-              this.roomw.getCostMatrix("avoidHarvestPositions", costMatrix);
-            }
-          });
-        }
+      // move to controller
+      if (!path) {
+        CreepUtils.consoleLogIfWatched(this, `finding path to controller`);
+        path = this.pos.findPathTo(this.room.controller, {
+          range: 3,
+          costCallback: (roomName, costMatrix) => {
+            this.roomw.getCostMatrix("avoidHarvestPositions", costMatrix);
+          }
+        });
       }
 
-      // move to controller
-      path = this.pos.findPathTo(this.room.controller, {
-        range: 3,
-        costCallback: (roomName, costMatrix) => {
-          this.roomw.getCostMatrix("avoidHarvestPositions", costMatrix);
-        }
-      });
-
       if (path.length > 0) {
+        CreepUtils.consoleLogIfWatched(this, `calling tug for path`);
         this.callTug();
         if (this.memory.haulerName) {
           const hauler = Game.creeps[this.memory.haulerName];
           if (hauler) {
+            CreepUtils.consoleLogIfWatched(this, `already have a tug`);
             const pullResult = hauler.pull(this);
             const moveResult = this.moveTo(hauler);
             if (pullResult === OK && moveResult === OK) {
