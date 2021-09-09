@@ -257,16 +257,16 @@ export class SpawnControl {
     for (const creep of creeps) {
       const minder = CreepFactory.getCreep(creep);
       if (!minder.spawning && !minder.memory.retiring) {
+        CreepUtils.consoleLogIfWatched(spawnw, `retirement check: ${minder.name}`);
         const body = this.getMaxBody(type.BODY_PROFILE);
         const spawningTime = body.length * CREEP_SPAWN_TIME;
+        CreepUtils.consoleLogIfWatched(spawnw, `spawning time: ${spawningTime}`);
         const pathToReplace = CreepUtils.getPath(spawnw.pos, minder.pos);
         const walkTime = minder.calcWalkTime(pathToReplace);
+        CreepUtils.consoleLogIfWatched(spawnw, `walk time: ${walkTime}`);
         const BUFFER_TIME = 10;
         const replacementTime = spawningTime + walkTime;
-        CreepUtils.consoleLogIfWatched(
-          spawnw,
-          `retirement check: ${minder.name}, replacement time: ${replacementTime} + ${BUFFER_TIME} tick buffer`
-        );
+        CreepUtils.consoleLogIfWatched(spawnw, `replacement time: ${replacementTime} + ${BUFFER_TIME} tick buffer`);
         if (minder.ticksToLive && minder.ticksToLive <= replacementTime + BUFFER_TIME) {
           const result = this.spawnBootstrapCreep(type.BODY_PROFILE, type.ROLE, spawnw);
           if (result === OK) {
