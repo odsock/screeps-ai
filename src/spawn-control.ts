@@ -274,7 +274,7 @@ export class SpawnControl {
     // overestimate it, and suicide the retiree when you arrive
     const WALK_TIME = 50;
     const replacementTime = spawningTime + WALK_TIME;
-    CreepUtils.consoleLogIfWatched(spawnw, `replacement time: ${replacementTime} tick buffer`);
+    CreepUtils.consoleLogIfWatched(spawnw, `replacement time: ${replacementTime} ticks`);
     return replacementTime;
   }
 
