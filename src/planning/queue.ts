@@ -21,7 +21,7 @@ export class Queue<T> {
       this.store = this.initializer().map(item => {
         return { item } as Ticket<T>;
       });
-      MemoryUtils.setCache(this.cacheKey, this.store);
+      MemoryUtils.setCache(this.cacheKey, this.store, CREEP_LIFE_TIME * 2);
     }
   }
 
@@ -30,7 +30,7 @@ export class Queue<T> {
     if (!this.validator || this.validator(item)) {
       this.store.push({ item, priority } as Ticket<T>);
       this.store.sort((a, b) => a.priority - b.priority);
-      MemoryUtils.setCache(this.cacheKey, this.store);
+      MemoryUtils.setCache(this.cacheKey, this.store, CREEP_LIFE_TIME * 2);
       return true;
     }
     return false;
@@ -53,7 +53,7 @@ export class Queue<T> {
       claimTicket.creepId = id;
     }
 
-    MemoryUtils.setCache(this.cacheKey, this.store);
+    MemoryUtils.setCache(this.cacheKey, this.store, CREEP_LIFE_TIME * 2);
     return claimTicket?.item;
   }
 
@@ -63,7 +63,7 @@ export class Queue<T> {
     do {
       ticket = this.store.shift();
     } while (ticket && this.validator && !this.validator(ticket.item));
-    MemoryUtils.setCache(this.cacheKey, this.store);
+    MemoryUtils.setCache(this.cacheKey, this.store, CREEP_LIFE_TIME * 2);
     return ticket?.item;
   }
 

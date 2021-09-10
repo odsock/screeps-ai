@@ -141,7 +141,7 @@ export class RoomWrapper extends Room {
     queue = queue.filter(claim => !Game.rooms[claim.name]?.controller?.my).map(claim => claim.purgeDeadCreeps());
     const queueString = queue.join();
     CreepUtils.consoleLogIfWatched(this, `claim queue: ${queueString}`);
-    MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, 1000);
+    MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, CREEP_LIFE_TIME * 2);
     return queue;
   }
 
@@ -157,7 +157,7 @@ export class RoomWrapper extends Room {
       roomClaim.get(creep.id);
       console.log(`get claim: ${roomClaim.name}, ${roomClaim.count} claims now`);
       CreepUtils.consoleLogIfWatched(this, `found ${roomClaim.name}, ${roomClaim.count} claims`);
-      MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, 1000);
+      MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, CREEP_LIFE_TIME * 2);
       return roomClaim.name;
     }
     CreepUtils.consoleLogIfWatched(this, `no unclaimed target rooms found`);

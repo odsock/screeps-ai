@@ -6,6 +6,7 @@ import { MemoryUtils } from "./memory-utils";
 import { CreepUtils } from "creep-utils";
 import { StructurePatterns } from "config/structure-patterns";
 import { StructurePlan } from "./structure-plan";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 
 export class Planner {
   private readonly roomw: RoomWrapper;
@@ -60,8 +61,8 @@ export class Planner {
 
         // cache plan
         // TODO put this in room wrapper
-        MemoryUtils.setCache(`${this.roomw.name}_plan`, plan);
-        MemoryUtils.setCache(`${this.roomw.name}_centerPoint`, centerPoint);
+        MemoryUtils.setCache(`${this.roomw.name}_plan`, plan, SockPuppetConstants.PLANNING_INTERVAL);
+        MemoryUtils.setCache(`${this.roomw.name}_centerPoint`, centerPoint, SockPuppetConstants.PLANNING_INTERVAL);
       }
     }
   }
