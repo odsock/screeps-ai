@@ -33,68 +33,66 @@ export class Harvester extends Minder {
   }
 
   public moveToDestination(): ScreepsReturnCode {
-    let target: RoomPosition | undefined;
-    let findPathOpts: FindPathOpts | undefined;
-
     // move to claimed container if it exists
     const container = this.getMyContainer();
     if (container) {
       CreepUtils.consoleLogIfWatched(this, `finding path to source container`);
-      target = container.pos;
-      findPathOpts = {};
+      return this.directHauler(container.pos, {});
     }
 
     // move to chosen source if no container claim
-    if (!target) {
-      const source = this.getMySource();
-      if (source) {
-        CreepUtils.consoleLogIfWatched(this, `finding path to source`);
-        target = source.pos;
-        findPathOpts = { range: 1 };
-      }
+    const source = this.getMySource();
+    if (source) {
+      CreepUtils.consoleLogIfWatched(this, `finding path to source`);
+      return this.directHauler(source.pos, { range: 1 });
     }
 
-    if (target) {
-      // cancel hauler call if at target
-      const myPathToTarget = this.pos.findPathTo(target, findPathOpts);
-      if (myPathToTarget.length === 0) {
-        this.cancelHauler();
-        return OK;
-      }
+    // nowhere to move
+    CreepUtils.consoleLogIfWatched(this, `stumped. no source to harvest.`);
+    return ERR_INVALID_TARGET;
+  }
 
-      // call a hauler if not at target yet
-      CreepUtils.consoleLogIfWatched(this, `calling hauler for path`);
-      this.callHauler();
+  private directHauler(target: RoomPosition, findPathOpts: FindPathOpts): ScreepsReturnCode {
+    // cancel hauler call if at target
+    const myPathToTarget = this.pos.findPathTo(target, findPathOpts);
+    if (myPathToTarget.length === 0) {
+      this.cancelHauler();
+      return OK;
+    }
 
-      // if we have a hauler, tell it where to go
-      if (this.memory.haulerName) {
-        const hauler = Game.creeps[this.memory.haulerName];
-        if (hauler) {
-          CreepUtils.consoleLogIfWatched(this, `already have a hauler`);
-          // setup hauler pulling
-          const pullResult = hauler.pull(this);
-          const moveResult = this.move(hauler);
-          if (pullResult === OK && moveResult === OK) {
-            // get haulers path to target
-            const haulerPathToTarget = hauler.pos.findPathTo(target, findPathOpts);
+    // call a hauler if not at target yet
+    CreepUtils.consoleLogIfWatched(this, `calling hauler for path`);
+    this.callHauler();
 
-            // if path is 0 steps, hauler is at target, so swap positions
-            if (haulerPathToTarget.length === 0) {
-              const result = hauler.moveTo(this);
-              CreepUtils.consoleLogIfWatched(this, `haul last step`, result);
-              return result;
-            }
+    // if we have a hauler, tell it where to go
+    if (this.memory.haulerName) {
+      const hauler = Game.creeps[this.memory.haulerName];
+      if (hauler) {
+        CreepUtils.consoleLogIfWatched(this, `already have a hauler`);
+        // setup hauler pulling
+        const pullResult = hauler.pull(this);
+        const moveResult = this.move(hauler);
+        if (pullResult === OK && moveResult === OK) {
+          // get haulers path to target
+          const haulerPathToTarget = hauler.pos.findPathTo(target, findPathOpts);
 
-            // move hauler along the path
-            const haulResult = hauler.moveByPath(haulerPathToTarget);
-            CreepUtils.consoleLogIfWatched(this, `haul`, haulResult);
-          } else {
-            CreepUtils.consoleLogIfWatched(this, `failed to pull. pull ${pullResult}, move ${moveResult}`);
-            return ERR_INVALID_ARGS;
+          // if path is 0 steps, hauler is at target, so swap positions
+          if (haulerPathToTarget.length === 0) {
+            const result = hauler.moveTo(this);
+            CreepUtils.consoleLogIfWatched(this, `haul last step`, result);
+            return result;
           }
+
+          // move hauler along the path
+          const haulResult = hauler.moveByPath(haulerPathToTarget);
+          CreepUtils.consoleLogIfWatched(this, `haul`, haulResult);
         } else {
-          this.cancelHauler();
+          CreepUtils.consoleLogIfWatched(this, `failed to pull. pull ${pullResult}, move ${moveResult}`);
+          return ERR_INVALID_ARGS;
         }
+      } else {
+        this.cancelHauler();
+        return ERR_INVALID_TARGET;
       }
     }
     return OK;
