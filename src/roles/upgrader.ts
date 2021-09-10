@@ -87,4 +87,18 @@ export class Upgrader extends Minder {
     }
     return OK;
   }
+
+  /** get controller container from memory */
+  protected getMyContainer(): StructureContainer | undefined {
+    // return container in memory if valid
+    if (this.room.memory.controller.containerId) {
+      const container = Game.getObjectById(this.room.memory.controller.containerId);
+      if (container) {
+        return container;
+      }
+      CreepUtils.consoleLogIfWatched(this, `controller container id invalid`);
+      this.room.memory.controller.containerId = undefined;
+    }
+    return undefined;
+  }
 }
