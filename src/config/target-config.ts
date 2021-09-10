@@ -12,5 +12,5 @@ export class TargetConfig {
   };
 
   // TODO dynamic importer counts
-  public static readonly IMPORTERS_PER_REMOTE_ROOM = 2;
+  public static readonly IMPORTERS_PER_REMOTE_ROOM = 4;
 }
