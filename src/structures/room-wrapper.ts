@@ -312,6 +312,7 @@ export class RoomWrapper extends Room {
       this.costMatrixCache[name] = costMatrix;
       this.room.memory.costMatrix[name] = costMatrix.serialize();
     }
+    console.log(`DEBUG: harvest position 8,37 cost: ${costMatrix.get(8, 37)}`);
     return costMatrix;
   }
 
