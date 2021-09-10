@@ -11,7 +11,7 @@ export class StructurePlan {
   public constructor(pattern: StructurePatternPosition[], private readonly room: Room) {
     this.terrain = room.getTerrain();
     this.pattern = pattern;
-    this.roomw = new RoomWrapper(room);
+    this.roomw = RoomWrapper.getInstance(room.name);
   }
 
   public printPattern(): void {

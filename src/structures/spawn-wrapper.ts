@@ -6,7 +6,7 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   public get roomw(): RoomWrapper {
-    return new RoomWrapper(this.room);
+    return RoomWrapper.getInstance(this.room.name);
   }
 
   public spawn(body: BodyPartConstant[], role: string, retiree?: string): ScreepsReturnCode {

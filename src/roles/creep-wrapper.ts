@@ -9,7 +9,7 @@ export abstract class CreepWrapper extends Creep {
   public abstract run(): void;
 
   public get roomw(): RoomWrapper {
-    return new RoomWrapper(this.room);
+    return RoomWrapper.getInstance(this.room.name);
   }
 
   protected updateJob(job: string): void {

@@ -4,7 +4,7 @@ import { RoomWrapper } from "structures/room-wrapper";
 export class RoadPlan {
   private readonly roomw: RoomWrapper;
   public constructor(private readonly room: Room) {
-    this.roomw = new RoomWrapper(room);
+    this.roomw = RoomWrapper.getInstance(room.name);
   }
 
   public placeRoadSourceContainersToControllerContainers(): ScreepsReturnCode {

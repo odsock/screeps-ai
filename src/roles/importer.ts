@@ -89,8 +89,7 @@ export class Importer extends RemoteWorker {
     if (!targetRoom && this.homeRoom) {
       CreepUtils.consoleLogIfWatched(this, `getting remote from queue`);
       // find a target room
-      // TODO use room factory to get target through home room
-      targetRoom = new RoomWrapper(Game.rooms[this.homeRoom]).remoteQueue.claim(this.id);
+      targetRoom = RoomWrapper.getInstance(this.homeRoom).remoteQueue.claim(this.id);
 
       if (targetRoom) {
         // store my target room in my memory

@@ -6,12 +6,30 @@ import { CreepUtils } from "creep-utils";
 import { Queue } from "planning/queue";
 import { RoomClaim } from "planning/room-claim";
 
-// TODO: figure out how to make a singleton for each room
 export class RoomWrapper extends Room {
+  private static instances: Map<string, RoomWrapper> = new Map<string, RoomWrapper>();
+
+  public static getInstance(name: string): RoomWrapper {
+    console.log(`DEBUG: get instance ${name}`);
+    const instance = RoomWrapper.instances.get(name);
+    if (instance) {
+      return instance;
+    } else {
+      const room = Game.rooms[name];
+      if (room) {
+        console.log(`DEBUG: make new instance ${name}`);
+        const newInstance = new RoomWrapper(room);
+        RoomWrapper.instances.set(name, newInstance);
+        return newInstance;
+      }
+      throw new Error(`ERROR: invalid room name ${name}`);
+    }
+  }
+
   private readonly remoteQueueStore: Queue<string>;
   // private readonly haulQueueStore: Queue<string>;
 
-  public constructor(private readonly room: Room) {
+  private constructor(private readonly room: Room) {
     super(room.name);
     // this.haulQueueStore = new Queue<string>(`${this.name}_haulQueue`, undefined, Queue.creepNameValidator);
     this.remoteQueueStore = new Queue<string>(

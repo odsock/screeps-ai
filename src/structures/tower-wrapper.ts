@@ -21,7 +21,7 @@ export class TowerWrapper extends StructureTower {
   }
 
   public get roomw(): RoomWrapper {
-    return new RoomWrapper(this.room);
+    return RoomWrapper.getInstance(this.room.name);
   }
 
   private healCreeps(): ScreepsReturnCode {

@@ -8,7 +8,7 @@ export class Logger {
   }
 
   public logRoom(room: Room): void {
-    const roomw = new RoomWrapper(room);
+    const roomw = RoomWrapper.getInstance(room.name);
 
     if (!roomw.memory.construction) {
       roomw.memory.construction = {};

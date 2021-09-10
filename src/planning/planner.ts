@@ -12,7 +12,7 @@ export class Planner {
   private readonly roomw: RoomWrapper;
 
   public constructor(room: Room) {
-    this.roomw = new RoomWrapper(room);
+    this.roomw = RoomWrapper.getInstance(room.name);
   }
 
   public run(): ScreepsReturnCode {
