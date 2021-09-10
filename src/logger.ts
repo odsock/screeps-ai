@@ -41,6 +41,10 @@ export class Logger {
       }
     }
 
+    if (!roomw.memory.logCounts) {
+      roomw.memory.logCounts = {};
+    }
+
     // log RCL level times
     if (roomw.controller) {
       const lastRCL = roomw.memory.logCounts.rcl;

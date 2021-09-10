@@ -22,7 +22,7 @@ interface RoomMemory {
   spawns?: Id<StructureSpawn>[];
   costMatrix?: { [name: string]: number[] };
   log: string[];
-  logCounts: LogCounts;
+  logCounts?: LogCounts;
   construction: { [id: string]: ConstructionLog };
   watched?: boolean;
   controller: ControllerInfo;
