@@ -8,13 +8,19 @@ import { TowerWrapper } from "structures/tower-wrapper";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 
 export class Sockpuppet {
+  private roomWrapperCache: Map<string, RoomWrapper> = new Map<string, RoomWrapper>();
+
   public run(): void {
     // refresh global cache if missing
     // MemoryUtils.writeCacheToMemory();
 
     // Run each room
-    for (const roomId in Game.rooms) {
-      const roomw = new RoomWrapper(Game.rooms[roomId]);
+    for (const name in Game.rooms) {
+      const roomw = this.getRoom(name);
+      if (!roomw) {
+        console.log(`ERROR: bad room name ${name}`);
+        continue;
+      }
 
       // only consider rooms we own
       if (roomw.controller?.owner?.username !== SockPuppetConstants.USERNAME) {
@@ -77,5 +83,19 @@ export class Sockpuppet {
     for (const tower of towers) {
       tower.run();
     }
+  }
+
+  public getRoom(name: string): RoomWrapper | undefined {
+    const wrapper = this.roomWrapperCache.get(name);
+    if (wrapper) {
+      return wrapper;
+    }
+    const room = Game.rooms[name];
+    if (room) {
+      const newWrapper = new RoomWrapper(room);
+      this.roomWrapperCache.set(name, newWrapper);
+      return newWrapper;
+    }
+    return undefined;
   }
 }
