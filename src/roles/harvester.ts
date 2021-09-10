@@ -11,18 +11,20 @@ export class Harvester extends Minder {
   };
 
   public run(): void {
-    this.moveToDestination();
-
     // retire old creep if valid retiree set
     if (this.memory.retiree) {
       const retiree = Game.creeps[this.memory.retiree];
       if (retiree) {
+        this.directHauler(retiree.pos, { range: 1 });
         this.retireCreep(retiree);
         return;
       } else {
         this.memory.retiree = undefined;
       }
     }
+
+    // move to harvest position
+    this.moveToDestination();
 
     // harvest if possible
     if (this.harvestFromNearbySource() === OK) {

@@ -3,10 +3,6 @@ import { CreepWrapper } from "./creep-wrapper";
 
 export abstract class Minder extends CreepWrapper {
   protected retireCreep(retiree: Creep): ScreepsReturnCode {
-    // call for tug if no haul target set
-    if (!this.memory.haulRequested) {
-      this.callHauler();
-    }
     // request suicide if next to retiree
     if (retiree.pos.isNearTo(this.pos)) {
       const result = retiree.suicide();
