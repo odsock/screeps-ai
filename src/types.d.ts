@@ -21,12 +21,17 @@ interface RoomMemory {
   sources: RoomSources;
   spawns?: Id<StructureSpawn>[];
   costMatrix?: { [name: string]: number[] };
-  roadUseLog: { [pos: string]: number };
   log: string[];
+  logCounts: LogCounts;
   construction: { [id: string]: ConstructionLog };
-  extensionCount: number;
   watched?: boolean;
   controller: ControllerInfo;
+}
+
+interface LogCounts {
+  spawnCount?: number;
+  rcl?: number;
+  extensionCount?: number;
 }
 
 interface SourceInfo {
