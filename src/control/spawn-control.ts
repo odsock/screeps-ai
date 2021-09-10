@@ -1,4 +1,4 @@
-import { SockPuppetConstants } from "./config/sockpuppet-constants";
+import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 import { Builder } from "roles/builder";
 import { Claimer } from "roles/claimer";

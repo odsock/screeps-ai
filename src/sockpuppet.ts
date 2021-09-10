@@ -1,7 +1,7 @@
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { Planner } from "planning/planner";
-import { SpawnControl } from "spawn-control";
+import { SpawnControl } from "control/spawn-control";
 import { CreepFactory } from "roles/creep-factory";
 import { RoomWrapper } from "structures/room-wrapper";
 import { TowerWrapper } from "structures/tower-wrapper";

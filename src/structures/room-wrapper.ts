@@ -1,6 +1,5 @@
 import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { MemoryUtils } from "planning/memory-utils";
-import { PlannerUtils } from "planning/planner-utils";
 import { SpawnWrapper } from "./spawn-wrapper";
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
