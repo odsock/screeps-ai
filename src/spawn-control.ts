@@ -141,10 +141,10 @@ export class SpawnControl {
    */
   private spawnLaterRCL(spawnw: SpawnWrapper): ScreepsReturnCode {
     // GUARD
-    // spawn guard if there are hostiles,
-    // TODO or if reported by a target room
+    // spawn guard for each scary room
     CreepUtils.consoleLogIfWatched(spawnw, `check if guard needed`);
-    if (this.roomw.hostileCreeps.length > this.creepCountsByRole[CreepRole.GUARD]) {
+    const roomsByScary = _.countBy(Game.rooms, "memory.scary");
+    if (roomsByScary.true > this.creepCountsByRole[CreepRole.GUARD]) {
       if (this.roomw.controller) {
         this.roomw.controller.activateSafeMode();
       }
