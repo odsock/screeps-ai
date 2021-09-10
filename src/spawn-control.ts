@@ -102,7 +102,7 @@ export class SpawnControl {
     // spawn enough upgraders to match 80% of harvest capacity (accounts for building, spawning, towers)
     const upgraders = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Upgrader.ROLE });
     const upgraderWorkParts = CreepUtils.countParts(WORK, ...upgraders);
-    const HARVEST_TO_UPGRADE_RATIO = 0.8;
+    const HARVEST_TO_UPGRADE_RATIO = 0.7;
     const upgraderWorkPartsNeeded =
       (harvesterWorkParts * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) / UPGRADE_CONTROLLER_POWER;
     if (upgraderWorkParts < upgraderWorkPartsNeeded) {
