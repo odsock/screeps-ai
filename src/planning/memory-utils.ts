@@ -51,9 +51,10 @@ export class MemoryUtils {
     }
 
     const value = global.cache.get(key);
-    if (value) {
+    if (value && value.expires > Game.time) {
       return value.item as T;
     }
+    global.cache.delete(key);
     return undefined;
   }
 
