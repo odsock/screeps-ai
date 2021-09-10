@@ -46,15 +46,6 @@ export class Hauler extends CreepWrapper {
       }
     }
 
-    // claim container if free
-    if (!this.getMyContainer()) {
-      const containerId = this.claimSourceContainer();
-      if (containerId) {
-        CreepUtils.consoleLogIfWatched(this, `claimed source container: ${String(containerId)}`);
-      }
-      CreepUtils.consoleLogIfWatched(this, `no free containers`);
-    }
-
     // supply spawn/extensions if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
       const target = this.findClosestSpawnStorageNotFull();
@@ -249,12 +240,6 @@ export class Hauler extends CreepWrapper {
     const ruin = this.findClosestRuinsWithEnergy();
     const droppedEnergy = this.findClosestDroppedEnergy();
 
-    const myContainer = this.getMyContainer();
-    if (myContainer && myContainer.store.energy > 0) {
-      CreepUtils.consoleLogIfWatched(this, `moving to my container: ${myContainer.pos.x},${myContainer.pos.y}`);
-      return this.moveToAndWithdraw(myContainer);
-    }
-
     const container = this.findClosestSourceContainerNotEmpty();
     if (container) {
       CreepUtils.consoleLogIfWatched(this, `moving to container: ${container.pos.x},${container.pos.y}`);
@@ -280,11 +265,6 @@ export class Hauler extends CreepWrapper {
     if (storage) {
       CreepUtils.consoleLogIfWatched(this, `moving to storage: ${String(storage.pos)}`);
       return this.moveToAndWithdraw(storage);
-    }
-
-    if (myContainer) {
-      CreepUtils.consoleLogIfWatched(this, `moving to my container: ${String(myContainer)}`);
-      return this.moveToAndWithdraw(myContainer);
     }
 
     this.say("🤔");

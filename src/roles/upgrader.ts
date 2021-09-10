@@ -10,6 +10,33 @@ export class Upgrader extends Minder {
     maxBodyParts: 10
   };
 
+  public run(): void {
+    this.moveToDestination();
+
+    // retire old creep if valid retiree set
+    if (this.memory.retiree) {
+      const retiree = Game.creeps[this.memory.retiree];
+      if (retiree) {
+        this.retireCreep(retiree);
+        return;
+      } else {
+        this.memory.retiree = undefined;
+      }
+    }
+
+    // build, repair, or upgrade
+    if (
+      this.buildNearbySite() !== ERR_NOT_FOUND ||
+      this.repairNearbySite() !== ERR_NOT_FOUND ||
+      this.upgrade() !== ERR_NOT_FOUND
+    ) {
+      this.withdrawFromMyContainer();
+      return;
+    }
+
+    CreepUtils.consoleLogIfWatched(this, `stumped. sitting like a lump`);
+  }
+
   public moveToDestination(): ScreepsReturnCode {
     if (this.room.controller) {
       let target: RoomPosition | undefined;
@@ -100,5 +127,15 @@ export class Upgrader extends Minder {
       this.room.memory.controller.containerId = undefined;
     }
     return undefined;
+  }
+
+  protected withdrawFromMyContainer(): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `withdrawing`);
+    let result: ScreepsReturnCode = ERR_NOT_FOUND;
+    if (this.room.controller && this.pos.inRangeTo(this.room.controller.pos, 3)) {
+      result = this.withdraw(this.getMyContainer() as StructureContainer, RESOURCE_ENERGY);
+    }
+    CreepUtils.consoleLogIfWatched(this, `withdraw result`, result);
+    return result;
   }
 }

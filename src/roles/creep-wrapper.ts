@@ -387,31 +387,6 @@ export abstract class CreepWrapper extends Creep {
     return this.body.filter(part => part.type === type).length;
   }
 
-  protected moveToMyContainer(): ScreepsReturnCode {
-    const container = this.getMyContainer();
-    CreepUtils.consoleLogIfWatched(this, `moving to container: ${String(container)}`);
-    if (container) {
-      return this.moveTo(container, { visualizePathStyle: { stroke: "#ffaa00" } });
-    }
-    return ERR_NOT_FOUND;
-  }
-
-  protected claimSourceContainer(): Id<StructureContainer> | undefined {
-    for (const sourceId in this.roomw.memory.sources) {
-      const sourceInfo = this.roomw.memory.sources[sourceId];
-      const containerId = sourceInfo.containerId;
-      if (containerId && (!sourceInfo.minderId || sourceInfo.minderId === this.id)) {
-        CreepUtils.consoleLogIfWatched(this, `claimed source container: ${containerId}`);
-        sourceInfo.minderId = this.id;
-        this.memory.containerId = containerId;
-        this.memory.source = sourceId as Id<Source>;
-        return containerId;
-      }
-    }
-    CreepUtils.consoleLogIfWatched(this, `no free source containers`);
-    return undefined;
-  }
-
   protected moveToRetiree(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `moving to retiree`);
     const retireeName = this.memory.retiree as string;
@@ -426,20 +401,6 @@ export abstract class CreepWrapper extends Creep {
       this.memory.retiree = undefined;
       return ERR_NOT_FOUND;
     }
-  }
-
-  /** get container from my memory */
-  protected getMyContainer(): StructureContainer | undefined {
-    // return container in memory if valid
-    if (this.memory.containerId) {
-      const container = Game.getObjectById(this.memory.containerId);
-      if (container) {
-        return container;
-      }
-      CreepUtils.consoleLogIfWatched(this, `container id invalid`);
-      this.memory.containerId = undefined;
-    }
-    return undefined;
   }
 
   protected findStructureForRepair(): Structure | undefined {
