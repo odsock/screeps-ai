@@ -209,7 +209,7 @@ export class RoomWrapper extends Room {
 
   /** get harvest positions for source */
   public getHarvestPositions(sourceId: Id<Source>): RoomPosition[] {
-    console.log(`DEBUG: ${sourceId} -> memory: ${String(this.memory.sources[sourceId])}`);
+    console.log(`DEBUG: ${sourceId} -> memory: ${this.memory.sources[sourceId].harvestPositions.join()}`);
     return this.memory.sources[sourceId].harvestPositions.map(pos => MemoryUtils.unpackRoomPosition(pos));
   }
 
