@@ -17,9 +17,20 @@ export class Guard extends RemoteWorker {
       this.homeRoom = this.pos.roomName;
     }
 
+    // check for flagged scary rooms
     if (!this.targetRoom) {
-      // TODO work out a claim system for this
-      this.targetRoom = TargetConfig.REMOTE_HARVEST[Game.shard.name][0];
+      for (const roomName in Memory.rooms) {
+        const scaryFlag = Memory.rooms[roomName].scary;
+        if (scaryFlag) {
+          const guard = _.find(
+            Game.creeps,
+            creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === roomName
+          );
+          if (!guard) {
+            this.targetRoom = roomName;
+          }
+        }
+      }
     }
 
     if (this.roomw.hasHostiles) {
@@ -29,6 +40,8 @@ export class Guard extends RemoteWorker {
         CreepUtils.consoleLogIfWatched(this, `attack`, attackResult);
         return;
       }
+    } else {
+      this.room.memory.scary = false;
     }
 
     if (!this.targetRoom) {

@@ -107,8 +107,11 @@ export class RemoteWorker extends CreepWrapper {
   protected fleeIfHostiles(): ScreepsReturnCode {
     const hostileCreepCount = this.roomw.find(FIND_HOSTILE_CREEPS).length;
     if (hostileCreepCount === 0) {
+      this.room.memory.scary = false;
       return ERR_NOT_FOUND;
     }
+
+    this.room.memory.scary = true;
 
     CreepUtils.consoleLogIfWatched(this, `found ${hostileCreepCount} hostile creep(s)`);
     if (this.homeRoom && this.room.name !== this.homeRoom) {
