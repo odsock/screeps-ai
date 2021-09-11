@@ -1,4 +1,5 @@
 import { CreepUtils } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "./room-wrapper";
 export class SpawnWrapper extends StructureSpawn {
   public constructor(spawn: StructureSpawn) {
@@ -15,7 +16,23 @@ export class SpawnWrapper extends StructureSpawn {
     if (retiree) {
       memory.retiree = retiree;
     }
-    const result = this.spawnCreep(body, newName, { memory });
+    let extensions = MemoryUtils.getCache<StructureExtension[]>(`${this.room.name}_energyStructureOrder`);
+    if (!extensions) {
+      let center: RoomPosition;
+      const storage = this.roomw.storage;
+      if (storage) {
+        center = storage.pos;
+      } else {
+        center = this.pos;
+      }
+      extensions = this.roomw
+        .find<StructureExtension>(FIND_MY_STRUCTURES, {
+          filter: structure => structure.structureType === STRUCTURE_EXTENSION
+        })
+        .sort((a, b) => a.pos.getRangeTo(center) - b.pos.getRangeTo(center));
+      MemoryUtils.setCache(`${this.room.name}_energyStructureOrder`, extensions, 100);
+    }
+    const result = this.spawnCreep(body, newName, { memory, energyStructures: extensions });
     CreepUtils.consoleLogIfWatched(this, `spawning: ${role} ${CreepUtils.creepBodyToString(body)}`, result);
     if (result === ERR_INVALID_ARGS) {
       console.log(`Invalid spawn: ${role} ${CreepUtils.creepBodyToString(body)}`);
