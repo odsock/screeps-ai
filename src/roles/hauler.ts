@@ -175,8 +175,12 @@ export class Hauler extends CreepWrapper {
       const goals = spawnStorage.map(s => {
         return { pos: s.pos, range: 1 };
       });
-      const path = PathFinder.search(this.pos, goals);
-      CreepUtils.consoleLogIfWatched(this, `path: ${String(path.path)}`)
+      const path = PathFinder.search(this.pos, goals, {
+        plainCost: 2,
+        swampCost: 10,
+        roomCallback: CreepUtils.getRoadCostMatrix
+      });
+      CreepUtils.consoleLogIfWatched(this, `path: ${String(path.path)}`);
       const moveResult = this.moveByPath(path.path);
       CreepUtils.consoleLogIfWatched(this, `moving on path`, moveResult);
       return moveResult;
