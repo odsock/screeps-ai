@@ -20,11 +20,12 @@ export class Builder extends CreepWrapper {
     }
 
     CreepUtils.consoleLogIfWatched(this, "no work left. this is the end.");
+    // TODO walk to storage or spawn and transfer before suicide
     this.suicide();
   }
 
   private doBuildJob(): void {
-    const site: ConstructionSite | null = this.getConstructionSite();
+    const site = this.getConstructionSite();
     if (site) {
       this.memory.constructionSiteId = site.id;
       this.updateJob("building");
@@ -51,25 +52,50 @@ export class Builder extends CreepWrapper {
     }
   }
 
-  private getConstructionSite(): ConstructionSite | null {
-    const siteId: string | undefined = this.memory.constructionSiteId;
-    let site: ConstructionSite | null = Game.getObjectById(siteId as Id<ConstructionSite>);
-    if (!site) {
-      const centerPos = new RoomPosition(
+  private findBuildCenterPos() {
+    let centerStructure: Structure | undefined = this.roomw.spawns[0];
+    if (!centerStructure) {
+      centerStructure = this.roomw.controller;
+    }
+    let centerPos: RoomPosition;
+    if (centerStructure) {
+      centerPos = centerStructure.pos;
+    } else {
+      centerPos = new RoomPosition(
         SockPuppetConstants.ROOM_SIZE / 2,
         SockPuppetConstants.ROOM_SIZE / 2,
         this.room.name
       );
-      for (let i = 0; !site && i < SockPuppetConstants.CONSTRUCTION_PRIORITY.length; i++) {
-        site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
-          filter: s => s.structureType === SockPuppetConstants.CONSTRUCTION_PRIORITY[i]
-        });
+    }
+    return centerPos;
+  }
+
+  private getConstructionSite(): ConstructionSite<BuildableStructureConstant> | undefined {
+    const siteId = this.memory.constructionSiteId;
+    let site = Game.getObjectById(siteId as Id<ConstructionSite>);
+    if (site) {
+      return site;
+    }
+
+    if (!site) {
+      const centerPos = this.findBuildCenterPos();
+      const sites = this.roomw.find(FIND_MY_CONSTRUCTION_SITES);
+      const groupedSites = _.groupBy(sites, aSite => aSite.structureType);
+      const siteType = SockPuppetConstants.CONSTRUCTION_PRIORITY.find(type => groupedSites[type].length > 0);
+      if (siteType) {
+        const closestSite = this.pos.findClosestByPath(groupedSites[siteType]);
+        if (closestSite) {
+          site = closestSite;
+        }
       }
       if (!site) {
-        site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+        const closestSite = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+        if (closestSite) {
+          site = closestSite;
+        }
       }
       CreepUtils.consoleLogIfWatched(this, `center pos: ${String(centerPos)}, found site: ${String(site)}`);
     }
-    return site;
+    return undefined;
   }
 }
