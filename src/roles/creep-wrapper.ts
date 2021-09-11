@@ -1,4 +1,5 @@
 import { CreepUtils } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 
 export abstract class CreepWrapper extends Creep {
@@ -181,16 +182,25 @@ export abstract class CreepWrapper extends Creep {
     }) as StructureTower | null;
   }
 
-  // TODO cache result
-  protected findClosestSpawnStorageNotFull(): StructureSpawn | StructureExtension | null {
-    return this.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: structure => {
-        return (
-          (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN) &&
-          structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-        );
+  protected findSpawnStorageNotFull(): (StructureExtension | StructureSpawn)[] | undefined {
+    let spawnStorage = MemoryUtils.getCache<(StructureExtension | StructureSpawn)[]>(
+      `${this.room.name}_spawnStorageNotFull`
+    );
+    if (spawnStorage) {
+      return spawnStorage;
+    }
+    const spawns: (StructureExtension | StructureSpawn)[] | undefined = this.roomw.find(FIND_MY_SPAWNS, {
+      filter: spawn => spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+    });
+    const extensions: (StructureExtension | StructureSpawn)[] | undefined = this.roomw.find<StructureExtension>(
+      FIND_MY_STRUCTURES,
+      {
+        filter: s => s.structureType === STRUCTURE_EXTENSION && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
       }
-    }) as StructureSpawn | StructureExtension | null;
+    );
+    spawnStorage = spawns.concat(extensions);
+    MemoryUtils.setCache(`${this.room.name}_spawnStorageNotFull`, spawnStorage);
+    return spawnStorage;
   }
 
   protected findDismantleTarget(): Structure | undefined {
@@ -471,10 +481,13 @@ export abstract class CreepWrapper extends Creep {
       return this.room.storage;
     }
 
-    const spawnStorage = this.findClosestSpawnStorageNotFull();
+    const spawnStorage = this.findSpawnStorageNotFull();
     if (spawnStorage) {
-      CreepUtils.consoleLogIfWatched(this, `spawn storage: ${String(spawnStorage.pos)}`);
-      return spawnStorage;
+      const closestSpawnStorage = this.pos.findClosestByPath(spawnStorage);
+      if (closestSpawnStorage) {
+        CreepUtils.consoleLogIfWatched(this, `spawn storage: ${String(closestSpawnStorage.pos)}`);
+        return closestSpawnStorage;
+      }
     }
 
     const tower = this.findClosestTowerNotFull();

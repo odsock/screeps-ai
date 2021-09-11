@@ -2,6 +2,7 @@ import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
+import { spawn } from "child_process";
 
 export class Worker extends CreepWrapper {
   public static readonly ROLE = CreepRole.WORKER;
@@ -169,10 +170,13 @@ export class Worker extends CreepWrapper {
     this.startWorkingIfFull();
 
     if (this.memory.working) {
-      const site = this.findClosestSpawnStorageNotFull();
-      if (site) {
-        if (this.transfer(site, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
+      const spawnStorage = this.findSpawnStorageNotFull();
+      if (spawnStorage) {
+        const site = this.pos.findClosestByPath(spawnStorage);
+        if (site) {
+          if (this.transfer(site, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
+          }
         }
       }
     } else {
