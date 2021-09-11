@@ -120,7 +120,17 @@ export class SpawnControl {
     }
 
     // try to replace any aging minder seamlessly
-    return this.replaceOldMinders(spawnw);
+    const replaceUpgraderResult = this.spawnReplacementMinders(spawnw, upgraders, Upgrader);
+    if (replaceUpgraderResult !== ERR_NOT_FOUND) {
+      return replaceUpgraderResult;
+    }
+
+    const replaceHarvesterResult = this.spawnReplacementMinders(spawnw, harvesters, Harvester);
+    if (replaceHarvesterResult !== ERR_NOT_FOUND) {
+      return replaceHarvesterResult;
+    }
+
+    return ERR_NOT_FOUND;
   }
 
   /**
@@ -142,7 +152,7 @@ export class SpawnControl {
     // spawn economy creeps with early strategy
     const result = this.spawnEarlyRCL(spawnw);
     CreepUtils.consoleLogIfWatched(spawnw, `early RCL spawn result`, result);
-    if (result !== OK) {
+    if (result !== ERR_NOT_FOUND) {
       return result;
     }
 
@@ -167,6 +177,12 @@ export class SpawnControl {
       return spawnw.spawn(this.getMaxBody(Importer.BODY_PROFILE), Importer.ROLE);
     }
 
+    // CLAIMER
+    const maxClaimers = this.getMaxClaimerCount();
+    if (this.creepCountsByRole[CreepRole.CLAIMER] < maxClaimers) {
+      return spawnw.spawn(this.getMaxBody(Claimer.BODY_PROFILE), Claimer.ROLE);
+    }
+
     // BUILDER
     // make builders if there's something to build
     const workPartsNeeded = this.getBuilderWorkPartsNeeded();
@@ -176,12 +192,6 @@ export class SpawnControl {
       workPartsNeeded > 0
     ) {
       return spawnw.spawn(this.getBuilderBody(Builder.BODY_PROFILE, workPartsNeeded), Builder.ROLE);
-    }
-
-    // CLAIMER
-    const maxClaimers = this.getMaxClaimerCount();
-    if (this.creepCountsByRole[CreepRole.CLAIMER] < maxClaimers) {
-      return spawnw.spawn(this.getMaxBody(Claimer.BODY_PROFILE), Claimer.ROLE);
     }
 
     return ERR_NOT_FOUND;
@@ -224,22 +234,7 @@ export class SpawnControl {
     return result;
   }
 
-  private replaceOldMinders(spawnw: SpawnWrapper): ScreepsReturnCode {
-    const upgraders = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Upgrader.ROLE });
-    let result = this.spawnReplacementMinder(spawnw, upgraders, Upgrader);
-    if (result === OK) {
-      return result;
-    }
-
-    const harvesters = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE });
-    result = this.spawnReplacementMinder(spawnw, harvesters, Harvester);
-    if (result === ERR_NOT_FOUND) {
-      return OK;
-    }
-    return result;
-  }
-
-  private spawnReplacementMinder(
+  private spawnReplacementMinders(
     spawnw: SpawnWrapper,
     creeps: Creep[],
     type: typeof Upgrader | typeof Harvester
