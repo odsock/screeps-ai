@@ -110,22 +110,10 @@ export class SpawnControl {
     }
 
     // HAULER
-    // spawn enough haulers to keep up with hauling harvested energy average distance
+    // spawn enough haulers to keep up with hauling needed
     const haulers = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Hauler.ROLE });
     const haulerCarryParts = CreepUtils.countParts(CARRY, ...haulers);
-    const haulerTargets = spawnw.room
-      .find(FIND_MY_STRUCTURES, {
-        filter: structure =>
-          structure.structureType === STRUCTURE_SPAWN ||
-          structure.structureType === STRUCTURE_EXTENSION ||
-          structure.structureType === STRUCTURE_TOWER ||
-          structure.structureType === STRUCTURE_STORAGE ||
-          structure.structureType === STRUCTURE_CONTROLLER
-      })
-      .map(structure => structure.pos);
-    const sourcePositions = spawnw.roomw.sources.map(source => source.pos);
-    const distance = CreepUtils.calculatePositionSetDistance(sourcePositions, haulerTargets);
-    const haulerCarryPartsNeeded = (harvesterWorkParts * HARVEST_POWER * distance * 2) / CARRY_CAPACITY;
+    const haulerCarryPartsNeeded = spawnw.roomw.energyCapacityAvailable / CARRY_CAPACITY;
     CreepUtils.consoleLogIfWatched(spawnw, `hauler parts: ${haulerCarryParts}/${haulerCarryPartsNeeded}`);
     if (haulerCarryParts < haulerCarryPartsNeeded) {
       return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw);
