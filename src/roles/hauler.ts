@@ -35,6 +35,7 @@ export class Hauler extends CreepWrapper {
     // supply spawn/extensions if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
       this.supplySpawnJob();
+      return;
     }
 
     // TODO make tower supply prefer energy from storage
