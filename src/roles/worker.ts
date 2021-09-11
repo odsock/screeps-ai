@@ -73,21 +73,8 @@ export class Worker extends CreepWrapper {
 
   // TODO: dry this up with builder code
   private doBuildJob(): void {
-    let site: ConstructionSite | null = null;
-    // TODO think of a better priority reference than the center of the room
-    const centerPos = new RoomPosition(
-      SockPuppetConstants.ROOM_SIZE / 2,
-      SockPuppetConstants.ROOM_SIZE / 2,
-      this.room.name
-    );
-    for (let i = 0; !site && i < SockPuppetConstants.CONSTRUCTION_PRIORITY.length; i++) {
-      site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES, {
-        filter: s => s.structureType === SockPuppetConstants.CONSTRUCTION_PRIORITY[i]
-      });
-    }
-    if (!site) {
-      site = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
-    }
+    const centerPos = this.findBuildCenterPos();
+    const site = this.chooseConstructionSite(centerPos);
 
     if (site) {
       this.updateJob("building");
@@ -100,7 +87,13 @@ export class Worker extends CreepWrapper {
         // don't block the source while working
         const closestEnergySource = this.findClosestActiveEnergySource();
         if (this.build(site) === ERR_NOT_IN_RANGE) {
-          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
+          this.moveTo(site, {
+            range: 3,
+            visualizePathStyle: { stroke: "#ffffff" },
+            costCallback: (roomName, costMatrix) => {
+              this.roomw.getCostMatrix("avoidHarvestPositions", costMatrix);
+            }
+          });
         } else if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource)) {
           const path = PathFinder.search(this.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
           this.moveByPath(path.path);
@@ -109,6 +102,45 @@ export class Worker extends CreepWrapper {
         this.harvestByPriority();
       }
     }
+  }
+
+  private chooseConstructionSite(centerPos: RoomPosition) {
+    let site: ConstructionSite | undefined;
+    const sites = this.roomw.find(FIND_MY_CONSTRUCTION_SITES);
+    const groupedSites = _.groupBy(sites, aSite => aSite.structureType);
+    const siteType = SockPuppetConstants.CONSTRUCTION_PRIORITY.find(type => groupedSites[type].length > 0);
+    if (siteType) {
+      const closestSite = this.pos.findClosestByPath(groupedSites[siteType]);
+      if (closestSite) {
+        site = closestSite;
+      }
+    }
+
+    if (!site) {
+      const closestSite = centerPos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+      if (closestSite) {
+        site = closestSite;
+      }
+    }
+    return site;
+  }
+
+  private findBuildCenterPos() {
+    let centerStructure: Structure | undefined = this.roomw.spawns[0];
+    if (!centerStructure) {
+      centerStructure = this.roomw.controller;
+    }
+    let centerPos: RoomPosition;
+    if (centerStructure) {
+      centerPos = centerStructure.pos;
+    } else {
+      centerPos = new RoomPosition(
+        SockPuppetConstants.ROOM_SIZE / 2,
+        SockPuppetConstants.ROOM_SIZE / 2,
+        this.room.name
+      );
+    }
+    return centerPos;
   }
 
   private doRepairJob(): void {
