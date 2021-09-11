@@ -163,7 +163,7 @@ export class SpawnControl {
       this.roomw.repairSites.length > 0 &&
       this.creepCountsByRole[CreepRole.FIXER] < SockPuppetConstants.MAX_FIXER_CREEPS
     ) {
-      return spawnw.spawn(this.getMaxBody(Fixer.BODY_PROFILE), Fixer.ROLE);
+      return spawnw.spawn({ body: this.getMaxBody(Fixer.BODY_PROFILE), role: Fixer.ROLE });
     }
 
     // IMPORTER
@@ -174,13 +174,30 @@ export class SpawnControl {
       this.creepCountsByRole[CreepRole.IMPORTER] <
       remoteHarvestTargetCount * TargetConfig.IMPORTERS_PER_REMOTE_ROOM
     ) {
-      return spawnw.spawn(this.getMaxBody(Importer.BODY_PROFILE), Importer.ROLE);
+      return spawnw.spawn({ body: this.getMaxBody(Importer.BODY_PROFILE), role: Importer.ROLE });
     }
 
     // CLAIMER
     const maxClaimers = this.getMaxClaimerCount();
     if (this.creepCountsByRole[CreepRole.CLAIMER] < maxClaimers) {
-      return spawnw.spawn(this.getMaxBody(Claimer.BODY_PROFILE), Claimer.ROLE);
+      return spawnw.spawn({ body: this.getMaxBody(Claimer.BODY_PROFILE), role: Claimer.ROLE });
+    }
+
+    // REMOTE WORKER
+    // spawn one remote worker for each claimed room with no spawn
+    const noSpawnClaimedRooms = _.filter(Game.rooms, room => room.find(FIND_MY_SPAWNS).length === 0);
+    const remoteWorkers = _.filter(Game.creeps, creep => creep.memory.role === Worker.ROLE && creep.memory.targetRoom);
+    if (remoteWorkers.length < noSpawnClaimedRooms.length) {
+      const targetRoom = noSpawnClaimedRooms.find(
+        room => !remoteWorkers.find(creep => creep.memory.targetRoom === room.name)
+      );
+      if (targetRoom) {
+        return spawnw.spawn({
+          body: this.getMaxBody(Worker.BODY_PROFILE),
+          role: Worker.ROLE,
+          targetRoom: targetRoom.name
+        });
+      }
     }
 
     // BUILDER
@@ -191,7 +208,7 @@ export class SpawnControl {
       this.roomw.constructionSites.length > 0 &&
       workPartsNeeded > 0
     ) {
-      return spawnw.spawn(this.getBuilderBody(Builder.BODY_PROFILE, workPartsNeeded), Builder.ROLE);
+      return spawnw.spawn({ body: this.getBuilderBody(Builder.BODY_PROFILE, workPartsNeeded), role: Builder.ROLE });
     }
 
     return ERR_NOT_FOUND;
@@ -219,7 +236,7 @@ export class SpawnControl {
   }
 
   private spawnGuardCreep(profile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper): ScreepsReturnCode {
-    const result = spawnw.spawn(profile.profile, role);
+    const result = spawnw.spawn({ body: profile.profile, role });
     return result;
   }
 
@@ -230,7 +247,7 @@ export class SpawnControl {
     } else {
       body = this.getMaxBody(profile);
     }
-    const result = spawnw.spawn(body, role);
+    const result = spawnw.spawn({ body, role });
     return result;
   }
 

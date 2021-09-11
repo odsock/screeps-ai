@@ -10,11 +10,24 @@ export class SpawnWrapper extends StructureSpawn {
     return RoomWrapper.getInstance(this.room.name);
   }
 
-  public spawn(body: BodyPartConstant[], role: string, retiree?: string): ScreepsReturnCode {
+  public spawn({
+    body,
+    role,
+    retiree,
+    targetRoom
+  }: {
+    body: BodyPartConstant[];
+    role: string;
+    retiree?: string;
+    targetRoom?: string;
+  }): ScreepsReturnCode {
     const newName = `${role}_${Game.time.toString(16)}`;
     const memory: CreepMemory = { role };
     if (retiree) {
       memory.retiree = retiree;
+    }
+    if (targetRoom) {
+      memory.targetRoom = targetRoom;
     }
     let extensions = MemoryUtils.getCache<(StructureExtension | StructureSpawn)[]>(
       `${this.room.name}_energyStructureOrder`

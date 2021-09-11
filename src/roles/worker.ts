@@ -12,6 +12,13 @@ export class Worker extends CreepWrapper {
   };
 
   public run(): void {
+    // if target room, go there
+    if (this.memory.targetRoom && this.pos.roomName !== this.memory.targetRoom) {
+      const moveResult = this.moveTo(new RoomPosition(10, 10, this.memory.targetRoom));
+      CreepUtils.consoleLogIfWatched(this, `moving to target room ${this.memory.targetRoom}`, moveResult);
+      return;
+    }
+
     // harvest if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
       CreepUtils.consoleLogIfWatched(this, "harvesting job");
