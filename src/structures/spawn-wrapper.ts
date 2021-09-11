@@ -16,7 +16,9 @@ export class SpawnWrapper extends StructureSpawn {
     if (retiree) {
       memory.retiree = retiree;
     }
-    let extensions = MemoryUtils.getCache<StructureExtension[]>(`${this.room.name}_energyStructureOrder`);
+    let extensions = MemoryUtils.getCache<(StructureExtension | StructureSpawn)[]>(
+      `${this.room.name}_energyStructureOrder`
+    );
     if (!extensions) {
       let center: RoomPosition;
       const storage = this.roomw.storage;
@@ -26,8 +28,8 @@ export class SpawnWrapper extends StructureSpawn {
         center = this.pos;
       }
       extensions = this.roomw
-        .find<StructureExtension>(FIND_MY_STRUCTURES, {
-          filter: structure => structure.structureType === STRUCTURE_EXTENSION
+        .find<StructureExtension | StructureSpawn>(FIND_MY_STRUCTURES, {
+          filter: s => s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_SPAWN
         })
         .sort((a, b) => a.pos.getRangeTo(center) - b.pos.getRangeTo(center));
       MemoryUtils.setCache(`${this.room.name}_energyStructureOrder`, extensions, 100);
