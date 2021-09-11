@@ -10,7 +10,6 @@ export class RoomWrapper extends Room {
   private static instances: Map<string, RoomWrapper> = new Map<string, RoomWrapper>();
 
   public static getInstance(name: string): RoomWrapper {
-    console.log(`DEBUG: get instance ${name}`);
     const instance = RoomWrapper.instances.get(name);
     if (instance) {
       return instance;
@@ -226,7 +225,7 @@ export class RoomWrapper extends Room {
 
   /** get harvest positions for source */
   public getHarvestPositions(sourceId: Id<Source>): RoomPosition[] {
-    console.log(`DEBUG: ${sourceId} -> memory: ${this.memory.sources[sourceId].harvestPositions.join()}`);
+    // console.log(`DEBUG: ${sourceId} -> memory: ${this.memory.sources[sourceId].harvestPositions.join()}`);
     return this.memory.sources[sourceId].harvestPositions.map(pos => MemoryUtils.unpackRoomPosition(pos));
   }
 
@@ -329,7 +328,6 @@ export class RoomWrapper extends Room {
       this.costMatrixCache[name] = costMatrix;
       this.room.memory.costMatrix[name] = costMatrix.serialize();
     }
-    console.log(`DEBUG: harvest position 8,37 cost: ${costMatrix.get(8, 37)}`);
     return costMatrix;
   }
 
