@@ -185,7 +185,13 @@ export class SpawnControl {
 
     // REMOTE WORKER
     // spawn one remote worker for each claimed room with no spawn
-    const noSpawnClaimedRooms = _.filter(Game.rooms, room => room.find(FIND_MY_SPAWNS).length === 0);
+    const noSpawnClaimedRooms = _.filter(
+      Game.rooms,
+      room =>
+        room.controller?.owner &&
+        room.controller?.owner.username === SockPuppetConstants.USERNAME &&
+        room.find(FIND_MY_SPAWNS).length === 0
+    );
     const remoteWorkers = _.filter(Game.creeps, creep => creep.memory.role === Worker.ROLE && creep.memory.targetRoom);
     if (remoteWorkers.length < noSpawnClaimedRooms.length) {
       const targetRoom = noSpawnClaimedRooms.find(
