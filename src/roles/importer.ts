@@ -1,4 +1,5 @@
 import { CreepRole } from "config/creep-types";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
@@ -13,6 +14,12 @@ export class Importer extends RemoteWorker {
   };
 
   public run(): void {
+    // unsign controllers we didn't sign
+    if (this.room.controller?.sign?.username && this.room.controller.sign.username !== SockPuppetConstants.USERNAME) {
+      this.moveTo(this.room.controller);
+      this.signController(this.room.controller, "");
+    }
+
     // use current room for home (room spawned in)
     if (!this.homeRoom) {
       this.homeRoom = this.pos.roomName;

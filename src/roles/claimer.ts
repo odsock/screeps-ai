@@ -1,4 +1,5 @@
 import { CreepRole } from "config/creep-types";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { RemoteWorker } from "./remote-worker";
@@ -12,6 +13,12 @@ export class Claimer extends RemoteWorker {
   };
 
   public run(): void {
+    // unsign controllers we didn't sign
+    if (this.room.controller?.sign?.username && this.room.controller.sign.username !== SockPuppetConstants.USERNAME) {
+      this.moveTo(this.room.controller);
+      this.signController(this.room.controller, "");
+    }
+
     // make sure we have a target room
     const targetRoom = this.getTargetRoom();
     if (!targetRoom) {
