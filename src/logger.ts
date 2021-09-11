@@ -61,14 +61,14 @@ export class Logger {
       filter: s => s.structureType === STRUCTURE_EXTENSION
     }).length;
     roomw.memory.logCounts.extensionCount = currentExtensionCount;
-    if (!lastExtensionCount || lastExtensionCount !== currentExtensionCount) {
+    if (lastExtensionCount && lastExtensionCount !== currentExtensionCount) {
       roomw.roomMemoryLog(`new extension count ${currentExtensionCount}`);
     }
 
     // log spawn creation
     const lastSpawnCount = roomw.memory.logCounts.spawnCount;
     const currentSpawnCount = roomw.spawns.length;
-    if (!lastSpawnCount || lastSpawnCount !== currentSpawnCount) {
+    if (lastSpawnCount && lastSpawnCount !== currentSpawnCount) {
       roomw.memory.logCounts.spawnCount = currentSpawnCount;
       roomw.roomMemoryLog(`new spawn count ${currentSpawnCount}`);
     }
