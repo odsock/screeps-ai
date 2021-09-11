@@ -178,7 +178,7 @@ export class Hauler extends CreepWrapper {
       const path = PathFinder.search(this.pos, goals, {
         plainCost: 2,
         swampCost: 10,
-        roomCallback: CreepUtils.getRoadCostMatrix
+        roomCallback: CreepUtils.getCreepMovementCostMatrix
       });
       CreepUtils.consoleLogIfWatched(this, `path: ${String(path.path)}`);
       const moveResult = this.moveByPath(path.path);

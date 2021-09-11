@@ -47,6 +47,20 @@ export class CreepUtils {
     );
   }
 
+  public static getCreepMovementCostMatrix = (roomName: string): CostMatrix | boolean => {
+    const room = Game.rooms[roomName];
+    if (!room) return false;
+    const cost = new PathFinder.CostMatrix();
+
+    // avoid structures
+    const structures = room.find(FIND_STRUCTURES);
+    CreepUtils.updateRoadCostMatrixForStructures(structures, cost);
+
+    // avoid creeps
+    room.find(FIND_CREEPS).forEach(creep => cost.set(creep.pos.x, creep.pos.y, 0xff));
+    return cost;
+  };
+
   public static getRoadCostMatrix = (roomName: string): CostMatrix | boolean => {
     const room = Game.rooms[roomName];
     if (!room) return false;
