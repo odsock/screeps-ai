@@ -115,7 +115,9 @@ export class Worker extends CreepWrapper {
     let site: ConstructionSite | undefined;
     const sites = this.roomw.find(FIND_MY_CONSTRUCTION_SITES);
     const groupedSites = _.groupBy(sites, aSite => aSite.structureType);
-    const siteType = SockPuppetConstants.CONSTRUCTION_PRIORITY.find(type => groupedSites[type].length > 0);
+    const siteType = SockPuppetConstants.CONSTRUCTION_PRIORITY.find(
+      type => groupedSites[type] && groupedSites[type].length > 0
+    );
     if (siteType) {
       const closestSite = this.pos.findClosestByPath(groupedSites[siteType]);
       if (closestSite) {
