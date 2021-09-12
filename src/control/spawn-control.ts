@@ -141,7 +141,7 @@ export class SpawnControl {
     // GUARD
     // spawn guard for each scary room
     CreepUtils.consoleLogIfWatched(spawnw, `check if guard needed`);
-    const roomsByScary = _.countBy(Game.rooms, "memory.scary");
+    const roomsByScary = _.countBy(Memory.rooms, "scary");
     if (roomsByScary.true > this.creepCountsByRole[CreepRole.GUARD]) {
       if (this.roomw.controller) {
         this.roomw.controller.activateSafeMode();
