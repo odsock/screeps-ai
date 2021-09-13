@@ -113,7 +113,7 @@ export class SpawnControl {
     const upgraderWorkParts = CreepUtils.countParts(WORK, ...upgraders);
     const HARVEST_TO_UPGRADE_RATIO = 0.7;
     const upgraderWorkPartsNeeded =
-      (harvesterWorkParts * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) / UPGRADE_CONTROLLER_POWER;
+      (Math.min(harvesterWorkParts, 10) * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) / UPGRADE_CONTROLLER_POWER;
     if (upgraderWorkParts < upgraderWorkPartsNeeded) {
       return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw);
     }
