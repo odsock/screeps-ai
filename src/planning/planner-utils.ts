@@ -70,6 +70,7 @@ export class PlannerUtils {
     if (placedPosition) {
       console.log(`DEBUG: placed ${structureConstant} at ${String(placedPosition)}`);
       const structure = placedPosition.lookFor(LOOK_CONSTRUCTION_SITES);
+      console.log(`DEBUG: sites at ${String(placedPosition)}: ${JSON.stringify(structure)}`);
       if (structure.length > 0) {
         console.log(`DEBUG: found construction site for ${structureConstant} at ${String(placedPosition)}`);
         return structure[0].id;
