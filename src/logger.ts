@@ -49,7 +49,7 @@ export class Logger {
     if (roomw.controller) {
       const lastRCL = roomw.memory.logCounts.rcl;
       const currentRCL = roomw.controller?.level;
-      if (!lastRCL || lastRCL !== currentRCL) {
+      if (lastRCL === undefined || lastRCL !== currentRCL) {
         roomw.memory.logCounts.rcl = currentRCL;
         roomw.roomMemoryLog(`new RCL ${currentRCL}`);
       }
@@ -68,7 +68,7 @@ export class Logger {
     // log spawn creation
     const lastSpawnCount = roomw.memory.logCounts.spawnCount;
     const currentSpawnCount = roomw.spawns.length;
-    if (lastSpawnCount && lastSpawnCount !== currentSpawnCount) {
+    if (lastSpawnCount === undefined || lastSpawnCount !== currentSpawnCount) {
       roomw.memory.logCounts.spawnCount = currentSpawnCount;
       roomw.roomMemoryLog(`new spawn count ${currentSpawnCount}`);
     }
