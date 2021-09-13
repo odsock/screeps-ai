@@ -73,6 +73,15 @@ export class SpawnControl {
       return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw);
     }
 
+    // BACKUP HAULER
+    const haulers = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Hauler.ROLE });
+    if (haulers.length === 1) {
+      const hauler = haulers[0];
+      if (hauler.ticksToLive && hauler.ticksToLive < 500) {
+        return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw);
+      }
+    }
+
     // FIRST HARVESTER
     // always need at least one harvester
     if (this.creepCountsByRole[CreepRole.HARVESTER] === 0) {
@@ -111,7 +120,6 @@ export class SpawnControl {
 
     // HAULER
     // spawn enough haulers to keep up with hauling needed
-    const haulers = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Hauler.ROLE });
     const haulerCarryParts = CreepUtils.countParts(CARRY, ...haulers);
     const haulerCarryPartsNeeded = spawnw.roomw.energyCapacityAvailable / CARRY_CAPACITY;
     CreepUtils.consoleLogIfWatched(spawnw, `hauler parts: ${haulerCarryParts}/${haulerCarryPartsNeeded}`);
