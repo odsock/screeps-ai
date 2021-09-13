@@ -93,7 +93,7 @@ export class SpawnControl {
     const harvesters = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE });
     const harvesterWorkParts = CreepUtils.countParts(WORK, ...harvesters);
     const harvesterWorkPartsNeeded = spawnw.roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
-    console.log(`DEBUG: harvester work parts: ${harvesterWorkParts}/${harvesterWorkPartsNeeded}`);
+    CreepUtils.consoleLogIfWatched(spawnw, `harvester work parts: ${harvesterWorkParts}/${harvesterWorkPartsNeeded}`);
     if (
       harvesterWorkParts < harvesterWorkPartsNeeded &&
       this.creepCountsByRole[CreepRole.HARVESTER] < spawnw.roomw.harvestPositionCount
@@ -114,6 +114,7 @@ export class SpawnControl {
     const HARVEST_TO_UPGRADE_RATIO = 0.7;
     const upgraderWorkPartsNeeded =
       (Math.min(harvesterWorkParts, 10) * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) / UPGRADE_CONTROLLER_POWER;
+    CreepUtils.consoleLogIfWatched(spawnw, `upgrader work parts: ${upgraderWorkParts}/${upgraderWorkPartsNeeded}`);
     if (upgraderWorkParts < upgraderWorkPartsNeeded) {
       return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw);
     }
