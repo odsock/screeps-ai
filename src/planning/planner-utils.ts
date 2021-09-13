@@ -68,9 +68,10 @@ export class PlannerUtils {
     const positions = this.getPositionSpiral(position, 1);
     const placedPosition = positions.find(pos => pos.createConstructionSite(structureConstant) === OK);
     if (placedPosition) {
+      console.log(`DEBUG: placed ${structureConstant} at ${String(placedPosition)}`);
       const structure = placedPosition.lookFor(LOOK_CONSTRUCTION_SITES);
       if (structure.length > 0) {
-        console.log(`DEBUG: placed ${structureConstant} at ${String(placedPosition)}`);
+        console.log(`DEBUG: found construction site for ${structureConstant} at ${String(placedPosition)}`);
         return structure[0].id;
       }
     }
