@@ -6,7 +6,7 @@ export class Upgrader extends Minder {
   public static readonly ROLE = CreepRole.UPGRADER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
     profile: [WORK],
-    seed: [CARRY],
+    seed: [CARRY, WORK],
     maxBodyParts: 10
   };
 
