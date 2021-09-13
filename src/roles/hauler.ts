@@ -48,11 +48,23 @@ export class Hauler extends CreepWrapper {
       }
     }
 
-    // supply controller
+    // supply controller container
     const container = this.findClosestControllerContainerNotFull();
     if (container) {
       this.supplyStructureJob(container);
       return;
+    }
+
+    // supply upgraders
+    const upgraders = this.room.find(FIND_MY_CREEPS, {
+      filter: creep => creep.memory.role === "upgrader" && creep.store.getUsedCapacity() === 0
+    });
+    if (upgraders.length > 0) {
+      const upgrader = this.pos.findClosestByPath(upgraders);
+      if (upgrader) {
+        const result = this.moveToAndTransfer(upgrader);
+        CreepUtils.consoleLogIfWatched(this, `supply ${upgrader.name} result`, result);
+      }
     }
 
     // otherwise supply storage
@@ -162,7 +174,7 @@ export class Hauler extends CreepWrapper {
       const target = spawnStorage.find(s => s.pos.isNearTo(this.pos));
       if (target) {
         const transferResult = this.transfer(target, RESOURCE_ENERGY);
-        CreepUtils.consoleLogIfWatched(this, `transfer result`, transferResult);
+        CreepUtils.consoleLogIfWatched(this, `supply ${target.structureType} result`, transferResult);
         // stores do NOT reflect transfer above until next tick
         const targetFreeCap = target.store.getFreeCapacity(RESOURCE_ENERGY);
         const creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
@@ -172,6 +184,7 @@ export class Hauler extends CreepWrapper {
           return harvestResult;
         }
       }
+      // get path through all extensions
       const goals = spawnStorage.map(s => {
         return { pos: s.pos, range: 1 };
       });
