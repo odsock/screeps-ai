@@ -82,16 +82,19 @@ export class PlannerUtils {
 
       // Give up if back to start position
       if (xOffset === yOffset && xOffset === 0) {
+        console.log(`DEBUG: failed to place ${structureConstant} around ${String(position)}`);
         return undefined;
       }
 
       pos = new RoomPosition(startPos.x + xOffset, startPos.y + yOffset, startPos.roomName);
     }
-
     const structure = pos.lookFor(LOOK_CONSTRUCTION_SITES);
     if (structure.length > 0) {
+      console.log(`DEBUG: placed ${structureConstant} at ${String(pos)}`);
       return structure[0].id;
     }
+
+    console.log(`DEBUG: error placing ${structureConstant} around ${String(position)}`);
     return undefined;
   }
 
