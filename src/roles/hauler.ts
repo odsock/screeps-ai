@@ -60,16 +60,53 @@ export class Hauler extends CreepWrapper {
       filter: creep => creep.memory.role === "upgrader" && creep.store.getUsedCapacity() === 0
     });
     if (upgraders.length > 0) {
-      const upgrader = this.pos.findClosestByPath(upgraders);
-      if (upgrader) {
-        const result = this.moveToAndTransfer(upgrader);
-        CreepUtils.consoleLogIfWatched(this, `supply ${upgrader.name} result`, result);
-      }
+      this.supplyUpgradersJob(upgraders);
+      return;
     }
 
     // otherwise supply storage
     if (this.room.storage) {
       this.supplyStructureJob(this.room.storage);
+    }
+  }
+
+  private supplyUpgradersJob(upgraders: Creep[]) {
+    CreepUtils.consoleLogIfWatched(this, `supply upgraders`);
+    this.updateJob(`upgraders`);
+    this.stopWorkingIfEmpty();
+    this.startWorkingIfFull();
+
+    if (this.memory.working) {
+      CreepUtils.consoleLogIfWatched(this, "working");
+      const target = upgraders.find(creep => creep.pos.isNearTo(this.pos));
+      if (target) {
+        const transferResult = this.transfer(target, RESOURCE_ENERGY);
+        CreepUtils.consoleLogIfWatched(this, `supply ${target.name} result`, transferResult);
+        // stores do NOT reflect transfer above until next tick
+        const targetFreeCap = target.store.getFreeCapacity(RESOURCE_ENERGY);
+        const creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
+        if (transferResult === OK && targetFreeCap >= creepStoredEnergy) {
+          CreepUtils.consoleLogIfWatched(this, `empty`);
+          const loadResult = this.loadEnergy();
+          return loadResult;
+        }
+      }
+      // get path through all upgraders
+      const goals = upgraders.map(creep => {
+        return { pos: creep.pos, range: 1 };
+      });
+      const path = PathFinder.search(this.pos, goals, {
+        plainCost: 2,
+        swampCost: 10,
+        roomCallback: CreepUtils.getCreepMovementCostMatrix
+      });
+      CreepUtils.consoleLogIfWatched(this, `path: ${String(path.path)}`);
+      const moveResult = this.moveByPath(path.path);
+      CreepUtils.consoleLogIfWatched(this, `moving on path`, moveResult);
+      return moveResult;
+    } else {
+      const loadResult = this.loadEnergy();
+      return loadResult;
     }
   }
 
@@ -109,9 +146,7 @@ export class Hauler extends CreepWrapper {
     return OK;
   }
 
-  private supplyStructureJob(
-    target: StructureSpawn | StructureExtension | StructureContainer | StructureTower | StructureStorage
-  ): ScreepsReturnCode {
+  private supplyStructureJob(target: StructureContainer | StructureTower | StructureStorage): ScreepsReturnCode {
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
     CreepUtils.consoleLogIfWatched(this, `supply ${target.structureType}`);
     this.updateJob(`${target.structureType}`);
@@ -144,15 +179,6 @@ export class Hauler extends CreepWrapper {
     } else {
       result = this.loadEnergy();
       // TODO when no energy found, try to work when partly full
-      // this causes a loop, find a better way
-      // if (result === ERR_NOT_FOUND) {
-      //   // nowhere to get energy - start working if not empty
-      //   if (this.store.energy > 0) {
-      //     this.memory.working = true;
-      //     CreepUtils.consoleLogIfWatched(this, "no energy to load, start working");
-      //     result = this.supplyStructure(target);
-      //   }
-      // }
     }
     return result;
   }
