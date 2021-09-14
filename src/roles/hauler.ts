@@ -1,7 +1,9 @@
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
+import { Builder } from "./builder";
 import { CreepWrapper } from "./creep-wrapper";
+import { Upgrader } from "./upgrader";
 
 // TODO: assign to source containers or something so they don't only use closest
 // TODO: get hauler to pull harvester to container
@@ -55,12 +57,21 @@ export class Hauler extends CreepWrapper {
       return;
     }
 
-    // supply upgraders
+    // supply empty builders
+    const builders = this.room.find(FIND_MY_CREEPS, {
+      filter: creep => creep.memory.role === Builder.ROLE && creep.store.getUsedCapacity() === 0
+    });
+    if (builders.length > 0) {
+      this.supplyCreepsJob(builders);
+      return;
+    }
+
+    // supply empty upgraders
     const upgraders = this.room.find(FIND_MY_CREEPS, {
-      filter: creep => creep.memory.role === "upgrader" && creep.store.getUsedCapacity() === 0
+      filter: creep => creep.memory.role === Upgrader.ROLE && creep.store.getUsedCapacity() === 0
     });
     if (upgraders.length > 0) {
-      this.supplyUpgradersJob(upgraders);
+      this.supplyCreepsJob(upgraders);
       return;
     }
 
@@ -70,15 +81,15 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private supplyUpgradersJob(upgraders: Creep[]) {
-    CreepUtils.consoleLogIfWatched(this, `supply upgraders`);
-    this.updateJob(`upgraders`);
+  private supplyCreepsJob(creeps: Creep[]) {
+    CreepUtils.consoleLogIfWatched(this, `supply creeps`);
+    this.updateJob(`creeps`);
     this.stopWorkingIfEmpty();
     this.startWorkingIfFull();
 
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");
-      const target = upgraders.find(creep => creep.pos.isNearTo(this.pos));
+      const target = creeps.find(creep => creep.pos.isNearTo(this.pos));
       if (target) {
         const transferResult = this.transfer(target, RESOURCE_ENERGY);
         CreepUtils.consoleLogIfWatched(this, `supply ${target.name} result`, transferResult);
@@ -91,8 +102,8 @@ export class Hauler extends CreepWrapper {
           return loadResult;
         }
       }
-      // get path through all upgraders
-      const goals = upgraders.map(creep => {
+      // get path through all creeps
+      const goals = creeps.map(creep => {
         return { pos: creep.pos, range: 1 };
       });
       const path = PathFinder.search(this.pos, goals, {
