@@ -112,6 +112,5 @@ export class MemoryUtils {
         sourceInfo.haulerId = undefined;
       }
     }
-    // TODO might have to find adjacent containers here, if id's change after construction
   }
 }

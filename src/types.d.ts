@@ -38,6 +38,8 @@ interface SourceInfo {
   harvestPositions: string[];
   id: Id<Source>;
   pos: string;
+  containerConstructionSiteId?: Id<ConstructionSite>;
+  containerPos?: string;
   containerId?: Id<StructureContainer>;
   minderId?: Id<Creep>;
   haulerId?: Id<Creep>;
@@ -49,6 +51,8 @@ interface RoomSources {
 }
 
 interface ControllerInfo {
+  containerConstructionSiteId?: Id<ConstructionSite>;
+  containerPos?: string;
   containerId?: Id<StructureContainer>;
   haulerId?: Id<Creep>;
   linkId?: Id<StructureLink>;

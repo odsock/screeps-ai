@@ -64,17 +64,12 @@ export class PlannerUtils {
   public static placeStructureAdjacent(
     position: RoomPosition,
     structureConstant: BuildableStructureConstant
-  ): string | undefined {
+  ): RoomPosition | undefined {
     const positions = this.getPositionSpiral(position, 1);
     const placedPosition = positions.find(pos => pos.createConstructionSite(structureConstant) === OK);
     if (placedPosition) {
       console.log(`DEBUG: placed ${structureConstant} at ${String(placedPosition)}`);
-      const structure = placedPosition.lookFor(LOOK_CONSTRUCTION_SITES);
-      console.log(`DEBUG: sites at ${String(placedPosition)}: ${JSON.stringify(structure)}`);
-      if (structure.length > 0) {
-        console.log(`DEBUG: found construction site for ${structureConstant} at ${String(placedPosition)}`);
-        return structure[0].id;
-      }
+      return placedPosition;
     }
     console.log(`DEBUG: error placing ${structureConstant} around ${String(position)}`);
     return undefined;
