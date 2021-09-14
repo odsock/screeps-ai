@@ -381,7 +381,7 @@ export class SpawnControl {
       spawnw.spawnCreep(body, "maximizeBody", { dryRun: true }) === 0 &&
       body.length + bodyProfile.profile.length <= bodyProfile.maxBodyParts
     );
-    return finalBody.sort();
+    return finalBody;
   }
 
   private calcBodyCost(body: BodyPartConstant[]): number {
