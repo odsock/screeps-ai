@@ -75,9 +75,7 @@ export class Builder extends CreepWrapper {
     let site = Game.getObjectById(siteId as Id<ConstructionSite>);
     if (site) {
       return site;
-    }
-
-    if (!site) {
+    } else {
       const centerPos = this.findBuildCenterPos();
       const sites = this.roomw.find(FIND_MY_CONSTRUCTION_SITES);
       const groupedSites = _.groupBy(sites, aSite => aSite.structureType);
@@ -96,7 +94,10 @@ export class Builder extends CreepWrapper {
           site = closestSite;
         }
       }
-      CreepUtils.consoleLogIfWatched(this, `center pos: ${String(centerPos)}, found site: ${String(site)}`);
+      if (site) {
+        CreepUtils.consoleLogIfWatched(this, `center pos: ${String(centerPos)}, found site: ${String(site)}`);
+        return site;
+      }
     }
     return undefined;
   }
