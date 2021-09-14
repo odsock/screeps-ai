@@ -360,7 +360,7 @@ export class SpawnControl {
       finalBody = body.slice();
       body = body.concat(creepBodyProfile.profile);
     } while (this.calcBodyCost(body) <= energyCapacity && body.length <= creepBodyProfile.maxBodyParts);
-    return finalBody.sort();
+    return finalBody;
   }
 
   private getMaxBodyNow(bodyProfile: CreepBodyProfile, spawnw: SpawnWrapper) {

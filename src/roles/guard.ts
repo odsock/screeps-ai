@@ -1,12 +1,11 @@
 import { CreepRole } from "config/creep-types";
-import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { RemoteWorker } from "./remote-worker";
 
 export class Guard extends RemoteWorker {
   public static readonly ROLE = CreepRole.GUARD;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
-    profile: [TOUGH, ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE],
+    profile: [TOUGH, MOVE, MOVE, RANGED_ATTACK, ATTACK, MOVE],
     seed: [],
     maxBodyParts: MAX_CREEP_SIZE
   };
