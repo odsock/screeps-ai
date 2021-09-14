@@ -82,13 +82,18 @@ export class Planner {
     planPositions.forEach(planPos => {
       const posLook = planPos.pos.look();
       const wrongStructure = posLook.find(
-        lookResult =>
-          lookResult.structure?.structureType &&
-          lookResult.structure.structureType !== planPos.structure &&
-          lookResult.structure.structureType !== STRUCTURE_SPAWN
+        lookResult => lookResult.structure?.structureType && lookResult.structure.structureType !== planPos.structure
       );
 
       if (wrongStructure?.structure && wrongStructure.structure) {
+        // a couple of exceptions
+        if (
+          (skipRoads && wrongStructure.structure.structureType === STRUCTURE_ROAD) ||
+          (wrongStructure.structure.structureType === STRUCTURE_SPAWN && this.roomw.find(FIND_MY_SPAWNS).length === 1)
+        ) {
+          return;
+        }
+        // add item to queue if not already there
         const dismantleQueue = this.roomw.dismantleQueue;
         if (!dismantleQueue.find(item => item.id === wrongStructure.structure?.id)) {
           console.log(
@@ -97,7 +102,6 @@ export class Planner {
           dismantleQueue.push(wrongStructure.structure);
         }
       }
-      return !!wrongStructure;
     });
 
     // draw dismantle queue
