@@ -167,7 +167,8 @@ export class SpawnControl {
           const hostileAttackPower = hostileAttackParts * ATTACK_POWER;
           const hostileHits = hostiles.reduce<number>((count, creep) => count + creep.hitsMax, 0);
 
-          const guardAttackPower = Guard.BODY_PROFILE.seed.filter(part => part === ATTACK).length * ATTACK_POWER;
+          const guardAttackParts = Guard.BODY_PROFILE.seed.filter(part => part === ATTACK).length;
+          const guardAttackPower = guardAttackParts * ATTACK_POWER;
           const guardHits = Guard.BODY_PROFILE.seed.length * 100;
 
           const bodyProfile = Guard.BODY_PROFILE.seed;
@@ -185,8 +186,16 @@ export class SpawnControl {
 
             // calc how many attack parts to add to kill first
             const attackPowerNeeded = hostileHits / guardSurvivalTime;
-            const attackPartsNeeded = attackPowerNeeded / ATTACK_POWER;
-            const attackCost = attackPartsNeeded * BODYPART_COST.attack;
+            let attackPartsNeeded = attackPowerNeeded / ATTACK_POWER - guardAttackParts;
+            for (let count = 1; count <= attackPartsNeeded; count++) {
+              const newGuardSurvivalTime = (guardHits + count * 200) / hostileAttackPower;
+              const newHostileSurvivalTime = hostileHits / (guardAttackPower + ATTACK_POWER * count);
+              if (newGuardSurvivalTime > newHostileSurvivalTime) {
+                attackPartsNeeded = count;
+                break;
+              }
+            }
+            const attackCost = attackPartsNeeded * (BODYPART_COST.attack + BODYPART_COST.move);
 
             // TODO these loops are dumb
             if (armorCost < attackCost) {
@@ -199,6 +208,9 @@ export class SpawnControl {
             } else {
               for (let count = 0; count < attackPartsNeeded; count++) {
                 bodyProfile.push(ATTACK);
+              }
+              for (let count = 0; count < attackPartsNeeded; count++) {
+                bodyProfile.unshift(MOVE);
               }
             }
           }
