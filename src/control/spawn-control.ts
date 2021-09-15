@@ -170,7 +170,7 @@ export class SpawnControl {
           const guardAttackPower = Guard.BODY_PROFILE.seed.filter(part => part === ATTACK).length * ATTACK_POWER;
           const guardHits = Guard.BODY_PROFILE.seed.length * 100;
 
-          const bodyProfile = Guard.BODY_PROFILE.profile;
+          const bodyProfile = Guard.BODY_PROFILE.seed;
           const guardSurvivalTime = guardHits / hostileAttackPower;
           const hostileSurvivalTime = hostileHits / guardAttackPower;
           if (guardSurvivalTime < hostileSurvivalTime) {
