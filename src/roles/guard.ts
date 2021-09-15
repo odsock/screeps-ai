@@ -19,8 +19,8 @@ export class Guard extends RemoteWorker {
     // check for flagged scary rooms
     if (!this.targetRoom) {
       for (const roomName in Memory.rooms) {
-        const scaryFlag = Memory.rooms[roomName].scary;
-        if (scaryFlag) {
+        const hostiles = Memory.rooms[roomName].defense.hostiles;
+        if (hostiles.length > 0) {
           const guard = _.find(
             Game.creeps,
             creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === roomName
@@ -40,7 +40,7 @@ export class Guard extends RemoteWorker {
         return;
       }
     } else {
-      this.room.memory.scary = false;
+      this.room.memory.defense.hostiles = [];
     }
 
     if (!this.targetRoom) {

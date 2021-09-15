@@ -148,14 +148,65 @@ export class SpawnControl {
    */
   private spawnLaterRCL(spawnw: SpawnWrapper): ScreepsReturnCode {
     // GUARD
-    // spawn guard for each scary room
+    // spawn guard for each scary room without one
     CreepUtils.consoleLogIfWatched(spawnw, `check if guard needed`);
-    const roomsByScary = _.countBy(Memory.rooms, "scary");
-    if (roomsByScary.true > this.creepCountsByRole[CreepRole.GUARD]) {
-      if (this.roomw.controller) {
-        this.roomw.controller.activateSafeMode();
+    for (const room in Memory.rooms) {
+      const roomDefense = Memory.rooms[room].defense;
+      if (roomDefense.hostiles.length > 0) {
+        const guards = _.filter(
+          Game.creeps,
+          creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === room
+        );
+        if (guards.length === 0) {
+          // try to pop a safe mode while spawning guard
+          if (this.roomw.controller?.safeModeAvailable) {
+            this.roomw.controller.activateSafeMode();
+          }
+          const hostiles = roomDefense.hostiles;
+          const hostileAttackParts = CreepUtils.countParts(ATTACK, ...hostiles);
+          const hostileAttackPower = hostileAttackParts * ATTACK_POWER;
+          const hostileHits = hostiles.reduce<number>((count, creep) => count + creep.hitsMax, 0);
+
+          const guardAttackPower = Guard.BODY_PROFILE.seed.filter(part => part === ATTACK).length * ATTACK_POWER;
+          const guardHits = Guard.BODY_PROFILE.seed.length * 100;
+
+          const bodyProfile = Guard.BODY_PROFILE.profile;
+          const guardSurvivalTime = guardHits / hostileAttackPower;
+          const hostileSurvivalTime = hostileHits / guardAttackPower;
+          if (guardSurvivalTime < hostileSurvivalTime) {
+            const survivalDiff = hostileSurvivalTime - guardSurvivalTime;
+
+            // calc how many parts to add to take the damage
+            const damageDiff = survivalDiff * hostileAttackPower;
+            const bodyPartsNeeded = Math.ceil(damageDiff / 100);
+            const toughPartsNeeded = Math.floor(bodyPartsNeeded / 2);
+            const movePartsNeeded = Math.ceil(bodyPartsNeeded / 2);
+            const armorCost = toughPartsNeeded * BODYPART_COST.tough + movePartsNeeded * BODYPART_COST.move;
+
+            // calc how many attack parts to add to kill first
+            const attackPowerNeeded = hostileHits / guardSurvivalTime;
+            const attackPartsNeeded = attackPowerNeeded / ATTACK_POWER;
+            const attackCost = attackPartsNeeded * BODYPART_COST.attack;
+
+            // TODO these loops are dumb
+            if (armorCost < attackCost) {
+              for (let count = 0; count < movePartsNeeded; count++) {
+                bodyProfile.unshift(MOVE);
+              }
+              for (let count = 0; count < toughPartsNeeded; count++) {
+                bodyProfile.unshift(TOUGH);
+              }
+            } else {
+              for (let count = 0; count < attackPartsNeeded; count++) {
+                bodyProfile.push(ATTACK);
+              }
+            }
+          }
+
+          const spawnResult = spawnw.spawn({ body: bodyProfile, role: Guard.ROLE });
+          return spawnResult;
+        }
       }
-      return this.spawnGuardCreep(Guard.BODY_PROFILE, Guard.ROLE, spawnw);
     }
 
     // spawn economy creeps with early strategy

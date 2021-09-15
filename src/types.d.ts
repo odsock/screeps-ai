@@ -17,7 +17,7 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
-  scary?: boolean;
+  defense: RoomDefense;
   sources: RoomSources;
   spawns?: Id<StructureSpawn>[];
   costMatrix?: { [name: string]: number[] };
@@ -26,6 +26,10 @@ interface RoomMemory {
   construction: { [id: string]: ConstructionLog };
   watched?: boolean;
   controller: ControllerInfo;
+}
+
+interface RoomDefense {
+  hostiles: Creep[];
 }
 
 interface LogCounts {
