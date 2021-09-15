@@ -14,7 +14,6 @@ export class MemoryUtils {
   public static refreshRoomMemory(room: Room): void {
     this.refreshSourceMemory(room);
     this.refreshControllerMemory(room);
-    this.refreshDefenseMemory(room);
   }
 
   public static readCacheFromMemory(): void {
@@ -112,13 +111,6 @@ export class MemoryUtils {
       if (sourceInfo.haulerId && !Game.getObjectById(sourceInfo.haulerId)) {
         sourceInfo.haulerId = undefined;
       }
-    }
-  }
-
-  public static refreshDefenseMemory(room: Room): void {
-    const defenseMemory = room.memory.defense;
-    if (!defenseMemory) {
-      room.memory.defense = { hostiles: [] };
     }
   }
 }

@@ -17,7 +17,7 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
-  defense: RoomDefense;
+  defense?: RoomDefense;
   sources: RoomSources;
   spawns?: Id<StructureSpawn>[];
   costMatrix?: { [name: string]: number[] };

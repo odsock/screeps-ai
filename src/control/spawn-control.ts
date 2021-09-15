@@ -152,7 +152,7 @@ export class SpawnControl {
     CreepUtils.consoleLogIfWatched(spawnw, `check if guard needed`);
     for (const room in Memory.rooms) {
       const roomDefense = Memory.rooms[room].defense;
-      if (roomDefense.hostiles.length > 0) {
+      if (roomDefense && roomDefense.hostiles.length > 0) {
         const guards = _.filter(
           Game.creeps,
           creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === room
