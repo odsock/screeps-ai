@@ -251,7 +251,7 @@ export class SpawnControl {
   }
 
   private spawnGuardCreep(profile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper): ScreepsReturnCode {
-    const result = spawnw.spawn({ body: profile.profile, role });
+    const result = spawnw.spawn({ body: profile.seed, role });
     return result;
   }
 
