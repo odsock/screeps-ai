@@ -230,7 +230,7 @@ export class Hauler extends CreepWrapper {
         swampCost: 10,
         roomCallback: CreepUtils.getCreepMovementCostMatrix
       });
-      CreepUtils.consoleLogIfWatched(this, `path: ${String(path.path)}`);
+      CreepUtils.consoleLogIfWatched(this, `path: ${JSON.stringify(path)}`);
       const moveResult = this.moveByPath(path.path);
       CreepUtils.consoleLogIfWatched(this, `moving on path`, moveResult);
       return moveResult;
