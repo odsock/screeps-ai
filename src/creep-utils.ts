@@ -48,13 +48,11 @@ export class CreepUtils {
   }
 
   public static getCreepMovementCostMatrix = (roomName: string): CostMatrix | boolean => {
+    const cost = this.getRoadCostMatrix(roomName);
+    if (typeof cost === "boolean") return cost;
+
     const room = Game.rooms[roomName];
     if (!room) return false;
-    const cost = new PathFinder.CostMatrix();
-
-    // avoid structures
-    const structures = room.find(FIND_STRUCTURES);
-    CreepUtils.updateRoadCostMatrixForStructures(structures, cost);
 
     // avoid creeps
     room.find(FIND_CREEPS).forEach(creep => cost.set(creep.pos.x, creep.pos.y, 0xff));
@@ -75,7 +73,10 @@ export class CreepUtils {
     return cost;
   };
 
-  private static updateRoadCostMatrixForStructures(structures: AnyStructure[] | ConstructionSite[], cost: CostMatrix) {
+  private static updateRoadCostMatrixForStructures(
+    structures: AnyStructure[] | ConstructionSite[],
+    cost: CostMatrix
+  ): CostMatrix {
     for (const structure of structures) {
       if (structure.structureType === STRUCTURE_ROAD) {
         cost.set(structure.pos.x, structure.pos.y, 1);
@@ -86,6 +87,7 @@ export class CreepUtils {
         cost.set(structure.pos.x, structure.pos.y, 0xff);
       }
     }
+    return cost;
   }
 
   /** counts creep body parts matching specified type */
