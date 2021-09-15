@@ -48,7 +48,7 @@ export class CreepUtils {
   }
 
   public static getCreepMovementCostMatrix = (roomName: string): CostMatrix | boolean => {
-    const cost = this.getRoadCostMatrix(roomName);
+    const cost = CreepUtils.getRoadCostMatrix(roomName);
     if (typeof cost === "boolean") return cost;
 
     const room = Game.rooms[roomName];
