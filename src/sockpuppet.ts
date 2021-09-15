@@ -20,6 +20,14 @@ export class Sockpuppet {
         continue;
       }
 
+      // record hostile creeps
+      const hostileCreeps = roomw.find(FIND_HOSTILE_CREEPS);
+      if (hostileCreeps.length === 0) {
+        roomw.memory.defense = { hostiles: [] };
+      } else {
+        roomw.memory.defense = { hostiles: hostileCreeps };
+      }
+
       // only consider rooms we own
       if (roomw.controller?.owner?.username !== SockPuppetConstants.USERNAME) {
         continue;
