@@ -79,27 +79,27 @@ export class Planner {
     }
 
     // mark each structure for dismantling if mismatch found
+    const roomLook = this.roomw.lookForAtArea(LOOK_STRUCTURES, 0, 0, ROOM_SIZE, ROOM_SIZE);
     planPositions.forEach(planPos => {
-      const posLook = planPos.pos.look();
-      const wrongStructure = posLook.find(
-        lookResult => lookResult.structure?.structureType && lookResult.structure.structureType !== planPos.structure
-      );
-
-      if (wrongStructure?.structure && wrongStructure.structure) {
-        // a couple of exceptions
-        if (
-          (skipRoads && wrongStructure.structure.structureType === STRUCTURE_ROAD) ||
-          (wrongStructure.structure.structureType === STRUCTURE_SPAWN && this.roomw.find(FIND_MY_SPAWNS).length === 1)
-        ) {
-          return;
-        }
-        // add item to queue if not already there
-        const dismantleQueue = this.roomw.dismantleQueue;
-        if (!dismantleQueue.find(item => item.id === wrongStructure.structure?.id)) {
-          console.log(
-            `DISMANTLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
-          );
-          dismantleQueue.push(wrongStructure.structure);
+      const posLook = roomLook[planPos.pos.x][planPos.pos.y];
+      if (posLook) {
+        const wrongStructure = posLook.find(s => s.structure.structureType !== planPos.structure);
+        if (wrongStructure?.structure && wrongStructure.structure) {
+          // a couple of exceptions
+          if (
+            (skipRoads && wrongStructure.structure.structureType === STRUCTURE_ROAD) ||
+            (wrongStructure.structure.structureType === STRUCTURE_SPAWN && this.roomw.find(FIND_MY_SPAWNS).length === 1)
+          ) {
+            return;
+          }
+          // add item to queue if not already there
+          const dismantleQueue = this.roomw.dismantleQueue;
+          if (!dismantleQueue.find(item => item.id === wrongStructure.structure?.id)) {
+            console.log(
+              `DISMANTLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
+            );
+            dismantleQueue.push(wrongStructure.structure);
+          }
         }
       }
     });
