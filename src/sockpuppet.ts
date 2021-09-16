@@ -4,7 +4,6 @@ import { Planner } from "planning/planner";
 import { SpawnControl } from "control/spawn-control";
 import { CreepFactory } from "roles/creep-factory";
 import { TowerWrapper } from "structures/tower-wrapper";
-import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import { RoomWrapper } from "structures/room-wrapper";
 
 export class Sockpuppet {
