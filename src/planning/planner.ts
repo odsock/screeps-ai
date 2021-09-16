@@ -79,7 +79,7 @@ export class Planner {
     }
 
     // mark each structure for dismantling if mismatch found
-    const roomLook = this.roomw.lookForAtArea(LOOK_STRUCTURES, 0, 0, ROOM_SIZE, ROOM_SIZE);
+    const roomLook = this.roomw.lookForAtArea(LOOK_STRUCTURES, 0, 0, SockPuppetConstants.ROOM_SIZE, SockPuppetConstants.ROOM_SIZE);
     planPositions.forEach(planPos => {
       const posLook = roomLook[planPos.pos.x][planPos.pos.y];
       if (posLook) {
