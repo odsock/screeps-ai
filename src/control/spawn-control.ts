@@ -267,11 +267,6 @@ export class SpawnControl {
     });
   }
 
-  private spawnGuardCreep(profile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper): ScreepsReturnCode {
-    const result = spawnw.spawn({ body: profile.seed, role });
-    return result;
-  }
-
   private spawnBootstrapCreep(profile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper): ScreepsReturnCode {
     let body: BodyPartConstant[];
     if (this.creepCountsByRole[role] <= 0) {

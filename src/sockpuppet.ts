@@ -28,8 +28,8 @@ export class Sockpuppet {
         roomw.memory.defense = { hostiles: hostileCreeps };
       }
 
-      // only consider rooms we own
-      if (roomw.controller?.my) {
+      // only consider rooms we own for colony planning and control
+      if (!roomw.controller?.my) {
         continue;
       }
 
