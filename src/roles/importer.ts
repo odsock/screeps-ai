@@ -15,7 +15,7 @@ export class Importer extends RemoteWorker {
 
   public run(): void {
     // unsign controllers we didn't sign
-    if (this.room.controller?.sign?.username && this.room.controller.sign.username !== SockPuppetConstants.USERNAME) {
+    if (this.room.controller?.sign?.username && this.room.controller.sign.username !== this.owner.username) {
       this.moveTo(this.room.controller);
       this.signController(this.room.controller, "");
     }

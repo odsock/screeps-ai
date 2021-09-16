@@ -213,7 +213,7 @@ export class SpawnControl {
       Game.rooms,
       room =>
         room.controller?.owner &&
-        room.controller?.owner.username === SockPuppetConstants.USERNAME &&
+        room.controller?.owner.username === spawnw.owner.username &&
         room.find(FIND_MY_SPAWNS).length === 0
     );
     const remoteWorkers = _.filter(Game.creeps, creep => creep.memory.role === Worker.ROLE && creep.memory.targetRoom);

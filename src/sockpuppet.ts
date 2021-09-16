@@ -29,7 +29,7 @@ export class Sockpuppet {
       }
 
       // only consider rooms we own
-      if (roomw.controller?.owner?.username !== SockPuppetConstants.USERNAME) {
+      if (roomw.controller?.my) {
         continue;
       }
 

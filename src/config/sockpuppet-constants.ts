@@ -1,5 +1,4 @@
 export class SockPuppetConstants {
-  public static readonly USERNAME = "odsock";
   public static readonly MAX_WORKERS: number = 8;
   public static readonly MAX_FIXER_CREEPS: number = 1;
 
