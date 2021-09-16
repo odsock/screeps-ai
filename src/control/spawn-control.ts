@@ -14,6 +14,7 @@ import { CreepRole } from "config/creep-types";
 import { Harvester } from "roles/harvester";
 import { Upgrader } from "roles/upgrader";
 import { DefenseUtils } from "./defense-utils";
+import { CreepBodyProfile } from "roles/creep-wrapper";
 
 export class SpawnControl {
   private readonly containers: AnyStructure[];

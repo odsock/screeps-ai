@@ -2,6 +2,13 @@ import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 
+export interface CreepBodyProfile {
+  profile: BodyPartConstant[];
+  seed: BodyPartConstant[];
+  maxBodyParts: number;
+  maxWorkParts?: number;
+}
+
 export abstract class CreepWrapper extends Creep {
   public constructor(private readonly creep: Creep) {
     super(creep.id);

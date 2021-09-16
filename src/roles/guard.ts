@@ -1,5 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
+import { CreepBodyProfile } from "./creep-wrapper";
 import { RemoteWorker } from "./remote-worker";
 
 export class Guard extends RemoteWorker {

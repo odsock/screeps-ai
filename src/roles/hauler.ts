@@ -2,7 +2,7 @@ import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 import { Builder } from "./builder";
-import { CreepWrapper } from "./creep-wrapper";
+import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 import { Upgrader } from "./upgrader";
 
 // TODO: assign to source containers or something so they don't only use closest

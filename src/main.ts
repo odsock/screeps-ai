@@ -102,13 +102,6 @@ declare global {
     store: StoreDefinition;
   }
 
-  interface CreepBodyProfile {
-    profile: BodyPartConstant[];
-    seed: BodyPartConstant[];
-    maxBodyParts: number;
-    maxWorkParts?: number;
-  }
-
   interface Memory {
     cache?: string;
     version?: string;

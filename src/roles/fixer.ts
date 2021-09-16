@@ -1,6 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
-import { CreepWrapper } from "./creep-wrapper";
+import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 
 export class Fixer extends CreepWrapper {
   public static readonly ROLE = CreepRole.FIXER;

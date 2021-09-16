@@ -1,5 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
+import { CreepBodyProfile } from "./creep-wrapper";
 import { Minder } from "./minder";
 
 export class Harvester extends Minder {
