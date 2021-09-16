@@ -91,7 +91,8 @@ export class SpawnControl {
 
     // HARVESTER
     // spawn enough harvesters to drain sources if they fit in harvest positions
-    const harvesters = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE });
+    // don't count retiree harvesters, since they are being replaced
+    const harvesters = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE && !creep.memory.retiree});
     const harvesterWorkParts = CreepUtils.countParts(WORK, ...harvesters);
     const harvesterWorkPartsNeeded = spawnw.roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
     CreepUtils.consoleLogIfWatched(spawnw, `harvester work parts: ${harvesterWorkParts}/${harvesterWorkPartsNeeded}`);
@@ -109,7 +110,7 @@ export class SpawnControl {
     }
 
     // UPGRADER
-    // spawn enough upgraders to match 80% of harvest capacity (accounts for building, spawning, towers)
+    // spawn enough upgraders to match harvest capacity (accounts for building, spawning, towers)
     const upgraders = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Upgrader.ROLE });
     const upgraderWorkParts = CreepUtils.countParts(WORK, ...upgraders);
     const HARVEST_TO_UPGRADE_RATIO = 0.7;
