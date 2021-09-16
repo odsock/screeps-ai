@@ -13,6 +13,7 @@ import { Guard } from "roles/guard";
 import { CreepRole } from "config/creep-types";
 import { Harvester } from "roles/harvester";
 import { Upgrader } from "roles/upgrader";
+import { DefenseUtils } from "./defense-utils";
 
 export class SpawnControl {
   private readonly containers: AnyStructure[];
@@ -150,72 +151,23 @@ export class SpawnControl {
     // GUARD
     // spawn guard for each scary room without one
     CreepUtils.consoleLogIfWatched(spawnw, `check if guard needed`);
-    for (const room in Memory.rooms) {
-      const roomDefense = Memory.rooms[room].defense;
+    for (const roomName in Memory.rooms) {
+      const roomDefense = Memory.rooms[roomName].defense;
       if (roomDefense && roomDefense.hostiles.length > 0) {
         const guards = _.filter(
           Game.creeps,
-          creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === room
+          creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === roomName
         );
         if (guards.length === 0) {
           // try to pop a safe mode while spawning guard
-          if (this.roomw.controller?.safeModeAvailable) {
-            this.roomw.controller.activateSafeMode();
+          const room = Game.rooms[roomName];
+          if (room?.controller?.safeModeAvailable) {
+            room.controller.activateSafeMode();
           }
           const hostiles = roomDefense.hostiles;
-          const hostileAttackParts = CreepUtils.countParts(ATTACK, ...hostiles);
-          const hostileAttackPower = hostileAttackParts * ATTACK_POWER;
-          const hostileHits = hostiles.reduce<number>((count, creep) => count + creep.hitsMax, 0);
+          const body = DefenseUtils.calcDefender(hostiles);
 
-          const guardAttackParts = Guard.BODY_PROFILE.seed.filter(part => part === ATTACK).length;
-          const guardAttackPower = guardAttackParts * ATTACK_POWER;
-          const guardHits = Guard.BODY_PROFILE.seed.length * 100;
-
-          const bodyProfile = Guard.BODY_PROFILE.seed;
-          const guardSurvivalTime = guardHits / hostileAttackPower;
-          const hostileSurvivalTime = hostileHits / guardAttackPower;
-          if (guardSurvivalTime < hostileSurvivalTime) {
-            const survivalDiff = hostileSurvivalTime - guardSurvivalTime;
-
-            // calc how many parts to add to take the damage
-            const damageDiff = survivalDiff * hostileAttackPower;
-            const bodyPartsNeeded = Math.ceil(damageDiff / 100);
-            const toughPartsNeeded = Math.floor(bodyPartsNeeded / 2);
-            const movePartsNeeded = Math.ceil(bodyPartsNeeded / 2);
-            const armorCost = toughPartsNeeded * BODYPART_COST.tough + movePartsNeeded * BODYPART_COST.move;
-
-            // calc how many attack parts to add to kill first
-            const attackPowerNeeded = hostileHits / guardSurvivalTime;
-            let attackPartsNeeded = attackPowerNeeded / ATTACK_POWER - guardAttackParts;
-            for (let count = 1; count <= attackPartsNeeded; count++) {
-              const newGuardSurvivalTime = (guardHits + count * 200) / hostileAttackPower;
-              const newHostileSurvivalTime = hostileHits / (guardAttackPower + ATTACK_POWER * count);
-              if (newGuardSurvivalTime > newHostileSurvivalTime) {
-                attackPartsNeeded = count;
-                break;
-              }
-            }
-            const attackCost = attackPartsNeeded * (BODYPART_COST.attack + BODYPART_COST.move);
-
-            // TODO these loops are dumb
-            if (armorCost < attackCost) {
-              for (let count = 0; count < movePartsNeeded; count++) {
-                bodyProfile.unshift(MOVE);
-              }
-              for (let count = 0; count < toughPartsNeeded; count++) {
-                bodyProfile.unshift(TOUGH);
-              }
-            } else {
-              for (let count = 0; count < attackPartsNeeded; count++) {
-                bodyProfile.push(ATTACK);
-              }
-              for (let count = 0; count < attackPartsNeeded; count++) {
-                bodyProfile.unshift(MOVE);
-              }
-            }
-          }
-
-          const spawnResult = spawnw.spawn({ body: bodyProfile, role: Guard.ROLE });
+          const spawnResult = spawnw.spawn({ body, role: Guard.ROLE });
           return spawnResult;
         }
       }

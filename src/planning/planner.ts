@@ -119,9 +119,6 @@ export class Planner {
   }
 
   private planLevel1(): ScreepsReturnCode {
-    if (this.roomw.find(FIND_MY_SPAWNS).length === 0) {
-      return PlannerUtils.placeFirstSpawn(this.roomw);
-    }
     return OK;
   }
 

@@ -183,15 +183,6 @@ export class PlannerUtils {
     return ret;
   }
 
-  // TODO: find a place for spawn with simple rules
-  public static placeFirstSpawn(room: Room): ScreepsReturnCode {
-    console.log(`called stub spawn placer: ${room.name}`);
-    // if (this.room.controller) {
-    //   this.room.controller.pos.
-    // }
-    return ERR_INVALID_TARGET;
-  }
-
   public static placeStructurePlan(
     structurePlan: StructurePlan,
     allowOverlap = true,
@@ -209,11 +200,7 @@ export class PlannerUtils {
 
         const result = structurePlan.roomw.createConstructionSite(planPosition.pos, planPosition.structure);
         // BUG this fails to place for RCL, when we have RCL
-        // CreepUtils.consoleLogIfWatched(
-        //   structurePlan.roomw,
-        //   `place ${String(planPosition.pos)} ${planPosition.structure}`,
-        //   result
-        // );
+        CreepUtils.consoleLogIfWatched(structurePlan.roomw, `place ${JSON.stringify(planPosition)}`, result);
         if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
           continue;
         }
