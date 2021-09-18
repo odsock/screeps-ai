@@ -33,6 +33,7 @@ export class MemoryUtils {
 
   private static initCache() {
     if (!global.cache && Memory.cache) {
+      console.log(`deserializing cache from memory`);
       global.cache = new Map(JSON.parse(Memory.cache));
     } else {
       global.cache = new Map<string, CacheValue>();
