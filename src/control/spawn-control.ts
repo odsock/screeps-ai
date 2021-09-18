@@ -98,11 +98,13 @@ export class SpawnControl {
     });
     const harvesterWorkParts = CreepUtils.countParts(WORK, ...harvesters);
     const harvesterWorkPartsNeeded = spawnw.roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
-    CreepUtils.consoleLogIfWatched(spawnw, `harvester work parts: ${harvesterWorkParts}/${harvesterWorkPartsNeeded}`);
-    if (
-      harvesterWorkParts < harvesterWorkPartsNeeded &&
-      this.creepCountsByRole[CreepRole.HARVESTER] < spawnw.roomw.harvestPositionCount
-    ) {
+    const harvesterCount = this.creepCountsByRole[CreepRole.HARVESTER];
+    const harvestPositionCount = spawnw.roomw.harvestPositionCount;
+    CreepUtils.consoleLogIfWatched(
+      spawnw,
+      `harvesters: ${harvesterCount}/${harvestPositionCount} positions, ${harvesterWorkParts}/${harvesterWorkPartsNeeded} parts`
+    );
+    if (harvesterWorkParts < harvesterWorkPartsNeeded && harvesterCount < harvestPositionCount) {
       return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw);
     }
 
@@ -119,11 +121,13 @@ export class SpawnControl {
     const HARVEST_TO_UPGRADE_RATIO = 0.7;
     const upgraderWorkPartsNeeded =
       (Math.min(harvesterWorkParts, 10) * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) / UPGRADE_CONTROLLER_POWER;
-    CreepUtils.consoleLogIfWatched(spawnw, `upgrader work parts: ${upgraderWorkParts}/${upgraderWorkPartsNeeded}`);
-    if (
-      upgraderWorkParts < upgraderWorkPartsNeeded &&
-      this.creepCountsByRole[CreepRole.UPGRADER] < spawnw.roomw.getUpgradePositions().length
-    ) {
+    const upgradePositionCount = spawnw.roomw.getUpgradePositions().length;
+    const upgraderCount = this.creepCountsByRole[CreepRole.UPGRADER];
+    CreepUtils.consoleLogIfWatched(
+      spawnw,
+      `upgraders: ${upgraderCount}/${upgradePositionCount} positions, ${upgraderWorkParts}/${upgraderWorkPartsNeeded} parts`
+    );
+    if (upgraderWorkParts < upgraderWorkPartsNeeded && upgraderCount < upgradePositionCount) {
       return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw);
     }
 
