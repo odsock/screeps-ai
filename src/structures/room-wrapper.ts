@@ -363,6 +363,7 @@ export class RoomWrapper extends Room {
     const cacheKey = "avoidHarvestPositionsAndRoadsNearController";
     const cachedCostMatrix = this.getCostMatrixFromCache(cacheKey);
     if (cachedCostMatrix) {
+      console.log(`DEBUG: got upgrader cost matrix from cache`);
       return cachedCostMatrix;
     }
     this.sources.forEach(source =>
