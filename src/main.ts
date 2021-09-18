@@ -33,7 +33,6 @@ declare global {
     defense?: RoomDefense;
     sources: RoomSources;
     spawns?: Id<StructureSpawn>[];
-    costMatrix?: { [name: string]: number[] };
     log: string[];
     logCounts?: LogCounts;
     construction: { [id: string]: ConstructionLog };
