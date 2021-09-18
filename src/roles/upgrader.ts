@@ -51,7 +51,7 @@ export class Upgrader extends Minder {
           findPathOpts = {
             range: 1,
             costCallback: (roomName, costMatrix) => {
-              this.roomw.getCostMatrixAvoidHarvestPositions(costMatrix);
+              this.roomw.getCostMatrixAvoidHarvestPositionsAndRoadsNearController(costMatrix);
             }
           };
         }
@@ -64,7 +64,7 @@ export class Upgrader extends Minder {
         findPathOpts = {
           range: 3,
           costCallback: (roomName, costMatrix) => {
-            this.roomw.getCostMatrixAvoidHarvestPositions(costMatrix);
+            this.roomw.getCostMatrixAvoidHarvestPositionsAndRoadsNearController(costMatrix);
           }
         };
       }
