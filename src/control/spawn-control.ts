@@ -120,7 +120,10 @@ export class SpawnControl {
     const upgraderWorkPartsNeeded =
       (Math.min(harvesterWorkParts, 10) * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) / UPGRADE_CONTROLLER_POWER;
     CreepUtils.consoleLogIfWatched(spawnw, `upgrader work parts: ${upgraderWorkParts}/${upgraderWorkPartsNeeded}`);
-    if (upgraderWorkParts < upgraderWorkPartsNeeded) {
+    if (
+      upgraderWorkParts < upgraderWorkPartsNeeded &&
+      this.creepCountsByRole[CreepRole.UPGRADER] < spawnw.roomw.getUpgradePositions().length
+    ) {
       return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw);
     }
 

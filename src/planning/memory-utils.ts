@@ -83,17 +83,7 @@ export class MemoryUtils {
     // initialize source memory
     const sourceMemory = room.memory.sources;
     if (!sourceMemory) {
-      const roomSources: RoomSources = {};
-      room.find(FIND_SOURCES).forEach(source => {
-        const harvestPositions = PlannerUtils.getPositionSpiral(source.pos, 1)
-          .filter(pos => PlannerUtils.isEnterable(pos))
-          .map(pos => this.packRoomPosition(pos));
-        roomSources[source.id] = {
-          id: source.id,
-          pos: this.packRoomPosition(source.pos),
-          harvestPositions
-        };
-      });
+      const roomSources: RoomSources = MemoryUtils.getRoomSources(room);
       room.memory.sources = roomSources;
     }
 
@@ -113,5 +103,21 @@ export class MemoryUtils {
         sourceInfo.haulerId = undefined;
       }
     }
+  }
+
+  // not sure this should be here, but it's static info about a room so only done once
+  private static getRoomSources(room: Room): RoomSources {
+    const roomSources: RoomSources = {};
+    room.find(FIND_SOURCES).forEach(source => {
+      const harvestPositions = PlannerUtils.getPositionSpiral(source.pos, 1)
+        .filter(pos => PlannerUtils.isEnterable(pos))
+        .map(pos => this.packRoomPosition(pos));
+      roomSources[source.id] = {
+        id: source.id,
+        pos: this.packRoomPosition(source.pos),
+        harvestPositions
+      };
+    });
+    return roomSources;
   }
 }

@@ -5,6 +5,7 @@ import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { Queue } from "planning/queue";
 import { RoomClaim } from "planning/room-claim";
+import { PlannerUtils } from "planning/planner-utils";
 
 export class RoomWrapper extends Room {
   private static instances: Map<string, RoomWrapper> = new Map<string, RoomWrapper>();
@@ -234,6 +235,31 @@ export class RoomWrapper extends Room {
       count += this.memory.sources[sourceId].harvestPositions.length;
     }
     return count;
+  }
+
+  public getUpgradePositions(): RoomPosition[] {
+    if (!this.controller) {
+      return [];
+    }
+    const cachedPositions = MemoryUtils.getCache<RoomPosition[]>(`${this.name}_upgradePositions`);
+    if (cachedPositions) {
+      return cachedPositions;
+    }
+
+    const conPos = this.controller.pos;
+    const top = conPos.y - 3;
+    const left = conPos.x - 3;
+    const bottom = conPos.y + 3;
+    const right = conPos.x + 3;
+    const avoidPositions = this.lookForAtArea(LOOK_STRUCTURES, top, left, bottom, right, true)
+      .filter(s => s.structure.structureType === STRUCTURE_ROAD)
+      .map(s => new RoomPosition(s.x, s.y, this.name));
+    const upgradePositions = PlannerUtils.getPositionSpiral(this.controller.pos, 3).filter(
+      pos => !_.contains(avoidPositions, pos) && PlannerUtils.isEnterable(pos)
+    );
+
+    MemoryUtils.setCache(`${this.name}_upgradePositions`, upgradePositions, 100);
+    return upgradePositions;
   }
 
   /** Gets total energy available in room when sources full */
