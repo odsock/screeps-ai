@@ -241,8 +241,11 @@ export class RoomWrapper extends Room {
     if (!this.controller) {
       return [];
     }
-    const cachedPositions = MemoryUtils.getCache<RoomPosition[]>(`${this.name}_upgradePositions`);
+
+    const cacheKey = `${this.name}_upgradePositions`;
+    const cachedPositions = MemoryUtils.getCache<RoomPosition[]>(cacheKey);
     if (cachedPositions) {
+      console.log(`DEBUG: read upgrade postions from cache`);
       return cachedPositions;
     }
 
@@ -270,7 +273,8 @@ export class RoomWrapper extends Room {
       pos => !_.contains(avoidPositions, pos) && PlannerUtils.isEnterable(pos)
     );
 
-    MemoryUtils.setCache(`${this.name}_upgradePositions`, upgradePositions, 100);
+    console.log(`DEBUG: writing upgrade positions to cache: ${cacheKey}`);
+    MemoryUtils.setCache(cacheKey, upgradePositions, 100);
     return upgradePositions;
   }
 
