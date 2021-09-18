@@ -383,24 +383,17 @@ export class RoomWrapper extends Room {
   }
 
   private getCostMatrixFromCache(name: string): CostMatrix | undefined {
-    if (this.costMatrixCache[name]) {
-      return this.costMatrixCache[name];
-    }
-    if (!this.room.memory.costMatrix) {
-      this.room.memory.costMatrix = {};
-    } else if (this.room.memory.costMatrix[name]) {
-      this.costMatrixCache[name] = PathFinder.CostMatrix.deserialize(this.room.memory.costMatrix[name]);
-      return this.costMatrixCache[name];
+    const cacheKey = `${this.name}_${name}`;
+    const costMatrix = MemoryUtils.getCache<CostMatrix>(cacheKey);
+    if (costMatrix) {
+      return costMatrix;
     }
     return undefined;
   }
 
   private setCostMatrixInCache(name: string, costMatrix: CostMatrix): void {
-    this.costMatrixCache[name] = costMatrix;
-    if (!this.room.memory.costMatrix) {
-      this.room.memory.costMatrix = {};
-    }
-    this.room.memory.costMatrix[name] = costMatrix.serialize();
+    const cacheKey = `${this.name}_${name}`;
+    MemoryUtils.setCache(cacheKey, costMatrix, 100);
   }
 
   /** various find methods */
