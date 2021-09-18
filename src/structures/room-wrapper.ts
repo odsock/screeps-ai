@@ -246,15 +246,27 @@ export class RoomWrapper extends Room {
       return cachedPositions;
     }
 
-    const conPos = this.controller.pos;
-    const top = conPos.y - 3;
-    const left = conPos.x - 3;
-    const bottom = conPos.y + 3;
-    const right = conPos.x + 3;
+    // default upgrade center is controller
+    let target = this.controller.pos;
+    let range = 3;
+    // prefer container if one exists
+    if (this.memory.controller.containerId) {
+      const container = Game.getObjectById(this.memory.controller.containerId);
+      if (container) {
+        range = 1;
+        target = container.pos;
+      }
+    }
+
+    const top = target.y - range;
+    const left = target.x - range;
+    const bottom = target.y + range;
+    const right = target.x + range;
     const avoidPositions = this.lookForAtArea(LOOK_STRUCTURES, top, left, bottom, right, true)
       .filter(s => s.structure.structureType === STRUCTURE_ROAD)
       .map(s => new RoomPosition(s.x, s.y, this.name));
-    const upgradePositions = PlannerUtils.getPositionSpiral(this.controller.pos, 3).filter(
+
+    const upgradePositions = PlannerUtils.getPositionSpiral(target, range).filter(
       pos => !_.contains(avoidPositions, pos) && PlannerUtils.isEnterable(pos)
     );
 
