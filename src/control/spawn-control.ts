@@ -34,12 +34,12 @@ export class SpawnControl {
 
     const importers = _.filter(Game.creeps, c => c.memory.role === CreepRole.IMPORTER).map(c => new Importer(c));
     const importerCount =
-      importers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Importer.ROLE)).length;
+      importers.length + _.filter(Game.spawns, spawn => spawn.spawning?.name.startsWith(Importer.ROLE)).length;
     this.creepCountsByRole[CreepRole.IMPORTER] = importerCount;
 
     const claimers = _.filter(Game.creeps, c => c.memory.role === CreepRole.CLAIMER).map(c => new Claimer(c));
     const claimerCount =
-      claimers.length + this.spawns.filter(spawn => spawn.spawning?.name.startsWith(Claimer.ROLE)).length;
+      claimers.length + _.filter(Game.spawns, spawn => spawn.spawning?.name.startsWith(Claimer.ROLE)).length;
     this.creepCountsByRole[CreepRole.CLAIMER] = claimerCount;
   }
 
@@ -93,7 +93,9 @@ export class SpawnControl {
     // HARVESTER
     // spawn enough harvesters to drain sources if they fit in harvest positions
     // don't count retiree harvesters, since they are being replaced
-    const harvesters = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Harvester.ROLE && !creep.memory.retiree});
+    const harvesters = spawnw.room.find(FIND_MY_CREEPS, {
+      filter: creep => creep.memory.role === Harvester.ROLE && !creep.memory.retiree
+    });
     const harvesterWorkParts = CreepUtils.countParts(WORK, ...harvesters);
     const harvesterWorkPartsNeeded = spawnw.roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
     CreepUtils.consoleLogIfWatched(spawnw, `harvester work parts: ${harvesterWorkParts}/${harvesterWorkPartsNeeded}`);
@@ -152,6 +154,7 @@ export class SpawnControl {
   private spawnLaterRCL(spawnw: SpawnWrapper): ScreepsReturnCode {
     // GUARD
     // spawn guard for each scary room without one
+    // TODO pull this out to defense control, to avoid spawning duplicate guards in multiple rooms
     CreepUtils.consoleLogIfWatched(spawnw, `check if guard needed`);
     for (const roomName in Memory.rooms) {
       const roomDefense = Memory.rooms[roomName].defense;
