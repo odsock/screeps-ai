@@ -73,6 +73,7 @@ export class Upgrader extends Minder {
         // cancel hauler call if at target
         const myPathToTarget = this.pos.findPathTo(target, findPathOpts);
         if (myPathToTarget.length === 0) {
+          CreepUtils.consoleLogIfWatched(this, `at target, don't need hauler`);
           this.cancelHauler();
           return OK;
         }
