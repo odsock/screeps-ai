@@ -457,7 +457,7 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
       result = this.moveTo(structure, {
         costCallback: (roomName, costMatrix) => {
-          this.roomw.getCostMatrix("avoidHarvestPositions", costMatrix);
+          this.roomw.getCostMatrixAvoidHarvestPositions(costMatrix);
         }
       });
     }
@@ -471,7 +471,7 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
       result = this.moveTo(structure, {
         costCallback: (roomName, costMatrix) => {
-          this.roomw.getCostMatrix("avoidHarvestPositions", costMatrix);
+          this.roomw.getCostMatrixAvoidHarvestPositions(costMatrix);
         }
       });
     }

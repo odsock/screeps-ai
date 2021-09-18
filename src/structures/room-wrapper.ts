@@ -225,7 +225,6 @@ export class RoomWrapper extends Room {
 
   /** get harvest positions for source */
   public getHarvestPositions(sourceId: Id<Source>): RoomPosition[] {
-    // console.log(`DEBUG: ${sourceId} -> memory: ${this.memory.sources[sourceId].harvestPositions.join()}`);
     return this.memory.sources[sourceId].harvestPositions.map(pos => MemoryUtils.unpackRoomPosition(pos));
   }
 
@@ -305,30 +304,61 @@ export class RoomWrapper extends Room {
 
   private costMatrixCache: { [name: string]: CostMatrix } = {};
 
-  public getCostMatrix(name: string, costMatrix: CostMatrix): CostMatrix {
+  public getCostMatrixAvoidHarvestPositions(costMatrix: CostMatrix): CostMatrix {
+    const cacheKey = "avoidHarvestPositions";
+    const cachedCostMatrix = this.getCostMatrixFromCache(cacheKey);
+    if (cachedCostMatrix) {
+      return cachedCostMatrix;
+    }
+    this.sources.forEach(source =>
+      this.getHarvestPositions(source.id).forEach(pos => costMatrix.set(pos.x, pos.y, 0xff))
+    );
+    this.setCostMatrixInCache(cacheKey, costMatrix);
+    return costMatrix;
+  }
+
+  public getCostMatrixAvoidHarvestPositionsAndRoadsNearController(costMatrix: CostMatrix): CostMatrix {
+    const cacheKey = "avoidHarvestPositionsAndRoadsNearController";
+    const cachedCostMatrix = this.getCostMatrixFromCache(cacheKey);
+    if (cachedCostMatrix) {
+      return cachedCostMatrix;
+    }
+    this.sources.forEach(source =>
+      this.getHarvestPositions(source.id).forEach(pos => costMatrix.set(pos.x, pos.y, 0xff))
+    );
+    if (this.controller) {
+      const conPos = this.controller.pos;
+      const top = conPos.y - 3;
+      const left = conPos.x - 3;
+      const bottom = conPos.y + 3;
+      const right = conPos.x + 3;
+      this.lookForAtArea(LOOK_STRUCTURES, top, left, bottom, right, true)
+        .filter(s => s.structure.structureType === STRUCTURE_ROAD)
+        .forEach(road => costMatrix.set(road.x, road.y, 0xff));
+    }
+    this.setCostMatrixInCache(cacheKey, costMatrix);
+    return costMatrix;
+  }
+
+  private getCostMatrixFromCache(name: string): CostMatrix | undefined {
+    if (this.costMatrixCache[name]) {
+      return this.costMatrixCache[name];
+    }
+    if (!this.room.memory.costMatrix) {
+      this.room.memory.costMatrix = {};
+    } else if (this.room.memory.costMatrix[name]) {
+      this.costMatrixCache[name] = PathFinder.CostMatrix.deserialize(this.room.memory.costMatrix[name]);
+      return this.costMatrixCache[name];
+    }
+    return undefined;
+  }
+
+  private setCostMatrixInCache(name: string, costMatrix: CostMatrix): void {
+    this.costMatrixCache[name] = costMatrix;
     if (!this.room.memory.costMatrix) {
       this.room.memory.costMatrix = {};
     }
-
-    if (this.costMatrixCache[name]) {
-      return this.costMatrixCache[name];
-    } else if (this.room.memory.costMatrix[name]) {
-      this.costMatrixCache[name] = PathFinder.CostMatrix.deserialize(this.room.memory.costMatrix[name]);
-    } else {
-      switch (name) {
-        case "avoidHarvestPositions":
-          this.sources.forEach(source =>
-            this.getHarvestPositions(source.id).forEach(pos => costMatrix.set(pos.x, pos.y, 0xff))
-          );
-          break;
-
-        default:
-          throw new Error(`Unknown cost matrix ${name}`);
-      }
-      this.costMatrixCache[name] = costMatrix;
-      this.room.memory.costMatrix[name] = costMatrix.serialize();
-    }
-    return costMatrix;
+    this.room.memory.costMatrix[name] = costMatrix.serialize();
   }
 
   /** various find methods */

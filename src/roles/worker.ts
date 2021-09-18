@@ -98,7 +98,7 @@ export class Worker extends CreepWrapper {
             range: 3,
             visualizePathStyle: { stroke: "#ffffff" },
             costCallback: (roomName, costMatrix) => {
-              this.roomw.getCostMatrix("avoidHarvestPositions", costMatrix);
+              this.roomw.getCostMatrixAvoidHarvestPositions(costMatrix);
             }
           });
         } else if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource)) {
