@@ -16,26 +16,27 @@ export class MemoryUtils {
     this.refreshControllerMemory(room);
   }
 
-  public static readCacheFromMemory(): void {
-    if (!global.cache && Memory.cache) {
-      global.cache = JSON.parse(Memory.cache) as Map<string, CacheValue>;
-    }
-  }
-
   public static writeCacheToMemory(): void {
+    // init cache if not yet set
     if (!global.cache) {
       MemoryUtils.initCache();
     }
+    // clear cache of expired values
     global.cache.forEach((value, key) => {
       if (value.expires < Game.time) {
         global.cache.delete(key);
       }
     });
-    Memory.cache = JSON.stringify(global.cache);
+    // stringify cache to memory
+    Memory.cache = JSON.stringify(Array.from(global.cache.entries()));
   }
 
   private static initCache() {
-    global.cache = new Map<string, CacheValue>();
+    if (!global.cache && Memory.cache) {
+      global.cache = new Map(JSON.parse(Memory.cache));
+    } else {
+      global.cache = new Map<string, CacheValue>();
+    }
   }
 
   public static setCache<T>(key: string, item: T, ttl = 1): void {
