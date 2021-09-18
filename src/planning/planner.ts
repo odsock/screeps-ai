@@ -3,10 +3,10 @@ import { ContainerPlan } from "./container-plan";
 import { RoadPlan } from "./road-plan";
 import { PlannerUtils } from "./planner-utils";
 import { MemoryUtils } from "./memory-utils";
-import { CreepUtils } from "creep-utils";
 import { StructurePatterns } from "config/structure-patterns";
 import { StructurePlan } from "./structure-plan";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
+import { ExtensionPlan } from "./extension-plan";
 
 export class Planner {
   private readonly roomw: RoomWrapper;
@@ -19,23 +19,20 @@ export class Planner {
     console.log(`${this.roomw.name}: running planning`);
 
     if (this.roomw.controller) {
+      const IGNORE_ROADS = true;
       if (this.roomw.controller?.level >= 1) {
-        const result1 = this.planLevel1();
         this.planFullColony();
-        this.assimilateColonlyToPlan(true);
-        CreepUtils.consoleLogIfWatched(this.roomw, `level 1 planning result`, result1);
-      }
-
-      if (this.roomw.controller?.level >= 2) {
-        const result2 = this.planLevel2();
+        this.assimilateColonlyToPlan(IGNORE_ROADS);
+      } else if (this.roomw.controller?.level >= 2) {
         this.planFullColony();
-        this.assimilateColonlyToPlan(true);
-        CreepUtils.consoleLogIfWatched(this.roomw, `level 2 planning result`, result2);
-      }
-
-      if (this.roomw.controller?.level >= 3) {
+        this.assimilateColonlyToPlan(IGNORE_ROADS);
+        this.planContainers();
+        this.planRoads();
+      } else if (this.roomw.controller?.level >= 3) {
         this.planFullColony();
         this.assimilateColonlyToPlan();
+        this.planContainers();
+        this.planRoads();
       }
     }
     return OK;
@@ -79,7 +76,13 @@ export class Planner {
     }
 
     // mark each structure for dismantling if mismatch found
-    const roomLook = this.roomw.lookForAtArea(LOOK_STRUCTURES, 0, 0, SockPuppetConstants.ROOM_SIZE, SockPuppetConstants.ROOM_SIZE);
+    const roomLook = this.roomw.lookForAtArea(
+      LOOK_STRUCTURES,
+      0,
+      0,
+      SockPuppetConstants.ROOM_SIZE,
+      SockPuppetConstants.ROOM_SIZE
+    );
     planPositions.forEach(planPos => {
       const posLook = roomLook[planPos.pos.x][planPos.pos.y];
       if (posLook) {
@@ -118,18 +121,7 @@ export class Planner {
     return result;
   }
 
-  private planLevel1(): ScreepsReturnCode {
-    return OK;
-  }
-
-  private planLevel2(): ScreepsReturnCode {
-    // place available extensions
-    // const extensionPlan = new ExtensionPlan(this.room);
-    // const extensionResult = extensionPlan.planExtensionGroup();
-    // if (extensionResult !== OK) {
-    //   return extensionResult;
-    // }
-
+  private planContainers(): ScreepsReturnCode {
     // place source containers
     const containerPlan = new ContainerPlan(this.roomw);
     const sourceContainerResult = containerPlan.placeSourceContainer();
@@ -139,10 +131,10 @@ export class Planner {
 
     // place controller containers
     const controllerContainerResult = containerPlan.placeControllerContainer();
-    if (controllerContainerResult !== OK) {
-      return controllerContainerResult;
-    }
+    return controllerContainerResult;
+  }
 
+  private planRoads(): ScreepsReturnCode {
     // place road from source containers to controller containers
     const roadPlan = new RoadPlan(this.roomw);
     const containerRoadResult = roadPlan.placeRoadSourceContainersToControllerContainers();
@@ -150,27 +142,31 @@ export class Planner {
       return containerRoadResult;
     }
 
-    // place roads to all extensions
-    // const extensionRoadResult = roadPlan.placeRoadSpawnToExtensions();
-    // if (extensionRoadResult !== OK) {
-    //   return extensionRoadResult;
-    // }
-
     // place road from controller to spawn
     const controllerRoadResult = roadPlan.placeRoadControllerToSpawn();
-    if (controllerRoadResult !== OK) {
-      return controllerRoadResult;
+    return controllerRoadResult;
+  }
+
+  private planAvailableExtensionsByGroup(): ScreepsReturnCode {
+    // place available extensions
+    const extensionPlan = new ExtensionPlan(this.roomw);
+    const extensionResult = extensionPlan.planExtensionGroup();
+    if (extensionResult !== OK) {
+      return extensionResult;
     }
 
-    // // place towers
-    // if (PlannerUtils.getAvailableStructureCount(STRUCTURE_TOWER, this.roomw) > 0) {
-    //   const towerResult = PlannerUtils.placeTowerAtCenterOfColony(this.roomw);
-    //   if (towerResult !== OK) {
-    //     return towerResult;
-    //   }
-    // }
+    // place roads to all extensions
+    const roadPlan = new RoadPlan(this.roomw);
+    const extensionRoadResult = roadPlan.placeRoadSpawnToExtensions();
+    return extensionRoadResult;
+  }
 
-    // TODO: place ramparts over containers
+  private planTowers(): ScreepsReturnCode {
+    // // place towers
+    if (PlannerUtils.getAvailableStructureCount(STRUCTURE_TOWER, this.roomw) > 0) {
+      const towerResult = PlannerUtils.placeTowerAtCenterOfColony(this.roomw);
+      return towerResult;
+    }
     return OK;
   }
 }
