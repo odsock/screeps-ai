@@ -186,7 +186,7 @@ export abstract class CreepWrapper extends Creep {
       filter: structure => {
         return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
       }
-    }) as StructureTower | null;
+    });
   }
 
   protected findSpawnStorageNotFull(): (StructureExtension | StructureSpawn)[] | undefined {

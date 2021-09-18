@@ -107,17 +107,4 @@ export class CreepUtils {
     centroid.y += pos.y / set.length;
     return centroid;
   };
-
-  /** Calculates the distance between two sets of positions
-   *  Returns the distance between the centroids of each set.
-   */
-  public static calculatePositionSetDistance(setA: RoomPosition[], setB: RoomPosition[]): number {
-    // const centroidA = setA.reduce(this.findCentroid, { x: 0, y: 0 });
-    // const centroidB = setB.reduce(this.findCentroid, { x: 0, y: 0 });
-    // const distance = Math.sqrt(
-    //   Math.pow(Math.abs(centroidA.x - centroidB.x), 2) + Math.pow(Math.abs(centroidA.x - centroidB.x), 2)
-    // );
-    // console.log(`result: ${distance}`);
-    return 25;
-  }
 }

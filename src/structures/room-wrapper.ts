@@ -261,7 +261,7 @@ export class RoomWrapper extends Room {
   public get towers(): StructureTower[] {
     return this.room.find(FIND_MY_STRUCTURES, {
       filter: structure => structure.structureType === STRUCTURE_TOWER
-    }) as StructureTower[];
+    });
   }
 
   public get repairSites(): AnyStructure[] {
