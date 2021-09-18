@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import { Sockpuppet } from "sockpuppet";
 import { ErrorMapper } from "utils/ErrorMapper";
 import { Logger } from "./logger";
