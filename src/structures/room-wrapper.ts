@@ -270,7 +270,7 @@ export class RoomWrapper extends Room {
       .map(s => new RoomPosition(s.x, s.y, this.name));
 
     const upgradePositions = PlannerUtils.getPositionSpiral(target, range).filter(
-      pos => !_.contains(avoidPositions, pos) && PlannerUtils.isEnterable(pos)
+      pos => !avoidPositions.find(avoidPos => avoidPos.isEqualTo(pos)) && PlannerUtils.isEnterable(pos)
     );
 
     console.log(`DEBUG: writing upgrade positions to cache: ${cacheKey}`);
