@@ -3,6 +3,7 @@ import { ErrorMapper } from "utils/ErrorMapper";
 import { Logger } from "./logger";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import "./utils/console-scripts.js";
+import { MemoryUtils } from "planning/memory-utils";
 
 declare global {
   /*
@@ -143,6 +144,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   console.log(`Current game tick is ${Game.time}`);
   cleanupDeadCreepMemory();
+
+  MemoryUtils.writeCacheToMemory();
 
   const sockpuppet = new Sockpuppet();
   sockpuppet.run();
