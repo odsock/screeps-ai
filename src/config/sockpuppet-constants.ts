@@ -27,6 +27,7 @@ export class SockPuppetConstants {
   public static readonly TOWER_RESUPPLY_THRESHOLD = 0.1;
 
   public static readonly CONSTRUCTION_PRIORITY: StructureConstant[] = [
+    STRUCTURE_SPAWN,
     STRUCTURE_TOWER,
     STRUCTURE_EXTENSION,
     STRUCTURE_CONTAINER
