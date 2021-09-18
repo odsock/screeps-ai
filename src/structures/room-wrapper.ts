@@ -366,6 +366,7 @@ export class RoomWrapper extends Room {
       console.log(`DEBUG: got upgrader cost matrix from cache`);
       return cachedCostMatrix;
     }
+    console.log(`DEBUG: creating upgrader cost matrix`);
     this.sources.forEach(source =>
       this.getHarvestPositions(source.id).forEach(pos => costMatrix.set(pos.x, pos.y, 0xff))
     );
