@@ -21,9 +21,9 @@ export class MemoryUtils {
     if (!global.cache) {
       MemoryUtils.initCache();
     }
-    // clear cache of expired values
+    // don't keep items that will be expired next tick
     global.cache.forEach((value, key) => {
-      if (value.expires < Game.time) {
+      if (value.expires <= Game.time + 1) {
         global.cache.delete(key);
       }
     });
