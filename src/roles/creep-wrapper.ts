@@ -246,18 +246,18 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `pickup resource: ${String(resource.pos)}`, result);
     }
 
-    const storage = this.room.storage;
-    if (storage && storage.store.energy > 0) {
-      const result = this.moveToAndWithdraw(storage);
-      CreepUtils.consoleLogIfWatched(this, `load from storage: ${String(storage.pos)}`, result);
+    if (resource && resource.amount >= this.store.getCapacity()) {
+      const result = this.moveToAndPickup(resource);
+      CreepUtils.consoleLogIfWatched(this, `picking up resource: ${String(resource.pos)}`, result);
       if (result !== ERR_NO_PATH) {
         return result;
       }
     }
 
-    if (resource) {
-      const result = this.moveToAndPickup(resource);
-      CreepUtils.consoleLogIfWatched(this, `picking up resource: ${String(resource.pos)}`, result);
+    const storage = this.room.storage;
+    if (storage && storage.store.energy > 0) {
+      const result = this.moveToAndWithdraw(storage);
+      CreepUtils.consoleLogIfWatched(this, `load from storage: ${String(storage.pos)}`, result);
       if (result !== ERR_NO_PATH) {
         return result;
       }
