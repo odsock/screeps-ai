@@ -8,7 +8,7 @@ export class Upgrader extends Minder {
   public static readonly BODY_PROFILE: CreepBodyProfile = {
     profile: [WORK],
     seed: [CARRY, WORK],
-    maxBodyParts: 10
+    maxBodyParts: 21
   };
 
   public run(): void {
