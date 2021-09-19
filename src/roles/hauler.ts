@@ -285,38 +285,41 @@ export class Hauler extends CreepWrapper {
   }
 
   private loadEnergy(): ScreepsReturnCode {
+    if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
+      return ERR_FULL;
+    }
+
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
-    const tombstone = this.findClosestTombstoneWithEnergy();
-    const ruin = this.findClosestRuinsWithEnergy();
-    const droppedEnergy = this.findClosestEnergyDrop();
+    const droppedEnergy = this.findClosestLargeEnergyDrop();
+    if (droppedEnergy) {
+      CreepUtils.consoleLogIfWatched(this, `moving to dropped energy: ${droppedEnergy.pos.x},${droppedEnergy.pos.y}`);
+      return this.moveToAndGet(droppedEnergy);
+    }
 
     const container = this.findClosestSourceContainerNotEmpty();
     if (container) {
       CreepUtils.consoleLogIfWatched(this, `moving to container: ${container.pos.x},${container.pos.y}`);
-      return this.moveToAndWithdraw(container);
+      return this.moveToAndGet(container);
     }
 
+    const tombstone = this.findClosestTombstoneWithEnergy();
     if (tombstone) {
       CreepUtils.consoleLogIfWatched(this, `moving to tombstone: ${tombstone.pos.x},${tombstone.pos.y}`);
-      return this.moveToAndWithdraw(tombstone);
+      return this.moveToAndGet(tombstone);
     }
 
+    const ruin = this.findClosestRuinsWithEnergy();
     if (ruin) {
       CreepUtils.consoleLogIfWatched(this, `moving to ruin: ${ruin.pos.x},${ruin.pos.y}`);
-      return this.moveToAndWithdraw(ruin);
-    }
-
-    if (droppedEnergy) {
-      CreepUtils.consoleLogIfWatched(this, `moving to ruin: ${droppedEnergy.pos.x},${droppedEnergy.pos.y}`);
-      return this.moveToAndPickup(droppedEnergy);
+      return this.moveToAndGet(ruin);
     }
 
     const storage = this.room.storage;
     if (storage) {
       CreepUtils.consoleLogIfWatched(this, `moving to storage: ${String(storage.pos)}`);
-      return this.moveToAndWithdraw(storage);
+      return this.moveToAndGet(storage);
     }
 
     this.say("🤔");
@@ -325,7 +328,7 @@ export class Hauler extends CreepWrapper {
   }
 
   /** find a source container without a hauler id set */
-  protected claimSourceContainer(): Id<StructureContainer> | undefined {
+  private claimSourceContainer(): Id<StructureContainer> | undefined {
     for (const sourceId in this.roomw.memory.sources) {
       const sourceInfo = this.roomw.memory.sources[sourceId];
       const containerId = sourceInfo.containerId;
@@ -335,6 +338,43 @@ export class Hauler extends CreepWrapper {
         return containerId;
       }
     }
+    return undefined;
+  }
+
+  /** get container from my memory or claim one*/
+  private getHome(): StructureContainer | StructureStorage | Source | undefined {
+    if (this.memory.containerId) {
+      const container = Game.getObjectById(this.memory.containerId);
+      if (container) {
+        return container;
+      }
+      this.memory.containerId = undefined;
+      CreepUtils.consoleLogIfWatched(this, `container id invalid`);
+    }
+
+    if (this.memory.source) {
+      const sourceInfo = this.roomw.memory.sources[this.memory.source];
+      if (!sourceInfo) {
+        this.memory.source = undefined;
+        CreepUtils.consoleLogIfWatched(this, `source id invalid`);
+        return undefined;
+      }
+
+      const containerId = sourceInfo.containerId;
+      if (containerId && (!sourceInfo.minderId || sourceInfo.minderId === this.id)) {
+        CreepUtils.consoleLogIfWatched(this, `claimed source container: ${containerId}`);
+        const container = Game.getObjectById(containerId);
+        if (container) {
+          sourceInfo.minderId = this.id;
+          this.memory.containerId = containerId;
+          return container;
+        }
+        this.memory.containerId = undefined;
+        CreepUtils.consoleLogIfWatched(this, `container id invalid`);
+      }
+    }
+
+    CreepUtils.consoleLogIfWatched(this, `no free source containers`);
     return undefined;
   }
 }
