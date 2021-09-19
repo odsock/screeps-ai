@@ -116,19 +116,24 @@ export class SpawnControl {
 
     // UPGRADER
     // spawn enough upgraders to match harvest capacity (accounts for building, spawning, towers)
+    const upgraderCount = this.creepCountsByRole[Upgrader.ROLE];
     const upgraders = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Upgrader.ROLE });
-    const upgraderWorkParts = CreepUtils.countParts(WORK, ...upgraders);
-    const HARVEST_TO_UPGRADE_RATIO = 0.7;
-    const upgraderWorkPartsNeeded =
-      (Math.min(harvesterWorkParts, 10) * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) / UPGRADE_CONTROLLER_POWER;
-    const upgradePositionCount = spawnw.roomw.getUpgradePositions().length;
-    const upgraderCount = this.creepCountsByRole[CreepRole.UPGRADER];
-    CreepUtils.consoleLogIfWatched(
-      spawnw,
-      `upgraders: ${upgraderCount}/${upgradePositionCount} positions, ${upgraderWorkParts}/${upgraderWorkPartsNeeded} parts`
-    );
-    if (upgraderWorkParts < upgraderWorkPartsNeeded && upgraderCount < upgradePositionCount) {
-      return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw);
+    const conSites = spawnw.roomw.find(FIND_MY_CONSTRUCTION_SITES).length;
+    if (conSites >= 0 && upgraderCount > 0) {
+      CreepUtils.consoleLogIfWatched(spawnw, `skipping upgraders during construction`);
+    } else {
+      const upgraderWorkParts = CreepUtils.countParts(WORK, ...upgraders);
+      const HARVEST_TO_UPGRADE_RATIO = 0.7;
+      const upgraderWorkPartsNeeded =
+        (Math.min(harvesterWorkParts, 10) * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) / UPGRADE_CONTROLLER_POWER;
+      const upgradePositionCount = spawnw.roomw.getUpgradePositions().length;
+      CreepUtils.consoleLogIfWatched(
+        spawnw,
+        `upgraders: ${upgraderCount}/${upgradePositionCount} positions, ${upgraderWorkParts}/${upgraderWorkPartsNeeded} parts`
+      );
+      if (upgraderWorkParts < upgraderWorkPartsNeeded && upgraderCount < upgradePositionCount) {
+        return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw);
+      }
     }
 
     // HAULER
