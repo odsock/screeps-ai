@@ -245,11 +245,7 @@ export class SpawnControl {
     // BUILDER
     // make builders if there's something to build
     const workPartsNeeded = this.getBuilderWorkPartsNeeded();
-    if (
-      this.creepCountsByRole[CreepRole.WORKER] === 0 &&
-      this.roomw.constructionSites.length > 0 &&
-      workPartsNeeded > 0
-    ) {
+    if (this.roomw.constructionSites.length > 0 && workPartsNeeded > 0) {
       return spawnw.spawn({ body: this.getBuilderBody(Builder.BODY_PROFILE, workPartsNeeded), role: Builder.ROLE });
     }
 
