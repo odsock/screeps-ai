@@ -7,7 +7,9 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { DefenseControl } from "control/defense-control";
 import { ReconControl } from "control/recon-control";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
+import { profile } from "../screeps-typescript-profiler";
 
+@profile
 export class Sockpuppet {
   public name = "sockpuppet";
   public memory = {};

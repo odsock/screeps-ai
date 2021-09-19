@@ -4,8 +4,11 @@ import { Logger } from "./logger";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import "./utils/console-scripts.js";
 import { CreepUtils } from "creep-utils";
+import * as Profiler from "../screeps-typescript-profiler";
 
 global.sockpuppet = new Sockpuppet();
+
+global.Profiler = Profiler.init();
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
