@@ -51,7 +51,7 @@ export class Hauler extends CreepWrapper {
 
     // supply controller container
     const container = this.findClosestControllerContainerNotFull();
-    if (container) {
+    if (container && container.store.getFreeCapacity() >= this.store.getUsedCapacity(RESOURCE_ENERGY)) {
       this.supplyStructureJob(container);
       return;
     }
