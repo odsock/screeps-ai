@@ -256,34 +256,6 @@ export class Hauler extends CreepWrapper {
     return towersBelowThreshold;
   }
 
-  private withdrawAdjacentRuinOrTombEnergy(): ScreepsReturnCode {
-    // can't withdraw twice, so prefer emptying tombstones because they decay faster
-    let withdrawResult: ScreepsReturnCode = ERR_NOT_FOUND;
-    const tombs = this.pos.findInRange(FIND_TOMBSTONES, 1, {
-      filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0
-    });
-    if (tombs.length > 0) {
-      withdrawResult = this.withdraw(tombs[0], RESOURCE_ENERGY);
-    } else {
-      const ruins = this.pos.findInRange(FIND_RUINS, 1, { filter: r => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
-      if (ruins.length > 0) {
-        withdrawResult = this.withdraw(ruins[0], RESOURCE_ENERGY);
-      }
-    }
-    return withdrawResult;
-  }
-
-  private pickupAdjacentDroppedEnergy(): ScreepsReturnCode {
-    let pickupResult: ScreepsReturnCode = ERR_NOT_FOUND;
-    const resources = this.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
-      filter: r => r.resourceType === RESOURCE_ENERGY
-    });
-    if (resources.length > 0) {
-      pickupResult = this.pickup(resources[0]);
-    }
-    return pickupResult;
-  }
-
   private loadEnergy(): ScreepsReturnCode {
     if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
       return ERR_FULL;
@@ -292,34 +264,31 @@ export class Hauler extends CreepWrapper {
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
-    const droppedEnergy = this.findClosestLargeEnergyDrop();
-    if (droppedEnergy) {
-      CreepUtils.consoleLogIfWatched(this, `moving to dropped energy: ${droppedEnergy.pos.x},${droppedEnergy.pos.y}`);
-      return this.moveToAndGet(droppedEnergy);
+    let result = this.moveToAndGet(this.findClosestLargeEnergyDrop());
+    if (result === OK) {
+      return result;
     }
 
-    const container = this.findClosestSourceContainerNotEmpty();
-    if (container) {
-      CreepUtils.consoleLogIfWatched(this, `moving to container: ${container.pos.x},${container.pos.y}`);
-      return this.moveToAndGet(container);
+    result = this.moveToAndGet(this.findClosestSourceContainerNotEmpty());
+    if (result === OK) {
+      return result;
     }
 
-    const tombstone = this.findClosestTombstoneWithEnergy();
-    if (tombstone) {
-      CreepUtils.consoleLogIfWatched(this, `moving to tombstone: ${tombstone.pos.x},${tombstone.pos.y}`);
-      return this.moveToAndGet(tombstone);
+    result = this.moveToAndGet(this.findClosestTombstoneWithEnergy());
+    if (result === OK) {
+      return result;
     }
 
-    const ruin = this.findClosestRuinsWithEnergy();
-    if (ruin) {
-      CreepUtils.consoleLogIfWatched(this, `moving to ruin: ${ruin.pos.x},${ruin.pos.y}`);
-      return this.moveToAndGet(ruin);
+    result = this.moveToAndGet(this.findClosestRuinsWithEnergy());
+    if (result === OK) {
+      return result;
     }
 
-    const storage = this.room.storage;
-    if (storage) {
-      CreepUtils.consoleLogIfWatched(this, `moving to storage: ${String(storage.pos)}`);
-      return this.moveToAndGet(storage);
+    if (this.room.storage && this.room.storage.store.energy > 0) {
+      result = this.moveToAndGet(this.room.storage);
+      if (result === OK) {
+        return result;
+      }
     }
 
     this.say("🤔");
