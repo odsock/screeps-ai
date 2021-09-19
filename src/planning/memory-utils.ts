@@ -15,7 +15,6 @@ declare global {
     retiring?: boolean;
     job?: string;
     role: string;
-    room?: string;
     working?: boolean;
     watched?: boolean;
   }
@@ -29,6 +28,11 @@ declare global {
     construction: { [id: string]: ConstructionLog };
     watched?: boolean;
     controller: ControllerInfo;
+    storage?: StorageInfo;
+  }
+
+  interface StorageInfo {
+    haulerId?: Id<Creep>;
   }
 
   interface RoomDefense {
@@ -87,6 +91,7 @@ declare global {
       unwatch: (key: Id<any>) => void;
       placeExt: (pos: RoomPosition, structure: StructureConstant) => void;
       getPositionSpiral: (centerPos: RoomPosition, maxRange: number) => void;
+      Profiler: Profiler;
     }
   }
 }
