@@ -160,9 +160,15 @@ export abstract class CreepWrapper extends Creep {
   }
 
   // TODO cache result
-  protected findClosestDroppedEnergy(): Resource<RESOURCE_ENERGY> | null {
+  protected findClosestEnergyDrop(): Resource<RESOURCE_ENERGY> | null {
     return this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
       filter: r => r.resourceType === RESOURCE_ENERGY
+    }) as Resource<RESOURCE_ENERGY>;
+  }
+
+  protected findClosestLargeEnergyDrop(): Resource<RESOURCE_ENERGY> | null {
+    return this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
+      filter: r => r.resourceType === RESOURCE_ENERGY && r.amount >= this.store.getCapacity()
     }) as Resource<RESOURCE_ENERGY>;
   }
 
@@ -240,15 +246,16 @@ export abstract class CreepWrapper extends Creep {
         return OK;
       }
     }
-    const resource = this.findClosestDroppedEnergy();
+    const resource = this.findClosestEnergyDrop();
     if (resource) {
       const result = this.pickup(resource);
       CreepUtils.consoleLogIfWatched(this, `pickup resource: ${String(resource.pos)}`, result);
     }
 
-    if (resource && resource.amount >= this.store.getCapacity()) {
-      const result = this.moveToAndPickup(resource);
-      CreepUtils.consoleLogIfWatched(this, `picking up resource: ${String(resource.pos)}`, result);
+    const largeEnergyDrop = this.findClosestLargeEnergyDrop();
+    if (largeEnergyDrop) {
+      const result = this.moveToAndPickup(largeEnergyDrop);
+      CreepUtils.consoleLogIfWatched(this, `picking up resource: ${String(largeEnergyDrop.pos)}`, result);
       if (result !== ERR_NO_PATH) {
         return result;
       }

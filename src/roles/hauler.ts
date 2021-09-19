@@ -291,7 +291,7 @@ export class Hauler extends CreepWrapper {
 
     const tombstone = this.findClosestTombstoneWithEnergy();
     const ruin = this.findClosestRuinsWithEnergy();
-    const droppedEnergy = this.findClosestDroppedEnergy();
+    const droppedEnergy = this.findClosestEnergyDrop();
 
     const container = this.findClosestSourceContainerNotEmpty();
     if (container) {
