@@ -15,7 +15,6 @@ export class RoomWrapper extends Room {
     } else {
       const room = Game.rooms[name];
       if (room) {
-        console.log(`DEBUG: make new instance ${name}`);
         const newInstance = new RoomWrapper(room);
         MemoryUtils.setCache(`${name}_RoomWrapper`, newInstance);
         return newInstance;
@@ -243,7 +242,6 @@ export class RoomWrapper extends Room {
     const cacheKey = `${this.name}_upgradePositions`;
     const cachedPositions = MemoryUtils.getCache<RoomPosition[]>(cacheKey);
     if (cachedPositions) {
-      console.log(`DEBUG: read upgrade postions from cache`);
       return cachedPositions;
     }
 
@@ -271,7 +269,6 @@ export class RoomWrapper extends Room {
       pos => !avoidPositions.find(avoidPos => avoidPos.isEqualTo(pos)) && PlannerUtils.isEnterable(pos)
     );
 
-    console.log(`DEBUG: writing upgrade positions to cache: ${cacheKey}`);
     MemoryUtils.setCache(cacheKey, upgradePositions, 100);
     return upgradePositions;
   }
@@ -361,10 +358,8 @@ export class RoomWrapper extends Room {
     const cacheKey = "avoidHarvestPositionsAndRoadsNearController";
     const cachedCostMatrix = this.getCostMatrixFromCache(cacheKey);
     if (cachedCostMatrix) {
-      console.log(`DEBUG: got upgrader cost matrix from cache`);
       return cachedCostMatrix;
     }
-    console.log(`DEBUG: creating upgrader cost matrix`);
     this.sources.forEach(source =>
       this.getHarvestPositions(source.id).forEach(pos => costMatrix.set(pos.x, pos.y, 0xff))
     );

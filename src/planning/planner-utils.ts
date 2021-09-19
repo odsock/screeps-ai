@@ -67,12 +67,7 @@ export class PlannerUtils {
   ): RoomPosition | undefined {
     const positions = this.getPositionSpiral(position, 1);
     const placedPosition = positions.find(pos => pos.createConstructionSite(structureConstant) === OK);
-    if (placedPosition) {
-      console.log(`DEBUG: placed ${structureConstant} at ${String(placedPosition)}`);
-      return placedPosition;
-    }
-    console.log(`DEBUG: error placing ${structureConstant} around ${String(position)}`);
-    return undefined;
+    return placedPosition;
   }
 
   public static getPositionSpiral(centerPos: RoomPosition, maxRange: number): RoomPosition[] {
@@ -194,13 +189,10 @@ export class PlannerUtils {
       CreepUtils.consoleLogIfWatched(structurePlan.roomw, `found placement for plan`);
       for (const planPosition of plan) {
         if (skipRoads && planPosition.structure === STRUCTURE_ROAD) {
-          // CreepUtils.consoleLogIfWatched(structurePlan.roomw, `skipping road at ${String(planPosition.pos)}`);
           continue;
         }
 
         const result = structurePlan.roomw.createConstructionSite(planPosition.pos, planPosition.structure);
-        // BUG this fails to place for RCL, when we have RCL
-        CreepUtils.consoleLogIfWatched(structurePlan.roomw, `place ${JSON.stringify(planPosition)}`, result);
         if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
           continue;
         }
@@ -217,10 +209,6 @@ export class PlannerUtils {
           ) {
             continue;
           } else {
-            const resultString = String(SockPuppetConstants.ERROR_CODE_LOOKUP.get(result));
-            console.log(
-              `${planPosition.structure} pos: ${String(planPosition.pos)}, failed: ${result} ${resultString}`
-            );
             return result;
           }
         }
