@@ -8,10 +8,8 @@ import { RoomClaim } from "planning/room-claim";
 import { PlannerUtils } from "planning/planner-utils";
 
 export class RoomWrapper extends Room {
-  private static instances: Map<string, RoomWrapper> = new Map<string, RoomWrapper>();
-
   public static getInstance(name: string): RoomWrapper {
-    const instance = RoomWrapper.instances.get(name);
+    const instance = MemoryUtils.getCache<RoomWrapper>(`${name}_RoomWrapper`);
     if (instance) {
       return instance;
     } else {
@@ -19,7 +17,7 @@ export class RoomWrapper extends Room {
       if (room) {
         console.log(`DEBUG: make new instance ${name}`);
         const newInstance = new RoomWrapper(room);
-        RoomWrapper.instances.set(name, newInstance);
+        MemoryUtils.setCache(`${name}_RoomWrapper`, newInstance);
         return newInstance;
       }
       throw new Error(`ERROR: invalid room name ${name}`);
