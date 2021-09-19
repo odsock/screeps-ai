@@ -6,7 +6,6 @@ import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 import { Upgrader } from "./upgrader";
 
 // TODO: assign to source containers or something so they don't only use closest
-// TODO: get hauler to pull harvester to container
 export class Hauler extends CreepWrapper {
   public static readonly ROLE = CreepRole.HAULER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

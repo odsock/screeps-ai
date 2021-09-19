@@ -1,4 +1,5 @@
 import { SockPuppetConstants } from "config/sockpuppet-constants";
+import { Watchable } from "creep-utils";
 
 global.watch = (key: Id<any>) => {
   let watchable: Watchable | null = Game.getObjectById(key) as Watchable;

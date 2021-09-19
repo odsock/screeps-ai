@@ -81,4 +81,7 @@ declare global {
     STRUCTURE_NUKER,
     STRUCTURE_FACTORY
   ];
+  interface StructureWithStorage extends Structure {
+    store: StoreDefinition;
+  }
 }

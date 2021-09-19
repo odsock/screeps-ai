@@ -45,7 +45,6 @@ export class Sockpuppet {
       }
 
       const planner = new Planner(roomw);
-      // TODO refresh every turn maybe excessive?
       MemoryUtils.refreshRoomMemory(roomw);
 
       // Run spawners

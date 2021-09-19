@@ -57,7 +57,6 @@ export class Planner {
         this.roomw.planVisual = this.roomw.visual.export();
 
         // cache plan
-        // TODO put this in room wrapper
         MemoryUtils.setCache(`${this.roomw.name}_plan`, plan, SockPuppetConstants.PLANNING_INTERVAL);
         MemoryUtils.setCache(`${this.roomw.name}_centerPoint`, centerPoint, SockPuppetConstants.PLANNING_INTERVAL);
       }

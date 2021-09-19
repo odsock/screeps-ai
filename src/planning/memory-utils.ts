@@ -1,4 +1,100 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import { PlannerUtils } from "./planner-utils";
+
+declare global {
+  interface CreepMemory {
+    source?: Id<Source>;
+    hauleeName?: string; // creep being hauled
+    haulerName?: string; // creep doing the hauling
+    haulRequested?: boolean; // true if waiting on hauler, or being hauled
+    homeRoom?: string;
+    constructionSiteId?: string;
+    targetRoom?: string;
+    containerId?: Id<StructureContainer>;
+    retiree?: string;
+    retiring?: boolean;
+    job?: string;
+    role: string;
+    room?: string;
+    working?: boolean;
+    watched?: boolean;
+  }
+
+  interface RoomMemory {
+    defense?: RoomDefense;
+    sources: RoomSources;
+    spawns?: Id<StructureSpawn>[];
+    log: string[];
+    logCounts?: LogCounts;
+    construction: { [id: string]: ConstructionLog };
+    watched?: boolean;
+    controller: ControllerInfo;
+  }
+
+  interface RoomDefense {
+    hostiles: Creep[];
+  }
+
+  interface LogCounts {
+    spawnCount?: number;
+    rcl?: number;
+    extensionCount?: number;
+  }
+
+  interface SourceInfo {
+    harvestPositions: string[];
+    id: Id<Source>;
+    pos: string;
+    containerConstructionSiteId?: Id<ConstructionSite>;
+    containerPos?: string;
+    containerId?: Id<StructureContainer>;
+    minderId?: Id<Creep>;
+    haulerId?: Id<Creep>;
+    linkId?: Id<StructureLink>;
+  }
+
+  interface RoomSources {
+    [id: string]: SourceInfo;
+  }
+
+  interface ControllerInfo {
+    containerConstructionSiteId?: Id<ConstructionSite>;
+    containerPos?: string;
+    containerId?: Id<StructureContainer>;
+    haulerId?: Id<Creep>;
+    linkId?: Id<StructureLink>;
+  }
+
+  interface ConstructionLog {
+    id: Id<ConstructionSite<BuildableStructureConstant>>;
+    startTime: number;
+    endTime?: number;
+    progress?: number;
+    type: BuildableStructureConstant;
+    pos: RoomPosition;
+  }
+
+  interface Memory {
+    cache?: string;
+    version?: string;
+  }
+
+  namespace NodeJS {
+    interface Global {
+      log: any;
+      cache: Map<string, CacheValue>;
+      watch: (key: Id<any>) => void;
+      unwatch: (key: Id<any>) => void;
+      placeExt: (pos: RoomPosition, structure: StructureConstant) => void;
+      getPositionSpiral: (centerPos: RoomPosition, maxRange: number) => void;
+    }
+  }
+}
+
+interface CacheValue {
+  item: any;
+  expires: number;
+}
 
 export class MemoryUtils {
   public static unpackRoomPosition(positionString: string): RoomPosition {

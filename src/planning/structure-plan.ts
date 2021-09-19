@@ -1,6 +1,16 @@
 import { StructurePatterns } from "config/structure-patterns";
 import { RoomWrapper } from "structures/room-wrapper";
 
+interface StructurePatternPosition {
+  xOffset: number;
+  yOffset: number;
+  structure: StructureConstant;
+}
+interface StructurePlanPosition {
+  pos: RoomPosition;
+  structure: StructureConstant;
+}
+
 export class StructurePlan {
   private readonly terrain: RoomTerrain;
   private planned = false;

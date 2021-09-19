@@ -77,44 +77,10 @@ export abstract class CreepWrapper extends Creep {
     }
   }
 
-  // TODO this only really works if you know the position of energy harvest (might be ruin, dropped, etc)
-  // protected workIfCloseToJobsite(jobsite: RoomPosition, range = 3): void {
-  //   // calculate efficiency of heading back to refill, then going to job site
-  //   const sourceCost = PathFinder.search(this.pos, { pos: source.pos, range: 1 }).cost;
-  //   CreepUtils.consoleLogIfWatched(this, `sourceCost: ${sourceCost}`);
-  //   // subtract one from runCost because you cannot stand on the source
-  //   let runCost = PathFinder.search(source.pos, { pos: jobsite, range }).cost;
-  //   if (runCost > 1) {
-  //     runCost = runCost - 1;
-  //   }
-  //   const refillEfficiency = sourceCost + runCost;
-  //   CreepUtils.consoleLogIfWatched(this, `runCost: ${runCost}, refillEfficiency: ${refillEfficiency}`);
-
-  //   // calculate efficiency of going to job site partially full
-  //   const jobsiteCost = PathFinder.search(this.pos, { pos: jobsite, range }).cost;
-  //   const storeRatio = this.store.getUsedCapacity() / this.store.getCapacity();
-  //   const jobsiteEfficiency = jobsiteCost / storeRatio;
-  //   CreepUtils.consoleLogIfWatched(
-  //     this,
-  //     `jobsiteCost: ${jobsiteCost}, storeRatio: ${storeRatio}, jobsiteEfficiency: ${jobsiteEfficiency}`
-  //   );
-
-  //   // compare cost/energy delivered working vs refilling first
-  //   if (jobsiteEfficiency < refillEfficiency) {
-  //     CreepUtils.consoleLogIfWatched(this, `close to site: starting work`);
-  //     this.memory.working = true;
-  //   } else {
-  //     CreepUtils.consoleLogIfWatched(this, `close to source: stopping work`);
-  //     this.memory.working = false;
-  //   }
-  // }
-
-  // TODO cache result
   protected findClosestTombstoneWithEnergy(): Tombstone | null {
     return this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   }
 
-  // TODO cache result
   protected findClosestContainerWithEnergy(min = 0): StructureContainer | null {
     const container = this.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: s => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0 && s.store.energy > min
@@ -154,12 +120,10 @@ export abstract class CreepWrapper extends Creep {
     return this.pos.findClosestByPath(containers);
   }
 
-  // TODO cache result
   protected findClosestRuinsWithEnergy(): Ruin | null {
     return this.pos.findClosestByPath(FIND_RUINS, { filter: r => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   }
 
-  // TODO cache result
   protected findClosestEnergyDrop(): Resource<RESOURCE_ENERGY> | null {
     return this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
       filter: r => r.resourceType === RESOURCE_ENERGY
@@ -172,21 +136,14 @@ export abstract class CreepWrapper extends Creep {
     }) as Resource<RESOURCE_ENERGY>;
   }
 
-  // TODO cache result
   protected findClosestActiveEnergySource(): Source | null {
     return this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
   }
 
-  // TODO cache result
   protected findClosestEnergySource(): Source | null {
-    let source = this.pos.findClosestByPath(FIND_SOURCES);
-    if (!source) {
-      source = this.pos.findClosestByRange(FIND_SOURCES);
-    }
-    return source;
+    return this.pos.findClosestByPath(FIND_SOURCES);
   }
 
-  // TODO cache result
   protected findClosestTowerNotFull(): StructureTower | null {
     return this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: structure => {

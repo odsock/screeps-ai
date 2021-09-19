@@ -4,7 +4,6 @@ import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 
 export class Fixer extends CreepWrapper {
   public static readonly ROLE = CreepRole.FIXER;
-  // TODO fixer spawn should scale based on repairs to do?
   public static readonly BODY_PROFILE: CreepBodyProfile = {
     profile: [WORK, CARRY, MOVE, MOVE],
     seed: [],

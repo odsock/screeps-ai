@@ -1,5 +1,11 @@
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 
+export interface Watchable {
+  name: string;
+  [key: string]: any;
+  memory: { watched?: boolean };
+}
+
 export class CreepUtils {
   public static consoleLogIfWatched(
     watchable: Watchable,

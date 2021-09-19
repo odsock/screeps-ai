@@ -352,7 +352,6 @@ export class SpawnControl {
 
   /** calculate creep bodies */
 
-  // TODO: generalize this for any parts requirement
   private getBuilderBody(bodyProfile: CreepBodyProfile, workPartsNeeded: number): BodyPartConstant[] {
     const workPartsInProfile = bodyProfile.profile.filter(part => part === WORK).length;
     bodyProfile.maxBodyParts =
