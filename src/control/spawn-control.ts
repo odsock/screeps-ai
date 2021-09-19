@@ -134,7 +134,7 @@ export class SpawnControl {
     // HAULER
     // spawn enough haulers to keep up with hauling needed
     const haulerCarryParts = CreepUtils.countParts(CARRY, ...haulers);
-    const haulerCarryPartsNeeded = spawnw.roomw.energyCapacityAvailable / CARRY_CAPACITY;
+    const haulerCarryPartsNeeded = (spawnw.roomw.energyCapacityAvailable * 2) / CARRY_CAPACITY;
     CreepUtils.consoleLogIfWatched(spawnw, `hauler parts: ${haulerCarryParts}/${haulerCarryPartsNeeded}`);
     if (haulerCarryParts < haulerCarryPartsNeeded) {
       return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw);
