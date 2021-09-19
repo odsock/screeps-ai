@@ -6,8 +6,8 @@ import { SockPuppetConstants } from "config/sockpuppet-constants";
 export class Builder extends CreepWrapper {
   public static readonly ROLE = CreepRole.BUILDER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
-    profile: [WORK, CARRY],
-    seed: [MOVE, CARRY],
+    profile: [WORK, MOVE, CARRY],
+    seed: [],
     maxBodyParts: MAX_CREEP_SIZE
   };
 
