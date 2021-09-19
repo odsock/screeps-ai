@@ -119,7 +119,7 @@ export class SpawnControl {
     const upgraderCount = this.creepCountsByRole[Upgrader.ROLE];
     const upgraders = spawnw.room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Upgrader.ROLE });
     const conSites = spawnw.roomw.find(FIND_MY_CONSTRUCTION_SITES).length;
-    if (conSites >= 0 && upgraderCount > 0) {
+    if (conSites > 0 && upgraderCount > 0) {
       CreepUtils.consoleLogIfWatched(spawnw, `skipping upgraders during construction`);
     } else {
       const upgraderWorkParts = CreepUtils.countParts(WORK, ...upgraders);
