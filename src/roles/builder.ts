@@ -83,7 +83,7 @@ export class Builder extends CreepWrapper {
         type => groupedSites[type] && groupedSites[type].length > 0
       );
       if (siteType) {
-        const closestSite = this.pos.findClosestByPath(groupedSites[siteType]);
+        const closestSite = centerPos.findClosestByPath(groupedSites[siteType]);
         if (closestSite) {
           site = closestSite;
         }
