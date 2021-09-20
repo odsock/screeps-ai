@@ -20,10 +20,10 @@ export class RoomClaim {
     return this;
   }
 
-  public purgeDeadCreeps(): RoomClaim {
-    const newClaims = this.claims.filter(id => !!Game.getObjectById(id));
-    this.claims = newClaims;
-    return this;
+  public static purgeDeadCreeps(claim: RoomClaim): RoomClaim {
+    const newClaims = claim.claims.filter(id => !!Game.getObjectById(id));
+    claim.claims = newClaims;
+    return claim;
   }
 
   public toString(): string {
