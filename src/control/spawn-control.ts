@@ -124,7 +124,8 @@ export class SpawnControl {
       const upgraderWorkParts = CreepUtils.countParts(WORK, ...upgraders);
       const HARVEST_TO_UPGRADE_RATIO = 0.7;
       const upgraderWorkPartsNeeded =
-        (Math.min(harvesterWorkParts, 10) * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) / UPGRADE_CONTROLLER_POWER;
+        (Math.min(harvesterWorkParts, harvesterWorkPartsNeeded) * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) /
+        UPGRADE_CONTROLLER_POWER;
       const upgradePositionCount = spawnw.roomw.getUpgradePositions().length;
       CreepUtils.consoleLogIfWatched(
         spawnw,
@@ -239,6 +240,7 @@ export class SpawnControl {
     return ERR_NOT_FOUND;
   }
 
+  /** Gets count of creeps with role, including spawning creeps */
   private getCreepCountForRole(role: CreepRole): number {
     const count = this.roomw.find(FIND_MY_CREEPS).filter(creep => creep.memory.role === role).length;
     const numSpawning = this.spawns.filter(spawn => spawn.spawning?.name.startsWith(role)).length;
@@ -276,7 +278,7 @@ export class SpawnControl {
     creeps: Creep[],
     type: typeof Upgrader | typeof Harvester
   ): ScreepsReturnCode {
-    const replacementTime = this.calcReplacementTime(type, spawnw);
+    const replacementTime = SpawnUtils.calcReplacementTime(type, spawnw);
     for (const creep of creeps) {
       if (!creep.spawning && !creep.memory.retiring) {
         if (creep.ticksToLive && creep.ticksToLive <= replacementTime) {
@@ -289,17 +291,6 @@ export class SpawnControl {
       }
     }
     return ERR_NOT_FOUND;
-  }
-
-  private calcReplacementTime(type: typeof Upgrader | typeof Harvester, spawnw: SpawnWrapper) {
-    const body = SpawnUtils.getMaxBody(type.BODY_PROFILE, spawnw);
-    const spawningTime = body.length * CREEP_SPAWN_TIME;
-    // walk time is hard to calc if using a hauler to tug
-    // overestimate it, and suicide the retiree when you arrive
-    const WALK_TIME = 50;
-    const replacementTime = spawningTime + WALK_TIME;
-    CreepUtils.consoleLogIfWatched(spawnw, `replacement time: ${replacementTime} ticks`);
-    return replacementTime;
   }
 
   /** plan creep count functions */

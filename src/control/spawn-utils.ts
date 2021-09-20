@@ -1,4 +1,7 @@
+import { CreepUtils } from "creep-utils";
 import { CreepBodyProfile } from "roles/creep-wrapper";
+import { Harvester } from "roles/harvester";
+import { Upgrader } from "roles/upgrader";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 
 export class SpawnUtils {
@@ -75,5 +78,20 @@ export class SpawnUtils {
       }
     });
     return newBody;
+  }
+
+  /**
+   * Calculates the number of ticks to spawn a creep with max body for retirement.
+   * Uses an estimate of 50 ticks to account for walking time, since creep will be hauled.
+   */
+  public static calcReplacementTime(type: typeof Upgrader | typeof Harvester, spawnw: SpawnWrapper): number {
+    const body = SpawnUtils.getMaxBody(type.BODY_PROFILE, spawnw);
+    const spawningTime = body.length * CREEP_SPAWN_TIME;
+    // walk time is hard to calc if using a hauler to tug
+    // overestimate it, and suicide the retiree when you arrive
+    const WALK_TIME = 50;
+    const replacementTime = spawningTime + WALK_TIME;
+    CreepUtils.consoleLogIfWatched(spawnw, `replacement time: ${replacementTime} ticks`);
+    return replacementTime;
   }
 }
