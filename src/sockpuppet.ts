@@ -62,6 +62,9 @@ export class Sockpuppet {
     const cpuAfterCreeps = Game.cpu.getUsed();
     const cpuUsedForCreeps = cpuAfterCreeps - cpuBeforeCreeps;
     console.log(`CPU used for creeps: ${cpuUsedForCreeps}`);
+    if (!Memory.cpu) {
+      Memory.cpu = [];
+    }
     Memory.cpu.push(cpuUsedForCreeps);
     if (Memory.cpu.length > 100) {
       Memory.cpu.shift();

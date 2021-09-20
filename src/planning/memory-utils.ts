@@ -81,6 +81,7 @@ declare global {
   interface Memory {
     cache?: string;
     version?: string;
+    cpu?: number[];
   }
 
   namespace NodeJS {
@@ -91,7 +92,6 @@ declare global {
       unwatch: (key: Id<any>) => void;
       placeExt: (pos: RoomPosition, structure: StructureConstant) => void;
       getPositionSpiral: (centerPos: RoomPosition, maxRange: number) => void;
-      Profiler: Profiler;
     }
   }
 }
