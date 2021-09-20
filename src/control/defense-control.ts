@@ -6,6 +6,17 @@ import { SpawnUtils } from "./spawn-utils";
 
 export class DefenseControl {
   public run(): void {
+    // record hostile creeps in rooms we can see
+    for (const name in Game.rooms) {
+      const room = Game.rooms[name];
+      const hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+      if (hostileCreeps.length === 0) {
+        room.memory.defense = { hostiles: [] };
+      } else {
+        room.memory.defense = { hostiles: hostileCreeps };
+      }
+    }
+
     // spawn guard for each unguarded room with hostiles
     for (const roomName in Memory.rooms) {
       const roomDefense = Memory.rooms[roomName].defense;

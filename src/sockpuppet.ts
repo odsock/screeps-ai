@@ -12,30 +12,20 @@ export class Sockpuppet {
     // refresh global cache if missing
     // MemoryUtils.writeCacheToMemory();
 
+    // spawn defense creeps
+    console.log(`Running defense control`);
+    const defenseControl = new DefenseControl();
+    defenseControl.run();
+
     // Run each room
     for (const name in Game.rooms) {
-      const roomw = RoomWrapper.getInstance(name);
-      if (!roomw) {
-        console.log(`ERROR: bad room name ${name}`);
-        continue;
-      }
-
-      // record hostile creeps
-      const hostileCreeps = roomw.find(FIND_HOSTILE_CREEPS);
-      if (hostileCreeps.length === 0) {
-        roomw.memory.defense = { hostiles: [] };
-      } else {
-        roomw.memory.defense = { hostiles: hostileCreeps };
-      }
-
-      // spawn defense creeps
-      const defenseControl = new DefenseControl();
-      defenseControl.run();
-
       // only consider rooms we own for colony planning and control
-      if (!roomw.controller?.my) {
+      if (!Game.rooms[name].controller?.my) {
+        CreepUtils.consoleLogIfWatched(Game.rooms[name], `skipping unowned room ${name}`);
         continue;
       }
+
+      const roomw = RoomWrapper.getInstance(name);
 
       // draw colony poc
       const planVisual = roomw.planVisual;
