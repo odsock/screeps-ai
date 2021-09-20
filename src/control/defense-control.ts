@@ -16,17 +16,21 @@ export class DefenseControl {
           creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === roomName
         );
         if (guardsAssigned.length === 0) {
-          const room = RoomWrapper.getInstance(roomName);
-          if (room) {
-            // try to pop a safe mode if being attacked
-            this.activateSafeModeIfAttacked(room);
+          try {
+            const room = RoomWrapper.getInstance(roomName);
+            if (room) {
+              // try to pop a safe mode if being attacked
+              this.activateSafeModeIfAttacked(room);
 
-            // try to spawn guard in the room
-            const availableSpawnsInRoom = room.spawns.filter(spawn => !spawn.spawning);
-            if (availableSpawnsInRoom.length) {
-              const spawnw = availableSpawnsInRoom[0];
-              return this.spawnGuard(roomDefense, spawnw, roomName);
+              // try to spawn guard in the room
+              const availableSpawnsInRoom = room.spawns.filter(spawn => !spawn.spawning);
+              if (availableSpawnsInRoom.length) {
+                const spawnw = availableSpawnsInRoom[0];
+                return this.spawnGuard(roomDefense, spawnw, roomName);
+              }
             }
+          } catch (error) {
+            console.log(`Defense control: hostiles in room with no visibility`);
           }
 
           // try to spawn in nearby room
