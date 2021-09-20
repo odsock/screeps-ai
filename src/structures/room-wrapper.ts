@@ -152,7 +152,9 @@ export class RoomWrapper extends Room {
         });
     }
     // filter out claimed rooms, and remote claims by dead creeps
-    queue = queue.filter(claim => !Game.rooms[claim.name]?.controller?.my).map(claim => claim.purgeDeadCreeps());
+    queue = queue
+      .filter(claim => !Game.rooms[claim.name]?.controller?.my)
+      .map(claim => RoomClaim.purgeDeadCreeps(claim));
     const queueString = queue.join();
     CreepUtils.consoleLogIfWatched(this, `claim queue: ${queueString}`);
     MemoryUtils.setCache(`${this.room.name}_claimQueue`, queue, CREEP_LIFE_TIME * 2);
