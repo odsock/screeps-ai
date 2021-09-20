@@ -9,6 +9,10 @@ export class Logger {
 
   public logRoom(room: Room): void {
     const roomw = RoomWrapper.getInstance(room.name);
+    if (!roomw) {
+      console.log(`ERROR: invalid room ${room.name}`);
+      return;
+    }
 
     if (!roomw.memory.construction) {
       roomw.memory.construction = {};
