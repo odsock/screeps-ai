@@ -159,35 +159,16 @@ export class SpawnControl {
     return ERR_NOT_FOUND;
   }
 
-  /**
-   * Spawn strategy for later RCL
-   * spawn same as RC1, with guards, builders, importers, claimers, and fixer
-   */
-  private spawnLaterRCL(spawnw: SpawnWrapper): ScreepsReturnCode {
-    // spawn economy creeps with early strategy
-    const result = this.spawnEconomy(spawnw);
-    CreepUtils.consoleLogIfWatched(spawnw, `early RCL spawn result`, result);
-    if (result !== ERR_NOT_FOUND) {
-      return result;
-    }
-
-    CreepUtils.consoleLogIfWatched(spawnw, `check if other creeps needed`);
-
-    // FIXER
-    if (
-      this.roomw.repairSites.length > 0 &&
-      this.creepCountsByRole[CreepRole.FIXER] < SockPuppetConstants.MAX_FIXER_CREEPS
-    ) {
-      return spawnw.spawn({ body: SpawnUtils.getMaxBody(Fixer.BODY_PROFILE, spawnw), role: Fixer.ROLE });
-    }
-
+  private spawnRemoteEconomy(spawnw: SpawnWrapper): ScreepsReturnCode {
     // IMPORTER
-    const remoteHarvestTargetCount = TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => {
-      return !Game.rooms[name]?.controller?.my;
-    }).length;
+    const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name]
+      .filter(name => {
+        return !Game.rooms[name]?.controller?.my;
+      })
+      .map(roomName => RoomWrapper.getInstance(roomName));
     if (
       this.creepCountsByRole[CreepRole.IMPORTER] <
-      remoteHarvestTargetCount * TargetConfig.IMPORTERS_PER_REMOTE_ROOM
+      remoteHarvestRooms.length * TargetConfig.IMPORTERS_PER_REMOTE_ROOM
     ) {
       return spawnw.spawn({ body: SpawnUtils.getMaxBody(Importer.BODY_PROFILE, spawnw), role: Importer.ROLE });
     }
@@ -219,6 +200,37 @@ export class SpawnControl {
           targetRoom: targetRoom.name
         });
       }
+    }
+
+    return ERR_NOT_FOUND;
+  }
+
+  /**
+   * Spawn strategy for later RCL
+   * spawn same as RC1, with guards, builders, importers, claimers, and fixer
+   */
+  private spawnLaterRCL(spawnw: SpawnWrapper): ScreepsReturnCode {
+    // spawn economy creeps with early strategy
+    const result = this.spawnEconomy(spawnw);
+    CreepUtils.consoleLogIfWatched(spawnw, `economy spawn result`, result);
+    if (result !== ERR_NOT_FOUND) {
+      return result;
+    }
+
+    CreepUtils.consoleLogIfWatched(spawnw, `check if other creeps needed`);
+
+    // FIXER
+    if (
+      this.roomw.repairSites.length > 0 &&
+      this.creepCountsByRole[CreepRole.FIXER] < SockPuppetConstants.MAX_FIXER_CREEPS
+    ) {
+      return spawnw.spawn({ body: SpawnUtils.getMaxBody(Fixer.BODY_PROFILE, spawnw), role: Fixer.ROLE });
+    }
+
+    const remoteResult = this.spawnRemoteEconomy(spawnw);
+    CreepUtils.consoleLogIfWatched(spawnw, `remote economy spawn result`, remoteResult);
+    if (remoteResult !== ERR_NOT_FOUND) {
+      return remoteResult;
     }
 
     // BUILDER
