@@ -114,6 +114,7 @@ export class Planner {
     this.roomw.dismantleVisual = this.roomw.visual.export();
 
     // try to construct any missing structures
+    console.log(`DEBUG: placing colonly plane: skipRoads: ${String(skipRoads)}, plan: ${JSON.stringify(plan)}`);
     const result = PlannerUtils.placeStructurePlan(plan, true, true, skipRoads);
     console.log(`place colony result ${result}`);
 
