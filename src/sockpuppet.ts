@@ -5,6 +5,7 @@ import { SpawnControl } from "control/spawn-control";
 import { CreepFactory } from "roles/creep-factory";
 import { TowerWrapper } from "structures/tower-wrapper";
 import { RoomWrapper } from "structures/room-wrapper";
+import { DefenseControl } from "control/defense-control";
 
 export class Sockpuppet {
   public run(): void {
@@ -26,6 +27,10 @@ export class Sockpuppet {
       } else {
         roomw.memory.defense = { hostiles: hostileCreeps };
       }
+
+      // spawn defense creeps
+      const defenseControl = new DefenseControl();
+      defenseControl.run();
 
       // only consider rooms we own for colony planning and control
       if (!roomw.controller?.my) {
@@ -49,8 +54,8 @@ export class Sockpuppet {
 
       // Run spawners
       CreepUtils.consoleLogIfWatched(roomw, `running spawns`);
-      const populationControl = new SpawnControl(roomw);
-      populationControl.run();
+      const spawnControl = new SpawnControl(roomw);
+      spawnControl.run();
 
       CreepUtils.consoleLogIfWatched(roomw, `running towers`);
       this.runTowers(roomw);

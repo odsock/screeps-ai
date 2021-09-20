@@ -9,12 +9,11 @@ import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
 import { TargetConfig } from "config/target-config";
 import { SpawnWrapper } from "structures/spawn-wrapper";
-import { Guard } from "roles/guard";
 import { CreepRole } from "config/creep-types";
 import { Harvester } from "roles/harvester";
 import { Upgrader } from "roles/upgrader";
-import { DefenseUtils } from "./defense-utils";
 import { CreepBodyProfile } from "roles/creep-wrapper";
+import { SpawnUtils } from "./spawn-utils";
 
 export class SpawnControl {
   private readonly containers: AnyStructure[];
@@ -46,7 +45,7 @@ export class SpawnControl {
   public run(): void {
     // try to spawn by priorities until spawn fails (low energy for priority creep)
     if (this.rcl <= 1) {
-      this.spawns.filter(spawnw => !spawnw.spawning).some(spawnw => this.spawnEarlyRCL(spawnw) !== OK);
+      this.spawns.filter(spawnw => !spawnw.spawning).some(spawnw => this.spawnEconomy(spawnw) !== OK);
     } else {
       this.spawns.filter(spawnw => !spawnw.spawning).some(spawnw => this.spawnLaterRCL(spawnw) !== OK);
     }
@@ -62,7 +61,7 @@ export class SpawnControl {
    * then spawn enough upgraders to handle 80% of harvest capacity (tweak this)
    * then spawn enough haulers to handle harvest capacity to average destination distance (tweak this)
    */
-  private spawnEarlyRCL(spawnw: SpawnWrapper): ScreepsReturnCode {
+  private spawnEconomy(spawnw: SpawnWrapper): ScreepsReturnCode {
     // SEED WORKER
     // spawn one worker if no other creeps
     if (spawnw.room.find(FIND_MY_CREEPS).length === 0) {
@@ -164,34 +163,8 @@ export class SpawnControl {
    * spawn same as RC1, with guards, builders, importers, claimers, and fixer
    */
   private spawnLaterRCL(spawnw: SpawnWrapper): ScreepsReturnCode {
-    // GUARD
-    // spawn guard for each scary room without one
-    // TODO pull this out to defense control, to avoid spawning duplicate guards in multiple rooms
-    CreepUtils.consoleLogIfWatched(spawnw, `check if guard needed`);
-    for (const roomName in Memory.rooms) {
-      const roomDefense = Memory.rooms[roomName].defense;
-      if (roomDefense && roomDefense.hostiles.length > 0) {
-        const guards = _.filter(
-          Game.creeps,
-          creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === roomName
-        );
-        if (guards.length === 0) {
-          // try to pop a safe mode while spawning guard
-          const room = Game.rooms[roomName];
-          if (room?.controller?.safeModeAvailable) {
-            room.controller.activateSafeMode();
-          }
-          const hostiles = roomDefense.hostiles;
-          const body = DefenseUtils.calcDefender(hostiles);
-
-          const spawnResult = spawnw.spawn({ body, role: Guard.ROLE });
-          return spawnResult;
-        }
-      }
-    }
-
     // spawn economy creeps with early strategy
-    const result = this.spawnEarlyRCL(spawnw);
+    const result = this.spawnEconomy(spawnw);
     CreepUtils.consoleLogIfWatched(spawnw, `early RCL spawn result`, result);
     if (result !== ERR_NOT_FOUND) {
       return result;
@@ -204,7 +177,7 @@ export class SpawnControl {
       this.roomw.repairSites.length > 0 &&
       this.creepCountsByRole[CreepRole.FIXER] < SockPuppetConstants.MAX_FIXER_CREEPS
     ) {
-      return spawnw.spawn({ body: this.getMaxBody(Fixer.BODY_PROFILE), role: Fixer.ROLE });
+      return spawnw.spawn({ body: SpawnUtils.getMaxBody(Fixer.BODY_PROFILE, spawnw), role: Fixer.ROLE });
     }
 
     // IMPORTER
@@ -215,13 +188,13 @@ export class SpawnControl {
       this.creepCountsByRole[CreepRole.IMPORTER] <
       remoteHarvestTargetCount * TargetConfig.IMPORTERS_PER_REMOTE_ROOM
     ) {
-      return spawnw.spawn({ body: this.getMaxBody(Importer.BODY_PROFILE), role: Importer.ROLE });
+      return spawnw.spawn({ body: SpawnUtils.getMaxBody(Importer.BODY_PROFILE, spawnw), role: Importer.ROLE });
     }
 
     // CLAIMER
     const maxClaimers = this.getMaxClaimerCount();
     if (this.creepCountsByRole[CreepRole.CLAIMER] < maxClaimers) {
-      return spawnw.spawn({ body: this.getMaxBody(Claimer.BODY_PROFILE), role: Claimer.ROLE });
+      return spawnw.spawn({ body: SpawnUtils.getMaxBody(Claimer.BODY_PROFILE, spawnw), role: Claimer.ROLE });
     }
 
     // REMOTE WORKER
@@ -240,7 +213,7 @@ export class SpawnControl {
       );
       if (targetRoom) {
         return spawnw.spawn({
-          body: this.getMaxBody(Worker.BODY_PROFILE),
+          body: SpawnUtils.getMaxBody(Worker.BODY_PROFILE, spawnw),
           role: Worker.ROLE,
           targetRoom: targetRoom.name
         });
@@ -257,7 +230,10 @@ export class SpawnControl {
       `builders: ${builderCount}, ${conSiteCount} sites, ${workPartsNeeded} parts needed`
     );
     if (conSiteCount > 0 && workPartsNeeded > 0) {
-      return spawnw.spawn({ body: this.getBuilderBody(Builder.BODY_PROFILE, workPartsNeeded), role: Builder.ROLE });
+      return spawnw.spawn({
+        body: this.getBuilderBody(Builder.BODY_PROFILE, workPartsNeeded, spawnw),
+        role: Builder.ROLE
+      });
     }
 
     return ERR_NOT_FOUND;
@@ -287,9 +263,9 @@ export class SpawnControl {
   private spawnBootstrapCreep(profile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper): ScreepsReturnCode {
     let body: BodyPartConstant[];
     if (this.creepCountsByRole[role] <= 0) {
-      body = this.getMaxBodyNow(profile, spawnw);
+      body = SpawnUtils.getMaxBodyNow(profile, spawnw);
     } else {
-      body = this.getMaxBody(profile);
+      body = SpawnUtils.getMaxBody(profile, spawnw);
     }
     const result = spawnw.spawn({ body, role });
     return result;
@@ -316,7 +292,7 @@ export class SpawnControl {
   }
 
   private calcReplacementTime(type: typeof Upgrader | typeof Harvester, spawnw: SpawnWrapper) {
-    const body = this.getMaxBody(type.BODY_PROFILE);
+    const body = SpawnUtils.getMaxBody(type.BODY_PROFILE, spawnw);
     const spawningTime = body.length * CREEP_SPAWN_TIME;
     // walk time is hard to calc if using a hauler to tug
     // overestimate it, and suicide the retiree when you arrive
@@ -352,11 +328,15 @@ export class SpawnControl {
 
   /** calculate creep bodies */
 
-  private getBuilderBody(bodyProfile: CreepBodyProfile, workPartsNeeded: number): BodyPartConstant[] {
+  private getBuilderBody(
+    bodyProfile: CreepBodyProfile,
+    workPartsNeeded: number,
+    spawnw: SpawnWrapper
+  ): BodyPartConstant[] {
     const workPartsInProfile = bodyProfile.profile.filter(part => part === WORK).length;
     bodyProfile.maxBodyParts =
       (workPartsNeeded / workPartsInProfile) * bodyProfile.profile.length + bodyProfile.seed.length;
-    const body = this.getMaxBody(bodyProfile);
+    const body = SpawnUtils.getMaxBody(bodyProfile, spawnw);
     return body;
   }
 
@@ -367,52 +347,5 @@ export class SpawnControl {
     const workPartsNeeded = Math.ceil(conWork / SockPuppetConstants.WORK_PER_WORKER_PART);
     const workPartsDeficit = workPartsNeeded - activeWorkParts;
     return workPartsDeficit > 0 ? workPartsDeficit : 0;
-  }
-
-  /**
-   * Creates creep body profile based on array of body constants and max size allowed.
-   */
-  // TODO implement maxWorkParts and other part type checks
-  private getMaxBody(creepBodyProfile: CreepBodyProfile): BodyPartConstant[] {
-    let body: BodyPartConstant[] = creepBodyProfile.seed.slice();
-    // if no seed start with one instance of profile
-    if (body.length === 0) {
-      body = creepBodyProfile.profile.slice();
-    }
-    let finalBody: BodyPartConstant[] = [];
-    if (creepBodyProfile.maxBodyParts > MAX_CREEP_SIZE) {
-      creepBodyProfile.maxBodyParts = MAX_CREEP_SIZE;
-    }
-    const energyCapacity = this.roomw.energyCapacityAvailable;
-    do {
-      finalBody = body.slice();
-      body = body.concat(creepBodyProfile.profile);
-    } while (this.calcBodyCost(body) <= energyCapacity && body.length <= creepBodyProfile.maxBodyParts);
-    return finalBody;
-  }
-
-  private getMaxBodyNow(bodyProfile: CreepBodyProfile, spawnw: SpawnWrapper) {
-    // first make body as large as possible under 300 spawn energy
-    let body = bodyProfile.seed.slice();
-    let finalBody: BodyPartConstant[] = [];
-    do {
-      finalBody = body.slice();
-      body = body.concat(bodyProfile.profile);
-    } while (this.calcBodyCost(body) <= SPAWN_ENERGY_CAPACITY);
-    body = finalBody.slice();
-
-    // grow body until all available energy is used
-    do {
-      finalBody = body.slice();
-      body = body.concat(bodyProfile.profile);
-    } while (
-      spawnw.spawnCreep(body, "maximizeBody", { dryRun: true }) === 0 &&
-      body.length + bodyProfile.profile.length <= bodyProfile.maxBodyParts
-    );
-    return finalBody;
-  }
-
-  private calcBodyCost(body: BodyPartConstant[]): number {
-    return body.map(part => BODYPART_COST[part]).reduce((cost, partCost) => cost + partCost);
   }
 }
