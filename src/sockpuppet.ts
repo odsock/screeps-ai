@@ -96,6 +96,7 @@ export class Sockpuppet {
     }
     // update cpu memory for each role
     for (const role in cpuByRole) {
+      Memory.cpu.creepsByRole[role] = Memory.cpu.creepsByRole[role] ?? [];
       Memory.cpu.creepsByRole[role].push(cpuByRole[role]);
       if (Memory.cpu.creepsByRole[role].length > 100) {
         Memory.cpu.creepsByRole[role].shift();
