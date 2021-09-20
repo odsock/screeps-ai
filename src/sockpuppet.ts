@@ -63,29 +63,42 @@ export class Sockpuppet {
     const cpuUsedForCreeps = cpuAfterCreeps - cpuBeforeCreeps;
     console.log(`CPU used for creeps: ${cpuUsedForCreeps}`);
     if (!Memory.cpu) {
-      Memory.cpu = [];
+      Memory.cpu = { allCreeps: [], creepsByRole: {} };
     }
-    Memory.cpu.push(cpuUsedForCreeps);
-    if (Memory.cpu.length > 100) {
-      Memory.cpu.shift();
+    const allCreeps = Memory.cpu.allCreeps;
+    allCreeps.push(cpuUsedForCreeps);
+    if (allCreeps.length > 100) {
+      allCreeps.shift();
     }
-    const cpuAverageTick = Memory.cpu.reduce((average, cpu, index, history) => average + cpu / history.length, 0);
-    console.log(`CPU average ${cpuAverageTick} over ${Memory.cpu.length} ticks`);
+    const cpuAverageTick = allCreeps.reduce((average, cpu) => average + cpu / allCreeps.length, 0);
+    console.log(`CPU average ${cpuAverageTick} over ${allCreeps.length} ticks`);
 
     // write global cache to memory
     // MemoryUtils.writeCacheToMemory();
   }
 
   public runCreeps(): void {
+    const cpuByRole: { [role: string]: number } = {};
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       if (!creep.spawning) {
         try {
           const creepw = CreepFactory.getCreep(creep);
+          const cpuBefore = Game.cpu.getUsed();
           creepw.run();
+          const cpuAfter = Game.cpu.getUsed();
+          const cpuUsed = cpuAfter - cpuBefore;
+          cpuByRole[creepw.memory.role] += cpuUsed;
         } catch (error) {
           console.log(`ERROR: caught running creep ${creep.name}: ${JSON.stringify(error)}`);
         }
+      }
+    }
+    // update cpu memory for each role
+    for (const role in cpuByRole) {
+      Memory.cpu.creepsByRole[role].push(cpuByRole[role]);
+      if (Memory.cpu.creepsByRole[role].length > 100) {
+        Memory.cpu.creepsByRole[role].shift();
       }
     }
   }

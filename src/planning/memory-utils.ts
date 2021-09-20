@@ -81,7 +81,14 @@ declare global {
   interface Memory {
     cache?: string;
     version?: string;
-    cpu?: number[];
+    cpu: CpuTracking;
+  }
+
+  interface CpuTracking {
+    allCreeps: number[];
+    creepsByRole: {
+      [role: string]: number[];
+    };
   }
 
   namespace NodeJS {
