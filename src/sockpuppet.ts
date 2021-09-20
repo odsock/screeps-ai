@@ -88,6 +88,7 @@ export class Sockpuppet {
           creepw.run();
           const cpuAfter = Game.cpu.getUsed();
           const cpuUsed = cpuAfter - cpuBefore;
+          cpuByRole[creepw.memory.role] = cpuByRole[creepw.memory.role] ?? 0;
           cpuByRole[creepw.memory.role] += cpuUsed;
         } catch (error) {
           console.log(`ERROR: caught running creep ${creep.name}: ${JSON.stringify(error)}`);
