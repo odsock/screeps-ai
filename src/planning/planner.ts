@@ -20,10 +20,10 @@ export class Planner {
 
     if (this.roomw.controller) {
       const IGNORE_ROADS = true;
-      if (this.roomw.controller?.level >= 1) {
+      if (this.roomw.controller?.level === 1) {
         this.planFullColony();
         this.assimilateColonlyToPlan(IGNORE_ROADS);
-      } else if (this.roomw.controller?.level >= 2) {
+      } else if (this.roomw.controller?.level === 2) {
         this.planFullColony();
         this.assimilateColonlyToPlan(IGNORE_ROADS);
         this.planContainers();
@@ -114,7 +114,6 @@ export class Planner {
     this.roomw.dismantleVisual = this.roomw.visual.export();
 
     // try to construct any missing structures
-    console.log(`DEBUG: placing colonly plane: skipRoads: ${String(skipRoads)}, plan: ${JSON.stringify(plan)}`);
     const result = PlannerUtils.placeStructurePlan(plan, true, true, skipRoads);
     console.log(`place colony result ${result}`);
 
