@@ -6,6 +6,7 @@ export class TargetConfig {
     sim: []
   };
 
+  // BUG if you change this config and deploy, queue is not updated
   public static readonly REMOTE_HARVEST: { [x: string]: string[] } = {
     shard3: ["E17N54"],
     sim: []
