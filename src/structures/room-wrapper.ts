@@ -8,7 +8,7 @@ import { RoomClaim } from "planning/room-claim";
 import { PlannerUtils } from "planning/planner-utils";
 
 export class RoomWrapper extends Room {
-  public static getInstance(name: string): RoomWrapper {
+  public static getInstance(name: string): RoomWrapper | undefined {
     const instance = MemoryUtils.getCache<RoomWrapper>(`${name}_RoomWrapper`);
     if (instance) {
       return instance;
@@ -19,8 +19,9 @@ export class RoomWrapper extends Room {
         MemoryUtils.setCache(`${name}_RoomWrapper`, newInstance);
         return newInstance;
       }
-      throw new Error(`ERROR: invalid room name ${name}`);
     }
+    console.log(`ERROR: invalid room name ${name}`);
+    return undefined;
   }
 
   private readonly remoteQueueStore: Queue<string>;
