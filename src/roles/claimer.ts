@@ -13,6 +13,8 @@ export class Claimer extends RemoteWorker {
   };
 
   public run(): void {
+    CreepUtils.consoleLogIfWatched(this, `running ${this.name}`);
+
     // unsign controllers we didn't sign
     if (this.room.controller?.sign?.username && this.room.controller.sign.username !== this.owner.username) {
       this.moveTo(this.room.controller);
@@ -25,6 +27,7 @@ export class Claimer extends RemoteWorker {
       CreepUtils.consoleLogIfWatched(this, `no room targeted for claiming. sitting like a lump.`);
       return;
     }
+    CreepUtils.consoleLogIfWatched(this, `target room ${targetRoom}`);
 
     // go to the room if not in it
     if (this.pos.roomName !== targetRoom) {
