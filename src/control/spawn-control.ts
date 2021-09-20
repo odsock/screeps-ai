@@ -161,11 +161,9 @@ export class SpawnControl {
 
   private spawnRemoteEconomy(spawnw: SpawnWrapper): ScreepsReturnCode {
     // IMPORTER
-    const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name]
-      .filter(name => {
-        return !Game.rooms[name]?.controller?.my;
-      })
-      .map(roomName => RoomWrapper.getInstance(roomName));
+    const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => {
+      return !Game.rooms[name]?.controller?.my;
+    });
     if (
       this.creepCountsByRole[CreepRole.IMPORTER] <
       remoteHarvestRooms.length * TargetConfig.IMPORTERS_PER_REMOTE_ROOM
