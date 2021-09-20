@@ -1,4 +1,3 @@
-import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { Watchable } from "creep-utils";
 
 global.watch = (key: Id<any>) => {
@@ -30,33 +29,11 @@ global.placeExt = (pos: RoomPosition, structure: StructureConstant) => {
   console.log(Game.rooms[pos.roomName], `place ${String(pos)} ${structure}`, result);
 };
 
-global.getPositionSpiral = (centerPos: RoomPosition, maxRange: number): void => {
-  const line: RoomPosition[] = [];
-  let x = 0;
-  let y = 0;
-  let dx = 0;
-  let dy = -1;
-  let pos: RoomPosition;
-
-  for (let i = 0; i < Math.pow(maxRange * 2 + 1, 2); i++) {
-    if (
-      centerPos.x + x < SockPuppetConstants.ROOM_SIZE - 2 &&
-      centerPos.x + x > 1 &&
-      centerPos.y + y < SockPuppetConstants.ROOM_SIZE - 2 &&
-      centerPos.y + y > 1
-    ) {
-      pos = new RoomPosition(centerPos.x + x, centerPos.y + y, centerPos.roomName);
-      line.push(pos);
-    }
-
-    if (x === y || (x === -y && x < 0) || (x === 1 - y && x > 0)) {
-      const temp = dx;
-      dx = -dy;
-      dy = temp;
-    }
-
-    x = x + dx;
-    y = y + dy;
+global.printCpuUsage = () => {
+  console.log(`CPU SUMMARY BY CREEP ROLE`);
+  for (const role in Memory.cpu.creepsByRole) {
+    const roleHistory = Memory.cpu.creepsByRole[role];
+    const cpuAverageTick = roleHistory.reduce((average, cpu) => average + cpu / roleHistory.length, 0);
+    console.log(`${role.toUpperCase()}: average ${cpuAverageTick} over ${roleHistory.length} ticks`);
   }
-  Game.rooms[centerPos.roomName].visual.poly(line, { stroke: "#0000FF" });
 };
