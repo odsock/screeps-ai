@@ -87,7 +87,7 @@ export class Sockpuppet {
         try {
           creepw.run();
         } catch (error) {
-          console.log(`ERROR: caught running creep ${creep.name}: ${JSON.stringify(error)}`);
+          console.log(`ERROR: caught running creep ${creep.name}`, error);
         }
         const cpuAfter = Game.cpu.getUsed();
         const cpuUsed = cpuAfter - cpuBefore;
