@@ -82,17 +82,17 @@ export class Sockpuppet {
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       if (!creep.spawning) {
+        const creepw = CreepFactory.getCreep(creep);
+        const cpuBefore = Game.cpu.getUsed();
         try {
-          const creepw = CreepFactory.getCreep(creep);
-          const cpuBefore = Game.cpu.getUsed();
           creepw.run();
-          const cpuAfter = Game.cpu.getUsed();
-          const cpuUsed = cpuAfter - cpuBefore;
-          cpuByRole[creepw.memory.role] = cpuByRole[creepw.memory.role] ?? 0;
-          cpuByRole[creepw.memory.role] += cpuUsed;
         } catch (error) {
           console.log(`ERROR: caught running creep ${creep.name}: ${JSON.stringify(error)}`);
         }
+        const cpuAfter = Game.cpu.getUsed();
+        const cpuUsed = cpuAfter - cpuBefore;
+        cpuByRole[creepw.memory.role] = cpuByRole[creepw.memory.role] ?? 0;
+        cpuByRole[creepw.memory.role] += cpuUsed;
       }
     }
     // update cpu memory for each role
