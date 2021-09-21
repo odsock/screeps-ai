@@ -1,16 +1,20 @@
 import { CreepUtils } from "creep-utils";
-import { MemoryUtils } from "planning/memory-utils";
 import { Planner } from "planning/planner";
 import { SpawnControl } from "control/spawn-control";
 import { CreepFactory } from "roles/creep-factory";
 import { TowerWrapper } from "structures/tower-wrapper";
 import { RoomWrapper } from "structures/room-wrapper";
 import { DefenseControl } from "control/defense-control";
+import { ReconControl } from "control/recon-control";
 
 export class Sockpuppet {
   public run(): void {
     // refresh global cache if missing
     // MemoryUtils.writeCacheToMemory();
+
+    // collect data about rooms we can see
+    const reconControl = new ReconControl();
+    reconControl.run();
 
     // spawn defense creeps
     console.log(`Running defense control`);
@@ -39,9 +43,6 @@ export class Sockpuppet {
         roomw.visual.import(dismantleVisual);
       }
 
-      const planner = new Planner(roomw);
-      MemoryUtils.refreshRoomMemory(roomw);
-
       // Run spawners
       CreepUtils.consoleLogIfWatched(roomw, `running spawns`);
       const spawnControl = new SpawnControl(roomw);
@@ -51,6 +52,7 @@ export class Sockpuppet {
       this.runTowers(roomw);
 
       // Plan each room every 10 ticks
+      const planner = new Planner(roomw);
       if (Game.time % 10 === 0) {
         const result = planner.run();
         console.log(`planning result: ${result}`);
