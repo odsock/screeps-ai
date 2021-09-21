@@ -61,6 +61,7 @@ declare global {
   }
 
   interface ControllerInfo {
+    pos: string;
     containerConstructionSiteId?: Id<ConstructionSite>;
     containerPos?: string;
     containerId?: Id<StructureContainer>;

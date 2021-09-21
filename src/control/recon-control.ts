@@ -23,10 +23,15 @@ export class ReconControl {
   }
 
   private refreshControllerMemory(room: Room): void {
+    if (!room.controller) {
+      return;
+    }
     // initialize controller memory
     const controllerMemory = room.memory.controller;
     if (!controllerMemory) {
-      room.memory.controller = {};
+      room.memory.controller = {
+        pos: MemoryUtils.packRoomPosition(room.controller?.pos)
+      };
       return;
     }
 
