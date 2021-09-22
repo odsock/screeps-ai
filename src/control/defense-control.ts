@@ -17,23 +17,24 @@ export class DefenseControl {
         );
         if (guardsAssigned.length === 0) {
           console.log(`DEBUG: defense room name `, roomName);
-          const room = Game.rooms[roomName];
-          console.log(`DEBUG: defense room `, room);
-          if (room) {
-            console.log(`DEBUG: getting wrapper for ${roomName}`);
-            const roomw = RoomWrapper.getInstance(roomName);
-            if (roomw) {
-              // try to pop a safe mode if being attacked
-              this.activateSafeModeIfAttacked(roomw);
+          // BUG figure out why this throws when can't see room
+          // const room = Game.rooms[roomName];
+          // console.log(`DEBUG: defense room `, room);
+          // if (room) {
+          //   console.log(`DEBUG: getting wrapper for ${roomName}`);
+          //   const roomw = RoomWrapper.getInstance(roomName);
+          //   if (roomw) {
+          //     // try to pop a safe mode if being attacked
+          //     this.activateSafeModeIfAttacked(roomw);
 
-              // try to spawn guard in the room
-              const availableSpawnsInRoom = roomw.spawns.filter(spawn => !spawn.spawning);
-              if (availableSpawnsInRoom.length) {
-                const spawnw = availableSpawnsInRoom[0];
-                return this.spawnGuard(roomDefense, spawnw, roomName);
-              }
-            }
-          }
+          //     // try to spawn guard in the room
+          //     const availableSpawnsInRoom = roomw.spawns.filter(spawn => !spawn.spawning);
+          //     if (availableSpawnsInRoom.length) {
+          //       const spawnw = availableSpawnsInRoom[0];
+          //       return this.spawnGuard(roomDefense, spawnw, roomName);
+          //     }
+          //   }
+          // }
 
           // try to spawn in nearby room
           const availableSpawns = _.filter(Game.spawns, spawn => !spawn.spawning);
