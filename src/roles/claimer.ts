@@ -1,4 +1,5 @@
 import { CreepRole } from "config/creep-types";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { CreepBodyProfile } from "./creep-wrapper";
@@ -52,16 +53,27 @@ export class Claimer extends RemoteWorker {
   }
 
   private getTargetRoom(): string | undefined {
-    let targetRoom = this.memory.targetRoom;
-    if (!targetRoom) {
-      // find a target room
-      targetRoom = this.roomw.getRoomClaim(this);
-
-      if (targetRoom) {
-        // store my target room in my memory
-        this.memory.targetRoom = targetRoom;
-      }
+    if (this.memory.targetRoom) {
+      return this.memory.targetRoom;
     }
-    return targetRoom;
+
+    // get list of rooms targeted by other claimers
+    const targetedRooms = _.filter(
+      Game.creeps,
+      creep => creep.memory.role === Claimer.ROLE && creep.memory.targetRoom
+    ).map(creep => creep.memory.targetRoom);
+
+    // find a target or remote not in the list
+    let targetRoom = TargetConfig.TARGETS[Game.shard.name].find(target => !targetedRooms.includes(target));
+    if (!targetRoom) {
+      targetRoom = TargetConfig.REMOTE_HARVEST[Game.shard.name].find(target => !targetedRooms.includes(target));
+    }
+
+    // store my target room in my memory
+    if (targetRoom) {
+      this.memory.targetRoom = targetRoom;
+      return targetRoom;
+    }
+    return undefined;
   }
 }
