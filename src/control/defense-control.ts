@@ -16,8 +16,9 @@ export class DefenseControl {
           creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === roomName
         );
         if (guardsAssigned.length === 0) {
+          console.log(`DEBUG: defense room name `, roomName);
           const room = Game.rooms[roomName];
-          console.log(room);
+          console.log(`DEBUG: defense room `, room);
           if (room) {
             console.log(`DEBUG: getting wrapper for ${roomName}`);
             const roomw = RoomWrapper.getInstance(roomName);
