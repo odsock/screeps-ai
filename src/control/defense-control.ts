@@ -17,7 +17,9 @@ export class DefenseControl {
         );
         if (guardsAssigned.length === 0) {
           const room = Game.rooms[roomName];
+          console.log(`DEBUG: defense room ${String(room)}`);
           if (room) {
+            console.log(`DEBUG: getting wrapper for ${roomName}`);
             const roomw = RoomWrapper.getInstance(roomName);
             if (roomw) {
               // try to pop a safe mode if being attacked
