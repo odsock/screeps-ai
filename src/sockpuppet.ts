@@ -94,7 +94,7 @@ export class Sockpuppet {
         const cpuUsed = cpuAfter - cpuBefore;
         Memory.cpu.creepsByRole[creepw.memory.role] = Memory.cpu.creepsByRole[creepw.memory.role] ?? [];
         Memory.cpu.creepsByRole[creepw.memory.role].push(cpuUsed);
-        if (Memory.cpu.creepsByRole[creepw.memory.role].length > 1500) {
+        if (Memory.cpu.creepsByRole[creepw.memory.role].length > CREEP_LIFE_TIME) {
           Memory.cpu.creepsByRole[creepw.memory.role].shift();
         }
       }
