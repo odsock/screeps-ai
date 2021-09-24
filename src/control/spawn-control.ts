@@ -44,6 +44,10 @@ export class SpawnControl {
   }
 
   public run(): void {
+    // don't spawn if hostiles
+    if (this.roomw.memory.defense?.hostiles && this.roomw.memory.defense.hostiles.length > 0) {
+      return;
+    }
     // try to spawn by priorities until spawn fails (low energy for priority creep)
     if (this.rcl <= 1) {
       this.spawns.filter(spawnw => !spawnw.spawning).some(spawnw => this.spawnEconomy(spawnw) !== OK);
