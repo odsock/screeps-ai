@@ -165,21 +165,28 @@ export class SpawnControl {
     const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => {
       return !Game.rooms[name]?.controller?.my;
     });
-    remoteHarvestRooms.forEach(roomName => {
+    for (const roomName of remoteHarvestRooms) {
       const sources = Memory.rooms[roomName].sources;
       for (const sourceId in sources) {
         const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
-        if (this.roomw.storage) {
-          const path = PathFinder.search(this.roomw.storage?.pos, sourcePos);
-          console.log(`POC: remote path: ${roomName}, ${path.path.length}`);
+        const dropPos = this.roomw.storage ? this.roomw.storage.pos : this.roomw.spawns[0].pos;
+        // TODO probably need a cost matrix here
+        const path = PathFinder.search(dropPos, sourcePos);
+        console.log(`POC: remote path: ${roomName}, ${path.path.length}`);
+        const TICKS_TO_FILL_IMPORTER = CARRY_CAPACITY / HARVEST_POWER;
+        const importersNeeded = path.path.length / TICKS_TO_FILL_IMPORTER;
+        const importersOnRoom = _.filter(
+          Game.creeps,
+          creep => creep.memory.role === Importer.ROLE && creep.memory.targetRoom === roomName
+        ).length;
+        if (importersNeeded > importersOnRoom) {
+          return spawnw.spawn({
+            body: SpawnUtils.getMaxBody(Importer.BODY_PROFILE, spawnw),
+            role: Importer.ROLE,
+            targetRoom: roomName
+          });
         }
       }
-    });
-    if (
-      this.creepCountsByRole[CreepRole.IMPORTER] <
-      remoteHarvestRooms.length * TargetConfig.IMPORTERS_PER_REMOTE_ROOM
-    ) {
-      return spawnw.spawn({ body: SpawnUtils.getMaxBody(Importer.BODY_PROFILE, spawnw), role: Importer.ROLE });
     }
 
     // CLAIMER
