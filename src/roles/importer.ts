@@ -91,6 +91,7 @@ export class Importer extends RemoteWorker {
     return result;
   }
 
+  // TODO not using remote queue anymore
   private getTargetRoom(): string | undefined {
     let targetRoom = this.memory.targetRoom;
     if (!targetRoom && this.homeRoom) {
