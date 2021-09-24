@@ -14,6 +14,7 @@ import { Harvester } from "roles/harvester";
 import { Upgrader } from "roles/upgrader";
 import { CreepBodyProfile } from "roles/creep-wrapper";
 import { SpawnUtils } from "./spawn-utils";
+import { MemoryUtils } from "planning/memory-utils";
 
 export class SpawnControl {
   private readonly containers: AnyStructure[];
@@ -163,6 +164,16 @@ export class SpawnControl {
     // IMPORTER
     const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => {
       return !Game.rooms[name]?.controller?.my;
+    });
+    remoteHarvestRooms.forEach(roomName => {
+      const sources = Memory.rooms[roomName].sources;
+      for (const sourceId in sources) {
+        const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
+        if (this.roomw.storage) {
+          const path = PathFinder.search(this.roomw.storage?.pos, sourcePos);
+          console.log(`POC: remote path: ${roomName}, ${path.path.length}`);
+        }
+      }
     });
     if (
       this.creepCountsByRole[CreepRole.IMPORTER] <
