@@ -9,7 +9,7 @@ export class DefenseControl {
     // spawn guard for each unguarded room with hostiles
     for (const roomName in Memory.rooms) {
       const roomDefense = Memory.rooms[roomName].defense;
-      if (roomDefense && roomDefense.hostiles.length > 0) {
+      if (roomDefense && (roomDefense.creeps.length > 0 || roomDefense.structures.length > 0)) {
         // TODO this might not consider guards currently spawning, and could double them up
         const guardsAssigned = _.filter(
           Game.creeps,
@@ -51,13 +51,18 @@ export class DefenseControl {
   }
 
   private spawnGuard(roomDefense: RoomDefense, spawnw: SpawnWrapper, roomName: string): void {
-    let body = this.mirrorHostilesBodyForDefense(roomDefense.hostiles);
-    // go one bigger
-    body.push(ATTACK);
-    const cost = SpawnUtils.calcBodyCost(body);
-    // cut in half if too big
-    if (cost > spawnw.roomw.energyCapacityAvailable) {
-      body = SpawnUtils.splitBody(body);
+    let body;
+    if (roomDefense.creeps.length > 0) {
+      body = this.mirrorHostilesBodyForDefense(roomDefense.creeps);
+      // go one bigger
+      body.push(ATTACK);
+      const cost = SpawnUtils.calcBodyCost(body);
+      // cut in half if too big
+      if (cost > spawnw.roomw.energyCapacityAvailable) {
+        body = SpawnUtils.splitBody(body);
+      }
+    } else {
+      body = SpawnUtils.getMaxBody(Guard.BODY_PROFILE, spawnw);
     }
     spawnw.spawn({ body, role: Guard.ROLE, targetRoom: roomName });
     return;

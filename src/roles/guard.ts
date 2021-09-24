@@ -6,7 +6,7 @@ import { RemoteWorker } from "./remote-worker";
 export class Guard extends RemoteWorker {
   public static readonly ROLE = CreepRole.GUARD;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
-    profile: [],
+    profile: [TOUGH, MOVE, MOVE, ATTACK],
     seed: [TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, ATTACK],
     maxBodyParts: MAX_CREEP_SIZE
   };
@@ -22,7 +22,7 @@ export class Guard extends RemoteWorker {
       for (const roomName in Memory.rooms) {
         const defenseMemory = Memory.rooms[roomName].defense;
         if (defenseMemory) {
-          const hostiles = defenseMemory.hostiles;
+          const hostiles = defenseMemory.creeps;
           if (hostiles.length > 0) {
             const guard = _.find(
               Game.creeps,
@@ -37,14 +37,19 @@ export class Guard extends RemoteWorker {
     }
 
     if (this.roomw.hasHostiles) {
-      const closestHostile = this.pos.findClosestByPath(this.roomw.hostileCreeps);
-      if (closestHostile) {
-        const attackResult = this.moveToAndAttack(closestHostile);
+      const creeps = this.roomw.hostileCreeps;
+      const structures = this.roomw.hostileStructures;
+      let target: Creep | AnyOwnedStructure | null;
+      if (creeps.length) {
+        target = this.pos.findClosestByPath(creeps);
+      } else {
+        target = this.pos.findClosestByPath(structures);
+      }
+      if (target) {
+        const attackResult = this.moveToAndAttack(target);
         CreepUtils.consoleLogIfWatched(this, `attack`, attackResult);
         return;
       }
-    } else {
-      this.room.memory.defense = { hostiles: [] };
     }
 
     if (!this.targetRoom) {

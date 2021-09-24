@@ -35,7 +35,8 @@ declare global {
   }
 
   interface RoomDefense {
-    hostiles: Creep[];
+    structures: AnyOwnedStructure[];
+    creeps: Creep[];
   }
 
   interface LogCounts {

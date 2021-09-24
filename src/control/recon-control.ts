@@ -15,11 +15,8 @@ export class ReconControl {
 
   private refreshRoomDefense(room: RoomWrapper) {
     const hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
-    if (hostileCreeps.length === 0) {
-      room.memory.defense = { hostiles: [] };
-    } else {
-      room.memory.defense = { hostiles: hostileCreeps };
-    }
+    const hostileStructures = room.find(FIND_HOSTILE_STRUCTURES);
+    room.memory.defense = { creeps: hostileCreeps, structures: hostileStructures };
   }
 
   private refreshControllerMemory(room: Room): void {
