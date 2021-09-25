@@ -11,7 +11,4 @@ export class TargetConfig {
     shard3: ["E17N54"],
     sim: []
   };
-
-  // TODO dynamic importer counts
-  public static readonly IMPORTERS_PER_REMOTE_ROOM = 4;
 }

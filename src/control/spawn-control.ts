@@ -171,25 +171,24 @@ export class SpawnControl {
     });
     for (const roomName of remoteHarvestRooms) {
       const sources = Memory.rooms[roomName].sources;
+      let importersNeeded = 0;
       for (const sourceId in sources) {
         const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
         const dropPos = this.roomw.storage ? this.roomw.storage.pos : this.roomw.spawns[0].pos;
-        // TODO probably need a cost matrix here
         const path = PathFinder.search(dropPos, sourcePos);
-        console.log(`POC: remote path: ${roomName}, ${path.path.length}`);
         const TICKS_TO_FILL_IMPORTER = CARRY_CAPACITY / HARVEST_POWER;
-        const importersNeeded = path.path.length / TICKS_TO_FILL_IMPORTER;
-        const importersOnRoom = _.filter(
-          Game.creeps,
-          creep => creep.memory.role === Importer.ROLE && creep.memory.targetRoom === roomName
-        ).length;
-        if (importersNeeded > importersOnRoom) {
-          return spawnw.spawn({
-            body: SpawnUtils.getMaxBody(Importer.BODY_PROFILE, spawnw),
-            role: Importer.ROLE,
-            targetRoom: roomName
-          });
-        }
+        importersNeeded += 1 + path.path.length / TICKS_TO_FILL_IMPORTER;
+      }
+      const importersOnRoom = _.filter(
+        Game.creeps,
+        creep => creep.memory.role === Importer.ROLE && creep.memory.targetRoom === roomName
+      ).length;
+      if (importersNeeded > importersOnRoom) {
+        return spawnw.spawn({
+          body: SpawnUtils.getMaxBody(Importer.BODY_PROFILE, spawnw),
+          role: Importer.ROLE,
+          targetRoom: roomName
+        });
       }
     }
 

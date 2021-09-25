@@ -1,7 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
-import { RoomWrapper } from "structures/room-wrapper";
 import { CreepBodyProfile } from "./creep-wrapper";
 import { RemoteWorker } from "./remote-worker";
 
@@ -36,7 +35,7 @@ export class Importer extends RemoteWorker {
     }
 
     // make sure we have a target room
-    const targetRoom = this.getTargetRoom();
+    const targetRoom = this.memory.targetRoom;
     if (!targetRoom) {
       CreepUtils.consoleLogIfWatched(this, `no room targeted for remote. sitting like a lump.`);
       return;
@@ -89,23 +88,5 @@ export class Importer extends RemoteWorker {
       }
     }
     return result;
-  }
-
-  // TODO not using remote queue anymore
-  private getTargetRoom(): string | undefined {
-    let targetRoom = this.memory.targetRoom;
-    if (!targetRoom && this.homeRoom) {
-      CreepUtils.consoleLogIfWatched(this, `getting remote from queue`);
-      // find a target room
-      targetRoom = RoomWrapper.getInstance(this.homeRoom).remoteQueue.claim(this.id);
-
-      if (targetRoom) {
-        // store my target room in my memory
-        this.memory.targetRoom = targetRoom;
-      } else {
-        CreepUtils.consoleLogIfWatched(this, `no unclaimed remote found`);
-      }
-    }
-    return targetRoom;
   }
 }
