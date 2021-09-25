@@ -3,7 +3,6 @@ import { MemoryUtils } from "planning/memory-utils";
 import { SpawnWrapper } from "./spawn-wrapper";
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
-import { Queue } from "planning/queue";
 import { RoomClaim } from "planning/room-claim";
 import { PlannerUtils } from "planning/planner-utils";
 
@@ -23,17 +22,8 @@ export class RoomWrapper extends Room {
     }
   }
 
-  private readonly remoteQueueStore: Queue<string>;
-  // private readonly haulQueueStore: Queue<string>;
-
   private constructor(private readonly room: Room) {
     super(room.name);
-    // this.haulQueueStore = new Queue<string>(`${this.name}_haulQueue`, undefined, Queue.creepNameValidator);
-    this.remoteQueueStore = new Queue<string>(
-      `${this.name}_remoteQueue`,
-      this.initRemoteQueue,
-      this.validateRemoteQueue
-    );
   }
 
   /** Declare getters for properties that don't seem to get copied in when constructed */
@@ -101,41 +91,6 @@ export class RoomWrapper extends Room {
     MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, SockPuppetConstants.PLANNING_INTERVAL);
     return queue;
   }
-
-  /** add remote harvest room names to queue once for each importer */
-  private initRemoteQueue = () => {
-    const queue: string[] = Array<string>(
-      TargetConfig.REMOTE_HARVEST[Game.shard.name].length * TargetConfig.IMPORTERS_PER_REMOTE_ROOM
-    );
-    let index = 0;
-    TargetConfig.REMOTE_HARVEST[Game.shard.name].forEach(name => {
-      queue.fill(name, index, index + TargetConfig.IMPORTERS_PER_REMOTE_ROOM);
-      index += TargetConfig.IMPORTERS_PER_REMOTE_ROOM;
-    });
-    return queue;
-  };
-
-  /** check remote harvest room names against config, and drop owned rooms */
-  private validateRemoteQueue = (roomName: string) => {
-    return (
-      TargetConfig.REMOTE_HARVEST[Game.shard.name].some(name => name === roomName) &&
-      !Game.rooms[roomName]?.controller?.my
-    );
-  };
-
-  /**
-   * Room remote harvest queue.
-   */
-  public get remoteQueue(): Queue<string> {
-    return this.remoteQueueStore;
-  }
-
-  /**
-   * Room haul request queue.
-   */
-  // public get haulQueue(): Queue<string> {
-  //   return this.haulQueueStore;
-  // }
 
   /**
    * Room claim/reserve queue.
