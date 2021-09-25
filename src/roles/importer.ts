@@ -21,6 +21,7 @@ export class Importer extends RemoteWorker {
     let cpuBefore = Game.cpu.getUsed();
     const result = this.fleeIfHostiles();
     if (result !== ERR_NOT_FOUND) {
+      CreepUtils.consoleLogIfWatched(this, `cpu flee if hostiles ${Game.cpu.getUsed() - cpuBefore}`);
       return;
     }
     CreepUtils.consoleLogIfWatched(this, `cpu flee if hostiles ${Game.cpu.getUsed() - cpuBefore}`);
@@ -28,6 +29,7 @@ export class Importer extends RemoteWorker {
     cpuBefore = Game.cpu.getUsed();
     const damagedResult = this.findHealingIfDamaged();
     if (damagedResult !== ERR_FULL) {
+      CreepUtils.consoleLogIfWatched(this, `cpu find healing ${Game.cpu.getUsed() - cpuBefore}`);
       return;
     }
     CreepUtils.consoleLogIfWatched(this, `cpu find healing ${Game.cpu.getUsed() - cpuBefore}`);
