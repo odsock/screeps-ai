@@ -18,10 +18,9 @@ export class Importer extends RemoteWorker {
     if (this.room.controller?.sign?.username && this.room.controller.sign.username !== this.owner.username) {
       CreepUtils.consoleLogIfWatched(this, `cpu unsign check ${Game.cpu.getUsed() - cpuBefore}`);
       let cpuDuring = Game.cpu.getUsed();
-      this.moveTo(this.room.controller);
+      const moveResult = this.moveTo(this.room.controller);
       CreepUtils.consoleLogIfWatched(this, `cpu unsign move ${Game.cpu.getUsed() - cpuDuring}`);
       cpuDuring = Game.cpu.getUsed();
-      console.log(`DEBUG: this ${String(this.pos)} controller ${String(this.room.controller.pos)}`);
       const inRange = this.pos.isNearTo(this.room.controller);
       CreepUtils.consoleLogIfWatched(this, `cpu unsign in range ${String(inRange)}`);
       if (inRange) {
@@ -29,6 +28,10 @@ export class Importer extends RemoteWorker {
         cpuDuring = Game.cpu.getUsed();
         this.signController(this.room.controller, "");
         CreepUtils.consoleLogIfWatched(this, `cpu unsign sign ${Game.cpu.getUsed() - cpuDuring}`);
+      }
+      if (moveResult === OK) {
+        CreepUtils.consoleLogIfWatched(this, `cpu unsign ${Game.cpu.getUsed() - cpuBefore}`);
+        return;
       }
     }
     CreepUtils.consoleLogIfWatched(this, `cpu unsign ${Game.cpu.getUsed() - cpuBefore}`);
