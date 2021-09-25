@@ -53,14 +53,7 @@ export class DefenseControl {
   private spawnGuard(roomDefense: RoomDefense, spawnw: SpawnWrapper, roomName: string): void {
     let body;
     if (roomDefense.creeps.length > 0) {
-      body = this.mirrorHostilesBodyForDefense(roomDefense.creeps);
-      // go one bigger
-      body.push(ATTACK);
-      const cost = SpawnUtils.calcBodyCost(body);
-      // cut in half if too big
-      if (cost > spawnw.roomw.energyCapacityAvailable) {
-        body = SpawnUtils.splitBody(body);
-      }
+      body = SpawnUtils.getMaxBodyNow(Guard.BODY_PROFILE, spawnw);
     } else {
       body = SpawnUtils.getMaxBody(Guard.BODY_PROFILE, spawnw);
     }
