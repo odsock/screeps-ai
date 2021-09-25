@@ -10,6 +10,7 @@ export class ReconControl {
       this.refreshRoomDefense(room);
       this.refreshSourceMemory(room);
       this.refreshControllerMemory(room);
+      room.memory.reconTick = Game.time;
     }
   }
 
@@ -27,10 +28,14 @@ export class ReconControl {
     const controllerMemory = room.memory.controller;
     if (!controllerMemory) {
       room.memory.controller = {
-        pos: MemoryUtils.packRoomPosition(room.controller?.pos)
+        pos: MemoryUtils.packRoomPosition(room.controller?.pos),
+        structure: room.controller
       };
       return;
     }
+
+    // make sure structure is attached
+    controllerMemory.structure = room.controller;
 
     // validate id's
     const controllerInfo = room.memory.controller;

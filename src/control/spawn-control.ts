@@ -220,10 +220,13 @@ export class SpawnControl {
     let importersNeeded = 0;
     const roomMemory = Memory.rooms[roomName];
     if (!roomMemory) {
+      // use importer as scout
       importersNeeded = 1;
-    } else if (Game.rooms[roomName]?.controller?.owner && !Game.rooms[roomName].controller?.my) {
+    } else if (roomMemory.controller?.structure?.owner && !Game.rooms[roomName].controller?.my) {
+      // don't spawn importers that can't work
       importersNeeded = 0;
     } else {
+      // spawn enough to maximize harvest
       const sources = Memory.rooms[roomName].sources;
       for (const sourceId in sources) {
         const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);

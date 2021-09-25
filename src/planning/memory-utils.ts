@@ -28,6 +28,7 @@ declare global {
     watched?: boolean;
     controller: ControllerInfo;
     storage?: StorageInfo;
+    reconTick: number;
   }
 
   interface StorageInfo {
@@ -62,6 +63,7 @@ declare global {
   }
 
   interface ControllerInfo {
+    structure: StructureController;
     pos: string;
     containerConstructionSiteId?: Id<ConstructionSite>;
     containerPos?: string;
