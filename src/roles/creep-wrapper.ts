@@ -323,7 +323,7 @@ export abstract class CreepWrapper extends Creep {
     }
     CreepUtils.consoleLogIfWatched(this, `get result`, result);
     if (result === ERR_NOT_IN_RANGE) {
-      result = this.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ffaa00" } });
+      result = this.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ffaa00" }, reusePath: 10 });
       CreepUtils.consoleLogIfWatched(this, `move result`, result);
     }
     return result;
