@@ -9,7 +9,7 @@ export class StructurePatterns {
     "   rererrrerer",
     "  reeersssreeer",
     " rererrSrlrrerer",
-    "reeerLrTPFrLreeer",
+    "reeerLtTPFtLreeer",
     " rererLLrLLrerer",
     "  reeerLLLreeer",
     "   rererLrerer",
