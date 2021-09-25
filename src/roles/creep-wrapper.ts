@@ -293,7 +293,7 @@ export abstract class CreepWrapper extends Creep {
 
       const inactiveSource = this.findClosestEnergySource();
       if (inactiveSource) {
-        result = this.moveTo(inactiveSource, { visualizePathStyle: { stroke: "#ffaa00" } });
+        result = this.moveTo(inactiveSource, { range: 1, reusePath: 10, visualizePathStyle: { stroke: "#ffaa00" } });
         CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
         cpuB = Game.cpu.getUsed();
         CreepUtils.consoleLogIfWatched(this, `cpu inactive source ${cpuB - cpuA}`);
