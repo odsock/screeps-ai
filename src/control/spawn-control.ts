@@ -221,6 +221,8 @@ export class SpawnControl {
     const roomMemory = Memory.rooms[roomName];
     if (!roomMemory) {
       importersNeeded = 1;
+    } else if (Game.rooms[roomName]?.controller?.owner && !Game.rooms[roomName].controller?.my) {
+      importersNeeded = 0;
     } else {
       const sources = Memory.rooms[roomName].sources;
       for (const sourceId in sources) {
