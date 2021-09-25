@@ -246,7 +246,7 @@ export abstract class CreepWrapper extends Creep {
       return result;
     }
     cpuA = Game.cpu.getUsed();
-    CreepUtils.consoleLogIfWatched(this, `cpu get tomb ${cpuA - cpuB}`);
+    CreepUtils.consoleLogIfWatched(this, `cpu get tomb ${cpuB - cpuA}`);
 
     result = this.moveToAndGet(this.findClosestRuinsWithEnergy());
     if (result === OK) {
