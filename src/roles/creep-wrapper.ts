@@ -227,6 +227,8 @@ export abstract class CreepWrapper extends Creep {
 
     let result = this.moveToAndGet(this.findClosestLargeEnergyDrop());
     if (result === OK) {
+      cpuA = Game.cpu.getUsed();
+      CreepUtils.consoleLogIfWatched(this, `cpu get big drop ${cpuA - cpuB}`);
       return result;
     }
     cpuA = Game.cpu.getUsed();
@@ -235,6 +237,8 @@ export abstract class CreepWrapper extends Creep {
     if (this.room.storage && this.room.storage.store.energy > 0) {
       result = this.moveToAndGet(this.room.storage);
       if (result === OK) {
+        cpuB = Game.cpu.getUsed();
+        CreepUtils.consoleLogIfWatched(this, `cpu get storage ${cpuB - cpuA}`);
         return result;
       }
     }
@@ -243,6 +247,8 @@ export abstract class CreepWrapper extends Creep {
 
     result = this.moveToAndGet(this.findClosestTombstoneWithEnergy());
     if (result === OK) {
+      cpuA = Game.cpu.getUsed();
+      CreepUtils.consoleLogIfWatched(this, `cpu get tomb ${cpuA - cpuB}`);
       return result;
     }
     cpuA = Game.cpu.getUsed();
@@ -250,6 +256,8 @@ export abstract class CreepWrapper extends Creep {
 
     result = this.moveToAndGet(this.findClosestRuinsWithEnergy());
     if (result === OK) {
+      cpuB = Game.cpu.getUsed();
+      CreepUtils.consoleLogIfWatched(this, `cpu get ruin ${cpuB - cpuA}`);
       return result;
     }
     cpuB = Game.cpu.getUsed();
@@ -257,6 +265,8 @@ export abstract class CreepWrapper extends Creep {
 
     result = this.moveToAndGet(this.findClosestContainerWithEnergy(this.store.getFreeCapacity()));
     if (result === OK) {
+      cpuA = Game.cpu.getUsed();
+      CreepUtils.consoleLogIfWatched(this, `cpu get container ${cpuA - cpuB}`);
       return result;
     }
     cpuA = Game.cpu.getUsed();
@@ -265,6 +275,8 @@ export abstract class CreepWrapper extends Creep {
     if (this.getActiveBodyparts(WORK) > 0) {
       result = this.moveToAndGet(this.findClosestActiveEnergySource());
       if (result === OK) {
+        cpuB = Game.cpu.getUsed();
+        CreepUtils.consoleLogIfWatched(this, `cpu get active source ${cpuB - cpuA}`);
         return result;
       }
       cpuB = Game.cpu.getUsed();
@@ -272,6 +284,8 @@ export abstract class CreepWrapper extends Creep {
 
       result = this.moveToAndDismantle(this.findDismantleTarget());
       if (result === OK) {
+        cpuA = Game.cpu.getUsed();
+        CreepUtils.consoleLogIfWatched(this, `cpu dismantle ${cpuA - cpuB}`);
         return result;
       }
       cpuA = Game.cpu.getUsed();
@@ -281,6 +295,8 @@ export abstract class CreepWrapper extends Creep {
       if (inactiveSource) {
         result = this.moveTo(inactiveSource, { visualizePathStyle: { stroke: "#ffaa00" } });
         CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
+        cpuB = Game.cpu.getUsed();
+        CreepUtils.consoleLogIfWatched(this, `cpu inactive source ${cpuB - cpuA}`);
         return result;
       }
     }
