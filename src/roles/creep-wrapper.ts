@@ -504,6 +504,10 @@ export abstract class CreepWrapper extends Creep {
 
   /* Ability calculations */
 
+  public get repairCost(): number {
+    return REPAIR_POWER * REPAIR_COST * this.getActiveBodyparts(WORK);
+  }
+
   public get repairAmount(): number {
     return REPAIR_POWER * this.getActiveBodyparts(WORK);
   }
