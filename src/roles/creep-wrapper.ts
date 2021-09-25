@@ -330,7 +330,11 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected moveToAndAttack(target: Creep | Structure): ScreepsReturnCode {
-    let result: ScreepsReturnCode = this.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ff0000" } });
+    let result: ScreepsReturnCode = this.moveTo(target, {
+      range: 1,
+      visualizePathStyle: { stroke: "#ff0000" },
+      ignoreCreeps: true
+    });
     CreepUtils.consoleLogIfWatched(this, `move to ${typeof target}: ${String(target.pos)}`, result);
     result = this.attack(target);
     CreepUtils.consoleLogIfWatched(this, `attack ${typeof target}`, result);
