@@ -170,15 +170,7 @@ export class SpawnControl {
       return !Game.rooms[name]?.controller?.my;
     });
     for (const roomName of remoteHarvestRooms) {
-      const sources = Memory.rooms[roomName].sources;
-      let importersNeeded = 0;
-      for (const sourceId in sources) {
-        const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
-        const dropPos = this.roomw.storage ? this.roomw.storage.pos : this.roomw.spawns[0].pos;
-        const path = PathFinder.search(dropPos, sourcePos);
-        const TICKS_TO_FILL_IMPORTER = CARRY_CAPACITY / HARVEST_POWER;
-        importersNeeded += 1 + path.path.length / TICKS_TO_FILL_IMPORTER;
-      }
+      const importersNeeded = this.calcImportersNeededForRoom(roomName);
       const importersOnRoom = _.filter(
         Game.creeps,
         creep => creep.memory.role === Importer.ROLE && creep.memory.targetRoom === roomName
@@ -222,6 +214,24 @@ export class SpawnControl {
     }
 
     return ERR_NOT_FOUND;
+  }
+
+  private calcImportersNeededForRoom(roomName: string): number {
+    let importersNeeded = 0;
+    const roomMemory = Memory.rooms[roomName];
+    if (!roomMemory) {
+      importersNeeded = 1;
+    } else {
+      const sources = Memory.rooms[roomName].sources;
+      for (const sourceId in sources) {
+        const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
+        const dropPos = this.roomw.storage ? this.roomw.storage.pos : this.roomw.spawns[0].pos;
+        const path = PathFinder.search(dropPos, sourcePos);
+        const TICKS_TO_FILL_IMPORTER = CARRY_CAPACITY / HARVEST_POWER;
+        importersNeeded += 1 + path.path.length / TICKS_TO_FILL_IMPORTER;
+      }
+    }
+    return importersNeeded;
   }
 
   /**
