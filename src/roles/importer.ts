@@ -21,6 +21,7 @@ export class Importer extends RemoteWorker {
       this.moveTo(this.room.controller);
       CreepUtils.consoleLogIfWatched(this, `cpu unsign move ${Game.cpu.getUsed() - cpuDuring}`);
       cpuDuring = Game.cpu.getUsed();
+      console.log(`DEBUG: this ${String(this.pos)} controller ${String(this.room.controller.pos)}`);
       const inRange = this.pos.isNearTo(this.room.controller);
       CreepUtils.consoleLogIfWatched(this, `cpu unsign in range ${String(inRange)}`);
       if (inRange) {
