@@ -19,8 +19,8 @@ export class Importer extends RemoteWorker {
     }
 
     let cpuBefore = Game.cpu.getUsed();
-    const result = this.fleeIfHostiles();
-    if (result !== ERR_NOT_FOUND) {
+    const fleeResult = this.fleeIfHostiles();
+    if (fleeResult !== ERR_NOT_FOUND) {
       CreepUtils.consoleLogIfWatched(this, `cpu flee if hostiles ${Game.cpu.getUsed() - cpuBefore}`);
       return;
     }
@@ -39,19 +39,20 @@ export class Importer extends RemoteWorker {
     if (this.room.controller?.sign?.username && this.room.controller.sign.username !== this.owner.username) {
       CreepUtils.consoleLogIfWatched(this, `cpu unsign check ${Game.cpu.getUsed() - cpuBefore}`);
       let cpuDuring = Game.cpu.getUsed();
-      const moveResult = this.moveTo(this.room.controller, { range: 1, reusePath: 20 });
-      CreepUtils.consoleLogIfWatched(this, `move result`, moveResult);
-      CreepUtils.consoleLogIfWatched(this, `cpu unsign move ${Game.cpu.getUsed() - cpuDuring}`);
-      cpuDuring = Game.cpu.getUsed();
-      const inRange = this.pos.isNearTo(this.room.controller);
-      CreepUtils.consoleLogIfWatched(this, `cpu unsign in range ${String(inRange)}`);
-      if (inRange) {
+      let result: ScreepsReturnCode;
+      if (!this.pos.isNearTo(this.room.controller)) {
+        result = this.moveTo(this.room.controller, { range: 1, reusePath: 20 });
+        CreepUtils.consoleLogIfWatched(this, `move result`, result);
+        CreepUtils.consoleLogIfWatched(this, `cpu unsign move ${Game.cpu.getUsed() - cpuDuring}`);
+      } else {
+        cpuDuring = Game.cpu.getUsed();
         CreepUtils.consoleLogIfWatched(this, `cpu unsign range check ${Game.cpu.getUsed() - cpuDuring}`);
         cpuDuring = Game.cpu.getUsed();
-        this.signController(this.room.controller, "");
+        result = this.signController(this.room.controller, "");
+        CreepUtils.consoleLogIfWatched(this, `sign result`, result);
         CreepUtils.consoleLogIfWatched(this, `cpu unsign sign ${Game.cpu.getUsed() - cpuDuring}`);
       }
-      if (moveResult === OK) {
+      if (result === OK) {
         CreepUtils.consoleLogIfWatched(this, `cpu unsign ${Game.cpu.getUsed() - cpuBefore}`);
         return;
       }
