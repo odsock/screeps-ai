@@ -13,7 +13,26 @@ export class Importer extends RemoteWorker {
   };
 
   public run(): void {
+    // use current room for home (room spawned in)
+    if (!this.homeRoom) {
+      this.homeRoom = this.pos.roomName;
+    }
+
     let cpuBefore = Game.cpu.getUsed();
+    const result = this.fleeIfHostiles();
+    if (result !== ERR_NOT_FOUND) {
+      return;
+    }
+    CreepUtils.consoleLogIfWatched(this, `cpu flee if hostiles ${Game.cpu.getUsed() - cpuBefore}`);
+
+    cpuBefore = Game.cpu.getUsed();
+    const damagedResult = this.findHealingIfDamaged();
+    if (damagedResult !== ERR_FULL) {
+      return;
+    }
+    CreepUtils.consoleLogIfWatched(this, `cpu find healing ${Game.cpu.getUsed() - cpuBefore}`);
+
+    cpuBefore = Game.cpu.getUsed();
     // unsign controllers we didn't sign
     if (this.room.controller?.sign?.username && this.room.controller.sign.username !== this.owner.username) {
       CreepUtils.consoleLogIfWatched(this, `cpu unsign check ${Game.cpu.getUsed() - cpuBefore}`);
@@ -35,25 +54,6 @@ export class Importer extends RemoteWorker {
       }
     }
     CreepUtils.consoleLogIfWatched(this, `cpu unsign ${Game.cpu.getUsed() - cpuBefore}`);
-
-    // use current room for home (room spawned in)
-    if (!this.homeRoom) {
-      this.homeRoom = this.pos.roomName;
-    }
-
-    cpuBefore = Game.cpu.getUsed();
-    const result = this.fleeIfHostiles();
-    if (result !== ERR_NOT_FOUND) {
-      return;
-    }
-    CreepUtils.consoleLogIfWatched(this, `cpu flee if hostiles ${Game.cpu.getUsed() - cpuBefore}`);
-
-    cpuBefore = Game.cpu.getUsed();
-    const damagedResult = this.findHealingIfDamaged();
-    if (damagedResult !== ERR_FULL) {
-      return;
-    }
-    CreepUtils.consoleLogIfWatched(this, `cpu find healing ${Game.cpu.getUsed() - cpuBefore}`);
 
     // make sure we have a target room
     const targetRoom = this.memory.targetRoom;
