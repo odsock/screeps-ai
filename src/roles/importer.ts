@@ -23,9 +23,10 @@ export class Importer extends RemoteWorker {
       cpuDuring = Game.cpu.getUsed();
       if (this.pos.isNearTo(this.room.controller)) {
         CreepUtils.consoleLogIfWatched(this, `cpu unsign range check ${Game.cpu.getUsed() - cpuDuring}`);
+        cpuDuring = Game.cpu.getUsed();
         this.signController(this.room.controller, "");
+        CreepUtils.consoleLogIfWatched(this, `cpu unsign sign ${Game.cpu.getUsed() - cpuDuring}`);
       }
-      CreepUtils.consoleLogIfWatched(this, `cpu unsign sign ${Game.cpu.getUsed() - cpuDuring}`);
     }
     CreepUtils.consoleLogIfWatched(this, `cpu unsign ${Game.cpu.getUsed() - cpuBefore}`);
 
