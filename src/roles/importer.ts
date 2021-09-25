@@ -39,7 +39,7 @@ export class Importer extends RemoteWorker {
     if (
       this.room.controller?.sign?.username &&
       this.room.controller.sign.username !== this.owner.username &&
-      this.room.controller.sign.username !== "screeps"
+      this.room.controller.sign.username !== "Screeps"
     ) {
       CreepUtils.consoleLogIfWatched(this, `cpu unsign check ${Game.cpu.getUsed() - cpuBefore}`);
       let cpuDuring = Game.cpu.getUsed();
