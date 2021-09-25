@@ -214,17 +214,23 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected harvestByPriority(): ScreepsReturnCode {
+    const cpuBefore = Game.cpu.getUsed();
     if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
       return ERR_FULL;
     }
 
+    let cpuA = Game.cpu.getUsed();
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
+    let cpuB = Game.cpu.getUsed();
+    CreepUtils.consoleLogIfWatched(this, `cpu adjacent gets ${cpuB - cpuA}`);
 
     let result = this.moveToAndGet(this.findClosestLargeEnergyDrop());
     if (result === OK) {
       return result;
     }
+    cpuA = Game.cpu.getUsed();
+    CreepUtils.consoleLogIfWatched(this, `cpu get big drop ${cpuA - cpuB}`);
 
     if (this.room.storage && this.room.storage.store.energy > 0) {
       result = this.moveToAndGet(this.room.storage);
@@ -232,21 +238,29 @@ export abstract class CreepWrapper extends Creep {
         return result;
       }
     }
+    cpuB = Game.cpu.getUsed();
+    CreepUtils.consoleLogIfWatched(this, `cpu get storage ${cpuB - cpuA}`);
 
     result = this.moveToAndGet(this.findClosestTombstoneWithEnergy());
     if (result === OK) {
       return result;
     }
+    cpuA = Game.cpu.getUsed();
+    CreepUtils.consoleLogIfWatched(this, `cpu get tomb ${cpuA - cpuB}`);
 
     result = this.moveToAndGet(this.findClosestRuinsWithEnergy());
     if (result === OK) {
       return result;
     }
+    cpuB = Game.cpu.getUsed();
+    CreepUtils.consoleLogIfWatched(this, `cpu get ruin ${cpuA - cpuB}`);
 
     result = this.moveToAndGet(this.findClosestContainerWithEnergy(this.store.getFreeCapacity()));
     if (result === OK) {
       return result;
     }
+    cpuA = Game.cpu.getUsed();
+    CreepUtils.consoleLogIfWatched(this, `cpu get container ${cpuA - cpuB}`);
 
     if (this.getActiveBodyparts(WORK) > 0) {
       result = this.moveToAndGet(this.findClosestActiveEnergySource());
@@ -267,8 +281,12 @@ export abstract class CreepWrapper extends Creep {
       }
     }
 
+    cpuB = Game.cpu.getUsed();
+    CreepUtils.consoleLogIfWatched(this, `cpu work part gets ${cpuB - cpuA}`);
+
     this.say("🤔");
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
+    CreepUtils.consoleLogIfWatched(this, `cpu harvestByPriority ${Game.cpu.getUsed() - cpuBefore}`);
     return ERR_NOT_FOUND;
   }
 
