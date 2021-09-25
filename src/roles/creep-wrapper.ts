@@ -267,11 +267,15 @@ export abstract class CreepWrapper extends Creep {
       if (result === OK) {
         return result;
       }
+      cpuB = Game.cpu.getUsed();
+      CreepUtils.consoleLogIfWatched(this, `cpu get active source ${cpuB - cpuA}`);
 
       result = this.moveToAndDismantle(this.findDismantleTarget());
       if (result === OK) {
         return result;
       }
+      cpuA = Game.cpu.getUsed();
+      CreepUtils.consoleLogIfWatched(this, `cpu dismantle ${cpuA - cpuB}`);
 
       const inactiveSource = this.findClosestEnergySource();
       if (inactiveSource) {
@@ -282,7 +286,7 @@ export abstract class CreepWrapper extends Creep {
     }
 
     cpuB = Game.cpu.getUsed();
-    CreepUtils.consoleLogIfWatched(this, `cpu work part gets ${cpuB - cpuA}`);
+    CreepUtils.consoleLogIfWatched(this, `cpu inactive source ${cpuB - cpuA}`);
 
     this.say("🤔");
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
