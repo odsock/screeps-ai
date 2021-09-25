@@ -309,10 +309,13 @@ export abstract class CreepWrapper extends Creep {
   protected moveToAndGet(
     target: Tombstone | Ruin | StructureContainer | StructureStorage | Resource | Source | null
   ): ScreepsReturnCode {
+    const cpuBefore = Game.cpu.getUsed();
     if (!target) {
       return ERR_NOT_FOUND;
     }
     CreepUtils.consoleLogIfWatched(this, `getting: ${String(target)}`);
+    let cpuDuring = Game.cpu.getUsed();
+    CreepUtils.consoleLogIfWatched(this, `cpu checking get target ${cpuDuring - cpuBefore}`);
     let result: ScreepsReturnCode;
     if (target instanceof Resource) {
       result = this.pickupW(target);
@@ -321,11 +324,15 @@ export abstract class CreepWrapper extends Creep {
     } else {
       result = this.withdrawW(target, RESOURCE_ENERGY);
     }
+    CreepUtils.consoleLogIfWatched(this, `cpu getting ${Game.cpu.getUsed() - cpuDuring}`);
     CreepUtils.consoleLogIfWatched(this, `get result`, result);
+    cpuDuring = Game.cpu.getUsed();
     if (result === ERR_NOT_IN_RANGE) {
       result = this.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ffaa00" }, reusePath: 10 });
       CreepUtils.consoleLogIfWatched(this, `move result`, result);
+      CreepUtils.consoleLogIfWatched(this, `cpu moving ${Game.cpu.getUsed() - cpuDuring}`);
     }
+    CreepUtils.consoleLogIfWatched(this, `cpu moveToAndGet total ${Game.cpu.getUsed() - cpuBefore}`);
     return result;
   }
 
