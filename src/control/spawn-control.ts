@@ -175,6 +175,7 @@ export class SpawnControl {
         Game.creeps,
         creep => creep.memory.role === Importer.ROLE && creep.memory.targetRoom === roomName
       ).length;
+      CreepUtils.consoleLogIfWatched(spawnw, `importers for ${roomName}: ${importersOnRoom}/${importersNeeded}`);
       if (importersNeeded > importersOnRoom) {
         return spawnw.spawn({
           body: SpawnUtils.getMaxBody(Importer.BODY_PROFILE, spawnw),
