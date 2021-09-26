@@ -170,7 +170,7 @@ export class SpawnControl {
       return !Game.rooms[name]?.controller?.my;
     });
     for (const roomName of remoteHarvestRooms) {
-      const importersNeeded = this.calcImportersNeededForRoom(roomName);
+      const importersNeeded = this.calcImportersNeededForRoom(roomName, spawnw);
       const importersOnRoom = _.filter(
         Game.creeps,
         creep => creep.memory.role === Importer.ROLE && creep.memory.targetRoom === roomName
@@ -216,7 +216,7 @@ export class SpawnControl {
     return ERR_NOT_FOUND;
   }
 
-  private calcImportersNeededForRoom(roomName: string): number {
+  private calcImportersNeededForRoom(roomName: string, spawnw: SpawnWrapper): number {
     let importersNeeded = 0;
     const roomMemory = Memory.rooms[roomName];
     if (!roomMemory) {
@@ -226,14 +226,17 @@ export class SpawnControl {
       // don't spawn importers that can't work
       importersNeeded = 0;
     } else {
-      // spawn enough to maximize harvest
+      // spawn enough importers at current max size to maximize harvest
+      const importerBody = SpawnUtils.getMaxBody(Importer.BODY_PROFILE, spawnw);
+      const energyCapacity = importerBody.filter(part => part === CARRY).length * CARRY_CAPACITY;
+      const ticksToFill = energyCapacity / (importerBody.filter(part => part === WORK).length * HARVEST_POWER);
+
+      const dropPos = this.roomw.storage?.pos ?? this.roomw.spawns[0].pos;
       const sources = Memory.rooms[roomName].sources;
       for (const sourceId in sources) {
         const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
-        const dropPos = this.roomw.storage ? this.roomw.storage.pos : this.roomw.spawns[0].pos;
         const path = PathFinder.search(dropPos, sourcePos);
-        const TICKS_TO_FILL_IMPORTER = CARRY_CAPACITY / HARVEST_POWER;
-        importersNeeded += 1 + path.path.length / TICKS_TO_FILL_IMPORTER;
+        importersNeeded += (10 * (path.path.length * 2 + ticksToFill)) / energyCapacity;
       }
     }
     return importersNeeded;
