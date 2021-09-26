@@ -96,9 +96,9 @@ export class SpawnControl {
 
     // HARVESTER
     // spawn enough harvesters to drain sources if they fit in harvest positions
-    // don't count retiree harvesters, since they are being replaced
+    // don't count retiring harvesters, since they are being replaced
     const harvesters = spawnw.room.find(FIND_MY_CREEPS, {
-      filter: creep => creep.memory.role === Harvester.ROLE && !creep.memory.retiree
+      filter: creep => creep.memory.role === Harvester.ROLE && !creep.memory.retiring
     });
     const harvesterWorkParts = CreepUtils.countParts(WORK, ...harvesters);
     const harvesterWorkPartsNeeded = spawnw.roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
