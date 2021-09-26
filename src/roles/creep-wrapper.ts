@@ -213,6 +213,18 @@ export abstract class CreepWrapper extends Creep {
     return pickupResult;
   }
 
+  /**
+   * finds energy in room in order:
+   * adjacent drop, ruin, or tomb
+   * drop large enough to fill
+   * storage
+   * tomb
+   * ruin
+   * container with energy
+   * active source
+   * dismantle structure
+   * move to inactive source
+   */
   protected harvestByPriority(): ScreepsReturnCode {
     const cpuBefore = Game.cpu.getUsed();
     if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {

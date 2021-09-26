@@ -256,6 +256,15 @@ export class Hauler extends CreepWrapper {
     return towersBelowThreshold;
   }
 
+  /**
+   * finds energy in room in order:
+   * adjacent drop, ruin, or tomb
+   * drop large enough to fill
+   * source container
+   * tomb
+   * ruin
+   * storage
+   */
   private loadEnergy(): ScreepsReturnCode {
     if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
       return ERR_FULL;
