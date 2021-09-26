@@ -8,7 +8,7 @@ export class Importer extends RemoteWorker {
   public static readonly ROLE = CreepRole.IMPORTER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
     profile: [WORK, CARRY, CARRY, MOVE, MOVE, MOVE],
-    seed: [WORK, CARRY, MOVE, MOVE],
+    seed: [],
     maxBodyParts: MAX_CREEP_SIZE
   };
 
