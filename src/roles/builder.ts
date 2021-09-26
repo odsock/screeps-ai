@@ -20,8 +20,14 @@ export class Builder extends CreepWrapper {
     }
 
     CreepUtils.consoleLogIfWatched(this, "no work left. this is the end.");
-    // TODO walk to storage or spawn and transfer before suicide
-    this.suicide();
+    const target = this.roomw.storage ?? this.roomw.spawns[0];
+    const result = this.moveTo(target.pos, { range: 1, reusePath: 10 });
+    CreepUtils.consoleLogIfWatched(this, `move to end pos result`, result);
+    if (this.pos.isNearTo(target)) {
+      const suicideResult = this.suicide();
+      CreepUtils.consoleLogIfWatched(this, `suicide result`, suicideResult);
+      return;
+    }
   }
 
   private doBuildJob(): void {
