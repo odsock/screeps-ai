@@ -101,32 +101,6 @@ export class Harvester extends Minder {
     return OK;
   }
 
-  /** get source from my memory or choose one*/
-  private getMySource(): Source | undefined {
-    if (this.memory.source) {
-      const source = Game.getObjectById(this.memory.source);
-      if (source) {
-        return source;
-      }
-    }
-
-    CreepUtils.consoleLogIfWatched(this, `choosing source`);
-
-    for (const source of this.roomw.sources) {
-      const harvestersOnSource = this.room.find(FIND_MY_CREEPS, {
-        filter: creep => creep.memory.role === Harvester.ROLE && creep.memory.source === source.id
-      });
-      const workPartsOnSource = CreepUtils.countParts(WORK, ...harvestersOnSource);
-      const harvestPositionsAtSource = this.roomw.getHarvestPositions(source.id).length;
-      const WORK_PARTS_PER_SOURCE = 5;
-      if (harvestersOnSource.length < harvestPositionsAtSource && workPartsOnSource < WORK_PARTS_PER_SOURCE) {
-        this.memory.source = source.id;
-        return source;
-      }
-    }
-    return undefined;
-  }
-
   /** get container from my memory or claim one*/
   protected getMyContainer(): StructureContainer | undefined {
     if (this.memory.containerId) {
@@ -162,5 +136,14 @@ export class Harvester extends Minder {
 
     CreepUtils.consoleLogIfWatched(this, `no free source containers`);
     return undefined;
+  }
+
+  private getMySource(): Source | undefined {
+    let mySourceId = this.memory.source;
+    if (!mySourceId) {
+      mySourceId = this.findShortHandedSourceInTargetRoom();
+      this.memory.source = mySourceId;
+    }
+    return mySourceId ? Game.getObjectById(mySourceId) ?? undefined : undefined;
   }
 }

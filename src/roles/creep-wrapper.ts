@@ -81,6 +81,24 @@ export abstract class CreepWrapper extends Creep {
     }
   }
 
+  /** find source that is understaffed by my role*/
+  protected findShortHandedSourceInTargetRoom(): Id<Source> | undefined {
+    const MAX_WORK_ON_SOURCE = 5;
+    CreepUtils.consoleLogIfWatched(this, `choosing source`);
+    for (const sourceId in Memory.rooms[this.memory.targetRoom]?.sources) {
+      const creepsOnSource = _.filter(
+        Game.creeps,
+        c => c.memory.role === this.memory.role && c.memory.source === sourceId
+      );
+      const workPartsOnSource = CreepUtils.countParts(WORK, ...creepsOnSource);
+      const harvestPositionsAtSource = Memory.rooms[this.memory.targetRoom].sources[sourceId].harvestPositions.length;
+      if (creepsOnSource.length < harvestPositionsAtSource && workPartsOnSource < MAX_WORK_ON_SOURCE) {
+        return sourceId as Id<Source>;
+      }
+    }
+    return undefined;
+  }
+
   protected findClosestTombstoneWithEnergy(): Tombstone | null {
     return this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   }
@@ -357,7 +375,7 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected moveToAndGet(
-    target: Tombstone | Ruin | StructureContainer | StructureStorage | Resource | Source | null
+    target: Tombstone | Ruin | StructureContainer | StructureStorage | Resource | Source | null | undefined
   ): ScreepsReturnCode {
     const cpuBefore = Game.cpu.getUsed();
     if (!target) {

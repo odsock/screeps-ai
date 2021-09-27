@@ -1,5 +1,4 @@
 import { CreepRole } from "config/creep-types";
-import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { CreepBodyProfile } from "./creep-wrapper";
 import { RemoteWorker } from "./remote-worker";
@@ -13,11 +12,6 @@ export class Importer extends RemoteWorker {
   };
 
   public run(): void {
-    // use current room for home (room spawned in)
-    if (!this.memory.homeRoom) {
-      this.memory.homeRoom = this.pos.roomName;
-    }
-
     let cpuBefore = Game.cpu.getUsed();
     const fleeResult = this.fleeIfHostiles();
     if (fleeResult !== ERR_NOT_FOUND) {
@@ -70,9 +64,6 @@ export class Importer extends RemoteWorker {
       return;
     }
 
-    const claimFlag = TargetConfig.TARGETS[Game.shard.name].includes(targetRoom);
-    CreepUtils.consoleLogIfWatched(this, `room ${this.room.name} planned for claim? ${String(claimFlag)}`);
-
     if (!this.memory.targetRoom) {
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
       return;
@@ -101,7 +92,7 @@ export class Importer extends RemoteWorker {
       result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target result`, result);
       if (this.pos.roomName === this.memory.targetRoom) {
-        result = this.harvestByPriority();
+        result = this.moveToAndGet(this.getMySource());
       }
       CreepUtils.consoleLogIfWatched(this, `cpu working ${Game.cpu.getUsed() - cpuBefore}`);
       return result;
@@ -123,5 +114,14 @@ export class Importer extends RemoteWorker {
       CreepUtils.consoleLogIfWatched(this, `cpu not working ${Game.cpu.getUsed() - cpuBefore}`);
     }
     return result;
+  }
+
+  private getMySource(): Source | undefined {
+    let mySourceId = this.memory.source;
+    if (!mySourceId) {
+      mySourceId = this.findShortHandedSourceInTargetRoom();
+      this.memory.source = mySourceId;
+    }
+    return mySourceId ? Game.getObjectById(mySourceId) ?? undefined : undefined;
   }
 }
