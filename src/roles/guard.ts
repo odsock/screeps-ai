@@ -13,12 +13,12 @@ export class Guard extends RemoteWorker {
 
   public run(): void {
     // use current room for home (room spawned in)
-    if (!this.homeRoom) {
-      this.homeRoom = this.pos.roomName;
+    if (!this.memory.homeRoom) {
+      this.memory.homeRoom = this.pos.roomName;
     }
 
     // check for flagged scary rooms
-    if (!this.targetRoom) {
+    if (!this.memory.targetRoom) {
       for (const roomName in Memory.rooms) {
         const defenseMemory = Memory.rooms[roomName].defense;
         if (defenseMemory) {
@@ -29,7 +29,7 @@ export class Guard extends RemoteWorker {
               creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === roomName
             );
             if (!guard) {
-              this.targetRoom = roomName;
+              this.memory.targetRoom = roomName;
             }
           }
         }
@@ -52,11 +52,11 @@ export class Guard extends RemoteWorker {
       }
     }
 
-    if (!this.targetRoom) {
+    if (!this.memory.targetRoom) {
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
       return;
     } else {
-      const result = this.moveToRoom(this.targetRoom);
+      const result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
       return;
     }

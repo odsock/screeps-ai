@@ -14,8 +14,8 @@ export class Importer extends RemoteWorker {
 
   public run(): void {
     // use current room for home (room spawned in)
-    if (!this.homeRoom) {
-      this.homeRoom = this.pos.roomName;
+    if (!this.memory.homeRoom) {
+      this.memory.homeRoom = this.pos.roomName;
     }
 
     let cpuBefore = Game.cpu.getUsed();
@@ -73,7 +73,7 @@ export class Importer extends RemoteWorker {
     const claimFlag = TargetConfig.TARGETS[Game.shard.name].includes(targetRoom);
     CreepUtils.consoleLogIfWatched(this, `room ${this.room.name} planned for claim? ${String(claimFlag)}`);
 
-    if (!this.targetRoom) {
+    if (!this.memory.targetRoom) {
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
       return;
     } else {
@@ -90,7 +90,7 @@ export class Importer extends RemoteWorker {
     this.startWorkingIfEmpty();
     this.stopWorkingIfFull();
 
-    if (!this.targetRoom || !this.homeRoom) {
+    if (!this.memory.targetRoom || !this.memory.homeRoom) {
       CreepUtils.consoleLogIfWatched(this, `missing room configuration. sitting like a lump.`);
       return ERR_INVALID_ARGS;
     }
@@ -98,18 +98,18 @@ export class Importer extends RemoteWorker {
     let result: ScreepsReturnCode = OK;
     if (this.memory.working) {
       const cpuBefore = Game.cpu.getUsed();
-      result = this.moveToRoom(this.targetRoom);
+      result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target result`, result);
-      if (this.pos.roomName === this.targetRoom) {
+      if (this.pos.roomName === this.memory.targetRoom) {
         result = this.harvestByPriority();
       }
       CreepUtils.consoleLogIfWatched(this, `cpu working ${Game.cpu.getUsed() - cpuBefore}`);
       return result;
     } else {
       const cpuBefore = Game.cpu.getUsed();
-      result = this.moveToRoom(this.homeRoom);
+      result = this.moveToRoom(this.memory.homeRoom);
       CreepUtils.consoleLogIfWatched(this, `move home result`, result);
-      if (this.pos.roomName === this.homeRoom) {
+      if (this.pos.roomName === this.memory.homeRoom) {
         const storage = this.findRoomStorage();
         if (storage) {
           CreepUtils.consoleLogIfWatched(this, `storage found: ${String(storage)} ${String(storage.pos)}`);

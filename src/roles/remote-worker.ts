@@ -6,45 +6,6 @@ export class RemoteWorker extends CreepWrapper {
     throw new Error("Superclass run not implemented.");
   }
 
-  private targetRoomCache: string | undefined;
-  private homeRoomCache: string | undefined;
-
-  protected set targetRoom(roomName: string | undefined) {
-    this.targetRoomCache = roomName;
-    this.memory.targetRoom = this.targetRoomCache;
-  }
-
-  protected get targetRoom(): string | undefined {
-    if (this.targetRoomCache) {
-      return this.targetRoomCache;
-    }
-
-    if (this.memory.targetRoom) {
-      this.targetRoomCache = this.memory.targetRoom;
-      return this.targetRoomCache;
-    }
-
-    return undefined;
-  }
-
-  protected set homeRoom(roomName: string | undefined) {
-    this.homeRoomCache = roomName;
-    this.memory.homeRoom = this.homeRoomCache;
-  }
-
-  protected get homeRoom(): string | undefined {
-    if (this.homeRoomCache) {
-      return this.homeRoomCache;
-    }
-
-    if (this.memory.homeRoom) {
-      this.homeRoomCache = this.memory.homeRoom;
-      return this.homeRoomCache;
-    }
-
-    return undefined;
-  }
-
   protected moveToRoom(roomName: string): ScreepsReturnCode {
     if (this.pos.roomName === roomName) {
       CreepUtils.consoleLogIfWatched(this, `already in room ${roomName}`);
@@ -67,7 +28,7 @@ export class RemoteWorker extends CreepWrapper {
   }
 
   protected claimTargetRoom(): ScreepsReturnCode {
-    if (this.room.name !== this.targetRoom) {
+    if (this.room.name !== this.memory.targetRoom) {
       return ERR_NOT_IN_RANGE;
     }
 
@@ -84,7 +45,7 @@ export class RemoteWorker extends CreepWrapper {
   }
 
   protected reserveTargetRoom(): ScreepsReturnCode {
-    if (this.room.name !== this.targetRoom) {
+    if (this.room.name !== this.memory.targetRoom) {
       return ERR_NOT_IN_RANGE;
     }
 
@@ -110,8 +71,8 @@ export class RemoteWorker extends CreepWrapper {
     }
     CreepUtils.consoleLogIfWatched(this, `room has hostile creeps!`);
 
-    if (this.homeRoom && this.room.name !== this.homeRoom) {
-      const result = this.moveToRoom(this.homeRoom);
+    if (this.memory.homeRoom && this.room.name !== this.memory.homeRoom) {
+      const result = this.moveToRoom(this.memory.homeRoom);
       CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
       return result;
     }
@@ -138,8 +99,8 @@ export class RemoteWorker extends CreepWrapper {
     }
 
     CreepUtils.consoleLogIfWatched(this, `hits ${this.hits}/${this.hitsMax}`);
-    if (this.homeRoom && this.room.name !== this.homeRoom) {
-      const result = this.moveToRoom(this.homeRoom);
+    if (this.memory.homeRoom && this.room.name !== this.memory.homeRoom) {
+      const result = this.moveToRoom(this.memory.homeRoom);
       CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
       return result;
     }
