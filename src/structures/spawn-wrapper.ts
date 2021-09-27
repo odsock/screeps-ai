@@ -20,8 +20,8 @@ export class SpawnWrapper extends StructureSpawn {
     body: BodyPartConstant[];
     role: string;
     retiree?: string;
-    targetRoom: string;
-    homeRoom: string;
+    targetRoom?: string;
+    homeRoom?: string;
   }): ScreepsReturnCode {
     const newName = `${role}_${Game.time.toString(16)}`;
     const memory: CreepMemory = { role, targetRoom, homeRoom };
