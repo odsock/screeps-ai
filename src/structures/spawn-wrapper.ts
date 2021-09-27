@@ -14,21 +14,21 @@ export class SpawnWrapper extends StructureSpawn {
     body,
     role,
     retiree,
-    targetRoom
+    targetRoom = this.roomw.name,
+    homeRoom = this.roomw.name
   }: {
     body: BodyPartConstant[];
     role: string;
     retiree?: string;
-    targetRoom?: string;
+    targetRoom: string;
+    homeRoom: string;
   }): ScreepsReturnCode {
     const newName = `${role}_${Game.time.toString(16)}`;
-    const memory: CreepMemory = { role };
+    const memory: CreepMemory = { role, targetRoom, homeRoom };
     if (retiree) {
       memory.retiree = retiree;
     }
-    if (targetRoom) {
-      memory.targetRoom = targetRoom;
-    }
+
     let extensions = MemoryUtils.getCache<(StructureExtension | StructureSpawn)[]>(
       `${this.room.name}_energyStructureOrder`
     );
