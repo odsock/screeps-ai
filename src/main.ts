@@ -8,6 +8,7 @@ import { MemoryUtils } from "planning/memory-utils";
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
+  const cpu = Game.cpu.getUsed();
   // check version
   try {
     const version = process.env.npm_package_version;
@@ -32,6 +33,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   const logger = new Logger();
   logger.run();
+  const cpuUsed = Game.cpu.getUsed() - cpu;
+  console.log(`CPU TICK total: ${cpuUsed}`);
+  const tickTotal = Memory.cpu.tickTotal;
+  tickTotal.push(cpuUsed);
+  if (tickTotal.length > 100) {
+    tickTotal.shift();
+  }
+  const cpuAverageTick = tickTotal.reduce((average, tick) => average + tick / tickTotal.length, 0);
+  console.log(`CPU TICK average: ${cpuAverageTick} over ${tickTotal.length} ticks`);
 });
 
 // Automatically delete memory of missing creeps

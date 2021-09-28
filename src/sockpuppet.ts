@@ -63,9 +63,9 @@ export class Sockpuppet {
     this.runCreeps();
     const cpuAfterCreeps = Game.cpu.getUsed();
     const cpuUsedForCreeps = cpuAfterCreeps - cpuBeforeCreeps;
-    console.log(`CPU used for creeps: ${cpuUsedForCreeps}`);
+    console.log(`CPU creeps: ${cpuUsedForCreeps}`);
     if (!Memory.cpu) {
-      Memory.cpu = { allCreeps: [], creepsByRole: {} };
+      Memory.cpu = { allCreeps: [], creepsByRole: {}, tickTotal: [] };
     }
     const allCreeps = Memory.cpu.allCreeps;
     allCreeps.push(cpuUsedForCreeps);
@@ -73,7 +73,7 @@ export class Sockpuppet {
       allCreeps.shift();
     }
     const cpuAverageTick = allCreeps.reduce((average, cpu) => average + cpu / allCreeps.length, 0);
-    console.log(`CPU average ${cpuAverageTick} over ${allCreeps.length} ticks`);
+    console.log(`CPU creeps average: ${cpuAverageTick} over ${allCreeps.length} ticks`);
 
     // write global cache to memory
     // MemoryUtils.writeCacheToMemory();

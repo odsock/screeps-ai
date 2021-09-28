@@ -89,6 +89,7 @@ declare global {
   }
 
   interface CpuTracking {
+    tickTotal: number[];
     allCreeps: number[];
     creepsByRole: {
       [role: string]: number[];
