@@ -94,6 +94,7 @@ export class Sockpuppet {
         }
         const cpuAfter = Game.cpu.getUsed();
         const cpuUsed = cpuAfter - cpuBefore;
+        cpuByRole[creepw.memory.role] = cpuByRole[creepw.memory.role] ?? [];
         cpuByRole[creepw.memory.role].push(cpuUsed);
       }
     }
