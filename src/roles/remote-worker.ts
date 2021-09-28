@@ -7,23 +7,36 @@ export class RemoteWorker extends CreepWrapper {
   }
 
   protected moveToRoom(roomName: string): ScreepsReturnCode {
+    let cpu = Game.cpu.getUsed();
     if (this.pos.roomName === roomName) {
       CreepUtils.consoleLogIfWatched(this, `already in room ${roomName}`);
+      CreepUtils.profile(this, `room check`, cpu);
       return OK;
     }
+    CreepUtils.profile(this, `room check`, cpu);
 
+    cpu = Game.cpu.getUsed();
     const exitDirection = this.roomw.findExitTo(roomName);
     if (exitDirection === ERR_NO_PATH || exitDirection === ERR_INVALID_ARGS) {
       CreepUtils.consoleLogIfWatched(this, `can't get to room: ${roomName}`, exitDirection);
+      CreepUtils.profile(this, `find exit direction`, cpu);
       return exitDirection;
     }
+    CreepUtils.profile(this, `find exit`, cpu);
+
+    cpu = Game.cpu.getUsed();
     const exitPos = this.pos.findClosestByPath(exitDirection);
     if (!exitPos) {
       CreepUtils.consoleLogIfWatched(this, `can't find exit to room: ${roomName}`);
+      CreepUtils.profile(this, `find exit pos`, cpu);
       return ERR_NO_PATH;
     }
+    CreepUtils.profile(this, `find exit pos`, cpu);
+
+    cpu = Game.cpu.getUsed();
     const ret = this.moveTo(exitPos);
     CreepUtils.consoleLogIfWatched(this, `moving to exit: ${String(exitPos)}`, ret);
+    CreepUtils.profile(this, `move to exit`, cpu);
     return ret;
   }
 
