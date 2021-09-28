@@ -12,9 +12,12 @@ export class Upgrader extends Minder {
   };
 
   public run(): void {
+    let cpu = Game.cpu.getUsed();
     this.moveToDestination();
+    CreepUtils.profile(this, `move to dest`, cpu);
 
     // retire old creep if valid retiree set
+    cpu = Game.cpu.getUsed();
     if (this.memory.retiree) {
       const retiree = Game.creeps[this.memory.retiree];
       if (retiree) {
@@ -24,27 +27,37 @@ export class Upgrader extends Minder {
         this.memory.retiree = undefined;
       }
     }
+    CreepUtils.profile(this, `retire creep`, cpu);
 
+    cpu = Game.cpu.getUsed();
     if (this.buildNearbySite() !== ERR_NOT_FOUND) {
       if (this.store.energy < this.buildAmount * 2) {
         this.withdrawFromMyContainer();
       }
+      CreepUtils.profile(this, `build`, cpu);
       return;
     }
+    CreepUtils.profile(this, `build`, cpu);
 
+    cpu = Game.cpu.getUsed();
     if (this.repairNearbySite() !== ERR_NOT_FOUND) {
       if (this.store.energy < this.repairCost * 2) {
         this.withdrawFromMyContainer();
       }
+      CreepUtils.profile(this, `repair`, cpu);
       return;
     }
+    CreepUtils.profile(this, `repair`, cpu);
 
+    cpu = Game.cpu.getUsed();
     if (this.upgrade() !== ERR_NOT_FOUND) {
       if (this.store.energy < this.upgradeAmount * 2) {
         this.withdrawFromMyContainer();
       }
+      CreepUtils.profile(this, `upgrade`, cpu);
       return;
     }
+    CreepUtils.profile(this, `upgrade`, cpu);
 
     CreepUtils.consoleLogIfWatched(this, `stumped. sitting like a lump`);
   }
