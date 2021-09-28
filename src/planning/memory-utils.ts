@@ -100,6 +100,8 @@ declare global {
       cache: Map<string, CacheValue>;
       watch: (key: Id<any>) => void;
       unwatch: (key: Id<any>) => void;
+      profile: (key: Id<any>) => void;
+      unprofile: (key: Id<any>) => void;
       placeExt: (pos: RoomPosition, structure: StructureConstant) => void;
       printCpuUsage: () => void;
       clearCpuUsage: () => void;

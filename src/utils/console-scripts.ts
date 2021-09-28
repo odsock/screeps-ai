@@ -24,6 +24,30 @@ global.unwatch = (key: Id<any>) => {
   }
 };
 
+global.profile = (key: Id<any>) => {
+  let watchable: Watchable | null = Game.getObjectById(key) as Watchable;
+  if (Game.creeps[key]) {
+    watchable = Game.creeps[key] as Watchable;
+  } else if (Game.spawns[key]) {
+    watchable = Game.spawns[key] as Watchable;
+  }
+  if (watchable) {
+    watchable.memory.profile = true;
+  }
+};
+
+global.unprofile = (key: Id<any>) => {
+  let watchable: Watchable | null = Game.getObjectById(key) as Watchable;
+  if (Game.creeps[key]) {
+    watchable = Game.creeps[key] as Watchable;
+  } else if (Game.spawns[key]) {
+    watchable = Game.spawns[key] as Watchable;
+  }
+  if (watchable) {
+    watchable.memory.profile = false;
+  }
+};
+
 global.printCpuUsage = () => {
   console.log(`CPU SUMMARY BY CREEP ROLE`);
   for (const role in Memory.cpu.creepsByRole) {
