@@ -51,7 +51,7 @@ export class Upgrader extends Minder {
 
     cpu = Game.cpu.getUsed();
     if (this.upgrade() !== ERR_NOT_FOUND) {
-      if (this.store.energy < this.upgradeAmount * 2) {
+      if (this.store.energy < this.upgradeAmount) {
         this.withdrawFromMyContainer();
       }
       CreepUtils.profile(this, `upgrade`, cpu);
