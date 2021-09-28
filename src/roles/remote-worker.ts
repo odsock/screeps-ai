@@ -2,8 +2,6 @@ import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
 
 export class RemoteWorker extends CreepWrapper {
-  protected path: PathStep[] | undefined;
-
   public run(): void {
     throw new Error("Superclass run not implemented.");
   }
@@ -17,7 +15,7 @@ export class RemoteWorker extends CreepWrapper {
     }
     CreepUtils.profile(this, `room check`, cpu);
 
-    if (!this.path) {
+    if (!this.memory.path) {
       cpu = Game.cpu.getUsed();
       const exitDirection = this.roomw.findExitTo(roomName);
       if (exitDirection === ERR_NO_PATH || exitDirection === ERR_INVALID_ARGS) {
@@ -37,13 +35,14 @@ export class RemoteWorker extends CreepWrapper {
       CreepUtils.profile(this, `find exit pos`, cpu);
 
       cpu = Game.cpu.getUsed();
-      this.path = this.pos.findPathTo(exitPos);
+      const path = this.pos.findPathTo(exitPos);
+      this.memory.path = Room.serializePath(path);
       CreepUtils.profile(this, `find path`, cpu);
     }
 
     cpu = Game.cpu.getUsed();
-    const ret = this.moveByPath(this.path);
-    CreepUtils.consoleLogIfWatched(this, `moving to exit by path: ${String(this.path)}`, ret);
+    const ret = this.moveByPath(Room.deserializePath(this.memory.path));
+    CreepUtils.consoleLogIfWatched(this, `moving to exit by path`, ret);
     CreepUtils.profile(this, `move to exit`, cpu);
     return ret;
   }

@@ -16,6 +16,7 @@ declare global {
     role: string;
     working?: boolean;
     watched?: boolean;
+    path?: string;
   }
 
   interface RoomMemory {
