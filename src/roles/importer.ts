@@ -92,7 +92,7 @@ export class Importer extends RemoteWorker {
       result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target result`, result);
       if (this.pos.roomName === this.memory.targetRoom) {
-        result = this.moveToAndGet(this.getMySource());
+        result = this.moveToAndGet(this.findClosestActiveEnergySource());
       }
       CreepUtils.consoleLogIfWatched(this, `cpu working ${Game.cpu.getUsed() - cpuBefore}`);
       return result;

@@ -83,7 +83,8 @@ export abstract class CreepWrapper extends Creep {
 
   /** find source that is understaffed by my role*/
   protected findShortHandedSourceInTargetRoom(): Id<Source> | undefined {
-    const MAX_WORK_ON_SOURCE = 5;
+    let shortSource;
+    let workPartsOnShortSource = 999;
     CreepUtils.consoleLogIfWatched(this, `choosing source`);
     for (const sourceId in Memory.rooms[this.memory.targetRoom]?.sources) {
       const creepsOnSource = _.filter(
@@ -92,11 +93,12 @@ export abstract class CreepWrapper extends Creep {
       );
       const workPartsOnSource = CreepUtils.countParts(WORK, ...creepsOnSource);
       const harvestPositionsAtSource = Memory.rooms[this.memory.targetRoom].sources[sourceId].harvestPositions.length;
-      if (creepsOnSource.length < harvestPositionsAtSource && workPartsOnSource < MAX_WORK_ON_SOURCE) {
-        return sourceId as Id<Source>;
+      if (creepsOnSource.length < harvestPositionsAtSource && workPartsOnSource < workPartsOnShortSource) {
+        shortSource = sourceId as Id<Source>;
+        workPartsOnShortSource = workPartsOnSource;
       }
     }
-    return undefined;
+    return shortSource;
   }
 
   protected findClosestTombstoneWithEnergy(): Tombstone | null {
@@ -158,8 +160,8 @@ export abstract class CreepWrapper extends Creep {
     }) as Resource<RESOURCE_ENERGY>;
   }
 
-  protected findClosestActiveEnergySource(): Source | null {
-    return this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+  protected findClosestActiveEnergySource(): Source | undefined {
+    return this.pos.findClosestByPath(FIND_SOURCES_ACTIVE) ?? undefined;
   }
 
   protected findClosestEnergySource(): Source | null {
