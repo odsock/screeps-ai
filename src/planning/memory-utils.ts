@@ -102,6 +102,7 @@ declare global {
       unwatch: (key: Id<any>) => void;
       placeExt: (pos: RoomPosition, structure: StructureConstant) => void;
       printCpuUsage: () => void;
+      clearCpuUsage: () => void;
     }
   }
 }

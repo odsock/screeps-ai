@@ -24,11 +24,6 @@ global.unwatch = (key: Id<any>) => {
   }
 };
 
-global.placeExt = (pos: RoomPosition, structure: StructureConstant) => {
-  const result = Game.rooms[pos.roomName].createConstructionSite(pos, structure);
-  console.log(Game.rooms[pos.roomName], `place ${String(pos)} ${structure}`, result);
-};
-
 global.printCpuUsage = () => {
   console.log(`CPU SUMMARY BY CREEP ROLE`);
   for (const role in Memory.cpu.creepsByRole) {
@@ -36,4 +31,8 @@ global.printCpuUsage = () => {
     const cpuAverageTick = roleHistory.reduce((average, cpu) => average + cpu / roleHistory.length, 0);
     console.log(`${role.toUpperCase()}: average ${cpuAverageTick} over ${roleHistory.length} ticks`);
   }
+};
+
+global.clearCpuUsage = () => {
+  Memory.cpu.creepsByRole = {};
 };
