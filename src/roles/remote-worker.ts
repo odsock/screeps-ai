@@ -2,6 +2,8 @@ import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
 
 export class RemoteWorker extends CreepWrapper {
+  protected path: PathStep[] | undefined;
+
   public run(): void {
     throw new Error("Superclass run not implemented.");
   }
@@ -15,27 +17,33 @@ export class RemoteWorker extends CreepWrapper {
     }
     CreepUtils.profile(this, `room check`, cpu);
 
-    cpu = Game.cpu.getUsed();
-    const exitDirection = this.roomw.findExitTo(roomName);
-    if (exitDirection === ERR_NO_PATH || exitDirection === ERR_INVALID_ARGS) {
-      CreepUtils.consoleLogIfWatched(this, `can't get to room: ${roomName}`, exitDirection);
-      CreepUtils.profile(this, `find exit direction`, cpu);
-      return exitDirection;
-    }
-    CreepUtils.profile(this, `find exit`, cpu);
+    if (!this.path) {
+      cpu = Game.cpu.getUsed();
+      const exitDirection = this.roomw.findExitTo(roomName);
+      if (exitDirection === ERR_NO_PATH || exitDirection === ERR_INVALID_ARGS) {
+        CreepUtils.consoleLogIfWatched(this, `can't get to room: ${roomName}`, exitDirection);
+        CreepUtils.profile(this, `find exit direction`, cpu);
+        return exitDirection;
+      }
+      CreepUtils.profile(this, `find exit`, cpu);
 
-    cpu = Game.cpu.getUsed();
-    const exitPos = this.pos.findClosestByPath(exitDirection);
-    if (!exitPos) {
-      CreepUtils.consoleLogIfWatched(this, `can't find exit to room: ${roomName}`);
+      cpu = Game.cpu.getUsed();
+      const exitPos = this.pos.findClosestByPath(exitDirection);
+      if (!exitPos) {
+        CreepUtils.consoleLogIfWatched(this, `can't find exit to room: ${roomName}`);
+        CreepUtils.profile(this, `find exit pos`, cpu);
+        return ERR_NO_PATH;
+      }
       CreepUtils.profile(this, `find exit pos`, cpu);
-      return ERR_NO_PATH;
+
+      cpu = Game.cpu.getUsed();
+      this.path = this.pos.findPathTo(exitPos);
+      CreepUtils.profile(this, `find path`, cpu);
     }
-    CreepUtils.profile(this, `find exit pos`, cpu);
 
     cpu = Game.cpu.getUsed();
-    const ret = this.moveTo(exitPos);
-    CreepUtils.consoleLogIfWatched(this, `moving to exit: ${String(exitPos)}`, ret);
+    const ret = this.moveByPath(this.path);
+    CreepUtils.consoleLogIfWatched(this, `moving to exit by path: ${String(this.path)}`, ret);
     CreepUtils.profile(this, `move to exit`, cpu);
     return ret;
   }
