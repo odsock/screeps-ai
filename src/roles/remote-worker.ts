@@ -16,35 +16,53 @@ export class RemoteWorker extends CreepWrapper {
     CreepUtils.profile(this, `room check`, cpu);
 
     if (!this.memory.path) {
-      cpu = Game.cpu.getUsed();
-      const exitDirection = this.roomw.findExitTo(roomName);
-      if (exitDirection === ERR_NO_PATH || exitDirection === ERR_INVALID_ARGS) {
-        CreepUtils.consoleLogIfWatched(this, `can't get to room: ${roomName}`, exitDirection);
-        CreepUtils.profile(this, `find exit direction`, cpu);
-        return exitDirection;
+      const result = this.getPathToRoom(roomName);
+      if (result !== OK) {
+        return result;
       }
-      CreepUtils.profile(this, `find exit`, cpu);
-
-      cpu = Game.cpu.getUsed();
-      const exitPos = this.pos.findClosestByPath(exitDirection);
-      if (!exitPos) {
-        CreepUtils.consoleLogIfWatched(this, `can't find exit to room: ${roomName}`);
-        CreepUtils.profile(this, `find exit pos`, cpu);
-        return ERR_NO_PATH;
-      }
-      CreepUtils.profile(this, `find exit pos`, cpu);
-
-      cpu = Game.cpu.getUsed();
-      const path = this.pos.findPathTo(exitPos);
-      this.memory.path = Room.serializePath(path);
-      CreepUtils.profile(this, `find path`, cpu);
     }
 
+    if (this.memory.path) {
+      const path = Room.deserializePath(this.memory.path);
+
+      cpu = Game.cpu.getUsed();
+      const ret = this.moveByPath(path);
+      if (ret === OK) {
+        path.shift();
+        this.memory.path = Room.serializePath(path);
+      }
+      CreepUtils.consoleLogIfWatched(this, `moving to exit by path`, ret);
+      CreepUtils.profile(this, `move to exit`, cpu);
+      return ret;
+    }
+
+    return ERR_NOT_FOUND;
+  }
+
+  protected getPathToRoom(roomName: string): ScreepsReturnCode {
+    let cpu = Game.cpu.getUsed();
+    const exitDirection = this.roomw.findExitTo(roomName);
+    if (exitDirection === ERR_NO_PATH || exitDirection === ERR_INVALID_ARGS) {
+      CreepUtils.consoleLogIfWatched(this, `can't get to room: ${roomName}`, exitDirection);
+      CreepUtils.profile(this, `find exit direction`, cpu);
+      return exitDirection;
+    }
+    CreepUtils.profile(this, `find exit`, cpu);
+
     cpu = Game.cpu.getUsed();
-    const ret = this.moveByPath(Room.deserializePath(this.memory.path));
-    CreepUtils.consoleLogIfWatched(this, `moving to exit by path`, ret);
-    CreepUtils.profile(this, `move to exit`, cpu);
-    return ret;
+    const exitPos = this.pos.findClosestByPath(exitDirection);
+    if (!exitPos) {
+      CreepUtils.consoleLogIfWatched(this, `can't find exit to room: ${roomName}`);
+      CreepUtils.profile(this, `find exit pos`, cpu);
+      return ERR_NO_PATH;
+    }
+    CreepUtils.profile(this, `find exit pos`, cpu);
+
+    cpu = Game.cpu.getUsed();
+    const path = this.pos.findPathTo(exitPos);
+    this.memory.path = Room.serializePath(path);
+    CreepUtils.profile(this, `find path`, cpu);
+    return OK;
   }
 
   protected claimTargetRoom(): ScreepsReturnCode {
