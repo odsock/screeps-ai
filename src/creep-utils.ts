@@ -3,7 +3,7 @@ import { SockPuppetConstants } from "./config/sockpuppet-constants";
 export interface Watchable {
   name: string;
   [key: string]: any;
-  memory: { watched?: boolean };
+  memory: { watched?: boolean; profile?: boolean };
 }
 
 export class CreepUtils {
@@ -19,6 +19,12 @@ export class CreepUtils {
       } else {
         console.log(`${watchable.name}: ${message}`);
       }
+    }
+  }
+
+  public static profile(watchable: Watchable, message: string, start: number): void {
+    if (watchable.memory.profile === true) {
+      console.log(`${watchable.name} CPU: ${message}: ${Game.cpu.getUsed() - start}`);
     }
   }
 
