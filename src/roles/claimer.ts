@@ -23,23 +23,22 @@ export class Claimer extends RemoteWorker {
     }
 
     // make sure we have a target room
-    const targetRoom = this.getTargetRoom();
-    if (!targetRoom) {
+    if (!this.memory.targetRoom) {
       CreepUtils.consoleLogIfWatched(this, `no room targeted for claiming. sitting like a lump.`);
       return;
     }
-    CreepUtils.consoleLogIfWatched(this, `target room ${targetRoom}`);
+    CreepUtils.consoleLogIfWatched(this, `target room ${this.memory.targetRoom}`);
 
     // go to the room if not in it
-    if (this.pos.roomName !== targetRoom) {
-      const result = this.moveToRoom(targetRoom);
-      CreepUtils.consoleLogIfWatched(this, `move to target room ${targetRoom}`, result);
+    if (this.pos.roomName !== this.memory.targetRoom) {
+      const result = this.moveToRoom(this.memory.targetRoom);
+      CreepUtils.consoleLogIfWatched(this, `move to target room ${this.memory.targetRoom}`, result);
       return;
     }
 
     // go to controller and claim or reserve it
     if (this.roomw.controller) {
-      const claimFlag = TargetConfig.TARGETS[Game.shard.name].includes(targetRoom);
+      const claimFlag = TargetConfig.TARGETS[Game.shard.name].includes(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `claim target room? ${String(claimFlag)}`);
       if (claimFlag) {
         const result = this.claimTargetRoom();
@@ -50,30 +49,5 @@ export class Claimer extends RemoteWorker {
       }
       return;
     }
-  }
-
-  private getTargetRoom(): string | undefined {
-    if (this.memory.targetRoom) {
-      return this.memory.targetRoom;
-    }
-
-    // get list of rooms targeted by other claimers
-    const targetedRooms = _.filter(
-      Game.creeps,
-      creep => creep.memory.role === Claimer.ROLE && creep.memory.targetRoom
-    ).map(creep => creep.memory.targetRoom);
-
-    // find a target or remote not in the list
-    let targetRoom = TargetConfig.TARGETS[Game.shard.name].find(target => !targetedRooms.includes(target));
-    if (!targetRoom) {
-      targetRoom = TargetConfig.REMOTE_HARVEST[Game.shard.name].find(target => !targetedRooms.includes(target));
-    }
-
-    // store my target room in my memory
-    if (targetRoom) {
-      this.memory.targetRoom = targetRoom;
-      return targetRoom;
-    }
-    return undefined;
   }
 }
