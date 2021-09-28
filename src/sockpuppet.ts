@@ -87,6 +87,7 @@ export class Sockpuppet {
         const cpuBefore = Game.cpu.getUsed();
         try {
           creepw.run();
+          CreepUtils.profile(creepw, `TOTAL`, cpuBefore);
         } catch (error) {
           console.log(`ERROR: caught running creep ${creep.name}`, error);
         }

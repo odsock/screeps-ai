@@ -250,95 +250,87 @@ export abstract class CreepWrapper extends Creep {
     if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
       return ERR_FULL;
     }
+    CreepUtils.profile(this, `capacity check`, cpuBefore);
 
-    let cpuA = Game.cpu.getUsed();
+    let cpuDuring = Game.cpu.getUsed();
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
-    let cpuB = Game.cpu.getUsed();
-    CreepUtils.consoleLogIfWatched(this, `cpu adjacent gets ${cpuB - cpuA}`);
+    CreepUtils.profile(this, `pickup adjacent`, cpuDuring);
 
+    cpuDuring = Game.cpu.getUsed();
     let result = this.moveToAndGet(this.findClosestLargeEnergyDrop());
     if (result === OK) {
-      cpuA = Game.cpu.getUsed();
-      CreepUtils.consoleLogIfWatched(this, `cpu get big drop ${cpuA - cpuB}`);
+      CreepUtils.profile(this, `get big drop`, cpuDuring);
       return result;
     }
-    cpuA = Game.cpu.getUsed();
-    CreepUtils.consoleLogIfWatched(this, `cpu get big drop ${cpuA - cpuB}`);
+    CreepUtils.profile(this, `get big drop`, cpuDuring);
 
+    cpuDuring = Game.cpu.getUsed();
     if (this.room.storage && this.room.storage.store.energy > 0) {
       result = this.moveToAndGet(this.room.storage);
       if (result === OK) {
-        cpuB = Game.cpu.getUsed();
-        CreepUtils.consoleLogIfWatched(this, `cpu get storage ${cpuB - cpuA}`);
+        CreepUtils.profile(this, `get storage`, cpuDuring);
         return result;
       }
     }
-    cpuB = Game.cpu.getUsed();
-    CreepUtils.consoleLogIfWatched(this, `cpu get storage ${cpuB - cpuA}`);
+    CreepUtils.profile(this, `get storage`, cpuDuring);
 
+    cpuDuring = Game.cpu.getUsed();
     result = this.moveToAndGet(this.findClosestTombstoneWithEnergy());
     if (result === OK) {
-      cpuA = Game.cpu.getUsed();
-      CreepUtils.consoleLogIfWatched(this, `cpu get tomb ${cpuA - cpuB}`);
+      CreepUtils.profile(this, `get tomb ${cpuDuring - cpuDuring}`, cpuDuring);
       return result;
     }
-    cpuA = Game.cpu.getUsed();
-    CreepUtils.consoleLogIfWatched(this, `cpu get tomb ${cpuA - cpuB}`);
+    CreepUtils.profile(this, `get tomb ${cpuDuring - cpuDuring}`, cpuDuring);
 
+    cpuDuring = Game.cpu.getUsed();
     result = this.moveToAndGet(this.findClosestRuinsWithEnergy());
     if (result === OK) {
-      cpuB = Game.cpu.getUsed();
-      CreepUtils.consoleLogIfWatched(this, `cpu get ruin ${cpuB - cpuA}`);
+      CreepUtils.profile(this, `get ruin ${cpuDuring - cpuDuring}`, cpuDuring);
       return result;
     }
-    cpuB = Game.cpu.getUsed();
-    CreepUtils.consoleLogIfWatched(this, `cpu get ruin ${cpuB - cpuA}`);
+    CreepUtils.profile(this, `get ruin ${cpuDuring - cpuDuring}`, cpuDuring);
 
+    cpuDuring = Game.cpu.getUsed();
     result = this.moveToAndGet(this.findClosestContainerWithEnergy(this.store.getFreeCapacity()));
     if (result === OK) {
-      cpuA = Game.cpu.getUsed();
-      CreepUtils.consoleLogIfWatched(this, `cpu get container ${cpuA - cpuB}`);
+      CreepUtils.profile(this, `get container ${cpuDuring - cpuDuring}`, cpuDuring);
       return result;
     }
-    cpuA = Game.cpu.getUsed();
-    CreepUtils.consoleLogIfWatched(this, `cpu get container ${cpuA - cpuB}`);
+    CreepUtils.profile(this, `get container ${cpuDuring - cpuDuring}`, cpuDuring);
 
+    cpuDuring = Game.cpu.getUsed();
     if (this.getActiveBodyparts(WORK) > 0) {
       result = this.moveToAndGet(this.findClosestActiveEnergySource());
       if (result === OK) {
-        cpuB = Game.cpu.getUsed();
-        CreepUtils.consoleLogIfWatched(this, `cpu get active source ${cpuB - cpuA}`);
+        CreepUtils.profile(this, `get active source ${cpuDuring - cpuDuring}`, cpuDuring);
         return result;
       }
-      cpuB = Game.cpu.getUsed();
-      CreepUtils.consoleLogIfWatched(this, `cpu get active source ${cpuB - cpuA}`);
+      CreepUtils.profile(this, `get active source ${cpuDuring - cpuDuring}`, cpuDuring);
 
+      cpuDuring = Game.cpu.getUsed();
       result = this.moveToAndDismantle(this.findDismantleTarget());
       if (result === OK) {
-        cpuA = Game.cpu.getUsed();
-        CreepUtils.consoleLogIfWatched(this, `cpu dismantle ${cpuA - cpuB}`);
+        CreepUtils.profile(this, `dismantle`, cpuDuring);
         return result;
       }
-      cpuA = Game.cpu.getUsed();
-      CreepUtils.consoleLogIfWatched(this, `cpu dismantle ${cpuA - cpuB}`);
+      CreepUtils.profile(this, `dismantle`, cpuDuring);
 
+      cpuDuring = Game.cpu.getUsed();
       const inactiveSource = this.findClosestEnergySource();
       if (inactiveSource && !this.pos.isNearTo(inactiveSource)) {
         result = this.moveTo(inactiveSource, { range: 1, reusePath: 10, visualizePathStyle: { stroke: "#ffaa00" } });
         CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
-        cpuB = Game.cpu.getUsed();
-        CreepUtils.consoleLogIfWatched(this, `cpu inactive source ${cpuB - cpuA}`);
+        CreepUtils.profile(this, `inactive source`, cpuDuring);
         return result;
       }
     }
+    CreepUtils.profile(this, `inactive source`, cpuDuring);
 
-    cpuB = Game.cpu.getUsed();
-    CreepUtils.consoleLogIfWatched(this, `cpu inactive source ${cpuB - cpuA}`);
-
+    cpuDuring = Game.cpu.getUsed();
     this.say("🤔");
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
-    CreepUtils.consoleLogIfWatched(this, `cpu harvestByPriority ${Game.cpu.getUsed() - cpuBefore}`);
+    CreepUtils.profile(this, `harvestByPriority`, cpuBefore);
     return ERR_NOT_FOUND;
   }
 
