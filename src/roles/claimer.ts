@@ -1,5 +1,4 @@
 import { CreepRole } from "config/creep-types";
-import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { CreepBodyProfile } from "./creep-wrapper";
