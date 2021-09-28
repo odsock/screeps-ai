@@ -35,6 +35,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   logger.run();
   const cpuUsed = Game.cpu.getUsed() - cpu;
   console.log(`CPU TICK total: ${cpuUsed}`);
+  Memory.cpu.tickTotal = Memory.cpu.tickTotal ?? [];
   const tickTotal = Memory.cpu.tickTotal;
   tickTotal.push(cpuUsed);
   if (tickTotal.length > 100) {
