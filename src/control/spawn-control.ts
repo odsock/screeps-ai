@@ -188,7 +188,23 @@ export class SpawnControl {
     // CLAIMER
     const maxClaimers = this.getMaxClaimerCount();
     if (this.creepCountsByRole[CreepRole.CLAIMER] < maxClaimers) {
-      return spawnw.spawn({ body: SpawnUtils.getMaxBody(Claimer.BODY_PROFILE, spawnw), role: Claimer.ROLE });
+      const remoteTargetRooms = TargetConfig.TARGETS[Game.shard.name].filter(name => {
+        return !Game.rooms[name]?.controller?.my;
+      });
+      for (const roomName of [...remoteTargetRooms, ...remoteHarvestRooms]) {
+        const claimerOnRoom = !!_.filter(
+          Game.creeps,
+          creep => creep.memory.role === Claimer.ROLE && creep.memory.targetRoom === roomName
+        ).length;
+        CreepUtils.consoleLogIfWatched(spawnw, `claimer for ${roomName}: ${String(claimerOnRoom)}`);
+        if (!claimerOnRoom) {
+          return spawnw.spawn({
+            body: SpawnUtils.getMaxBody(Claimer.BODY_PROFILE, spawnw),
+            role: Claimer.ROLE,
+            targetRoom: roomName
+          });
+        }
+      }
     }
 
     // REMOTE WORKER
