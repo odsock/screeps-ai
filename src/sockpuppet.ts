@@ -80,6 +80,7 @@ export class Sockpuppet {
   }
 
   public runCreeps(): void {
+    const cpuByRole: { [role: string]: number[] } = {};
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       if (!creep.spawning) {
@@ -93,11 +94,15 @@ export class Sockpuppet {
         }
         const cpuAfter = Game.cpu.getUsed();
         const cpuUsed = cpuAfter - cpuBefore;
-        Memory.cpu.creepsByRole[creepw.memory.role] = Memory.cpu.creepsByRole[creepw.memory.role] ?? [];
-        Memory.cpu.creepsByRole[creepw.memory.role].push(cpuUsed);
-        if (Memory.cpu.creepsByRole[creepw.memory.role].length > CREEP_LIFE_TIME) {
-          Memory.cpu.creepsByRole[creepw.memory.role].shift();
-        }
+        cpuByRole[creepw.memory.role].push(cpuUsed);
+      }
+    }
+    for (const role in cpuByRole) {
+      Memory.cpu.creepsByRole[role] = Memory.cpu.creepsByRole[role] ?? [];
+      const cpuAvg = cpuByRole[role].reduce((sum, cpu) => sum + cpu, 0) / cpuByRole[role].length;
+      Memory.cpu.creepsByRole[role].push(cpuAvg);
+      if (Memory.cpu.creepsByRole[role].length > CREEP_LIFE_TIME) {
+        Memory.cpu.creepsByRole[role].shift();
       }
     }
   }
