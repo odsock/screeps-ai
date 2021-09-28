@@ -92,7 +92,9 @@ export class Importer extends RemoteWorker {
       result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target result`, result);
       if (this.pos.roomName === this.memory.targetRoom) {
-        result = this.moveToAndGet(this.findClosestActiveEnergySource());
+        // TODO too simple, won't pick up tomb energy in target room
+        // result = this.moveToAndGet(this.findClosestActiveEnergySource());
+        result = this.harvestByPriority();
       }
       CreepUtils.consoleLogIfWatched(this, `cpu working ${Game.cpu.getUsed() - cpuBefore}`);
       return result;
