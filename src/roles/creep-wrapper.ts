@@ -278,35 +278,35 @@ export abstract class CreepWrapper extends Creep {
     cpuDuring = Game.cpu.getUsed();
     result = this.moveToAndGet(this.findClosestTombstoneWithEnergy());
     if (result === OK) {
-      CreepUtils.profile(this, `get tomb ${cpuDuring - cpuDuring}`, cpuDuring);
+      CreepUtils.profile(this, `get tomb`, cpuDuring);
       return result;
     }
-    CreepUtils.profile(this, `get tomb ${cpuDuring - cpuDuring}`, cpuDuring);
+    CreepUtils.profile(this, `get tomb`, cpuDuring);
 
     cpuDuring = Game.cpu.getUsed();
     result = this.moveToAndGet(this.findClosestRuinsWithEnergy());
     if (result === OK) {
-      CreepUtils.profile(this, `get ruin ${cpuDuring - cpuDuring}`, cpuDuring);
+      CreepUtils.profile(this, `get ruin`, cpuDuring);
       return result;
     }
-    CreepUtils.profile(this, `get ruin ${cpuDuring - cpuDuring}`, cpuDuring);
+    CreepUtils.profile(this, `get ruin`, cpuDuring);
 
     cpuDuring = Game.cpu.getUsed();
     result = this.moveToAndGet(this.findClosestContainerWithEnergy(this.store.getFreeCapacity()));
     if (result === OK) {
-      CreepUtils.profile(this, `get container ${cpuDuring - cpuDuring}`, cpuDuring);
+      CreepUtils.profile(this, `get container`, cpuDuring);
       return result;
     }
-    CreepUtils.profile(this, `get container ${cpuDuring - cpuDuring}`, cpuDuring);
+    CreepUtils.profile(this, `get container`, cpuDuring);
 
     cpuDuring = Game.cpu.getUsed();
     if (this.getActiveBodyparts(WORK) > 0) {
       result = this.moveToAndGet(this.findClosestActiveEnergySource());
       if (result === OK) {
-        CreepUtils.profile(this, `get active source ${cpuDuring - cpuDuring}`, cpuDuring);
+        CreepUtils.profile(this, `get active source`, cpuDuring);
         return result;
       }
-      CreepUtils.profile(this, `get active source ${cpuDuring - cpuDuring}`, cpuDuring);
+      CreepUtils.profile(this, `get active source`, cpuDuring);
 
       cpuDuring = Game.cpu.getUsed();
       result = this.moveToAndDismantle(this.findDismantleTarget());
