@@ -136,9 +136,9 @@ export class MemoryUtils {
     if (!global.cache) {
       MemoryUtils.initCache();
     }
-    // don't keep items that will be expired next tick
+    // don't keep items that are expired
     global.cache.forEach((value, key) => {
-      if (value.expires <= Game.time + 1) {
+      if (this.isExpired(value.expires)) {
         global.cache.delete(key);
       }
     });
@@ -159,7 +159,8 @@ export class MemoryUtils {
     if (!global.cache) {
       MemoryUtils.initCache();
     }
-    global.cache.set(key, { item, expires: Game.time + ttl } as CacheValue);
+    const expires = ttl === -1 ? ttl : Game.time + ttl;
+    global.cache.set(key, { item, expires } as CacheValue);
   }
 
   public static getCache<T>(key: string): T | undefined {
@@ -168,10 +169,15 @@ export class MemoryUtils {
     }
 
     const value = global.cache.get(key);
-    if (value && value.expires > Game.time) {
-      return value.item as T;
+    if (!value || this.isExpired(value.expires)) {
+      global.cache.delete(key);
+      return undefined;
     }
-    global.cache.delete(key);
-    return undefined;
+    return value.item as T;
+  }
+
+  /** check if expiration has passed, using -1 to mean no expiration */
+  private static isExpired(expires: number): boolean {
+    return expires === -1 ? false : expires > Game.time;
   }
 }
