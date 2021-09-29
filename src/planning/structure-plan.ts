@@ -6,29 +6,27 @@ interface StructurePatternPosition {
   yOffset: number;
   structure: StructureConstant;
 }
-interface StructurePlanPosition {
+export interface StructurePlanPosition {
   pos: RoomPosition;
   structure: StructureConstant;
 }
 
 export class StructurePlan {
-  private readonly terrain: RoomTerrain;
   private planned = false;
   private readonly pattern: StructurePatternPosition[];
   private plan: StructurePlanPosition[] = [];
   public readonly roomw: RoomWrapper;
 
-  public constructor(pattern: StructurePatternPosition[], private readonly room: Room) {
+  public constructor(pattern: StructurePatternPosition[], room: Room | string) {
     this.pattern = pattern;
-    this.roomw = RoomWrapper.getInstance(room.name);
-    this.terrain = this.roomw.getTerrain();
+    this.roomw = RoomWrapper.getInstance(room);
   }
 
   /** utility method for loading cached plan from JSON */
-  public static loadPlan(planObject: StructurePlan): StructurePlan {
-    const sp = new StructurePlan(planObject.pattern, planObject.room);
-    sp.plan = planObject.plan;
-    sp.planned = planObject.planned;
+  public static fromPlanPositions(plan: StructurePlanPosition[]): StructurePlan {
+    const sp = new StructurePlan([], plan[0].pos.roomName);
+    sp.plan = plan;
+    sp.planned = true;
     return sp;
   }
 
@@ -72,7 +70,7 @@ export class StructurePlan {
     this.plan = [];
     let planOkSoFar = true;
     for (const planPosition of this.pattern) {
-      const newPos = this.room.getPositionAt(planPosition.xOffset + x, planPosition.yOffset + y);
+      const newPos = this.roomw.getPositionAt(planPosition.xOffset + x, planPosition.yOffset + y);
       if (!newPos || !this.translatePosition(planPosition, newPos, ignoreStructures)) {
         planOkSoFar = false;
       }
@@ -87,23 +85,23 @@ export class StructurePlan {
     ignoreStructures = false
   ): boolean {
     // can be blocked by wall, deposit, source
-    if (this.terrain.get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
+    if (this.roomw.getTerrain().get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
       return false;
     }
-    if (this.room.lookForAt(LOOK_DEPOSITS, pos).length > 0) {
+    if (this.roomw.lookForAt(LOOK_DEPOSITS, pos).length > 0) {
       return false;
     }
-    if (this.room.lookForAt(LOOK_SOURCES, pos).length > 0) {
+    if (this.roomw.lookForAt(LOOK_SOURCES, pos).length > 0) {
       return false;
     }
 
     // can be blocked by non-road structure or construction site
     if (!ignoreStructures) {
-      const posStructures = this.room.lookForAt(LOOK_STRUCTURES, pos);
+      const posStructures = this.roomw.lookForAt(LOOK_STRUCTURES, pos);
       if (posStructures.some(s => s.structureType !== STRUCTURE_ROAD)) {
         return false;
       }
-      const posConstSites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, pos);
+      const posConstSites = this.roomw.lookForAt(LOOK_CONSTRUCTION_SITES, pos);
       if (posConstSites.some(s => s.structureType !== STRUCTURE_ROAD)) {
         return false;
       }

@@ -176,6 +176,14 @@ export class MemoryUtils {
     return value.item as T;
   }
 
+  public static hasCache(key: string): boolean {
+    return global.cache.has(key);
+  }
+
+  public static deleteCache(key: string): boolean {
+    return global.cache.delete(key);
+  }
+
   /** check if expiration has passed, using -1 to mean no expiration */
   private static isExpired(expires: number): boolean {
     return expires === -1 ? false : expires <= Game.time;

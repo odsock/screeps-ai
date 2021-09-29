@@ -4,16 +4,18 @@ import { RoadPlan } from "./road-plan";
 import { PlannerUtils } from "./planner-utils";
 import { MemoryUtils } from "./memory-utils";
 import { StructurePatterns } from "config/structure-patterns";
-import { StructurePlan } from "./structure-plan";
+import { StructurePlan, StructurePlanPosition } from "./structure-plan";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { ExtensionPlan } from "./extension-plan";
 import { CreepUtils } from "creep-utils";
 
 export class Planner {
   private readonly roomw: RoomWrapper;
+  private readonly CACHE_KEY;
 
   public constructor(room: Room) {
     this.roomw = RoomWrapper.getInstance(room.name);
+    this.CACHE_KEY = `${this.roomw.name}_plan`;
   }
 
   public run(): ScreepsReturnCode {
@@ -41,8 +43,7 @@ export class Planner {
 
   private planFullColony(): void {
     const cpu = Game.cpu.getUsed();
-    let plan = MemoryUtils.getCache<StructurePlan>(`${this.roomw.name}_plan`);
-    if (!plan) {
+    if (!MemoryUtils.hasCache(this.CACHE_KEY)) {
       const controllerPos = this.roomw.controller?.pos;
       if (controllerPos) {
         const sourcePositions = this.roomw.sources.map(source => source.pos);
@@ -51,7 +52,7 @@ export class Planner {
         // find the best colony placement
         const centerPoint = PlannerUtils.findMidpoint([controllerPos, ...sourcePositions, ...depositPositions]);
         this.roomw.memory.centerPoint = MemoryUtils.packRoomPosition(centerPoint);
-        plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, this.roomw, centerPoint, true);
+        const plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, this.roomw, centerPoint, true);
 
         // draw plan visual
         this.roomw.visual.clear();
@@ -60,7 +61,7 @@ export class Planner {
         this.roomw.planVisual = this.roomw.visual.export();
 
         // cache plan forever
-        MemoryUtils.setCache(`${this.roomw.name}_plan`, plan, -1);
+        MemoryUtils.setCache(this.CACHE_KEY, plan.getPlan(), -1);
       }
     }
     CreepUtils.profile(this.roomw, `plan colony`, cpu);
@@ -68,11 +69,17 @@ export class Planner {
 
   private assimilateColonlyToPlan(skipRoads = false): ScreepsReturnCode {
     const cpu = Game.cpu.getUsed();
-    const planObject = MemoryUtils.getCache<StructurePlan>(`${this.roomw.name}_plan`);
-    if (!planObject) {
+    const cachedPlanPositions = MemoryUtils.getCache<StructurePlanPosition[]>(this.CACHE_KEY);
+    if (!cachedPlanPositions) {
       return OK;
     }
-    const plan = StructurePlan.loadPlan(planObject);
+    let plan;
+    try {
+      plan = StructurePlan.fromPlanPositions(cachedPlanPositions);
+    } catch (e) {
+      MemoryUtils.deleteCache(this.CACHE_KEY);
+      return ERR_INVALID_ARGS;
+    }
 
     const planPositions = plan.getPlan();
     if (!planPositions) {

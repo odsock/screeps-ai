@@ -4,12 +4,18 @@ import { SpawnWrapper } from "./spawn-wrapper";
 import { PlannerUtils } from "planning/planner-utils";
 
 export class RoomWrapper extends Room {
-  public static getInstance(name: string): RoomWrapper {
+  /**
+   * Manages singleton RoomWrappers for all rooms this tick.
+   * @param roomArg Name of room, or a Room object
+   * @returns Instance of RoomWrapper for the room, from cache if possible.
+   */
+  public static getInstance(roomArg: string | Room): RoomWrapper {
+    const name = roomArg instanceof Room ? roomArg.name : roomArg;
     const instance = MemoryUtils.getCache<RoomWrapper>(`${name}_RoomWrapper`);
     if (instance) {
       return instance;
     } else {
-      const room = Game.rooms[name];
+      const room = roomArg instanceof Room ? roomArg : Game.rooms[name];
       if (room) {
         const newInstance = new RoomWrapper(room);
         MemoryUtils.setCache(`${name}_RoomWrapper`, newInstance);
