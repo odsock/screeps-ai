@@ -79,7 +79,12 @@ export class Planner {
 
     // try to construct any missing structures
     const cpu = Game.cpu.getUsed();
-    const result = PlannerUtils.placeStructurePlan(planPositions, this.roomw, true, true, skipRoads);
+    const result = PlannerUtils.placeStructurePlan({
+      plan: planPositions,
+      roomw: this.roomw,
+      ignoreRCL: true,
+      skipRoads
+    });
     console.log(`place colony result ${result}`);
     CreepUtils.profile(this.roomw, `place colony`, cpu);
 

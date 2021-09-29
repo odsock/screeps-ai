@@ -179,13 +179,17 @@ export class PlannerUtils {
     return ret;
   }
 
-  public static placeStructurePlan(
-    plan: StructurePlan | StructurePlanPosition[],
-    roomw: RoomWrapper,
-    allowOverlap = true,
+  public static placeStructurePlan({
+    plan,
+    roomw,
     ignoreRCL = true,
     skipRoads = false
-  ): ScreepsReturnCode {
+  }: {
+    plan: StructurePlan | StructurePlanPosition[];
+    roomw: RoomWrapper;
+    ignoreRCL?: boolean;
+    skipRoads?: boolean;
+  }): ScreepsReturnCode {
     const planPositions = plan instanceof StructurePlan ? plan.getPlan() : plan;
     if (planPositions) {
       for (const planPosition of planPositions) {
@@ -194,16 +198,20 @@ export class PlannerUtils {
         }
 
         const cpu = Game.cpu.getUsed();
-        const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
-        CreepUtils.consoleLogIfWatched(roomw, `place construction ${JSON.stringify(planPosition)}`, result);
-        CreepUtils.profile(roomw, `place construction`, cpu);
-        if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
-          continue;
-        }
-
-        if (result === ERR_INVALID_TARGET && allowOverlap) {
-          continue;
-        } else {
+        const placed = roomw
+          .lookAt(planPosition.pos)
+          .some(
+            item =>
+              item.structure?.structureType === planPosition.structure ||
+              item.constructionSite?.structureType === planPosition.structure
+          );
+        if (!placed) {
+          const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
+          CreepUtils.consoleLogIfWatched(roomw, `place construction ${JSON.stringify(planPosition)}`, result);
+          CreepUtils.profile(roomw, `place construction`, cpu);
+          if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
+            continue;
+          }
           return result;
         }
       }
