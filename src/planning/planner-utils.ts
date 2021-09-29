@@ -195,7 +195,7 @@ export class PlannerUtils {
 
         const cpu = Game.cpu.getUsed();
         const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
-        CreepUtils.consoleLogIfWatched(roomw, `place construction`, result);
+        CreepUtils.consoleLogIfWatched(roomw, `place construction ${JSON.stringify(planPosition)}`, result);
         CreepUtils.profile(roomw, `place construction`, cpu);
         if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
           continue;
