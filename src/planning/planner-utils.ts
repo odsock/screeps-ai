@@ -188,7 +188,6 @@ export class PlannerUtils {
   ): ScreepsReturnCode {
     const planPositions = plan instanceof StructurePlan ? plan.getPlan() : plan;
     if (planPositions) {
-      CreepUtils.consoleLogIfWatched(roomw, `found placement for plan`);
       for (const planPosition of planPositions) {
         if (skipRoads && planPosition.structure === STRUCTURE_ROAD) {
           continue;
@@ -200,19 +199,9 @@ export class PlannerUtils {
         }
 
         if (result === ERR_INVALID_TARGET && allowOverlap) {
-          if (
-            roomw
-              .lookAt(planPosition.pos)
-              .some(
-                item =>
-                  item.structure?.structureType === planPosition.structure ||
-                  item.constructionSite?.structureType === planPosition.structure
-              )
-          ) {
-            continue;
-          } else {
-            return result;
-          }
+          continue;
+        } else {
+          return result;
         }
       }
     }
