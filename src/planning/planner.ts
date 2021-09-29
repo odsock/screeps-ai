@@ -7,6 +7,7 @@ import { StructurePatterns } from "config/structure-patterns";
 import { StructurePlan } from "./structure-plan";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { ExtensionPlan } from "./extension-plan";
+import { CreepUtils } from "creep-utils";
 
 export class Planner {
   private readonly roomw: RoomWrapper;
@@ -39,6 +40,7 @@ export class Planner {
   }
 
   private planFullColony(): void {
+    const cpu = Game.cpu.getUsed();
     let plan = MemoryUtils.getCache<StructurePlan>(`${this.roomw.name}_plan`);
     if (!plan) {
       const controllerPos = this.roomw.controller?.pos;
@@ -48,6 +50,7 @@ export class Planner {
 
         // find the best colony placement
         const centerPoint = PlannerUtils.findMidpoint([controllerPos, ...sourcePositions, ...depositPositions]);
+        this.roomw.memory.centerPoint = MemoryUtils.packRoomPosition(centerPoint);
         plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, this.roomw, centerPoint, true);
 
         // draw plan visual
@@ -61,9 +64,11 @@ export class Planner {
         MemoryUtils.setCache(`${this.roomw.name}_centerPoint`, centerPoint, SockPuppetConstants.PLANNING_INTERVAL);
       }
     }
+    CreepUtils.profile(this.roomw, `plan colony`, cpu);
   }
 
   private assimilateColonlyToPlan(skipRoads = false): ScreepsReturnCode {
+    const cpu = Game.cpu.getUsed();
     const plan = MemoryUtils.getCache<StructurePlan>(`${this.roomw.name}_plan`);
     if (!plan) {
       return OK;
@@ -117,6 +122,7 @@ export class Planner {
     const result = PlannerUtils.placeStructurePlan(plan, true, true, skipRoads);
     console.log(`place colony result ${result}`);
 
+    CreepUtils.profile(this.roomw, `assimilate colony`, cpu);
     return result;
   }
 

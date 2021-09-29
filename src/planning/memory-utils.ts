@@ -32,6 +32,7 @@ declare global {
     controller: ControllerInfo;
     storage?: StorageInfo;
     reconTick: number;
+    centerPoint?: string;
   }
 
   interface StorageInfo {
