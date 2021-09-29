@@ -49,14 +49,24 @@ global.unprofile = (key: Id<any>) => {
 };
 
 global.printCpuUsage = () => {
-  console.log(`CPU SUMMARY BY CREEP ROLE`);
+  console.log(`<b>CPU SUMMARY</b>`);
+
+  const tickTotal = Memory.cpu.tickTotal;
+  const cpuAverageTick = tickTotal.reduce((average, tick) => average + tick / Memory.cpu.tickTotal.length, 0);
+  console.log(`<b>CPU tick average:</b> ${cpuAverageTick} over ${Memory.cpu.tickTotal.length} ticks`);
+
+  const allCreeps = Memory.cpu.allCreeps;
+  const cpuAverageCreeps = allCreeps.reduce((average, cpu) => average + cpu / allCreeps.length, 0);
+  console.log(`<b>CPU creeps average:</b> ${cpuAverageCreeps} over ${allCreeps.length} ticks`);
+
+  console.log(`<b>CPU creep averages:</b>`);
   for (const role in Memory.cpu.creepsByRole) {
     const roleHistory = Memory.cpu.creepsByRole[role];
-    const cpuAverageTick = roleHistory.reduce((average, cpu) => average + cpu / roleHistory.length, 0);
-    console.log(`${role.toUpperCase()}: average ${cpuAverageTick} over ${roleHistory.length} ticks`);
+    const cpuAverageRole = roleHistory.reduce((average, cpu) => average + cpu / roleHistory.length, 0);
+    console.log(`- ${role.toUpperCase()}: ${cpuAverageRole} over ${roleHistory.length} ticks`);
   }
 };
 
 global.clearCpuUsage = () => {
-  Memory.cpu.creepsByRole = {};
+  Memory.cpu = { allCreeps: [], creepsByRole: {}, tickTotal: [] };
 };

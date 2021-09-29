@@ -72,8 +72,6 @@ export class Sockpuppet {
     if (allCreeps.length > 100) {
       allCreeps.shift();
     }
-    const cpuAverageTick = allCreeps.reduce((average, cpu) => average + cpu / allCreeps.length, 0);
-    console.log(`CPU creeps average: ${cpuAverageTick} over ${allCreeps.length} ticks`);
 
     // write global cache to memory
     // MemoryUtils.writeCacheToMemory();

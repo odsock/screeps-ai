@@ -34,15 +34,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const logger = new Logger();
   logger.run();
   const cpuUsed = Game.cpu.getUsed() - cpu;
-  console.log(`CPU TICK total: ${cpuUsed}`);
+  console.log(`CPU tick total: ${cpuUsed}`);
   Memory.cpu.tickTotal = Memory.cpu.tickTotal ?? [];
   const tickTotal = Memory.cpu.tickTotal;
   tickTotal.push(cpuUsed);
-  if (tickTotal.length > 100) {
+  if (tickTotal.length > CREEP_LIFE_TIME) {
     tickTotal.shift();
   }
-  const cpuAverageTick = tickTotal.reduce((average, tick) => average + tick / tickTotal.length, 0);
-  console.log(`CPU TICK average: ${cpuAverageTick} over ${tickTotal.length} ticks`);
 });
 
 // Automatically delete memory of missing creeps
