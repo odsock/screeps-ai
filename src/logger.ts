@@ -2,9 +2,9 @@ import { RoomWrapper } from "structures/room-wrapper";
 
 export class Logger {
   public run(): void {
-    for (const roomName in Game.rooms) {
-      this.logRoom(Game.rooms[roomName]);
-    }
+    _.filter(Game.rooms, room => room.controller?.my).forEach(room => {
+      this.logRoom(room);
+    });
   }
 
   public logRoom(room: Room): void {
