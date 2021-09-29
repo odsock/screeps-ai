@@ -208,12 +208,12 @@ export class PlannerUtils {
         if (!placed) {
           const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
           CreepUtils.consoleLogIfWatched(roomw, `place construction ${JSON.stringify(planPosition)}`, result);
-          CreepUtils.profile(roomw, `place construction`, cpu);
           if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
             continue;
           }
           return result;
         }
+        CreepUtils.profile(roomw, `place construction`, cpu);
       }
     }
     CreepUtils.consoleLogIfWatched(roomw, `failed to place plan`);
