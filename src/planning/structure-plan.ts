@@ -19,9 +19,9 @@ export class StructurePlan {
   public readonly roomw: RoomWrapper;
 
   public constructor(pattern: StructurePatternPosition[], private readonly room: Room) {
-    this.terrain = room.getTerrain();
     this.pattern = pattern;
     this.roomw = RoomWrapper.getInstance(room.name);
+    this.terrain = this.roomw.getTerrain();
   }
 
   /** utility method for loading cached plan from JSON */
