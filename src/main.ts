@@ -11,7 +11,7 @@ global.sockpuppet = new Sockpuppet();
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  const cpu = Game.cpu.getUsed();
+  const cpuBefore = Game.cpu.getUsed();
   // check version
   try {
     const version = process.env.npm_package_version;
@@ -35,11 +35,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   const logger = new Logger();
   logger.run();
-  const cpuUsed = Game.cpu.getUsed() - cpu;
-  CreepUtils.profile(global.sockpuppet, `CPU tick total`, cpuUsed);
+  const cpuAfter = Game.cpu.getUsed();
+  CreepUtils.profile(global.sockpuppet, `CPU tick total`, cpuBefore);
   Memory.cpu.tickTotal = Memory.cpu.tickTotal ?? [];
   const tickTotal = Memory.cpu.tickTotal;
-  tickTotal.push(cpuUsed);
+  tickTotal.push(cpuAfter - cpuBefore);
   if (tickTotal.length > CREEP_LIFE_TIME) {
     tickTotal.shift();
   }
