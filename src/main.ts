@@ -25,16 +25,26 @@ export const loop = ErrorMapper.wrapLoop(() => {
   } catch (error) {
     console.log(error);
   }
+  CreepUtils.profile(global.sockpuppet, `version check`, cpuBefore);
 
   console.log(`<strong>Current game tick is ${Game.time}</strong>`);
+  let cpu = Game.cpu.getUsed();
   cleanupDeadCreepMemory();
+  CreepUtils.profile(global.sockpuppet, `cleanup dead creeps`, cpu);
 
+  cpu = Game.cpu.getUsed();
   MemoryUtils.writeCacheToMemory();
+  CreepUtils.profile(global.sockpuppet, `write cache to memory`, cpu);
 
+  cpu = Game.cpu.getUsed();
   global.sockpuppet.run();
+  CreepUtils.profile(global.sockpuppet, `run sockpuppet`, cpu);
 
+  cpu = Game.cpu.getUsed();
   const logger = new Logger();
   logger.run();
+  CreepUtils.profile(global.sockpuppet, `logger`, cpu);
+
   const cpuAfter = Game.cpu.getUsed();
   CreepUtils.profile(global.sockpuppet, `CPU tick total`, cpuBefore);
   Memory.cpu.tickTotal = Memory.cpu.tickTotal ?? [];
