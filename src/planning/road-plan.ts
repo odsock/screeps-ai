@@ -8,17 +8,17 @@ export class RoadPlan {
   }
 
   public placeRoadSourceContainersToControllerContainers(): ScreepsReturnCode {
-    console.log(`- container road planning`);
+    // console.log(`- container road planning`);
 
     const controllerContainers = this.roomw.controllerContainers;
     if (controllerContainers.length <= 0) {
-      console.log(` - no controller containers`);
+      // console.log(` - no controller containers`);
       return OK;
     }
 
     const sourceContainers = this.roomw.sourceContainers;
     if (sourceContainers.length <= 0) {
-      console.log(` - no source containers`);
+      // console.log(` - no source containers`);
       return OK;
     }
 
@@ -28,7 +28,7 @@ export class RoadPlan {
         const path: PathFinderPath = this.planRoad(sourceContainer.pos, controllerContainer.pos, 1);
         if (!path.incomplete) {
           const result = this.placeRoadOnPath(path);
-          console.log(` - placement result: ${result}`);
+          // console.log(` - placement result: ${result}`);
         }
       }
     }
@@ -46,7 +46,7 @@ export class RoadPlan {
         }
       }
     }
-    CreepUtils.consoleLogIfWatched(this.room, `spawn road placement result`, result);
+    // CreepUtils.consoleLogIfWatched(this.room, `spawn road placement result`, result);
     return result;
   }
 
@@ -83,7 +83,7 @@ export class RoadPlan {
       if (!hasRoad) {
         const result = this.room.createConstructionSite(pos, STRUCTURE_ROAD);
         if (result !== 0) {
-          console.log(`road failed: ${result}, pos: ${String(pos)}`);
+          // console.log(`road failed: ${result}, pos: ${String(pos)}`);
           return result;
         }
       }
@@ -108,7 +108,7 @@ export class RoadPlan {
       { swampCost: 2, plainCost: 2, roomCallback: CreepUtils.getRoadCostMatrix }
     );
     if (path.incomplete) {
-      console.log(`road plan incomplete: ${String(origin)} -> ${String(goal)}`);
+      // console.log(`road plan incomplete: ${String(origin)} -> ${String(goal)}`);
     }
     return path;
   }

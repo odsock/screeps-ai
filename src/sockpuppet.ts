@@ -6,6 +6,7 @@ import { TowerWrapper } from "structures/tower-wrapper";
 import { RoomWrapper } from "structures/room-wrapper";
 import { DefenseControl } from "control/defense-control";
 import { ReconControl } from "control/recon-control";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 
 export class Sockpuppet {
   public name = "sockpuppet";
@@ -20,7 +21,6 @@ export class Sockpuppet {
 
     // spawn defense creeps
     cpu = Game.cpu.getUsed();
-    console.log(`Running defense control`);
     const defenseControl = new DefenseControl();
     defenseControl.run();
     CreepUtils.profile(this, `defense`, cpu);
@@ -48,19 +48,14 @@ export class Sockpuppet {
         roomw.visual.import(dismantleVisual);
       }
 
-      // Run spawners
-      CreepUtils.consoleLogIfWatched(roomw, `running spawns`);
       const spawnControl = new SpawnControl(roomw);
       spawnControl.run();
-
-      CreepUtils.consoleLogIfWatched(roomw, `running towers`);
       this.runTowers(roomw);
 
-      // Plan each room every 10 ticks
+      // Plan each room on interval
       const planner = new Planner(roomw);
-      if (Game.time % 10 === 0) {
-        const result = planner.run();
-        console.log(`planning result: ${result}`);
+      if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
+        planner.run();
       }
     }
     CreepUtils.profile(this, `rooms`, cpu);
