@@ -68,10 +68,11 @@ export class Planner {
 
   private assimilateColonlyToPlan(skipRoads = false): ScreepsReturnCode {
     const cpu = Game.cpu.getUsed();
-    const plan = MemoryUtils.getCache<StructurePlan>(`${this.roomw.name}_plan`);
-    if (!plan) {
+    const planObject = MemoryUtils.getCache<StructurePlan>(`${this.roomw.name}_plan`);
+    if (!planObject) {
       return OK;
     }
+    const plan = StructurePlan.loadPlan(planObject);
 
     const planPositions = plan.getPlan();
     if (!planPositions) {

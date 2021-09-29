@@ -24,6 +24,14 @@ export class StructurePlan {
     this.roomw = RoomWrapper.getInstance(room.name);
   }
 
+  /** utility method for loading cached plan from JSON */
+  public static loadPlan(planObject: StructurePlan): StructurePlan {
+    const sp = new StructurePlan(planObject.pattern, planObject.room);
+    sp.plan = planObject.plan;
+    sp.planned = planObject.planned;
+    return sp;
+  }
+
   public printPattern(): void {
     for (const i of this.pattern) {
       console.log(`${i.xOffset}, ${i.yOffset}, ${i.structure}`);
