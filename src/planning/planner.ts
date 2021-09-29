@@ -83,7 +83,7 @@ export class Planner {
     console.log(`place colony result ${result}`);
     CreepUtils.profile(this.roomw, `place colony`, cpu);
 
-    CreepUtils.profile(this.roomw, `assimilate colony`, cpuBefore);
+    CreepUtils.profile(this.roomw, `update colony TOTAL`, cpuBefore);
     return result;
   }
 

@@ -193,6 +193,7 @@ export class PlannerUtils {
           continue;
         }
 
+        // TODO does this cost CPU on failures?
         const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
         if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
           continue;

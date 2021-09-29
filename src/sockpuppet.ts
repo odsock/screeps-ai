@@ -27,14 +27,8 @@ export class Sockpuppet {
 
     // Run each room
     cpu = Game.cpu.getUsed();
-    for (const name in Game.rooms) {
-      // only consider rooms we own for colony planning and control
-      if (!Game.rooms[name].controller?.my) {
-        CreepUtils.consoleLogIfWatched(Game.rooms[name], `skipping unowned room ${name}`);
-        continue;
-      }
-
-      const roomw = RoomWrapper.getInstance(name);
+    _.filter(Game.rooms, room => room.controller?.my).forEach(room => {
+      const roomw = RoomWrapper.getInstance(room);
 
       // draw colony poc
       const planVisual = roomw.planVisual;
@@ -57,7 +51,7 @@ export class Sockpuppet {
       if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
         planner.run();
       }
-    }
+    });
     CreepUtils.profile(this, `rooms`, cpu);
 
     const cpuBefore = Game.cpu.getUsed();
