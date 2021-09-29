@@ -194,7 +194,9 @@ export class PlannerUtils {
         }
 
         // TODO does this cost CPU on failures?
+        const cpu = Game.cpu.getUsed();
         const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
+        CreepUtils.profile(roomw, `place construction`, cpu);
         if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
           continue;
         }
