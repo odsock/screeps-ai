@@ -1,7 +1,9 @@
 import { MemoryUtils } from "planning/memory-utils";
 import { PlannerUtils } from "planning/planner-utils";
 import { RoomWrapper } from "structures/room-wrapper";
+import { profile } from "../../screeps-typescript-profiler";
 
+@profile
 export class ReconControl {
   public run(): void {
     // check each room we can see

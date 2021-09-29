@@ -7,7 +7,9 @@ import { StructurePatterns } from "config/structure-patterns";
 import { StructurePlanPosition } from "./structure-plan";
 import { ExtensionPlan } from "./extension-plan";
 import { CreepUtils } from "creep-utils";
+import { profile } from "../../screeps-typescript-profiler";
 
+@profile
 export class Planner {
   private readonly roomw: RoomWrapper;
   private readonly CACHE_KEY;

@@ -15,7 +15,9 @@ import { Upgrader } from "roles/upgrader";
 import { CreepBodyProfile } from "roles/creep-wrapper";
 import { SpawnUtils } from "./spawn-utils";
 import { MemoryUtils } from "planning/memory-utils";
+import { profile } from "../../screeps-typescript-profiler";
 
+@profile
 export class SpawnControl {
   private readonly containers: AnyStructure[];
   private readonly rcl: number;

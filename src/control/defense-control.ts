@@ -2,8 +2,10 @@ import { CreepUtils } from "creep-utils";
 import { Guard } from "roles/guard";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
+import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 
+@profile
 export class DefenseControl {
   public run(): void {
     // spawn guard for each unguarded room with hostiles
