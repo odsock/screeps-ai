@@ -24,12 +24,16 @@ global.unwatch = (key: Id<any>) => {
   }
 };
 
-global.profile = (key: Id<any>) => {
+global.profile = (key: Id<any> | string) => {
   let watchable: Watchable | null = Game.getObjectById(key) as Watchable;
   if (Game.creeps[key]) {
     watchable = Game.creeps[key] as Watchable;
   } else if (Game.spawns[key]) {
     watchable = Game.spawns[key] as Watchable;
+  } else if (Game.rooms[key]) {
+    watchable = Game.rooms[key] as Watchable;
+  } else if (key === "sockpuppet") {
+    watchable = global.sockpuppet as Watchable;
   }
   if (watchable) {
     watchable.memory.profile = true;
