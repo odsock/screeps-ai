@@ -59,9 +59,8 @@ export class Planner {
         plan.drawPattern();
         this.roomw.planVisual = this.roomw.visual.export();
 
-        // cache plan
-        MemoryUtils.setCache(`${this.roomw.name}_plan`, plan, SockPuppetConstants.PLANNING_INTERVAL);
-        MemoryUtils.setCache(`${this.roomw.name}_centerPoint`, centerPoint, SockPuppetConstants.PLANNING_INTERVAL);
+        // cache plan forever
+        MemoryUtils.setCache(`${this.roomw.name}_plan`, plan, -1);
       }
     }
     CreepUtils.profile(this.roomw, `plan colony`, cpu);
