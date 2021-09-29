@@ -33,10 +33,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   CreepUtils.profile(global.sockpuppet, `cleanup dead creeps`, cpu);
 
   cpu = Game.cpu.getUsed();
-  MemoryUtils.writeCacheToMemory();
-  CreepUtils.profile(global.sockpuppet, `write cache to memory`, cpu);
-
-  cpu = Game.cpu.getUsed();
   global.sockpuppet.run();
   CreepUtils.profile(global.sockpuppet, `run sockpuppet`, cpu);
 

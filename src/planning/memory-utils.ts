@@ -146,13 +146,15 @@ export class MemoryUtils {
     Memory.cache = JSON.stringify(Array.from(global.cache.entries()));
   }
 
-  private static initCache() {
-    if (!global.cache && Memory.cache) {
+  private static readCacheFromMemory(): void {
+    if (Memory.cache) {
       console.log(`deserializing cache from memory`);
       global.cache = new Map(JSON.parse(Memory.cache));
-    } else {
-      global.cache = new Map<string, CacheValue>();
     }
+  }
+
+  private static initCache() {
+    global.cache = new Map<string, CacheValue>();
   }
 
   public static setCache<T>(key: string, item: T, ttl = 1): void {
