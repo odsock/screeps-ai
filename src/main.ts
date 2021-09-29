@@ -4,6 +4,7 @@ import { Logger } from "./logger";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import "./utils/console-scripts.js";
 import { MemoryUtils } from "planning/memory-utils";
+import { CreepUtils } from "creep-utils";
 
 global.sockpuppet = new Sockpuppet();
 
@@ -35,7 +36,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const logger = new Logger();
   logger.run();
   const cpuUsed = Game.cpu.getUsed() - cpu;
-  console.log(`CPU tick total: ${cpuUsed}`);
+  CreepUtils.profile(global.sockpuppet, `CPU tick total`, cpuUsed);
   Memory.cpu.tickTotal = Memory.cpu.tickTotal ?? [];
   const tickTotal = Memory.cpu.tickTotal;
   tickTotal.push(cpuUsed);
