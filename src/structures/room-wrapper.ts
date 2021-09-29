@@ -81,12 +81,15 @@ export class RoomWrapper extends Room {
   public get dismantleQueue(): Structure[] {
     let queue = MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueue`);
     if (!queue) {
-      MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, [], SockPuppetConstants.PLANNING_INTERVAL);
       return [];
     }
     queue = queue.filter(structure => !!Game.getObjectById(structure.id));
-    MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, SockPuppetConstants.PLANNING_INTERVAL);
+    MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, -1);
     return queue;
+  }
+
+  public set dismantleQueue(queue: Structure[]) {
+    MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, -1);
   }
 
   /**

@@ -79,6 +79,7 @@ export class Planner {
     }
 
     // mark each structure for dismantling if mismatch found
+    const dismantleQueue: Structure<StructureConstant>[] = [];
     const roomLook = this.roomw.lookForAtArea(
       LOOK_STRUCTURES,
       0,
@@ -91,24 +92,21 @@ export class Planner {
       if (posLook) {
         const wrongStructure = posLook.find(s => s.structure.structureType !== planPos.structure);
         if (wrongStructure?.structure && wrongStructure.structure) {
-          // a couple of exceptions
+          // a couple of exceptions (don't dismantle own last spawn dummy)
           if (
             (skipRoads && wrongStructure.structure.structureType === STRUCTURE_ROAD) ||
             (wrongStructure.structure.structureType === STRUCTURE_SPAWN && this.roomw.find(FIND_MY_SPAWNS).length === 1)
           ) {
             return;
           }
-          // add item to queue if not already there
-          const dismantleQueue = this.roomw.dismantleQueue;
-          if (!dismantleQueue.find(item => item.id === wrongStructure.structure?.id)) {
-            console.log(
-              `DISMANTLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
-            );
-            dismantleQueue.push(wrongStructure.structure);
-          }
+          console.log(
+            `DISMANTLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
+          );
+          dismantleQueue.push(wrongStructure.structure);
         }
       }
     });
+    this.roomw.dismantleQueue = dismantleQueue;
 
     // draw dismantle queue
     this.roomw.visual.clear();
