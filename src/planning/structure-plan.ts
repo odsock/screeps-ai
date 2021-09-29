@@ -4,11 +4,11 @@ import { RoomWrapper } from "structures/room-wrapper";
 interface StructurePatternPosition {
   xOffset: number;
   yOffset: number;
-  structure: StructureConstant;
+  structure: BuildableStructureConstant;
 }
 export interface StructurePlanPosition {
   pos: RoomPosition;
-  structure: StructureConstant;
+  structure: BuildableStructureConstant;
 }
 
 export class StructurePlan {

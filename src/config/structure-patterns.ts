@@ -40,7 +40,7 @@ export class StructurePatterns {
     "    r"
   ];
 
-  public static readonly CHARACTERS: {[x: string]: StructureConstant | undefined} = {
+  public static readonly CHARACTERS: {[x: string]: BuildableStructureConstant | undefined} = {
     r: STRUCTURE_ROAD,
     e: STRUCTURE_EXTENSION,
     c: STRUCTURE_CONTAINER,

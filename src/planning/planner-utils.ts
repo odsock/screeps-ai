@@ -198,6 +198,7 @@ export class PlannerUtils {
         }
 
         const cpu = Game.cpu.getUsed();
+        // calling lookAt is cheaper than failing when already placed
         const placed = roomw
           .lookAt(planPosition.pos)
           .some(
@@ -205,7 +206,12 @@ export class PlannerUtils {
               item.structure?.structureType === planPosition.structure ||
               item.constructionSite?.structureType === planPosition.structure
           );
-        if (!placed) {
+        // check RCL yourself before call
+        const structureCount = roomw.find(FIND_STRUCTURES, {
+          filter: s => s.structureType === planPosition.structure
+        }).length;
+        const haveRcl = CONTROLLER_STRUCTURES[planPosition.structure][roomw.controller?.level ?? 0] > structureCount;
+        if (!placed && haveRcl) {
           const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
           CreepUtils.consoleLogIfWatched(roomw, `place construction ${JSON.stringify(planPosition)}`, result);
           if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
