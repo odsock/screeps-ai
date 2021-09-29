@@ -111,6 +111,7 @@ declare global {
       placeExt: (pos: RoomPosition, structure: StructureConstant) => void;
       printCpuUsage: () => void;
       clearCpuUsage: () => void;
+      Profiler: Profiler;
     }
   }
 }
