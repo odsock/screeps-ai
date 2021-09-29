@@ -3,7 +3,6 @@ import { ErrorMapper } from "utils/ErrorMapper";
 import { Logger } from "./logger";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import "./utils/console-scripts.js";
-import { MemoryUtils } from "planning/memory-utils";
 import { CreepUtils } from "creep-utils";
 
 global.sockpuppet = new Sockpuppet();
