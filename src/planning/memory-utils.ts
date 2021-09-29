@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
+import { Sockpuppet } from "sockpuppet";
+
 declare global {
   interface CreepMemory {
     source?: Id<Source>;
@@ -98,6 +100,7 @@ declare global {
 
   namespace NodeJS {
     interface Global {
+      sockpuppet: Sockpuppet;
       log: any;
       cache: Map<string, CacheValue>;
       watch: (key: Id<any>) => void;

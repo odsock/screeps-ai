@@ -5,6 +5,8 @@ import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import "./utils/console-scripts.js";
 import { MemoryUtils } from "planning/memory-utils";
 
+global.sockpuppet = new Sockpuppet();
+
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
@@ -28,8 +30,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   MemoryUtils.writeCacheToMemory();
 
-  const sockpuppet = new Sockpuppet();
-  sockpuppet.run();
+  global.sockpuppet.run();
 
   const logger = new Logger();
   logger.run();

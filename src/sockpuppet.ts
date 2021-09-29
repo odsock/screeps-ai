@@ -8,20 +8,25 @@ import { DefenseControl } from "control/defense-control";
 import { ReconControl } from "control/recon-control";
 
 export class Sockpuppet {
-  public run(): void {
-    // refresh global cache if missing
-    // MemoryUtils.writeCacheToMemory();
+  public name = "sockpuppet";
+  public memory = {};
 
+  public run(): void {
     // collect data about rooms we can see
+    let cpu = Game.cpu.getUsed();
     const reconControl = new ReconControl();
     reconControl.run();
+    CreepUtils.profile(this, `recon`, cpu);
 
     // spawn defense creeps
+    cpu = Game.cpu.getUsed();
     console.log(`Running defense control`);
     const defenseControl = new DefenseControl();
     defenseControl.run();
+    CreepUtils.profile(this, `defense`, cpu);
 
     // Run each room
+    cpu = Game.cpu.getUsed();
     for (const name in Game.rooms) {
       // only consider rooms we own for colony planning and control
       if (!Game.rooms[name].controller?.my) {
@@ -58,23 +63,22 @@ export class Sockpuppet {
         console.log(`planning result: ${result}`);
       }
     }
+    CreepUtils.profile(this, `rooms`, cpu);
 
-    const cpuBeforeCreeps = Game.cpu.getUsed();
+    const cpuBefore = Game.cpu.getUsed();
     this.runCreeps();
-    const cpuAfterCreeps = Game.cpu.getUsed();
-    const cpuUsedForCreeps = cpuAfterCreeps - cpuBeforeCreeps;
-    console.log(`CPU creeps: ${cpuUsedForCreeps}`);
+    const cpuAfter = Game.cpu.getUsed();
+    CreepUtils.profile(this, `creeps`, cpuBefore);
+    const cpuUsedForCreeps = cpuAfter - cpuBefore;
+
     if (!Memory.cpu) {
       Memory.cpu = { allCreeps: [], creepsByRole: {}, tickTotal: [] };
     }
     const allCreeps = Memory.cpu.allCreeps;
     allCreeps.push(cpuUsedForCreeps);
-    if (allCreeps.length > 100) {
+    if (allCreeps.length > CREEP_LIFE_TIME) {
       allCreeps.shift();
     }
-
-    // write global cache to memory
-    // MemoryUtils.writeCacheToMemory();
   }
 
   public runCreeps(): void {
