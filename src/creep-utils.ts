@@ -24,7 +24,7 @@ export class CreepUtils {
 
   public static profile(watchable: Watchable, message: string, start: number): void {
     if (watchable.memory.profile === true) {
-      console.log(`${watchable.name} CPU: ${message}: ${Game.cpu.getUsed() - start}`);
+      console.log(`${watchable.name} CPU: ${message}: ${(Game.cpu.getUsed() - start).toFixed(3)}`);
     }
   }
 
