@@ -82,7 +82,6 @@ export class Planner {
     const result = PlannerUtils.placeStructurePlan({
       plan: planPositions,
       roomw: this.roomw,
-      ignoreRCL: true,
       skipRoads
     });
     console.log(`place colony result ${result}`);

@@ -182,51 +182,63 @@ export class PlannerUtils {
   public static placeStructurePlan({
     plan,
     roomw,
-    ignoreRCL = true,
     skipRoads = false
   }: {
     plan: StructurePlan | StructurePlanPosition[];
     roomw: RoomWrapper;
-    ignoreRCL?: boolean;
     skipRoads?: boolean;
   }): ScreepsReturnCode {
     const planPositions = plan instanceof StructurePlan ? plan.getPlan() : plan;
-    if (planPositions) {
+    if (!planPositions) {
+      CreepUtils.consoleLogIfWatched(roomw, `failed to place plan`);
+      return ERR_NOT_FOUND;
+    } else {
       for (const planPosition of planPositions) {
         if (skipRoads && planPosition.structure === STRUCTURE_ROAD) {
           continue;
         }
 
-        let cpu = Game.cpu.getUsed();
-        // calling lookAt is cheaper than failing when already placed
-        const placed = roomw
-          .lookAt(planPosition.pos)
-          .some(
-            item =>
-              item.structure?.structureType === planPosition.structure ||
-              item.constructionSite?.structureType === planPosition.structure
-          );
-        CreepUtils.profile(roomw, `check already placed`, cpu);
-        // check RCL yourself before call
-        cpu = Game.cpu.getUsed();
-        const structureCount = roomw.find(FIND_STRUCTURES, {
-          filter: s => s.structureType === planPosition.structure
-        }).length;
-        const haveRcl = CONTROLLER_STRUCTURES[planPosition.structure][roomw.controller?.level ?? 0] > structureCount;
-        CreepUtils.profile(roomw, `check rcl`, cpu);
-        cpu = Game.cpu.getUsed();
-        if (!placed && haveRcl) {
+        const cpu = Game.cpu.getUsed();
+        if (!PlannerUtils.placed(roomw, planPosition) && PlannerUtils.haveRcl(roomw, planPosition)) {
           const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
+          CreepUtils.profile(roomw, `place construction`, cpu);
           CreepUtils.consoleLogIfWatched(roomw, `place construction ${JSON.stringify(planPosition)}`, result);
-          if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
-            continue;
+          if (result !== OK) {
+            return result;
           }
-          return result;
         }
         CreepUtils.profile(roomw, `place construction`, cpu);
       }
     }
-    CreepUtils.consoleLogIfWatched(roomw, `failed to place plan`);
-    return ERR_NOT_FOUND;
+    return OK;
+  }
+
+  /**
+   * calling lookAt is cheaper than failing when already placed
+   */
+  private static placed(roomw: RoomWrapper, planPosition: StructurePlanPosition) {
+    const cpu = Game.cpu.getUsed();
+    const placed = roomw
+      .lookAt(planPosition.pos)
+      .some(
+        item =>
+          item.structure?.structureType === planPosition.structure ||
+          item.constructionSite?.structureType === planPosition.structure
+      );
+    CreepUtils.profile(roomw, `check already placed`, cpu);
+    return placed;
+  }
+
+  /**
+   *  check RCL yourself before attempting create construction site
+   */
+  private static haveRcl(roomw: RoomWrapper, planPosition: StructurePlanPosition) {
+    const cpu = Game.cpu.getUsed();
+    const structureCount = roomw.find(FIND_STRUCTURES, {
+      filter: s => s.structureType === planPosition.structure
+    }).length;
+    const haveRcl = CONTROLLER_STRUCTURES[planPosition.structure][roomw.controller?.level ?? 0] > structureCount;
+    CreepUtils.profile(roomw, `check rcl`, cpu);
+    return haveRcl;
   }
 }
