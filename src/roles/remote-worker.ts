@@ -9,13 +9,14 @@ export class RemoteWorker extends CreepWrapper {
   protected moveToRoom(roomName: string): ScreepsReturnCode {
     let cpu = Game.cpu.getUsed();
     if (this.pos.roomName === roomName) {
+      delete this.memory.path;
       CreepUtils.consoleLogIfWatched(this, `already in room ${roomName}`);
       CreepUtils.profile(this, `room check`, cpu);
       return OK;
     }
     CreepUtils.profile(this, `room check`, cpu);
 
-    if (!this.memory.path) {
+    if (!this.memory.path || this.memory.path.length === 0) {
       const result = this.getPathToRoom(roomName);
       if (result !== OK) {
         return result;
@@ -27,10 +28,6 @@ export class RemoteWorker extends CreepWrapper {
 
       cpu = Game.cpu.getUsed();
       const ret = this.moveByPath(path);
-      if (ret === OK) {
-        path.shift();
-        this.memory.path = Room.serializePath(path);
-      }
       CreepUtils.consoleLogIfWatched(this, `moving to exit by path`, ret);
       CreepUtils.profile(this, `move to exit`, cpu);
       return ret;
