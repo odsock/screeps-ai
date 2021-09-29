@@ -4,8 +4,10 @@ import { CreepUtils } from "creep-utils";
 import { Builder } from "./builder";
 import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 import { Upgrader } from "./upgrader";
+import { profile } from "../../screeps-typescript-profiler";
 
 // TODO: assign to source containers or something so they don't only use closest
+@profile
 export class Hauler extends CreepWrapper {
   public static readonly ROLE = CreepRole.HAULER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

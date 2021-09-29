@@ -2,7 +2,9 @@ import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { CreepBodyProfile } from "./creep-wrapper";
 import { Minder } from "./minder";
+import { profile } from "../../screeps-typescript-profiler";
 
+@profile
 export class Harvester extends Minder {
   public static ROLE: CreepRole = CreepRole.HARVESTER;
   public static BODY_PROFILE: CreepBodyProfile = {

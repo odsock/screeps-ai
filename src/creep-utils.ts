@@ -5,7 +5,9 @@ export interface Watchable {
   [key: string]: any;
   memory: { watched?: boolean; profile?: boolean };
 }
+import { profile } from "../screeps-typescript-profiler";
 
+@profile
 export class CreepUtils {
   public static consoleLogIfWatched(
     watchable: Watchable,

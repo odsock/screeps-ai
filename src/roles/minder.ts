@@ -1,6 +1,8 @@
 import { CreepUtils } from "creep-utils";
 import { CreepWrapper } from "./creep-wrapper";
+import { profile } from "../../screeps-typescript-profiler";
 
+@profile
 export abstract class Minder extends CreepWrapper {
   protected retireCreep(retiree: Creep): ScreepsReturnCode {
     // request suicide if next to retiree

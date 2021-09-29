@@ -1,6 +1,7 @@
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
+import { profile } from "../../screeps-typescript-profiler";
 
 export interface CreepBodyProfile {
   profile: BodyPartConstant[];
@@ -9,6 +10,7 @@ export interface CreepBodyProfile {
   maxWorkParts?: number;
 }
 
+@profile
 export abstract class CreepWrapper extends Creep {
   private pickingUp = false;
   private withdrawing = false;

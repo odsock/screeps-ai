@@ -1,6 +1,8 @@
 import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
+import { profile } from "../../screeps-typescript-profiler";
 
+@profile
 export class RoadPlan {
   private readonly roomw: RoomWrapper;
   public constructor(private readonly room: Room) {

@@ -2,7 +2,9 @@ import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { CreepBodyProfile } from "./creep-wrapper";
 import { RemoteWorker } from "./remote-worker";
+import { profile } from "../../screeps-typescript-profiler";
 
+@profile
 export class Importer extends RemoteWorker {
   public static readonly ROLE = CreepRole.IMPORTER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

@@ -1,6 +1,8 @@
 import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
+import { profile } from "../../screeps-typescript-profiler";
 
+@profile
 export class RemoteWorker extends CreepWrapper {
   public run(): void {
     throw new Error("Superclass run not implemented.");

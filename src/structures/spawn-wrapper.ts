@@ -1,6 +1,9 @@
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "./room-wrapper";
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class SpawnWrapper extends StructureSpawn {
   public constructor(spawn: StructureSpawn) {
     super(spawn.id);

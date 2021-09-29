@@ -2,7 +2,9 @@ import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { MemoryUtils } from "planning/memory-utils";
 import { SpawnWrapper } from "./spawn-wrapper";
 import { PlannerUtils } from "planning/planner-utils";
+import { profile } from "../../screeps-typescript-profiler";
 
+@profile
 export class RoomWrapper extends Room {
   /**
    * Manages singleton RoomWrappers for all rooms this tick.

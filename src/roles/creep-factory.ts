@@ -10,7 +10,9 @@ import { CreepRole } from "config/creep-types";
 import { Harvester } from "./harvester";
 import { CreepWrapper } from "./creep-wrapper";
 import { Minder } from "./minder";
+import { profile } from "../../screeps-typescript-profiler";
 
+@profile
 export class CreepFactory {
   public static getCreep(creep: Creep): CreepWrapper {
     switch (creep.memory.role) {

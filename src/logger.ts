@@ -1,5 +1,7 @@
 import { RoomWrapper } from "structures/room-wrapper";
+import { profile } from "../screeps-typescript-profiler";
 
+@profile
 export class Logger {
   public run(): void {
     _.filter(Game.rooms, room => room.controller?.my).forEach(room => {
