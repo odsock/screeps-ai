@@ -178,6 +178,6 @@ export class MemoryUtils {
 
   /** check if expiration has passed, using -1 to mean no expiration */
   private static isExpired(expires: number): boolean {
-    return expires === -1 ? false : expires > Game.time;
+    return expires === -1 ? false : expires <= Game.time;
   }
 }
