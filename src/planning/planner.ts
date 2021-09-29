@@ -68,7 +68,7 @@ export class Planner {
   }
 
   private assimilateColonlyToPlan(skipRoads = false): ScreepsReturnCode {
-    const cpu = Game.cpu.getUsed();
+    const cpuBefore = Game.cpu.getUsed();
     const cachedPlanPositions = MemoryUtils.getCache<StructurePlanPosition[]>(this.CACHE_KEY);
     if (!cachedPlanPositions) {
       return OK;
@@ -85,9 +85,10 @@ export class Planner {
     if (!planPositions) {
       return OK;
     }
+    CreepUtils.profile(this.roomw, `get plan`, cpuBefore);
 
     // mark each structure for dismantling if mismatch found
-    const dismantleQueue: Structure<StructureConstant>[] = [];
+    let cpu = Game.cpu.getUsed();
     const roomLook = this.roomw.lookForAtArea(
       LOOK_STRUCTURES,
       0,
@@ -95,6 +96,10 @@ export class Planner {
       SockPuppetConstants.ROOM_SIZE,
       SockPuppetConstants.ROOM_SIZE
     );
+    CreepUtils.profile(this.roomw, `room look`, cpu);
+
+    cpu = Game.cpu.getUsed();
+    const dismantleQueue: Structure<StructureConstant>[] = [];
     planPositions.forEach(planPos => {
       const posLook = roomLook[planPos.pos.x][planPos.pos.y];
       if (posLook) {
@@ -115,19 +120,24 @@ export class Planner {
       }
     });
     this.roomw.dismantleQueue = dismantleQueue;
+    CreepUtils.profile(this.roomw, `build dismantle queue`, cpu);
 
     // draw dismantle queue
+    cpu = Game.cpu.getUsed();
     this.roomw.visual.clear();
     this.roomw.dismantleQueue.forEach(structure => {
       this.roomw.visual.circle(structure.pos, { fill: "#FF0000" });
     });
     this.roomw.dismantleVisual = this.roomw.visual.export();
+    CreepUtils.profile(this.roomw, `draw dismantle visual`, cpu);
 
     // try to construct any missing structures
+    cpu = Game.cpu.getUsed();
     const result = PlannerUtils.placeStructurePlan(plan, true, true, skipRoads);
     console.log(`place colony result ${result}`);
+    CreepUtils.profile(this.roomw, `place colony`, cpu);
 
-    CreepUtils.profile(this.roomw, `assimilate colony`, cpu);
+    CreepUtils.profile(this.roomw, `assimilate colony`, cpuBefore);
     return result;
   }
 
