@@ -4,7 +4,7 @@ import { RoadPlan } from "./road-plan";
 import { PlannerUtils } from "./planner-utils";
 import { MemoryUtils } from "./memory-utils";
 import { StructurePatterns } from "config/structure-patterns";
-import { StructurePlan, StructurePlanPosition } from "./structure-plan";
+import { StructurePlanPosition } from "./structure-plan";
 import { ExtensionPlan } from "./extension-plan";
 import { CreepUtils } from "creep-utils";
 
@@ -24,15 +24,15 @@ export class Planner {
       const IGNORE_ROADS = true;
       if (this.roomw.controller?.level === 1) {
         this.planFullColony();
-        this.assimilateColonlyToPlan(IGNORE_ROADS);
+        this.updateColonyStructures(IGNORE_ROADS);
       } else if (this.roomw.controller?.level === 2) {
         this.planFullColony();
-        this.assimilateColonlyToPlan(IGNORE_ROADS);
+        this.updateColonyStructures(IGNORE_ROADS);
         this.planContainers();
         this.planRoads();
       } else if (this.roomw.controller?.level >= 3) {
         this.planFullColony();
-        this.assimilateColonlyToPlan();
+        this.updateColonyStructures();
         this.planContainers();
         this.planRoads();
       }
@@ -66,43 +66,45 @@ export class Planner {
     CreepUtils.profile(this.roomw, `plan colony`, cpu);
   }
 
-  private assimilateColonlyToPlan(skipRoads = false): ScreepsReturnCode {
+  private updateColonyStructures(skipRoads = false): ScreepsReturnCode {
     const cpuBefore = Game.cpu.getUsed();
-    const cachedPlanPositions = MemoryUtils.getCache<StructurePlanPosition[]>(this.CACHE_KEY);
-    if (!cachedPlanPositions) {
-      return OK;
-    }
-    let plan;
-    try {
-      plan = StructurePlan.fromPlanPositions(cachedPlanPositions);
-    } catch (e) {
-      MemoryUtils.deleteCache(this.CACHE_KEY);
-      return ERR_INVALID_ARGS;
-    }
-
-    const planPositions = plan.getPlan();
+    const planPositions = MemoryUtils.getCache<StructurePlanPosition[]>(this.CACHE_KEY);
     if (!planPositions) {
       return OK;
     }
     CreepUtils.profile(this.roomw, `get plan`, cpuBefore);
 
+    // mark misplaced structures for dismantling
+    this.createDismantleQueue(planPositions, skipRoads);
+
+    // try to construct any missing structures
+    const cpu = Game.cpu.getUsed();
+    const result = PlannerUtils.placeStructurePlan(planPositions, this.roomw, true, true, skipRoads);
+    console.log(`place colony result ${result}`);
+    CreepUtils.profile(this.roomw, `place colony`, cpu);
+
+    CreepUtils.profile(this.roomw, `assimilate colony`, cpuBefore);
+    return result;
+  }
+
+  private createDismantleQueue(planPositions: StructurePlanPosition[], skipRoads: boolean): void {
     let cpu = Game.cpu.getUsed();
+    const lastSpawn = this.roomw.find(FIND_MY_SPAWNS).length === 1;
     const dismantleQueue: Structure<StructureConstant>[] = [];
     planPositions.forEach(planPos => {
-      const posLook = this.roomw.lookForAt(LOOK_STRUCTURES, planPos);
-      if (posLook) {
-        const wrongStructure = posLook.find(s => s.structureType !== planPos.structure);
-        if (wrongStructure) {
-          // a couple of exceptions (don't dismantle own last spawn dummy)
-          if (
-            (skipRoads && wrongStructure.structureType === STRUCTURE_ROAD) ||
-            (wrongStructure.structureType === STRUCTURE_SPAWN && this.roomw.find(FIND_MY_SPAWNS).length === 1)
-          ) {
-            return;
-          }
-          console.log(`DISMANTLE ${String(wrongStructure.structureType)} at ${String(wrongStructure.pos)}`);
-          dismantleQueue.push(wrongStructure);
+      const wrongStructure = this.roomw
+        .lookForAt(LOOK_STRUCTURES, planPos)
+        .find(s => s.structureType !== planPos.structure);
+      if (wrongStructure) {
+        // a couple of exceptions (don't dismantle own last spawn dummy)
+        if (
+          (skipRoads && wrongStructure.structureType === STRUCTURE_ROAD) ||
+          (lastSpawn && wrongStructure.structureType === STRUCTURE_SPAWN)
+        ) {
+          return;
         }
+        console.log(`DISMANTLE ${String(wrongStructure.structureType)} at ${String(wrongStructure.pos)}`);
+        dismantleQueue.push(wrongStructure);
       }
     });
     this.roomw.dismantleQueue = dismantleQueue;
@@ -116,15 +118,6 @@ export class Planner {
     });
     this.roomw.dismantleVisual = this.roomw.visual.export();
     CreepUtils.profile(this.roomw, `draw dismantle visual`, cpu);
-
-    // try to construct any missing structures
-    cpu = Game.cpu.getUsed();
-    const result = PlannerUtils.placeStructurePlan(plan, true, true, skipRoads);
-    console.log(`place colony result ${result}`);
-    CreepUtils.profile(this.roomw, `place colony`, cpu);
-
-    CreepUtils.profile(this.roomw, `assimilate colony`, cpuBefore);
-    return result;
   }
 
   private planContainers(): ScreepsReturnCode {

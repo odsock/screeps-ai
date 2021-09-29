@@ -1,6 +1,7 @@
 import { SockPuppetConstants } from "../config/sockpuppet-constants";
-import { StructurePlan } from "planning/structure-plan";
+import { StructurePlan, StructurePlanPosition } from "planning/structure-plan";
 import { CreepUtils } from "creep-utils";
+import { RoomWrapper } from "structures/room-wrapper";
 
 export class PlannerUtils {
   public static findSiteForPattern(
@@ -179,27 +180,28 @@ export class PlannerUtils {
   }
 
   public static placeStructurePlan(
-    structurePlan: StructurePlan,
+    plan: StructurePlan | StructurePlanPosition[],
+    roomw: RoomWrapper,
     allowOverlap = true,
     ignoreRCL = true,
     skipRoads = false
   ): ScreepsReturnCode {
-    const plan = structurePlan.getPlan();
-    if (plan) {
-      CreepUtils.consoleLogIfWatched(structurePlan.roomw, `found placement for plan`);
-      for (const planPosition of plan) {
+    const planPositions = plan instanceof StructurePlan ? plan.getPlan() : plan;
+    if (planPositions) {
+      CreepUtils.consoleLogIfWatched(roomw, `found placement for plan`);
+      for (const planPosition of planPositions) {
         if (skipRoads && planPosition.structure === STRUCTURE_ROAD) {
           continue;
         }
 
-        const result = structurePlan.roomw.createConstructionSite(planPosition.pos, planPosition.structure);
+        const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
         if (result === ERR_RCL_NOT_ENOUGH && ignoreRCL) {
           continue;
         }
 
         if (result === ERR_INVALID_TARGET && allowOverlap) {
           if (
-            structurePlan.roomw
+            roomw
               .lookAt(planPosition.pos)
               .some(
                 item =>
@@ -214,7 +216,7 @@ export class PlannerUtils {
         }
       }
     }
-    CreepUtils.consoleLogIfWatched(structurePlan.roomw, `failed to place plan`);
+    CreepUtils.consoleLogIfWatched(roomw, `failed to place plan`);
     return ERR_NOT_FOUND;
   }
 }
