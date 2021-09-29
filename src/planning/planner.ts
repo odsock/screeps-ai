@@ -5,7 +5,6 @@ import { PlannerUtils } from "./planner-utils";
 import { MemoryUtils } from "./memory-utils";
 import { StructurePatterns } from "config/structure-patterns";
 import { StructurePlan, StructurePlanPosition } from "./structure-plan";
-import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { ExtensionPlan } from "./extension-plan";
 import { CreepUtils } from "creep-utils";
 
@@ -87,35 +86,22 @@ export class Planner {
     }
     CreepUtils.profile(this.roomw, `get plan`, cpuBefore);
 
-    // mark each structure for dismantling if mismatch found
     let cpu = Game.cpu.getUsed();
-    const roomLook = this.roomw.lookForAtArea(
-      LOOK_STRUCTURES,
-      0,
-      0,
-      SockPuppetConstants.ROOM_SIZE,
-      SockPuppetConstants.ROOM_SIZE
-    );
-    CreepUtils.profile(this.roomw, `room look`, cpu);
-
-    cpu = Game.cpu.getUsed();
     const dismantleQueue: Structure<StructureConstant>[] = [];
     planPositions.forEach(planPos => {
-      const posLook = roomLook[planPos.pos.x][planPos.pos.y];
+      const posLook = this.roomw.lookForAt(LOOK_STRUCTURES, planPos);
       if (posLook) {
-        const wrongStructure = posLook.find(s => s.structure.structureType !== planPos.structure);
-        if (wrongStructure?.structure && wrongStructure.structure) {
+        const wrongStructure = posLook.find(s => s.structureType !== planPos.structure);
+        if (wrongStructure) {
           // a couple of exceptions (don't dismantle own last spawn dummy)
           if (
-            (skipRoads && wrongStructure.structure.structureType === STRUCTURE_ROAD) ||
-            (wrongStructure.structure.structureType === STRUCTURE_SPAWN && this.roomw.find(FIND_MY_SPAWNS).length === 1)
+            (skipRoads && wrongStructure.structureType === STRUCTURE_ROAD) ||
+            (wrongStructure.structureType === STRUCTURE_SPAWN && this.roomw.find(FIND_MY_SPAWNS).length === 1)
           ) {
             return;
           }
-          console.log(
-            `DISMANTLE ${String(wrongStructure.structure.structureType)} at ${String(wrongStructure.structure.pos)}`
-          );
-          dismantleQueue.push(wrongStructure.structure);
+          console.log(`DISMANTLE ${String(wrongStructure.structureType)} at ${String(wrongStructure.pos)}`);
+          dismantleQueue.push(wrongStructure);
         }
       }
     });
