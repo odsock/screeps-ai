@@ -261,11 +261,11 @@ export class Hauler extends CreepWrapper {
   /**
    * finds energy in room in order:
    * adjacent drop, ruin, or tomb
-   * drop large enough to fill
    * source container
+   * storage
+   * drop large enough to fill
    * tomb
    * ruin
-   * storage
    */
   private loadEnergy(): ScreepsReturnCode {
     if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
@@ -275,12 +275,21 @@ export class Hauler extends CreepWrapper {
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
-    let result = this.moveToAndGet(this.findClosestLargeEnergyDrop());
+    let result = this.moveToAndGet(this.findClosestSourceContainerNotEmpty());
     if (result === OK) {
       return result;
     }
 
-    result = this.moveToAndGet(this.findClosestSourceContainerNotEmpty());
+    if (this.room.storage && this.room.storage.store.energy > 0) {
+      result = this.moveToAndGet(this.room.storage);
+      if (result === OK) {
+        return result;
+      }
+    }
+
+    // energy drop, tomb, and ruin should get cleaned up by fixer so check last
+
+    result = this.moveToAndGet(this.findClosestLargeEnergyDrop());
     if (result === OK) {
       return result;
     }
@@ -293,13 +302,6 @@ export class Hauler extends CreepWrapper {
     result = this.moveToAndGet(this.findClosestRuinsWithEnergy());
     if (result === OK) {
       return result;
-    }
-
-    if (this.room.storage && this.room.storage.store.energy > 0) {
-      result = this.moveToAndGet(this.room.storage);
-      if (result === OK) {
-        return result;
-      }
     }
 
     this.say("🤔");
