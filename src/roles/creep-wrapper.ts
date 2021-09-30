@@ -482,6 +482,11 @@ export abstract class CreepWrapper extends Creep {
     return result;
   }
 
+  /**
+   * Finds a structure, or creep, that can accept energy from this creep's store.
+   * Storage is found in order of storage, spawn, tower, controller container, or any other role creep with space.
+   * @returns somewhere to dump energy
+   */
   protected findRoomStorage(): StructureWithStorage | Creep | undefined {
     CreepUtils.consoleLogIfWatched(
       this,

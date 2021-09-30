@@ -17,21 +17,24 @@ export class Hauler extends CreepWrapper {
   };
 
   public run(): void {
-    // work haul request
-    this.checkForHaulRequest();
-    if (this.memory.hauleeName) {
-      CreepUtils.consoleLogIfWatched(this, `validate haul request `);
-      const creepToHaul = Game.creeps[this.memory.hauleeName];
-      if (creepToHaul && creepToHaul.memory.haulRequested) {
+    /**
+     * hauler jobs:
+     * tug minders
+     * fill spawn
+     * empty source containers
+     * fill towers
+     * fill controller container
+     * fill builders
+     * fill storage
+     */
+
+    // work haul request if empty
+    if (this.store.getUsedCapacity() === 0) {
+      const creepToHaul = this.getHaulRequest();
+      if (creepToHaul) {
         const result = this.haulCreepJob(creepToHaul);
         CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
         return;
-      } else {
-        this.memory.hauleeName = undefined;
-        if (creepToHaul) {
-          creepToHaul.memory.haulRequested = false;
-          creepToHaul.memory.haulerName = undefined;
-        }
       }
     }
 
@@ -58,21 +61,21 @@ export class Hauler extends CreepWrapper {
       return;
     }
 
-    // supply empty builders
-    const builders = this.room.find(FIND_MY_CREEPS, {
-      filter: creep => creep.memory.role === Builder.ROLE && creep.store.getUsedCapacity() === 0
-    });
-    if (builders.length > 0) {
-      this.supplyCreepsJob(builders);
-      return;
-    }
-
     // supply empty upgraders
     const upgraders = this.room.find(FIND_MY_CREEPS, {
       filter: creep => creep.memory.role === Upgrader.ROLE && creep.store.getUsedCapacity() === 0
     });
     if (upgraders.length > 0) {
       this.supplyCreepsJob(upgraders);
+      return;
+    }
+
+    // supply empty builders
+    const builders = this.room.find(FIND_MY_CREEPS, {
+      filter: creep => creep.memory.role === Builder.ROLE && creep.store.getUsedCapacity() === 0
+    });
+    if (builders.length > 0) {
+      this.supplyCreepsJob(builders);
       return;
     }
 
@@ -122,8 +125,20 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private checkForHaulRequest() {
-    if (!this.memory.hauleeName) {
+  private getHaulRequest(): Creep | undefined {
+    if (this.memory.hauleeName) {
+      CreepUtils.consoleLogIfWatched(this, `validate haul request `);
+      const creepToHaul = Game.creeps[this.memory.hauleeName];
+      if (creepToHaul && creepToHaul.memory.haulRequested) {
+        return creepToHaul;
+      } else {
+        this.memory.hauleeName = undefined;
+        if (creepToHaul) {
+          creepToHaul.memory.haulRequested = false;
+          creepToHaul.memory.haulerName = undefined;
+        }
+      }
+    } else {
       CreepUtils.consoleLogIfWatched(this, `checking haul queue`);
       const creepToHaul = this.room
         .find(FIND_MY_CREEPS, {
@@ -134,8 +149,10 @@ export class Hauler extends CreepWrapper {
         CreepUtils.consoleLogIfWatched(this, `haul request for ${creepToHaul.name}`);
         this.memory.hauleeName = creepToHaul.name;
         creepToHaul.memory.haulerName = this.name;
+        return creepToHaul;
       }
     }
+    return undefined;
   }
 
   private haulCreepJob(creep: Creep): ScreepsReturnCode {
