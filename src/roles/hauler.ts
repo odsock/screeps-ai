@@ -13,7 +13,7 @@ export class Hauler extends CreepWrapper {
   public static readonly BODY_PROFILE: CreepBodyProfile = {
     profile: [MOVE, CARRY, CARRY],
     seed: [],
-    maxBodyParts: 27
+    maxBodyParts: MAX_CREEP_SIZE
   };
 
   public run(): void {

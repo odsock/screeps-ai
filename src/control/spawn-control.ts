@@ -82,11 +82,15 @@ export class SpawnControl {
     }
 
     // BACKUP HAULER
+    // spawn with max body
     const haulers = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Hauler.ROLE });
     if (haulers.length === 1) {
       const hauler = haulers[0];
       if (hauler.ticksToLive && hauler.ticksToLive < 500) {
-        return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw);
+        return spawnw.spawn({
+          body: SpawnUtils.getMaxBody(Hauler.BODY_PROFILE, spawnw),
+          role: Hauler.ROLE
+        });
       }
     }
 
@@ -149,14 +153,15 @@ export class SpawnControl {
       }
     }
 
+    // TODO trying bigger/fewer haulers at RCL6, might not work at low RCL
     // HAULER
     // spawn enough haulers to keep up with hauling needed
-    const haulerCount = this.creepCountsByRole[Hauler.ROLE];
-    const sourcesPlusOne = spawnw.roomw.sources.length + 1;
-    CreepUtils.consoleLogIfWatched(spawnw, `haulers: ${haulerCount}/${sourcesPlusOne}`);
-    if (haulerCount < sourcesPlusOne) {
-      return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw);
-    }
+    // const haulerCount = this.creepCountsByRole[Hauler.ROLE];
+    // const sourcesPlusOne = spawnw.roomw.sources.length + 1;
+    // CreepUtils.consoleLogIfWatched(spawnw, `haulers: ${haulerCount}/${sourcesPlusOne}`);
+    // if (haulerCount < sourcesPlusOne) {
+    //   return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw);
+    // }
 
     // try to replace any aging minder seamlessly
     const replaceUpgraderResult = this.spawnReplacementMinders(spawnw, upgraders, Upgrader);
