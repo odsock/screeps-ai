@@ -43,13 +43,6 @@ export class Importer extends RemoteWorker {
       }
     }
 
-    // make sure we have a target room
-    const targetRoom = this.memory.targetRoom;
-    if (!targetRoom) {
-      CreepUtils.consoleLogIfWatched(this, `no room targeted for remote. sitting like a lump.`);
-      return;
-    }
-
     if (!this.memory.targetRoom) {
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
       return;

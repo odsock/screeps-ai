@@ -89,23 +89,21 @@ export class RemoteWorker extends CreepWrapper {
    * Returns creep to tower in home room if hostile creeps seen.
    * @returns ScreepsReturnCode
    */
+  // TODO dry up flee and find healing
   protected fleeIfHostiles(): ScreepsReturnCode {
     if (!this.roomw.hasHostiles) {
       return ERR_NOT_FOUND;
     }
     CreepUtils.consoleLogIfWatched(this, `room has hostile creeps!`);
 
-    if (this.memory.homeRoom && this.room.name !== this.memory.homeRoom) {
-      const result = this.moveToRoom(this.memory.homeRoom);
-      CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
-      return result;
-    }
+    let result = this.moveToRoom(this.memory.homeRoom);
+    CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
 
     const tower = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: structure => structure.structureType === STRUCTURE_TOWER
     });
     if (tower) {
-      const result = this.moveTo(tower);
+      result = this.moveTo(tower, { range: 2, reusePath: 10 });
       CreepUtils.consoleLogIfWatched(this, `moving to tower`, result);
       return result;
     }
@@ -121,19 +119,16 @@ export class RemoteWorker extends CreepWrapper {
     if (this.hits === this.hitsMax) {
       return ERR_FULL;
     }
-
     CreepUtils.consoleLogIfWatched(this, `hits ${this.hits}/${this.hitsMax}`);
-    if (this.memory.homeRoom && this.room.name !== this.memory.homeRoom) {
-      const result = this.moveToRoom(this.memory.homeRoom);
-      CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
-      return result;
-    }
+
+    let result = this.moveToRoom(this.memory.homeRoom);
+    CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
 
     const tower = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: structure => structure.structureType === STRUCTURE_TOWER
     });
     if (tower) {
-      const result = this.moveTo(tower);
+      result = this.moveTo(tower, { range: 5, reusePath: 10 });
       CreepUtils.consoleLogIfWatched(this, `moving to tower`, result);
       return result;
     }
