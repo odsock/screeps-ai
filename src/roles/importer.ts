@@ -75,9 +75,7 @@ export class Importer extends RemoteWorker {
       result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target result`, result);
       if (this.pos.roomName === this.memory.targetRoom) {
-        // TODO too simple, won't pick up tomb energy in target room
-        // result = this.moveToAndGet(this.findClosestActiveEnergySource());
-        result = this.harvestByPriority();
+        result = this.remoteHarvest();
       }
       return result;
     } else {
@@ -98,12 +96,35 @@ export class Importer extends RemoteWorker {
     return result;
   }
 
-  private getMySource(): Source | undefined {
-    let mySourceId = this.memory.source;
-    if (!mySourceId) {
-      mySourceId = this.findShortHandedSourceInTargetRoom();
-      this.memory.source = mySourceId;
+  private remoteHarvest(): ScreepsReturnCode {
+    this.pickupAdjacentDroppedEnergy();
+    this.withdrawAdjacentRuinOrTombEnergy();
+
+    const target =
+      this.findClosestLargeEnergyDrop() ??
+      this.findClosestTombstoneWithEnergy() ??
+      this.findClosestRuinsWithEnergy() ??
+      this.findClosestActiveEnergySource() ??
+      this.findClosestEnergySource();
+
+    let result = this.moveToAndGet(target);
+    if (result === OK) {
+      return result;
     }
-    return mySourceId ? Game.getObjectById(mySourceId) ?? undefined : undefined;
+
+    const inactiveSource = this.findClosestEnergySource();
+    if (inactiveSource) {
+      if (this.pos.isNearTo(inactiveSource)) {
+        return OK;
+      } else {
+        result = this.moveTo(inactiveSource, { range: 1, reusePath: 10, visualizePathStyle: { stroke: "#ffaa00" } });
+        CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
+        return result;
+      }
+    }
+
+    this.say("🤔");
+    CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
+    return ERR_NOT_FOUND;
   }
 }
