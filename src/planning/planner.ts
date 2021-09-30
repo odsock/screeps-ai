@@ -43,7 +43,6 @@ export class Planner {
   }
 
   private planFullColony(): void {
-    const cpu = Game.cpu.getUsed();
     if (!MemoryUtils.hasCache(this.CACHE_KEY)) {
       const controllerPos = this.roomw.controller?.pos;
       if (controllerPos) {
@@ -65,36 +64,29 @@ export class Planner {
         MemoryUtils.setCache(this.CACHE_KEY, plan.getPlan(), -1);
       }
     }
-    CreepUtils.profile(this.roomw, `plan colony`, cpu);
   }
 
   private updateColonyStructures(skipRoads = false): ScreepsReturnCode {
-    const cpuBefore = Game.cpu.getUsed();
     const planPositions = MemoryUtils.getCache<StructurePlanPosition[]>(this.CACHE_KEY);
     if (!planPositions) {
       return OK;
     }
-    CreepUtils.profile(this.roomw, `get plan`, cpuBefore);
 
     // mark misplaced structures for dismantling
     this.createDismantleQueue(planPositions, skipRoads);
 
     // try to construct any missing structures
-    const cpu = Game.cpu.getUsed();
     const result = PlannerUtils.placeStructurePlan({
       plan: planPositions,
       roomw: this.roomw,
       skipRoads
     });
     console.log(`place colony result ${result}`);
-    CreepUtils.profile(this.roomw, `place colony`, cpu);
 
-    CreepUtils.profile(this.roomw, `update colony TOTAL`, cpuBefore);
     return result;
   }
 
   private createDismantleQueue(planPositions: StructurePlanPosition[], skipRoads: boolean): void {
-    let cpu = Game.cpu.getUsed();
     const lastSpawn = this.roomw.find(FIND_MY_SPAWNS).length === 1;
     const dismantleQueue: Structure<StructureConstant>[] = [];
     planPositions.forEach(planPos => {
@@ -114,16 +106,13 @@ export class Planner {
       }
     });
     this.roomw.dismantleQueue = dismantleQueue;
-    CreepUtils.profile(this.roomw, `build dismantle queue`, cpu);
 
     // draw dismantle queue
-    cpu = Game.cpu.getUsed();
     this.roomw.visual.clear();
     this.roomw.dismantleQueue.forEach(structure => {
       this.roomw.visual.circle(structure.pos, { fill: "#FF0000" });
     });
     this.roomw.dismantleVisual = this.roomw.visual.export();
-    CreepUtils.profile(this.roomw, `draw dismantle visual`, cpu);
   }
 
   private planContainers(): ScreepsReturnCode {

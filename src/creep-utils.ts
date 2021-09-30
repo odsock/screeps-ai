@@ -24,16 +24,6 @@ export class CreepUtils {
     }
   }
 
-  public static profile(watchable: Watchable, message: string, start: number): void {
-    if (watchable.memory.profile === true) {
-      console.log(
-        `<span style="color:green;">CPU: ${watchable.name}: ${message}: ${(Game.cpu.getUsed() - start).toFixed(
-          3
-        )}</span>`
-      );
-    }
-  }
-
   public static creepBodyToString(body: BodyPartConstant[]): string {
     const counts = _.countBy(body);
     let returnValue = "";

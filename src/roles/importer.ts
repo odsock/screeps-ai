@@ -14,48 +14,34 @@ export class Importer extends RemoteWorker {
   };
 
   public run(): void {
-    let cpuBefore = Game.cpu.getUsed();
     const fleeResult = this.fleeIfHostiles();
     if (fleeResult !== ERR_NOT_FOUND) {
-      CreepUtils.profile(this, `flee if hostiles`, cpuBefore);
       return;
     }
-    CreepUtils.profile(this, `flee if hostiles`, cpuBefore);
 
-    cpuBefore = Game.cpu.getUsed();
     const damagedResult = this.findHealingIfDamaged();
     if (damagedResult !== ERR_FULL) {
-      CreepUtils.profile(this, `find healing`, cpuBefore);
       return;
     }
-    CreepUtils.profile(this, `find healing`, cpuBefore);
 
-    cpuBefore = Game.cpu.getUsed();
     // unsign controllers we didn't sign
     if (
       this.room.controller?.sign?.username &&
       this.room.controller.sign.username !== this.owner.username &&
       this.room.controller.sign.username !== "Screeps"
     ) {
-      CreepUtils.profile(this, `unsign check`, cpuBefore);
-      let cpuDuring = Game.cpu.getUsed();
       let result: ScreepsReturnCode;
       if (!this.pos.isNearTo(this.room.controller)) {
         result = this.moveTo(this.room.controller, { range: 1, reusePath: 20 });
         CreepUtils.consoleLogIfWatched(this, `move result`, result);
-        CreepUtils.profile(this, `unsign move`, cpuDuring);
       } else {
-        cpuDuring = Game.cpu.getUsed();
         result = this.signController(this.room.controller, "");
         CreepUtils.consoleLogIfWatched(this, `sign result`, result);
-        CreepUtils.profile(this, `unsign sign`, cpuDuring);
       }
       if (result === OK) {
-        CreepUtils.profile(this, `unsign TOTAL`, cpuBefore);
         return;
       }
     }
-    CreepUtils.profile(this, `unsign TOTAL`, cpuBefore);
 
     // make sure we have a target room
     const targetRoom = this.memory.targetRoom;
@@ -68,9 +54,7 @@ export class Importer extends RemoteWorker {
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
       return;
     } else {
-      cpuBefore = Game.cpu.getUsed();
       const harvestResult = this.doHarvestJob();
-      CreepUtils.profile(this, `harvest job`, cpuBefore);
       CreepUtils.consoleLogIfWatched(this, `job result`, harvestResult);
       return;
     }
@@ -87,7 +71,6 @@ export class Importer extends RemoteWorker {
     }
 
     let result: ScreepsReturnCode = OK;
-    const cpuBefore = Game.cpu.getUsed();
     if (this.memory.working) {
       result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target result`, result);
@@ -96,7 +79,6 @@ export class Importer extends RemoteWorker {
         // result = this.moveToAndGet(this.findClosestActiveEnergySource());
         result = this.harvestByPriority();
       }
-      CreepUtils.profile(this, `working`, cpuBefore);
       return result;
     } else {
       result = this.moveToRoom(this.memory.homeRoom);
@@ -112,7 +94,6 @@ export class Importer extends RemoteWorker {
           result = ERR_FULL;
         }
       }
-      CreepUtils.profile(this, `not working`, cpuBefore);
     }
     return result;
   }

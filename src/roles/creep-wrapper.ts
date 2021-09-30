@@ -248,91 +248,61 @@ export abstract class CreepWrapper extends Creep {
    * move to inactive source
    */
   protected harvestByPriority(): ScreepsReturnCode {
-    const cpuBefore = Game.cpu.getUsed();
     if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
       return ERR_FULL;
     }
-    CreepUtils.profile(this, `capacity check`, cpuBefore);
 
-    let cpuDuring = Game.cpu.getUsed();
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
-    CreepUtils.profile(this, `pickup adjacent`, cpuDuring);
 
-    cpuDuring = Game.cpu.getUsed();
     let result = this.moveToAndGet(this.findClosestLargeEnergyDrop());
     if (result === OK) {
-      CreepUtils.profile(this, `get big drop`, cpuDuring);
       return result;
     }
-    CreepUtils.profile(this, `get big drop`, cpuDuring);
 
-    cpuDuring = Game.cpu.getUsed();
     if (this.room.storage && this.room.storage.store.energy > 0) {
       result = this.moveToAndGet(this.room.storage);
       if (result === OK) {
-        CreepUtils.profile(this, `get storage`, cpuDuring);
         return result;
       }
     }
-    CreepUtils.profile(this, `get storage`, cpuDuring);
 
-    cpuDuring = Game.cpu.getUsed();
     result = this.moveToAndGet(this.findClosestTombstoneWithEnergy());
     if (result === OK) {
-      CreepUtils.profile(this, `get tomb`, cpuDuring);
       return result;
     }
-    CreepUtils.profile(this, `get tomb`, cpuDuring);
 
-    cpuDuring = Game.cpu.getUsed();
     result = this.moveToAndGet(this.findClosestRuinsWithEnergy());
     if (result === OK) {
-      CreepUtils.profile(this, `get ruin`, cpuDuring);
       return result;
     }
-    CreepUtils.profile(this, `get ruin`, cpuDuring);
 
-    cpuDuring = Game.cpu.getUsed();
     result = this.moveToAndGet(this.findClosestContainerWithEnergy(this.store.getFreeCapacity()));
     if (result === OK) {
-      CreepUtils.profile(this, `get container`, cpuDuring);
       return result;
     }
-    CreepUtils.profile(this, `get container`, cpuDuring);
 
-    cpuDuring = Game.cpu.getUsed();
     if (this.getActiveBodyparts(WORK) > 0) {
       result = this.moveToAndGet(this.findClosestActiveEnergySource());
       if (result === OK) {
-        CreepUtils.profile(this, `get active source`, cpuDuring);
         return result;
       }
-      CreepUtils.profile(this, `get active source`, cpuDuring);
 
-      cpuDuring = Game.cpu.getUsed();
       result = this.moveToAndDismantle(this.findDismantleTarget());
       if (result === OK) {
-        CreepUtils.profile(this, `dismantle`, cpuDuring);
         return result;
       }
-      CreepUtils.profile(this, `dismantle`, cpuDuring);
 
-      cpuDuring = Game.cpu.getUsed();
       const inactiveSource = this.findClosestEnergySource();
       if (inactiveSource && !this.pos.isNearTo(inactiveSource)) {
         result = this.moveTo(inactiveSource, { range: 1, reusePath: 10, visualizePathStyle: { stroke: "#ffaa00" } });
         CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
-        CreepUtils.profile(this, `inactive source`, cpuDuring);
         return result;
       }
     }
-    CreepUtils.profile(this, `inactive source`, cpuDuring);
 
-    cpuDuring = Game.cpu.getUsed();
     this.say("🤔");
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
-    CreepUtils.profile(this, `harvestByPriority`, cpuBefore);
     return ERR_NOT_FOUND;
   }
 
@@ -373,13 +343,10 @@ export abstract class CreepWrapper extends Creep {
   protected moveToAndGet(
     target: Tombstone | Ruin | StructureContainer | StructureStorage | Resource | Source | null | undefined
   ): ScreepsReturnCode {
-    const cpuBefore = Game.cpu.getUsed();
     if (!target) {
       return ERR_NOT_FOUND;
     }
     CreepUtils.consoleLogIfWatched(this, `getting: ${String(target)}`);
-    let cpuDuring = Game.cpu.getUsed();
-    CreepUtils.consoleLogIfWatched(this, `cpu checking get target ${cpuDuring - cpuBefore}`);
     let result: ScreepsReturnCode;
     if (target instanceof Resource) {
       result = this.pickupW(target);
@@ -388,15 +355,11 @@ export abstract class CreepWrapper extends Creep {
     } else {
       result = this.withdrawW(target, RESOURCE_ENERGY);
     }
-    CreepUtils.consoleLogIfWatched(this, `cpu getting ${Game.cpu.getUsed() - cpuDuring}`);
     CreepUtils.consoleLogIfWatched(this, `get result`, result);
-    cpuDuring = Game.cpu.getUsed();
     if (result === ERR_NOT_IN_RANGE) {
       result = this.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ffaa00" }, reusePath: 10 });
       CreepUtils.consoleLogIfWatched(this, `move result`, result);
-      CreepUtils.consoleLogIfWatched(this, `cpu moving ${Game.cpu.getUsed() - cpuDuring}`);
     }
-    CreepUtils.consoleLogIfWatched(this, `cpu moveToAndGet total ${Game.cpu.getUsed() - cpuBefore}`);
     return result;
   }
 
