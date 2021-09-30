@@ -97,6 +97,10 @@ export class Importer extends RemoteWorker {
   }
 
   private remoteHarvest(): ScreepsReturnCode {
+    if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
+      return ERR_FULL;
+    }
+
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
