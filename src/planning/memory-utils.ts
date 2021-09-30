@@ -33,8 +33,15 @@ declare global {
     storage?: StorageInfo;
     reconTick: number;
     centerPoint?: string;
+    remoteHarvest?: { [roomName: string]: RemoteHarvest };
   }
 
+  interface RemoteHarvest {
+    owned?: boolean;
+    scouting?: boolean;
+    importersNeeded: number;
+    spawnCapacity: number;
+  }
   interface StorageInfo {
     haulerId?: Id<Creep>;
   }

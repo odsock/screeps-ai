@@ -236,28 +236,42 @@ export class SpawnControl {
   }
 
   private calcImportersNeededForRoom(roomName: string, spawnw: SpawnWrapper): number {
-    let importersNeeded = 0;
+    // return cached value if room capacity hasn't changed
+    const remoteHarvestRoomMemory = this.roomw.memory.remoteHarvest?.[roomName];
+    if (remoteHarvestRoomMemory?.spawnCapacity === this.roomw.energyCapacityAvailable) {
+      return remoteHarvestRoomMemory.importersNeeded;
+    }
+
+    // use importer as scout if no recon for room
     const roomMemory = Memory.rooms[roomName];
     if (!roomMemory) {
-      // use importer as scout
-      importersNeeded = 1;
-    } else if (roomMemory.controller?.structure?.owner && !Game.rooms[roomName].controller?.my) {
-      // don't spawn importers that can't work
-      importersNeeded = 0;
-    } else {
-      // spawn enough importers at current max size to maximize harvest
-      const importerBody = SpawnUtils.getMaxBody(Importer.BODY_PROFILE, spawnw);
-      const energyCapacity = importerBody.filter(part => part === CARRY).length * CARRY_CAPACITY;
-      const ticksToFill = energyCapacity / (importerBody.filter(part => part === WORK).length * HARVEST_POWER);
-
-      const dropPos = this.roomw.storage?.pos ?? this.roomw.spawns[0].pos;
-      const sources = Memory.rooms[roomName].sources;
-      for (const sourceId in sources) {
-        const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
-        const path = PathFinder.search(dropPos, sourcePos);
-        importersNeeded += (10 * (path.path.length * 2 + ticksToFill)) / energyCapacity;
-      }
+      return 1;
     }
+    // don't spawn importers for owned rooms, or reserved by other players
+    if (
+      roomMemory.controller?.structure?.owner ||
+      roomMemory.controller?.structure?.reservation?.username !== spawnw.owner.username
+    ) {
+      return 0;
+    }
+
+    // spawn enough importers at current max size to maximize harvest
+    const importerBody = SpawnUtils.getMaxBody(Importer.BODY_PROFILE, spawnw);
+    const energyCapacity = importerBody.filter(part => part === CARRY).length * CARRY_CAPACITY;
+    const ticksToFill = energyCapacity / (importerBody.filter(part => part === WORK).length * HARVEST_POWER);
+
+    const dropPos = this.roomw.storage?.pos ?? this.roomw.spawns[0].pos;
+    const sources = Memory.rooms[roomName].sources;
+    let importersNeeded = 0;
+    for (const sourceId in sources) {
+      const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
+      const path = PathFinder.search(dropPos, sourcePos);
+      importersNeeded += (10 * (path.path.length * 2 + ticksToFill)) / energyCapacity;
+    }
+    // cache result in memory
+    const remoteHarvestRoom = { importersNeeded, spawnCapacity: this.roomw.energyCapacityAvailable };
+    this.roomw.memory.remoteHarvest = this.roomw.memory.remoteHarvest ?? {};
+    this.roomw.memory.remoteHarvest[roomName] = remoteHarvestRoom;
     return importersNeeded;
   }
 
