@@ -153,13 +153,13 @@ export abstract class CreepWrapper extends Creep {
   protected findClosestEnergyDrop(): Resource<RESOURCE_ENERGY> | null {
     return this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
       filter: r => r.resourceType === RESOURCE_ENERGY
-    }) as Resource<RESOURCE_ENERGY>;
+    });
   }
 
   protected findClosestLargeEnergyDrop(): Resource<RESOURCE_ENERGY> | null {
     return this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
       filter: r => r.resourceType === RESOURCE_ENERGY && r.amount >= this.store.getCapacity()
-    }) as Resource<RESOURCE_ENERGY>;
+    });
   }
 
   protected findClosestActiveEnergySource(): Source | undefined {
