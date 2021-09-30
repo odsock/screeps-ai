@@ -171,7 +171,7 @@ export class Hauler extends CreepWrapper {
       result = this.transfer(target, RESOURCE_ENERGY);
       CreepUtils.consoleLogIfWatched(this, `transfer result`, result);
       if (result === ERR_NOT_IN_RANGE) {
-        result = this.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
+        result = this.moveTo(target, { range: 1, reusePath: 10, visualizePathStyle: { stroke: "#ffffff" } });
         CreepUtils.consoleLogIfWatched(this, `moving to ${target.structureType} at ${String(target.pos)}`, result);
       } else {
         // Stop if structure is full now
