@@ -330,12 +330,12 @@ export class SpawnControl {
     });
   }
 
-  private spawnBootstrapCreep(profile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper): ScreepsReturnCode {
+  private spawnBootstrapCreep(bodyProfile: CreepBodyProfile, role: CreepRole, spawnw: SpawnWrapper): ScreepsReturnCode {
     let body: BodyPartConstant[];
     if (this.creepCountsByRole[role] <= 0) {
-      body = SpawnUtils.getMaxBodyNow(profile, spawnw);
+      body = SpawnUtils.getMaxBodyNow(bodyProfile, spawnw);
     } else {
-      body = SpawnUtils.getMaxBody(profile, spawnw);
+      body = SpawnUtils.getMaxBody(bodyProfile, spawnw);
     }
     const result = spawnw.spawn({ body, role });
     return result;
