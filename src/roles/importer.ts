@@ -100,12 +100,7 @@ export class Importer extends RemoteWorker {
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
-    const target =
-      this.findClosestLargeEnergyDrop() ??
-      this.findClosestTombstoneWithEnergy() ??
-      this.findClosestRuinsWithEnergy() ??
-      this.findClosestActiveEnergySource() ??
-      this.findClosestEnergySource();
+    const target = this.findClosestActiveEnergySource() ?? this.findClosestEnergySource();
 
     let result = this.moveToAndGet(target);
     if (result === OK) {
