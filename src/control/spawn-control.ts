@@ -117,7 +117,10 @@ export class SpawnControl {
     // FIRST UPGRADER
     // start upgrading once harvesting efficiently
     if (this.creepCountsByRole[CreepRole.UPGRADER] === 0) {
-      return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw);
+      return spawnw.spawn({
+        body: SpawnUtils.getMaxBody(Upgrader.BODY_PROFILE, spawnw),
+        role: Upgrader.ROLE
+      });
     }
 
     // UPGRADER
@@ -129,7 +132,7 @@ export class SpawnControl {
       CreepUtils.consoleLogIfWatched(spawnw, `skipping upgraders during construction`);
     } else {
       const upgraderWorkParts = CreepUtils.countParts(WORK, ...upgraders);
-      const HARVEST_TO_UPGRADE_RATIO = 0.7;
+      const HARVEST_TO_UPGRADE_RATIO = 0.9;
       const upgraderWorkPartsNeeded =
         (Math.min(harvesterWorkParts, harvesterWorkPartsNeeded) * HARVEST_POWER * HARVEST_TO_UPGRADE_RATIO) /
         UPGRADE_CONTROLLER_POWER;
@@ -139,7 +142,10 @@ export class SpawnControl {
         `upgraders: ${upgraderCount}/${upgradePositionCount} positions, ${upgraderWorkParts}/${upgraderWorkPartsNeeded} parts`
       );
       if (upgraderWorkParts < upgraderWorkPartsNeeded && upgraderCount < upgradePositionCount) {
-        return this.spawnBootstrapCreep(Upgrader.BODY_PROFILE, Upgrader.ROLE, spawnw);
+        return spawnw.spawn({
+          body: SpawnUtils.getMaxBody(Upgrader.BODY_PROFILE, spawnw),
+          role: Upgrader.ROLE
+        });
       }
     }
 
