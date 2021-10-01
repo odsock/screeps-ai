@@ -153,15 +153,17 @@ export class SpawnControl {
       }
     }
 
-    // TODO trying bigger/fewer haulers at RCL6, might not work at low RCL
     // HAULER
     // spawn enough haulers to keep up with hauling needed
-    // const haulerCount = this.creepCountsByRole[Hauler.ROLE];
-    // const sourcesPlusOne = spawnw.roomw.sources.length + 1;
-    // CreepUtils.consoleLogIfWatched(spawnw, `haulers: ${haulerCount}/${sourcesPlusOne}`);
-    // if (haulerCount < sourcesPlusOne) {
-    //   return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw);
-    // }
+    const haulerCount = this.creepCountsByRole[Hauler.ROLE];
+    const sourcesPlusOne = spawnw.roomw.sources.length + 1;
+    CreepUtils.consoleLogIfWatched(spawnw, `haulers: ${haulerCount}/${sourcesPlusOne}`);
+    if (haulerCount < sourcesPlusOne) {
+      return spawnw.spawn({
+        body: SpawnUtils.getMaxBody(Hauler.BODY_PROFILE, spawnw),
+        role: Hauler.ROLE
+      });
+    }
 
     // try to replace any aging minder seamlessly
     const replaceUpgraderResult = this.spawnReplacementMinders(spawnw, upgraders, Upgrader);
