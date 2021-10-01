@@ -88,13 +88,10 @@ export class SpawnControl {
     });
     CreepUtils.consoleLogIfWatched(spawnw, `haulers: ${youngHaulers.length} younger than 500`);
     if (youngHaulers.length > 0) {
-      const hauler = youngHaulers[0];
-      if (hauler.ticksToLive && hauler.ticksToLive < 500) {
-        return spawnw.spawn({
-          body: SpawnUtils.getMaxBody(Hauler.BODY_PROFILE, spawnw),
-          role: Hauler.ROLE
-        });
-      }
+      return spawnw.spawn({
+        body: SpawnUtils.getMaxBody(Hauler.BODY_PROFILE, spawnw),
+        role: Hauler.ROLE
+      });
     }
 
     // FIRST HARVESTER
