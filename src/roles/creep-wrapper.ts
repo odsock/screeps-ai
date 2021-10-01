@@ -179,12 +179,6 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected findSpawnStorageNotFull(): (StructureExtension | StructureSpawn)[] {
-    const spawnStorageCached = MemoryUtils.getCache<(StructureExtension | StructureSpawn)[]>(
-      `${this.room.name}_spawnStorageNotFull`
-    );
-    if (spawnStorageCached) {
-      return spawnStorageCached;
-    }
     const spawns: (StructureExtension | StructureSpawn)[] = this.roomw.find(FIND_MY_SPAWNS, {
       filter: spawn => spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0
     });
@@ -195,7 +189,6 @@ export abstract class CreepWrapper extends Creep {
       }
     );
     const spawnStorage = spawns.concat(extensions);
-    MemoryUtils.setCache(`${this.room.name}_spawnStorageNotFull`, spawnStorage);
     return spawnStorage;
   }
 
