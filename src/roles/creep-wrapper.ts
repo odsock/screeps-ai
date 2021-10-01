@@ -178,23 +178,23 @@ export abstract class CreepWrapper extends Creep {
     });
   }
 
-  protected findSpawnStorageNotFull(): (StructureExtension | StructureSpawn)[] | undefined {
-    let spawnStorage = MemoryUtils.getCache<(StructureExtension | StructureSpawn)[]>(
+  protected findSpawnStorageNotFull(): (StructureExtension | StructureSpawn)[] {
+    const spawnStorageCached = MemoryUtils.getCache<(StructureExtension | StructureSpawn)[]>(
       `${this.room.name}_spawnStorageNotFull`
     );
-    if (spawnStorage) {
-      return spawnStorage;
+    if (spawnStorageCached) {
+      return spawnStorageCached;
     }
-    const spawns: (StructureExtension | StructureSpawn)[] | undefined = this.roomw.find(FIND_MY_SPAWNS, {
+    const spawns: (StructureExtension | StructureSpawn)[] = this.roomw.find(FIND_MY_SPAWNS, {
       filter: spawn => spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0
     });
-    const extensions: (StructureExtension | StructureSpawn)[] | undefined = this.roomw.find<StructureExtension>(
+    const extensions: (StructureExtension | StructureSpawn)[] = this.roomw.find<StructureExtension>(
       FIND_MY_STRUCTURES,
       {
         filter: s => s.structureType === STRUCTURE_EXTENSION && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
       }
     );
-    spawnStorage = spawns.concat(extensions);
+    const spawnStorage = spawns.concat(extensions);
     MemoryUtils.setCache(`${this.room.name}_spawnStorageNotFull`, spawnStorage);
     return spawnStorage;
   }

@@ -214,11 +214,6 @@ export class Hauler extends CreepWrapper {
 
   // When supplying spawn, use priority to prefer storage
   private supplySpawnJob(): ScreepsReturnCode {
-    const spawnStorage = this.findSpawnStorageNotFull();
-    if (!spawnStorage) {
-      return ERR_NOT_FOUND;
-    }
-
     CreepUtils.consoleLogIfWatched(this, `supply for spawning`);
     this.updateJob(`spawn`);
     this.stopWorkingIfEmpty();
@@ -226,8 +221,12 @@ export class Hauler extends CreepWrapper {
 
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");
-      const target = spawnStorage.find(s => s.pos.isNearTo(this.pos));
-      if (target) {
+      const spawnStorage = this.findSpawnStorageNotFull();
+      const targetIndex = spawnStorage.findIndex(s => s.pos.isNearTo(this.pos));
+      if (targetIndex !== -1) {
+        const target = spawnStorage[targetIndex];
+        // remove target from list
+        spawnStorage.splice(targetIndex, 1);
         const transferResult = this.transfer(target, RESOURCE_ENERGY);
         CreepUtils.consoleLogIfWatched(this, `supply ${target.structureType} result`, transferResult);
         // stores do NOT reflect transfer above until next tick
@@ -239,23 +238,43 @@ export class Hauler extends CreepWrapper {
           return harvestResult;
         }
       }
-      // get path through all extensions
-      const goals = spawnStorage.map(s => {
-        return { pos: s.pos, range: 1 };
-      });
-      const path = PathFinder.search(this.pos, goals, {
-        plainCost: 2,
-        swampCost: 10,
-        roomCallback: CreepUtils.getCreepMovementCostMatrix
-      });
-      CreepUtils.consoleLogIfWatched(this, `path: ${String(path.path)}`);
-      const moveResult = this.moveByPath(path.path);
+      // get path through remaining extensions
+      const path = this.getSpawnSupplyPath(spawnStorage);
+      CreepUtils.consoleLogIfWatched(this, `path: ${String(path)}`);
+      const moveResult = this.moveByPath(path);
       CreepUtils.consoleLogIfWatched(this, `moving on path`, moveResult);
       return moveResult;
     } else {
       const harvestResult = this.harvestByPriority();
       return harvestResult;
     }
+  }
+
+  private getSpawnSupplyPath(spawnStorage: (StructureExtension | StructureSpawn)[]): RoomPosition[] {
+    // if (this.memory.path) {
+    //   return Room.deserializePath(this.memory.path);
+    // }
+    const goals = spawnStorage.map(s => {
+      return { pos: s.pos, range: 1 };
+    });
+    const path = PathFinder.search(this.pos, goals, {
+      plainCost: 2,
+      swampCost: 10,
+      roomCallback: CreepUtils.getCreepMovementCostMatrix
+    });
+
+    // this.memory.path = path.path
+    //   .map((pos, index, array) => {
+    //     if (index === 0) {
+    //       return `${pos.x}${pos.y}${this.pos.getDirectionTo(pos.x, pos.y)}`;
+    //     }
+    //     return `${array[index - 1].getDirectionTo(pos.x, pos.y)}`;
+    //   })
+    //   .join("");
+    if (path.incomplete) {
+      CreepUtils.consoleLogIfWatched(this, `supply path incomplete`);
+    }
+    return path.path;
   }
 
   private findTowersBelowThreshold(): StructureTower[] {
