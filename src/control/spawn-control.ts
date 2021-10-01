@@ -86,6 +86,7 @@ export class SpawnControl {
     const youngHaulers = this.roomw.find(FIND_MY_CREEPS, {
       filter: c => c.memory.role === Hauler.ROLE && c.ticksToLive && c.ticksToLive > 500
     });
+    CreepUtils.consoleLogIfWatched(spawnw, `haulers: ${youngHaulers.length} younger than 500`);
     if (youngHaulers.length > 0) {
       const hauler = youngHaulers[0];
       if (hauler.ticksToLive && hauler.ticksToLive < 500) {
