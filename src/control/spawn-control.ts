@@ -83,9 +83,11 @@ export class SpawnControl {
 
     // BACKUP HAULER
     // spawn with max body
-    const haulers = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === Hauler.ROLE });
-    if (haulers.length === 1) {
-      const hauler = haulers[0];
+    const youngHaulers = this.roomw.find(FIND_MY_CREEPS, {
+      filter: c => c.memory.role === Hauler.ROLE && c.ticksToLive && c.ticksToLive > 500
+    });
+    if (youngHaulers.length > 0) {
+      const hauler = youngHaulers[0];
       if (hauler.ticksToLive && hauler.ticksToLive < 500) {
         return spawnw.spawn({
           body: SpawnUtils.getMaxBody(Hauler.BODY_PROFILE, spawnw),
