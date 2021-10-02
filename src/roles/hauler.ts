@@ -460,9 +460,11 @@ export class Hauler extends CreepWrapper {
 
     // next to storage
     const storage = this.roomw.storage;
-    if (storage && occupiedIdleZones.indexOf(storage.id) === -1) {
-      this.memory.idleZone = storage.id;
-      return storage.pos;
+    if (storage) {
+      if (occupiedIdleZones.indexOf(storage.id) === -1) {
+        this.memory.idleZone = storage.id;
+        return storage.pos;
+      }
     } else {
       // next to spawn
       const spawns = this.roomw.spawns.filter(s => occupiedIdleZones.indexOf(s.id) === -1);
