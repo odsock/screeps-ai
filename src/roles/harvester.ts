@@ -114,12 +114,11 @@ export class Harvester extends Minder {
       CreepUtils.consoleLogIfWatched(this, `container id invalid`);
     }
 
-    if (this.memory.source) {
-      const sourceInfo = this.roomw.memory.sources[this.memory.source];
+    for (const sourceId in this.roomw.memory.sources) {
+      const sourceInfo = this.roomw.memory.sources[sourceId];
       if (!sourceInfo) {
-        this.memory.source = undefined;
-        CreepUtils.consoleLogIfWatched(this, `source id invalid`);
-        return undefined;
+        CreepUtils.consoleLogIfWatched(this, `source id invalid: ${sourceId}`);
+        continue;
       }
 
       const containerId = sourceInfo.containerId;
@@ -128,6 +127,7 @@ export class Harvester extends Minder {
         const container = Game.getObjectById(containerId);
         if (container) {
           sourceInfo.minderId = this.id;
+          this.memory.source = sourceId as Id<Source>;
           this.memory.containerId = containerId;
           return container;
         }
