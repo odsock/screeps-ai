@@ -5,7 +5,6 @@ import { Builder } from "./builder";
 import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 import { Upgrader } from "./upgrader";
 import { profile } from "../../screeps-typescript-profiler";
-import { SourceNode } from "source-map";
 
 // TODO: assign to source containers or something so they don't only use closest
 @profile
@@ -39,6 +38,10 @@ export class Hauler extends CreepWrapper {
       }
     }
 
+    // pickup convenient energy
+    this.pickupAdjacentDroppedEnergy();
+    this.withdrawAdjacentRuinOrTombEnergy();
+
     // supply spawn/extensions if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
       this.supplySpawnJob();
@@ -55,9 +58,16 @@ export class Hauler extends CreepWrapper {
       }
     }
 
+    // unload source containers
+    const sourceContainer = this.findClosestSourceContainerFillsMyStore();
+    if (sourceContainer) {
+      this.unloadSourceContainerJob(sourceContainer);
+      return;
+    }
+
     // supply controller container
     const container = this.findClosestControllerContainerNotFull();
-    if (container && container.store.getFreeCapacity() >= this.store.getUsedCapacity(RESOURCE_ENERGY)) {
+    if (container && container.store.getFreeCapacity() >= this.store.energy) {
       this.supplyStructureJob(container);
       return;
     }
@@ -83,6 +93,29 @@ export class Hauler extends CreepWrapper {
     // otherwise supply storage
     if (this.room.storage) {
       this.supplyStructureJob(this.room.storage);
+    }
+  }
+  private unloadSourceContainerJob(target: StructureContainer): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `empty source container`);
+    this.updateJob(`source container`);
+
+    this.startWorkingIfEmpty();
+    this.stopWorkingIfFull();
+
+    if (this.memory.working) {
+      CreepUtils.consoleLogIfWatched(this, "working");
+      const result = this.moveToAndGet(target);
+      CreepUtils.consoleLogIfWatched(this, `empty ${String(target)}`, result);
+      return result;
+    } else {
+      CreepUtils.consoleLogIfWatched(this, `dumping`);
+      const storage = this.findRoomStorage();
+      if (storage) {
+        const result = this.moveToAndTransfer(storage);
+        CreepUtils.consoleLogIfWatched(this, `dump at ${String(storage)}`, result);
+        return result;
+      }
+      return ERR_FULL;
     }
   }
 
@@ -313,14 +346,7 @@ export class Hauler extends CreepWrapper {
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
-    const sourceContainers: StructureContainer[] = [];
-    _.forEach(this.roomw.memory.sources, s => {
-      const container = s.containerId ? Game.getObjectById(s.containerId) : undefined;
-      if (container && container.store.energy >= this.store.getFreeCapacity()) {
-        sourceContainers.push(container);
-      }
-    });
-    const target = this.pos.findClosestByPath(sourceContainers);
+    const target = this.findClosestSourceContainerFillsMyStore();
     let result = this.moveToAndGet(target);
     if (result === OK) {
       return result;
@@ -353,6 +379,18 @@ export class Hauler extends CreepWrapper {
     this.say("🤔");
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
     return ERR_NOT_FOUND;
+  }
+
+  private findClosestSourceContainerFillsMyStore() {
+    const sourceContainers: StructureContainer[] = [];
+    _.forEach(this.roomw.memory.sources, s => {
+      const container = s.containerId ? Game.getObjectById(s.containerId) : undefined;
+      if (container && container.store.energy >= this.store.getFreeCapacity()) {
+        sourceContainers.push(container);
+      }
+    });
+    const target = this.pos.findClosestByPath(sourceContainers) ?? undefined;
+    return target;
   }
 
   /** find a source container without a hauler id set */
