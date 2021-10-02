@@ -458,16 +458,6 @@ export class Hauler extends CreepWrapper {
         }
       });
 
-    // next to source
-    const sources = this.roomw.sources.filter(s => occupiedIdleZones.indexOf(s.id) === -1);
-    if (sources.length > 0) {
-      const closestSource = this.pos.findClosestByPath(sources);
-      if (closestSource) {
-        this.memory.idleZone = closestSource.id;
-        return closestSource.pos;
-      }
-    }
-
     // next to storage
     const storage = this.roomw.storage;
     if (storage && occupiedIdleZones.indexOf(storage.id) === -1) {
@@ -479,6 +469,16 @@ export class Hauler extends CreepWrapper {
     const spawns = this.roomw.spawns.filter(s => occupiedIdleZones.indexOf(s.id) === -1);
     if (spawns.length > 0) {
       const closestSource = this.pos.findClosestByPath(spawns);
+      if (closestSource) {
+        this.memory.idleZone = closestSource.id;
+        return closestSource.pos;
+      }
+    }
+
+    // next to source
+    const sources = this.roomw.sources.filter(s => occupiedIdleZones.indexOf(s.id) === -1);
+    if (sources.length > 0) {
+      const closestSource = this.pos.findClosestByPath(sources);
       if (closestSource) {
         this.memory.idleZone = closestSource.id;
         return closestSource.pos;
