@@ -5,6 +5,7 @@ import { Builder } from "./builder";
 import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 import { Upgrader } from "./upgrader";
 import { profile } from "../../screeps-typescript-profiler";
+import { SourceNode } from "source-map";
 
 // TODO: assign to source containers or something so they don't only use closest
 @profile
@@ -298,7 +299,7 @@ export class Hauler extends CreepWrapper {
   /**
    * finds energy in room in order:
    * adjacent drop, ruin, or tomb
-   * source container
+   * source container that fills my storage
    * storage
    * drop large enough to fill
    * tomb
@@ -312,7 +313,15 @@ export class Hauler extends CreepWrapper {
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
-    let result = this.moveToAndGet(this.findClosestSourceContainerNotEmpty());
+    const sourceContainers: StructureContainer[] = [];
+    _.forEach(this.roomw.memory.sources, s => {
+      const container = s.containerId ? Game.getObjectById(s.containerId) : undefined;
+      if (container && container.store.energy >= this.store.getFreeCapacity()) {
+        sourceContainers.push(container);
+      }
+    });
+    const target = this.pos.findClosestByPath(sourceContainers);
+    let result = this.moveToAndGet(target);
     if (result === OK) {
       return result;
     }
