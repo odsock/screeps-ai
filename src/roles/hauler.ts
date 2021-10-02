@@ -97,7 +97,7 @@ export class Hauler extends CreepWrapper {
   }
   private unloadSourceContainerJob(target: StructureContainer): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `empty source container`);
-    this.updateJob(`source container`);
+    this.updateJob(`source`);
 
     this.startWorkingIfEmpty();
     this.stopWorkingIfFull();
