@@ -385,7 +385,7 @@ export class Hauler extends CreepWrapper {
     const sourceContainers: StructureContainer[] = [];
     _.forEach(this.roomw.memory.sources, s => {
       const container = s.containerId ? Game.getObjectById(s.containerId) : undefined;
-      if (container && container.store.energy >= this.store.getFreeCapacity()) {
+      if (container && container.store.energy >= this.store.getCapacity()) {
         sourceContainers.push(container);
       }
     });
