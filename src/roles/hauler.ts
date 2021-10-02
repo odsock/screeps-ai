@@ -98,7 +98,14 @@ export class Hauler extends CreepWrapper {
     }
 
     // idle
+    this.updateJob(`idle`);
     this.say("🤔");
+    const idleZone = this.findIdleZone();
+    if (idleZone) {
+      this.moveTo(idleZone, { range: 2, reusePath: 10 });
+      return;
+    }
+
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
   }
 
@@ -429,6 +436,56 @@ export class Hauler extends CreepWrapper {
     });
     const target = this.pos.findClosestByPath(sourceContainers) ?? undefined;
     return target;
+  }
+
+  private findIdleZone(): RoomPosition | undefined {
+    if (this.memory.idleZone) {
+      const target = Game.getObjectById(this.memory.idleZone);
+      if (target) {
+        return target.pos;
+      }
+      this.memory.idleZone = undefined;
+    }
+
+    const occupiedIdleZones: string[] = [];
+    this.roomw
+      .find(FIND_MY_CREEPS, {
+        filter: c => c.memory.role === CreepRole.HAULER
+      })
+      .forEach(c => {
+        if (c.memory.idleZone) {
+          occupiedIdleZones.push(c.memory.idleZone);
+        }
+      });
+
+    // next to source
+    const sources = this.roomw.sources.filter(s => occupiedIdleZones.indexOf(s.id) === -1);
+    if (sources.length > 0) {
+      const closestSource = this.pos.findClosestByPath(sources);
+      if (closestSource) {
+        this.memory.idleZone = closestSource.id;
+        return closestSource.pos;
+      }
+    }
+
+    // next to storage
+    const storage = this.roomw.storage;
+    if (storage && occupiedIdleZones.indexOf(storage.id) === -1) {
+      this.memory.idleZone = storage.id;
+      return storage.pos;
+    }
+
+    // next to spawn
+    const spawns = this.roomw.spawns.filter(s => occupiedIdleZones.indexOf(s.id) === -1);
+    if (spawns.length > 0) {
+      const closestSource = this.pos.findClosestByPath(spawns);
+      if (closestSource) {
+        this.memory.idleZone = closestSource.id;
+        return closestSource.pos;
+      }
+    }
+
+    return undefined;
   }
 
   /** find a source container without a hauler id set */

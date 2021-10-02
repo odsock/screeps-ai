@@ -19,6 +19,7 @@ declare global {
     working?: boolean;
     watched?: boolean;
     path?: string;
+    idleZone?: Id<Source | StructureStorage | StructureSpawn>; // id of source, storage, or spawn where hauler is idling
   }
 
   interface RoomMemory {
