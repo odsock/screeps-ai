@@ -6,7 +6,7 @@ import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 import { Upgrader } from "./upgrader";
 import { profile } from "../../screeps-typescript-profiler";
 
-// TODO: assign to source containers or something so they don't only use closest
+// TODO assign idle locations (sources, storage, spawn)
 @profile
 export class Hauler extends CreepWrapper {
   public static readonly ROLE = CreepRole.HAULER;

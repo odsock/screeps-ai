@@ -80,7 +80,7 @@ export class Worker extends CreepWrapper {
     }
   }
 
-  // TODO: dry this up with builder code
+  // TODO dry this up with builder code
   private doBuildJob(): void {
     const centerPos = this.findBuildCenterPos();
     const site = this.chooseConstructionSite(centerPos);

@@ -1,5 +1,5 @@
 export class TargetConfig {
-  // TODO: create AI targeting of rooms
+  // TODO create AI targeting of rooms
 
   public static readonly TARGETS: { [x: string]: string[] } = {
     shard3: [],
