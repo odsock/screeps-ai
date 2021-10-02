@@ -447,6 +447,48 @@ export class Hauler extends CreepWrapper {
       this.memory.idleZone = undefined;
     }
 
+    const occupiedIdleZones: string[] = this.getOccupiedIdleZones();
+    const unoccupiedIdleZones: (StructureStorage | StructureSpawn | Source)[] = [];
+
+    // next to storage
+    const storage = this.roomw.storage;
+    if (storage) {
+      if (occupiedIdleZones.indexOf(storage.id) === -1) {
+        unoccupiedIdleZones.push(storage);
+      }
+    } else {
+      // next to spawn
+      const spawns = this.roomw.spawns.filter(s => occupiedIdleZones.indexOf(s.id) === -1);
+      if (spawns.length > 0) {
+        const closestSource = this.pos.findClosestByPath(spawns, { range: 2 });
+        if (closestSource) {
+          unoccupiedIdleZones.push(closestSource);
+        }
+      }
+    }
+
+    // next to source
+    const sources = this.roomw.sources.filter(s => occupiedIdleZones.indexOf(s.id) === -1);
+    if (sources.length > 0) {
+      const closestSource = this.pos.findClosestByPath(sources, { range: 2 });
+      if (closestSource) {
+        unoccupiedIdleZones.push(closestSource);
+      }
+    }
+
+    // pick closest option
+    if (unoccupiedIdleZones.length > 0) {
+      const closestIdleZone = this.pos.findClosestByPath(unoccupiedIdleZones, { range: 2 });
+      if (closestIdleZone) {
+        this.memory.idleZone = closestIdleZone.id;
+        return closestIdleZone.pos;
+      }
+    }
+
+    return undefined;
+  }
+
+  private getOccupiedIdleZones() {
     const occupiedIdleZones: string[] = [];
     this.roomw
       .find(FIND_MY_CREEPS, {
@@ -457,37 +499,7 @@ export class Hauler extends CreepWrapper {
           occupiedIdleZones.push(c.memory.idleZone);
         }
       });
-
-    // next to storage
-    const storage = this.roomw.storage;
-    if (storage) {
-      if (occupiedIdleZones.indexOf(storage.id) === -1) {
-        this.memory.idleZone = storage.id;
-        return storage.pos;
-      }
-    } else {
-      // next to spawn
-      const spawns = this.roomw.spawns.filter(s => occupiedIdleZones.indexOf(s.id) === -1);
-      if (spawns.length > 0) {
-        const closestSource = this.pos.findClosestByPath(spawns);
-        if (closestSource) {
-          this.memory.idleZone = closestSource.id;
-          return closestSource.pos;
-        }
-      }
-    }
-
-    // next to source
-    const sources = this.roomw.sources.filter(s => occupiedIdleZones.indexOf(s.id) === -1);
-    if (sources.length > 0) {
-      const closestSource = this.pos.findClosestByPath(sources);
-      if (closestSource) {
-        this.memory.idleZone = closestSource.id;
-        return closestSource.pos;
-      }
-    }
-
-    return undefined;
+    return occupiedIdleZones;
   }
 
   /** find a source container without a hauler id set */
