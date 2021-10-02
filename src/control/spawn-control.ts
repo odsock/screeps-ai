@@ -261,10 +261,7 @@ export class SpawnControl {
       return 1;
     }
     // don't spawn importers for owned rooms, or reserved by other players
-    if (
-      roomMemory.controller?.structure?.owner ||
-      roomMemory.controller?.structure?.reservation?.username !== spawnw.owner.username
-    ) {
+    if (roomMemory.controller?.owner || roomMemory.controller?.reservation?.username !== spawnw.owner.username) {
       return 0;
     }
 

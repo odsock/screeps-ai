@@ -74,8 +74,9 @@ declare global {
   }
 
   interface ControllerInfo {
-    structure: StructureController;
     pos: string;
+    owner?: Owner;
+    reservation?: ReservationDefinition;
     containerConstructionSiteId?: Id<ConstructionSite>;
     containerPos?: string;
     containerId?: Id<StructureContainer>;

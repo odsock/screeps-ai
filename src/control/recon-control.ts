@@ -27,20 +27,18 @@ export class ReconControl {
       return;
     }
     // initialize controller memory
-    const controllerMemory = room.memory.controller;
-    if (!controllerMemory) {
+    if (!room.memory.controller) {
       room.memory.controller = {
-        pos: MemoryUtils.packRoomPosition(room.controller?.pos),
-        structure: room.controller
+        pos: MemoryUtils.packRoomPosition(room.controller?.pos)
       };
-      return;
     }
+    const controllerInfo = room.memory.controller;
 
-    // make sure structure is attached
-    controllerMemory.structure = room.controller;
+    // update ownership
+    room.memory.controller.owner = room.controller.owner;
+    room.memory.controller.reservation = room.controller.reservation;
 
     // validate id's
-    const controllerInfo = room.memory.controller;
     if (controllerInfo.containerId && !Game.getObjectById(controllerInfo.containerId)) {
       controllerInfo.containerId = undefined;
     }
