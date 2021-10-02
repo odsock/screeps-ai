@@ -21,11 +21,12 @@ export class Hauler extends CreepWrapper {
      * hauler jobs:
      * tug minders
      * fill spawn
-     * empty source containers
      * fill towers
-     * fill controller container
+     * empty source containers
      * fill builders
-     * fill storage
+     * fill controller container
+     * fill upgraders
+     * cleanup drops, tombs, ruins
      */
 
     // work haul request if empty
@@ -65,9 +66,18 @@ export class Hauler extends CreepWrapper {
       return;
     }
 
+    // supply empty builders
+    const builders = this.room.find(FIND_MY_CREEPS, {
+      filter: creep => creep.memory.role === Builder.ROLE && creep.store.getUsedCapacity() === 0
+    });
+    if (builders.length > 0) {
+      this.supplyCreepsJob(builders);
+      return;
+    }
+
     // supply controller container
     const container = this.findClosestControllerContainerNotFull();
-    if (container && container.store.getFreeCapacity() >= this.store.energy) {
+    if (container && container.store.getFreeCapacity() >= this.store.getCapacity()) {
       this.supplyStructureJob(container);
       return;
     }
@@ -81,20 +91,17 @@ export class Hauler extends CreepWrapper {
       return;
     }
 
-    // supply empty builders
-    const builders = this.room.find(FIND_MY_CREEPS, {
-      filter: creep => creep.memory.role === Builder.ROLE && creep.store.getUsedCapacity() === 0
-    });
-    if (builders.length > 0) {
-      this.supplyCreepsJob(builders);
+    // clean up drops, tombs, ruins
+    const cleanupResult = this.cleanupJob();
+    if (cleanupResult === OK) {
       return;
     }
 
-    // otherwise supply storage
-    if (this.room.storage) {
-      this.supplyStructureJob(this.room.storage);
-    }
+    // idle
+    this.say("🤔");
+    CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
   }
+
   private unloadSourceContainerJob(target: StructureContainer): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `empty source container`);
     this.updateJob(`source`);
@@ -106,6 +113,29 @@ export class Hauler extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, "working");
       const result = this.moveToAndGet(target);
       CreepUtils.consoleLogIfWatched(this, `empty ${String(target)}`, result);
+      return result;
+    } else {
+      CreepUtils.consoleLogIfWatched(this, `dumping`);
+      const storage = this.findRoomStorage();
+      if (storage) {
+        const result = this.moveToAndTransfer(storage);
+        CreepUtils.consoleLogIfWatched(this, `dump at ${String(storage)}`, result);
+        return result;
+      }
+      return ERR_FULL;
+    }
+  }
+
+  private cleanupJob(): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `cleanup drops/tombs/ruins`);
+    this.updateJob(`cleanup`);
+    this.startWorkingIfEmpty();
+    this.stopWorkingIfFull();
+
+    if (this.memory.working) {
+      CreepUtils.consoleLogIfWatched(this, "working");
+      const result = this.cleanupDropsTombsRuins();
+      CreepUtils.consoleLogIfWatched(this, `cleanup`, result);
       return result;
     } else {
       CreepUtils.consoleLogIfWatched(this, `dumping`);
@@ -159,36 +189,6 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private getHaulRequest(): Creep | undefined {
-    if (this.memory.hauleeName) {
-      CreepUtils.consoleLogIfWatched(this, `validate haul request `);
-      const creepToHaul = Game.creeps[this.memory.hauleeName];
-      if (creepToHaul && creepToHaul.memory.haulRequested) {
-        return creepToHaul;
-      } else {
-        this.memory.hauleeName = undefined;
-        if (creepToHaul) {
-          creepToHaul.memory.haulRequested = false;
-          creepToHaul.memory.haulerName = undefined;
-        }
-      }
-    } else {
-      CreepUtils.consoleLogIfWatched(this, `checking haul queue`);
-      const creepToHaul = this.room
-        .find(FIND_MY_CREEPS, {
-          filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
-        })
-        .pop();
-      if (creepToHaul) {
-        CreepUtils.consoleLogIfWatched(this, `haul request for ${creepToHaul.name}`);
-        this.memory.hauleeName = creepToHaul.name;
-        creepToHaul.memory.haulerName = this.name;
-        return creepToHaul;
-      }
-    }
-    return undefined;
-  }
-
   private haulCreepJob(creep: Creep): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `haul ${creep.name}`);
     this.updateJob(`tug`);
@@ -225,7 +225,6 @@ export class Hauler extends CreepWrapper {
         result = this.moveTo(target, { range: 1, reusePath: 10, visualizePathStyle: { stroke: "#ffffff" } });
         CreepUtils.consoleLogIfWatched(this, `moving to ${target.structureType} at ${String(target.pos)}`, result);
       } else {
-        // Stop if structure is full now
         let targetFreeCap = 0;
         // Type issue, two different versions of getFreeCapacity. The if makes compiler happy.
         if (target instanceof OwnedStructure) {
@@ -234,9 +233,10 @@ export class Hauler extends CreepWrapper {
           targetFreeCap = target.store.getFreeCapacity(RESOURCE_ENERGY);
         }
         const creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
+        // stop if structure will be full after this transfer
         if (result === OK && targetFreeCap < creepStoredEnergy) {
           CreepUtils.consoleLogIfWatched(this, `${target.structureType} is full: ${String(target.pos)}`);
-          this.updateJob("idle");
+          this.updateJob("supply complete");
         }
       }
     } else {
@@ -284,6 +284,36 @@ export class Hauler extends CreepWrapper {
     }
   }
 
+  private getHaulRequest(): Creep | undefined {
+    if (this.memory.hauleeName) {
+      CreepUtils.consoleLogIfWatched(this, `validate haul request `);
+      const haulee = Game.creeps[this.memory.hauleeName];
+      if (haulee && haulee.memory.haulRequested) {
+        return haulee;
+      } else {
+        this.memory.hauleeName = undefined;
+        if (haulee) {
+          haulee.memory.haulRequested = false;
+          haulee.memory.haulerName = undefined;
+        }
+      }
+    }
+
+    const creepToHaul = this.room
+      .find(FIND_MY_CREEPS, {
+        filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
+      })
+      .pop();
+    if (creepToHaul) {
+      CreepUtils.consoleLogIfWatched(this, `haul request for ${creepToHaul.name}`);
+      this.memory.hauleeName = creepToHaul.name;
+      creepToHaul.memory.haulerName = this.name;
+      return creepToHaul;
+    }
+    CreepUtils.consoleLogIfWatched(this, `no haul request found`);
+    return undefined;
+  }
+
   private getSpawnSupplyPath(spawnStorage: (StructureExtension | StructureSpawn)[]): RoomPosition[] {
     // if (this.memory.path) {
     //   return Room.deserializePath(this.memory.path);
@@ -329,6 +359,29 @@ export class Hauler extends CreepWrapper {
     return towersBelowThreshold;
   }
 
+  private cleanupDropsTombsRuins() {
+    if (this.store.getFreeCapacity() === 0) {
+      return ERR_FULL;
+    }
+
+    let result = this.moveToAndGet(this.findClosestEnergyDrop());
+    if (result === OK) {
+      return result;
+    }
+
+    result = this.moveToAndGet(this.findClosestTombstoneWithEnergy());
+    if (result === OK) {
+      return result;
+    }
+
+    result = this.moveToAndGet(this.findClosestRuinsWithEnergy());
+    if (result === OK) {
+      return result;
+    }
+
+    return ERR_NOT_FOUND;
+  }
+
   /**
    * finds energy in room in order:
    * adjacent drop, ruin, or tomb
@@ -343,9 +396,6 @@ export class Hauler extends CreepWrapper {
       return ERR_FULL;
     }
 
-    this.pickupAdjacentDroppedEnergy();
-    this.withdrawAdjacentRuinOrTombEnergy();
-
     const target = this.findClosestSourceContainerFillsMyStore();
     let result = this.moveToAndGet(target);
     if (result === OK) {
@@ -359,19 +409,7 @@ export class Hauler extends CreepWrapper {
       }
     }
 
-    // energy drop, tomb, and ruin should get cleaned up by fixer so check last
-
-    result = this.moveToAndGet(this.findClosestLargeEnergyDrop());
-    if (result === OK) {
-      return result;
-    }
-
-    result = this.moveToAndGet(this.findClosestTombstoneWithEnergy());
-    if (result === OK) {
-      return result;
-    }
-
-    result = this.moveToAndGet(this.findClosestRuinsWithEnergy());
+    result = this.cleanupDropsTombsRuins();
     if (result === OK) {
       return result;
     }

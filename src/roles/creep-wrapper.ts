@@ -299,12 +299,12 @@ export abstract class CreepWrapper extends Creep {
     return ERR_NOT_FOUND;
   }
 
-  protected findClosestControllerContainerNotFull(): StructureContainer | null {
+  protected findClosestControllerContainerNotFull(): StructureContainer | undefined {
     const containersNotFull = this.roomw.controllerContainers.filter(
       container => container.store.getFreeCapacity() > 0
     );
     CreepUtils.consoleLogIfWatched(this, `controller containers not full: ${containersNotFull.length}`);
-    return this.pos.findClosestByPath(containersNotFull);
+    return this.pos.findClosestByPath(containersNotFull) ?? undefined;
   }
 
   protected pickupW(target: Resource<ResourceConstant>, force = false): ScreepsReturnCode {
