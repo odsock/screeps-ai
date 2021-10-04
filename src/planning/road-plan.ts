@@ -29,7 +29,7 @@ export class RoadPlan {
       for (const controllerContainer of controllerContainers) {
         const path: PathFinderPath = this.planRoad(sourceContainer.pos, controllerContainer.pos, 1);
         if (!path.incomplete) {
-          const result = this.placeRoadOnPath(path);
+          this.placeRoadOnPath(path);
           // console.log(` - placement result: ${result}`);
         }
       }
