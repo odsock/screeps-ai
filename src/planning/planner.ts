@@ -1,12 +1,11 @@
-import { RoomWrapper } from "structures/room-wrapper";
 import { ContainerPlan } from "./container-plan";
-import { RoadPlan } from "./road-plan";
-import { PlannerUtils } from "./planner-utils";
+import { ExtensionPlan } from "./extension-plan";
 import { MemoryUtils } from "./memory-utils";
+import { PlannerUtils } from "./planner-utils";
+import { RoadPlan } from "./road-plan";
+import { RoomWrapper } from "structures/room-wrapper";
 import { StructurePatterns } from "config/structure-patterns";
 import { StructurePlanPosition } from "./structure-plan";
-import { ExtensionPlan } from "./extension-plan";
-import { CreepUtils } from "creep-utils";
 import { profile } from "../../screeps-typescript-profiler";
 
 @profile
