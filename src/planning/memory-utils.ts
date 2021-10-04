@@ -111,12 +111,9 @@ declare global {
   namespace NodeJS {
     interface Global {
       sockpuppet: Sockpuppet;
-      log: any;
       cache: Map<string, CacheValue>;
-      watch: (key: Id<any>) => void;
-      unwatch: (key: Id<any>) => void;
-      profile: (key: Id<any>) => void;
-      unprofile: (key: Id<any>) => void;
+      watch: (key: string) => void;
+      unwatch: (key: string) => void;
       placeExt: (pos: RoomPosition, structure: StructureConstant) => void;
       printCpuUsage: () => void;
       clearCpuUsage: () => void;
@@ -126,7 +123,7 @@ declare global {
 }
 
 interface CacheValue {
-  item: any;
+  item: unknown;
   expires: number;
 }
 
