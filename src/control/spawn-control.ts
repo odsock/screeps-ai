@@ -1,20 +1,20 @@
-import { SockPuppetConstants } from "../config/sockpuppet-constants";
-import { CreepUtils } from "creep-utils";
 import { Builder } from "roles/builder";
 import { Claimer } from "roles/claimer";
+import { CreepBodyProfile } from "roles/creep-wrapper";
+import { CreepRole } from "config/creep-types";
+import { CreepUtils } from "creep-utils";
 import { Fixer } from "roles/fixer";
+import { Harvester } from "roles/harvester";
 import { Hauler } from "roles/hauler";
 import { Importer } from "roles/importer";
-import { Worker } from "roles/worker";
-import { RoomWrapper } from "structures/room-wrapper";
-import { TargetConfig } from "config/target-config";
-import { SpawnWrapper } from "structures/spawn-wrapper";
-import { CreepRole } from "config/creep-types";
-import { Harvester } from "roles/harvester";
-import { Upgrader } from "roles/upgrader";
-import { CreepBodyProfile } from "roles/creep-wrapper";
-import { SpawnUtils } from "./spawn-utils";
 import { MemoryUtils } from "planning/memory-utils";
+import { RoomWrapper } from "structures/room-wrapper";
+import { SockPuppetConstants } from "../config/sockpuppet-constants";
+import { SpawnUtils } from "./spawn-utils";
+import { SpawnWrapper } from "structures/spawn-wrapper";
+import { TargetConfig } from "config/target-config";
+import { Upgrader } from "roles/upgrader";
+import { Worker } from "roles/worker";
 import { profile } from "../../screeps-typescript-profiler";
 
 @profile
@@ -72,12 +72,14 @@ export class SpawnControl {
     // SEED WORKER
     // spawn one worker if no other creeps
     if (spawnw.room.find(FIND_MY_CREEPS).length === 0) {
+      this.creepCountsByRole[CreepRole.WORKER] += 1;
       return this.spawnBootstrapCreep(Worker.BODY_PROFILE, Worker.ROLE, spawnw);
     }
 
     // FIRST HAULER
     // always need at least one hauler to fill spawns and move harvesters
     if (this.creepCountsByRole[CreepRole.HAULER] === 0) {
+      this.creepCountsByRole[CreepRole.HAULER] += 1;
       return this.spawnBootstrapCreep(Hauler.BODY_PROFILE, Hauler.ROLE, spawnw);
     }
 
@@ -88,6 +90,7 @@ export class SpawnControl {
     });
     CreepUtils.consoleLogIfWatched(spawnw, `haulers: ${youngHaulers.length} younger than 1000`);
     if (youngHaulers.length === 0) {
+      this.creepCountsByRole[CreepRole.HAULER] += 1;
       return spawnw.spawn({
         body: SpawnUtils.getMaxBody(Hauler.BODY_PROFILE, spawnw),
         role: Hauler.ROLE
@@ -97,6 +100,7 @@ export class SpawnControl {
     // FIRST HARVESTER
     // always need at least one harvester
     if (this.creepCountsByRole[CreepRole.HARVESTER] === 0) {
+      this.creepCountsByRole[CreepRole.HARVESTER] += 1;
       return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw);
     }
 
@@ -115,12 +119,14 @@ export class SpawnControl {
       `harvesters: ${harvesterCount}/${harvestPositionCount} positions, ${harvesterWorkParts}/${harvesterWorkPartsNeeded} parts`
     );
     if (harvesterWorkParts < harvesterWorkPartsNeeded && harvesterCount < harvestPositionCount) {
+      this.creepCountsByRole[CreepRole.HARVESTER] += 1;
       return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw);
     }
 
     // FIRST UPGRADER
     // start upgrading once harvesting efficiently
     if (this.creepCountsByRole[CreepRole.UPGRADER] === 0) {
+      this.creepCountsByRole[CreepRole.UPGRADER] += 1;
       return spawnw.spawn({
         body: SpawnUtils.getMaxBody(Upgrader.BODY_PROFILE, spawnw),
         role: Upgrader.ROLE
@@ -146,6 +152,7 @@ export class SpawnControl {
         `upgraders: ${upgraderCount}/${upgradePositionCount} positions, ${upgraderWorkParts}/${upgraderWorkPartsNeeded} parts`
       );
       if (upgraderWorkParts < upgraderWorkPartsNeeded && upgraderCount < upgradePositionCount) {
+        this.creepCountsByRole[CreepRole.UPGRADER] += 1;
         return spawnw.spawn({
           body: SpawnUtils.getMaxBody(Upgrader.BODY_PROFILE, spawnw),
           role: Upgrader.ROLE
@@ -159,6 +166,7 @@ export class SpawnControl {
     const sourcesPlusOne = spawnw.roomw.sources.length + 1;
     CreepUtils.consoleLogIfWatched(spawnw, `haulers: ${haulerCount}/${sourcesPlusOne}`);
     if (haulerCount < sourcesPlusOne) {
+      this.creepCountsByRole[CreepRole.HAULER] += 1;
       return spawnw.spawn({
         body: SpawnUtils.getMaxBody(Hauler.BODY_PROFILE, spawnw),
         role: Hauler.ROLE
@@ -192,6 +200,7 @@ export class SpawnControl {
       ).length;
       CreepUtils.consoleLogIfWatched(spawnw, `importers for ${roomName}: ${importersOnRoom}/${importersNeeded}`);
       if (importersNeeded > importersOnRoom) {
+        this.creepCountsByRole[CreepRole.IMPORTER] += 1;
         return spawnw.spawn({
           body: SpawnUtils.getMaxBody(Importer.BODY_PROFILE, spawnw),
           role: Importer.ROLE,
@@ -213,6 +222,7 @@ export class SpawnControl {
         ).length;
         CreepUtils.consoleLogIfWatched(spawnw, `claimer for ${roomName}: ${String(claimerOnRoom)}`);
         if (!claimerOnRoom) {
+          this.creepCountsByRole[CreepRole.CLAIMER] += 1;
           return spawnw.spawn({
             body: SpawnUtils.getMaxBody(Claimer.BODY_PROFILE, spawnw),
             role: Claimer.ROLE,
@@ -237,6 +247,7 @@ export class SpawnControl {
         room => !remoteWorkers.find(creep => creep.memory.targetRoom === room.name)
       );
       if (targetRoom) {
+        this.creepCountsByRole[CreepRole.WORKER] += 1;
         return spawnw.spawn({
           body: SpawnUtils.getMaxBody(Worker.BODY_PROFILE, spawnw),
           role: Worker.ROLE,
@@ -374,6 +385,7 @@ export class SpawnControl {
     for (const creep of creeps) {
       if (!creep.spawning && !creep.memory.retiring) {
         if (creep.ticksToLive && creep.ticksToLive <= replacementTime) {
+          this.creepCountsByRole[type.ROLE] += 1;
           const result = this.spawnBootstrapCreep(type.BODY_PROFILE, type.ROLE, spawnw);
           if (result === OK) {
             creep.memory.retiring = true;
