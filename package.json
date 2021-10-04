@@ -6,11 +6,9 @@
   "scripts": {
     "lint": "eslint \"src/**/*.ts\"",
     "build": "rollup -c",
-    "": "npm version prerelease && npm run push-main",
     "patch": "npm version patch && npm run push-main",
     "release": "npm version minor && npm run push-main",
     "release-sim": "npm version prerelease && npm run push-sim",
-    "rollup-help": "rollup --help",
     "push-main": "rollup -c --environment DEST:main",
     "push-pserver": "rollup -c --environment DEST:pserver",
     "push-season": "rollup -c --environment DEST:season",
@@ -24,6 +22,13 @@
     "watch-sim": "rollup -cw --environment DEST:sim",
     "version": "npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/odsock/screeps-ai.git"
+  },
+  "author": "Mike Burnham",
+  "license": "Unlicense",
+  "homepage": "https://github.com/odsock/screeps-ai#readme",
   "engines": {
     "node": "10.x || 12.x"
   },
@@ -44,9 +49,8 @@
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-typescript": "^2.4.0",
-    "eslint-plugin-import": "^2.24.0",
+    "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-no-null": "^1.0.2",
-    "eslint-plugin-prettier": "^3.4.0",
     "lodash": "^3.10.1",
     "mocha": "^5.2.0",
     "prettier": "^2.3.2",
