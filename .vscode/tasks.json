@@ -1,60 +1,49 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "tsc watch",
-            "type": "shell",
-            "command": "./node_modules/.bin/tsc",
-            "isBackground": true,
-            "args": [
-                "--watch",
-                "--noEmit",
-                "--project",
-                "."
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "reveal": "never",
-                "echo": false,
-                "focus": false,
-                "panel": "dedicated"
-            },
-            "problemMatcher": "$tsc-watch",
-            "runOptions": {
-                "runOn": "folderOpen"
-            }
-        },
-        {
-            "type": "npm",
-            "script": "push-main",
-            "problemMatcher": [
-                "$tsc"
-            ],
-            "label": "npm: push-main",
-            "detail": "rollup -c --environment DEST:main"
-        },
-        {
-            "type": "npm",
-            "script": "lint",
-            "problemMatcher": [
-                "$eslint-stylish"
-            ],
-            "label": "npm: lint",
-            "detail": "eslint \"src/**/*.ts\""
-        },
-        {
-            "type": "npm",
-            "script": "push-sim",
-            "problemMatcher": [
-                "$tsc"
-            ],
-            "label": "npm: push-sim",
-            "detail": "npm version prerelease"
-        }
-    ]
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "tsc watch",
+      "type": "shell",
+      "command": "./node_modules/.bin/tsc",
+      "isBackground": true,
+      "args": ["--watch", "--noEmit", "--project", "."],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "never",
+        "echo": false,
+        "focus": false,
+        "panel": "dedicated"
+      },
+      "problemMatcher": "$tsc-watch",
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
+      "type": "npm",
+      "script": "push-main",
+      "problemMatcher": ["$tsc"],
+      "label": "npm: push-main",
+      "detail": "rollup -c --environment DEST:main"
+    },
+    {
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": ["$eslint-stylish"],
+      "label": "npm: lint",
+      "detail": "eslint \"src/**/*.ts\""
+    },
+    {
+      "type": "npm",
+      "script": "push-sim",
+      "problemMatcher": ["$tsc"],
+      "label": "npm: push-sim",
+      "detail": "npm version prerelease"
+    }
+  ]
 }

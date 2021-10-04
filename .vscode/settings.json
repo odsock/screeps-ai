@@ -1,22 +1,9 @@
 {
-    "workbench.colorCustomizations": {
-        "activityBar.background": "#3B2A1E",
-        "titleBar.activeBackground": "#523B2A",
-        "titleBar.activeForeground": "#FDFBFA"
-    },
-    "cSpell.words": [
-      "BODYPART",
-      "creepw",
-      "estree",
-      "haulee",
-      "NUKER",
-      "pserver",
-      "roomw",
-      "Screeps",
-      "Sockpuppet",
-      "unprofile",
-      "unsign",
-      "upgrader",
-      "upgraders"
-    ]
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#3B2A1E",
+    "titleBar.activeBackground": "#523B2A",
+    "titleBar.activeForeground": "#FDFBFA"
+  },
+  "eslint.format.enable": true,
+  "editor.formatOnSave": true
 }

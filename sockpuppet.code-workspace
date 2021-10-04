@@ -1,27 +1,45 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"typescript.tsdk": "./node_modules/typescript/lib",
-		"editor.tabSize": 2,
-		"workbench.colorCustomizations": {
-			"activityBar.background": "#3B2A1E",
-			"titleBar.activeBackground": "#523B2A",
-			"titleBar.activeForeground": "#FDFBFA"
-		},
-		"eslint.format.enable": true
-	},
-	"tasks": {
-		"version": "2.0.0",
-		"tasks": [
-			{
-				"label": "echo",
-				"type": "shell",
-				"command": "echo Hello"
-			}
-		]
-	}
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": "./node_modules/typescript/lib",
+    "editor.tabSize": 2,
+    "workbench.colorCustomizations": {
+      "activityBar.background": "#3B2A1E",
+      "titleBar.activeBackground": "#523B2A",
+      "titleBar.activeForeground": "#FDFBFA"
+    },
+    "eslint.format.enable": true,
+    "cSpell.words": [
+      "BODYPART",
+      "cond",
+      "creepw",
+      "eqeqeq",
+      "estree",
+      "haulee",
+      "NUKER",
+      "pserver",
+      "roomw",
+      "Screeps",
+      "Sockpuppet",
+      "unprofile",
+      "unsign",
+      "upgrader",
+      "upgraders"
+    ],
+    "editor.formatOnSave": true
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "echo",
+        "type": "shell",
+        "command": "echo Hello"
+      }
+    ]
+  }
 }
