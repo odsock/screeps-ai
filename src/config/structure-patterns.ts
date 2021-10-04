@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+// prettier-ignore
 export class StructurePatterns {
   public static readonly FULL_COLONY: string[] = [
     "        r",
