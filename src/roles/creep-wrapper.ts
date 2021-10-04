@@ -1,5 +1,4 @@
 import { CreepUtils } from "creep-utils";
-import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 
