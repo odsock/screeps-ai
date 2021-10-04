@@ -1,12 +1,11 @@
-import { CreepRole } from "config/creep-types";
-import { SockPuppetConstants } from "config/sockpuppet-constants";
-import { CreepUtils } from "creep-utils";
-import { Builder } from "./builder";
 import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
+import { Builder } from "./builder";
+import { CreepRole } from "config/creep-types";
+import { CreepUtils } from "creep-utils";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { Upgrader } from "./upgrader";
 import { profile } from "../../screeps-typescript-profiler";
 
-// TODO assign idle locations (sources, storage, spawn)
 @profile
 export class Hauler extends CreepWrapper {
   public static readonly ROLE = CreepRole.HAULER;
@@ -29,14 +28,12 @@ export class Hauler extends CreepWrapper {
      * cleanup drops, tombs, ruins
      */
 
-    // work haul request if empty
-    if (this.store.getUsedCapacity() === 0) {
-      const creepToHaul = this.getHaulRequest();
-      if (creepToHaul) {
-        const result = this.haulCreepJob(creepToHaul);
-        CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
-        return;
-      }
+    // work haul request if assigned
+    const creepToHaul = this.getHaulRequest();
+    if (creepToHaul) {
+      const result = this.haulCreepJob(creepToHaul);
+      CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
+      return;
     }
 
     // pickup convenient energy
@@ -304,18 +301,6 @@ export class Hauler extends CreepWrapper {
           haulee.memory.haulerName = undefined;
         }
       }
-    }
-
-    const creepToHaul = this.room
-      .find(FIND_MY_CREEPS, {
-        filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
-      })
-      .pop();
-    if (creepToHaul) {
-      CreepUtils.consoleLogIfWatched(this, `haul request for ${creepToHaul.name}`);
-      this.memory.hauleeName = creepToHaul.name;
-      creepToHaul.memory.haulerName = this.name;
-      return creepToHaul;
     }
     CreepUtils.consoleLogIfWatched(this, `no haul request found`);
     return undefined;

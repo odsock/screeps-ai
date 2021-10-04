@@ -6,6 +6,7 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { DefenseControl } from "control/defense-control";
 import { ReconControl } from "control/recon-control";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
+import { HaulerControl } from "control/hauler-control";
 
 export class Sockpuppet {
   public name = "sockpuppet";
@@ -46,6 +47,9 @@ export class Sockpuppet {
         planner.run();
       }
     });
+
+    // assign tasks to haulers
+    new HaulerControl().run();
 
     this.runCreeps();
   }
