@@ -89,7 +89,7 @@ export class SpawnControl {
       filter: c => c.memory.role === Hauler.ROLE && c.ticksToLive && c.ticksToLive > 1000
     });
     CreepUtils.consoleLogIfWatched(spawnw, `haulers: ${youngHaulers.length} younger than 1000`);
-    if (youngHaulers.length === 0) {
+    if (youngHaulers.length === 0 && this.creepCountsByRole[CreepRole.HAULER] <= spawnw.roomw.sources.length + 1) {
       this.creepCountsByRole[CreepRole.HAULER] += 1;
       return spawnw.spawn({
         body: SpawnUtils.getMaxBody(Hauler.BODY_PROFILE, spawnw),
