@@ -359,7 +359,7 @@ export class SpawnControl {
       if (spawn.spawning) {
         const spawningCreep = Game.creeps[spawn.spawning.name];
         // try to stagger visuals so they don't overlap
-        const offset = Number(spawn.name.substring(-1)) % 2 === 0 ? 1 : -1;
+        const offset = Number(spawn.name.slice(-1)) % 2 === 0 ? 1 : -1;
         this.roomw.visual.text("🐣" + spawningCreep.memory.role, spawn.pos.x, spawn.pos.y + offset, {
           align: "left",
           opacity: 0.8
