@@ -122,6 +122,13 @@ export class SpawnControl {
       this.creepCountsByRole[CreepRole.HARVESTER] += 1;
       return this.spawnBootstrapCreep(Harvester.BODY_PROFILE, Harvester.ROLE, spawnw);
     }
+    // replace aging harvester
+    if (harvesterWorkParts <= harvesterWorkPartsNeeded && harvesterCount <= harvestPositionCount) {
+      const replaceResult = this.spawnReplacementMinder(spawnw, harvesters, Harvester);
+      if (replaceResult !== ERR_NOT_FOUND) {
+        return replaceResult;
+      }
+    }
 
     // FIRST UPGRADER
     // start upgrading once harvesting efficiently
@@ -159,6 +166,13 @@ export class SpawnControl {
         });
       }
     }
+    // replace aging upgrader
+    if (harvesterWorkParts <= harvesterWorkPartsNeeded && harvesterCount <= harvestPositionCount) {
+      const replaceResult = this.spawnReplacementMinder(spawnw, upgraders, Upgrader);
+      if (replaceResult !== ERR_NOT_FOUND) {
+        return replaceResult;
+      }
+    }
 
     // HAULER
     // spawn enough haulers to keep up with hauling needed
@@ -171,17 +185,6 @@ export class SpawnControl {
         body: SpawnUtils.getMaxBody(Hauler.BODY_PROFILE, spawnw),
         role: Hauler.ROLE
       });
-    }
-
-    // try to replace any aging minder seamlessly
-    const replaceUpgraderResult = this.spawnReplacementMinders(spawnw, upgraders, Upgrader);
-    if (replaceUpgraderResult !== ERR_NOT_FOUND) {
-      return replaceUpgraderResult;
-    }
-
-    const replaceHarvesterResult = this.spawnReplacementMinders(spawnw, harvesters, Harvester);
-    if (replaceHarvesterResult !== ERR_NOT_FOUND) {
-      return replaceHarvesterResult;
     }
 
     return ERR_NOT_FOUND;
@@ -376,23 +379,28 @@ export class SpawnControl {
     return result;
   }
 
-  private spawnReplacementMinders(
+  private spawnReplacementMinder(
     spawnw: SpawnWrapper,
     creeps: Creep[],
     type: typeof Upgrader | typeof Harvester
   ): ScreepsReturnCode {
-    const replacementTime = SpawnUtils.calcReplacementTime(type, spawnw);
-    for (const creep of creeps) {
-      if (!creep.spawning && !creep.memory.retiring) {
-        if (creep.ticksToLive && creep.ticksToLive <= replacementTime) {
-          this.creepCountsByRole[type.ROLE] += 1;
-          const result = this.spawnBootstrapCreep(type.BODY_PROFILE, type.ROLE, spawnw);
-          if (result === OK) {
-            creep.memory.retiring = true;
-          }
-          return result;
+    const ticksToReplaceHarvester = SpawnUtils.calcReplacementTime(type.BODY_PROFILE, spawnw);
+    const oldestHarvester = creeps
+      .filter(c => !c.memory.retiring && c.ticksToLive && c.ticksToLive <= ticksToReplaceHarvester)
+      .reduce((oldest, c) => {
+        if (c.ticksToLive && oldest.ticksToLive && c.ticksToLive < oldest.ticksToLive) {
+          return c;
         }
+        return oldest;
+      });
+    if (oldestHarvester) {
+      const body = SpawnUtils.getMaxBody(type.BODY_PROFILE, spawnw);
+      const result = spawnw.spawn({ body, role: type.ROLE, replacing: oldestHarvester.name });
+      if (result === OK) {
+        this.creepCountsByRole[CreepRole.HARVESTER] += 1;
+        oldestHarvester.memory.retiring = true;
       }
+      return result;
     }
     return ERR_NOT_FOUND;
   }

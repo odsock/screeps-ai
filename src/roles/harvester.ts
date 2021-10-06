@@ -1,6 +1,6 @@
+import { CreepBodyProfile } from "./creep-wrapper";
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
-import { CreepBodyProfile } from "./creep-wrapper";
 import { Minder } from "./minder";
 import { profile } from "../../screeps-typescript-profiler";
 
@@ -15,14 +15,14 @@ export class Harvester extends Minder {
 
   public run(): void {
     // retire old creep if valid retiree set
-    if (this.memory.retiree) {
-      const retiree = Game.creeps[this.memory.retiree];
+    if (this.memory.replacing) {
+      const retiree = Game.creeps[this.memory.replacing];
       if (retiree) {
         this.directHauler(retiree.pos, { range: 1 });
         this.retireCreep(retiree);
         return;
       } else {
-        this.memory.retiree = undefined;
+        this.memory.replacing = undefined;
       }
     }
 

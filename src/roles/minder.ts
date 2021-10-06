@@ -9,7 +9,7 @@ export abstract class Minder extends CreepWrapper {
     if (retiree.pos.isNearTo(this.pos)) {
       const result = retiree.suicide();
       CreepUtils.consoleLogIfWatched(this, `requested retirement of ${retiree.name}`, result);
-      this.memory.retiree = undefined;
+      this.memory.replacing = undefined;
       return result;
     }
     return OK;

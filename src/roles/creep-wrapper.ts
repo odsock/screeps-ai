@@ -401,7 +401,7 @@ export abstract class CreepWrapper extends Creep {
 
   protected moveToRetiree(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `moving to retiree`);
-    const retireeName = this.memory.retiree as string;
+    const retireeName = this.memory.replacing as string;
     const retiree = Game.creeps[retireeName];
     if (retiree) {
       if (retiree.pos.isNearTo(this.pos)) {
@@ -410,7 +410,7 @@ export abstract class CreepWrapper extends Creep {
       }
       return this.moveTo(retiree.pos, { visualizePathStyle: { stroke: "#ffaa00" } });
     } else {
-      this.memory.retiree = undefined;
+      this.memory.replacing = undefined;
       return ERR_NOT_FOUND;
     }
   }

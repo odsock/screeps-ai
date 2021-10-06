@@ -16,20 +16,20 @@ export class SpawnWrapper extends StructureSpawn {
   public spawn({
     body,
     role,
-    retiree,
+    replacing,
     targetRoom = this.roomw.name,
     homeRoom = this.roomw.name
   }: {
     body: BodyPartConstant[];
     role: string;
-    retiree?: string;
+    replacing?: string;
     targetRoom?: string;
     homeRoom?: string;
   }): ScreepsReturnCode {
     const newName = `${role}_${Game.time.toString(16)}`;
     const memory: CreepMemory = { role, targetRoom, homeRoom };
-    if (retiree) {
-      memory.retiree = retiree;
+    if (replacing) {
+      memory.replacing = replacing;
     }
 
     let extensions = MemoryUtils.getCache<(StructureExtension | StructureSpawn)[]>(
