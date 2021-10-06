@@ -6,7 +6,7 @@ import { profile } from "../../screeps-typescript-profiler";
 export abstract class Minder extends CreepWrapper {
   protected retireCreep(retiree: Creep): ScreepsReturnCode {
     // request suicide if next to retiree
-    if (retiree.pos.isNearTo(this.pos)) {
+    if (retiree.pos.inRangeTo(this.pos, 2)) {
       const result = retiree.suicide();
       CreepUtils.consoleLogIfWatched(this, `requested retirement of ${retiree.name}`, result);
       this.memory.replacing = undefined;
