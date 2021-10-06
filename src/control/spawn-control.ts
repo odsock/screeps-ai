@@ -385,14 +385,18 @@ export class SpawnControl {
     type: typeof Upgrader | typeof Harvester
   ): ScreepsReturnCode {
     const ticksToReplaceHarvester = SpawnUtils.calcReplacementTime(type.BODY_PROFILE, spawnw);
-    const oldestHarvester = creeps
-      .filter(c => !c.memory.retiring && c.ticksToLive && c.ticksToLive <= ticksToReplaceHarvester)
-      .reduce((oldest, c) => {
-        if (c.ticksToLive && oldest.ticksToLive && c.ticksToLive < oldest.ticksToLive) {
+    let oldestHarvester: Creep | undefined;
+    const oldHarvesters = creeps.filter(
+      c => !c.memory.retiring && c.ticksToLive && c.ticksToLive <= ticksToReplaceHarvester
+    );
+    if (oldHarvesters.length > 0) {
+      oldestHarvester = oldHarvesters.reduce((oldest, c) => {
+        if (!oldest || (c.ticksToLive && oldest.ticksToLive && c.ticksToLive < oldest.ticksToLive)) {
           return c;
         }
         return oldest;
       });
+    }
     if (oldestHarvester) {
       const body = SpawnUtils.getMaxBody(type.BODY_PROFILE, spawnw);
       const result = spawnw.spawn({ body, role: type.ROLE, replacing: oldestHarvester.name });
