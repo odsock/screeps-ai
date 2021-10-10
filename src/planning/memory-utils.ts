@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import { Sockpuppet } from "sockpuppet";
-// import { Task } from "control/hauler-control";
+import { Task } from "control/hauler-control";
 
 declare global {
   interface CreepMemory {
@@ -21,7 +21,7 @@ declare global {
     watched?: boolean;
     path?: string;
     idleZone?: Id<Source | StructureStorage | StructureSpawn>; // id of source, storage, or spawn where hauler is idling
-    // task?: Task;
+    task?: Task;
   }
 
   interface RoomMemory {
