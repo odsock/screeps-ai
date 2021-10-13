@@ -1,5 +1,5 @@
-import { CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
+import { CreepWrapper } from "./creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 
 @profile
@@ -61,11 +61,13 @@ export class RemoteWorker extends CreepWrapper {
     }
 
     // go to controller and claim it
-    const ret = this.moveTo(this.roomw.controller);
-    CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, ret);
-    const claimRet = this.claimController(this.roomw.controller);
-    CreepUtils.consoleLogIfWatched(this, `claiming controller: ${String(this.roomw.controller.pos)}`, claimRet);
-    return ret;
+    let result: ScreepsReturnCode = this.claimController(this.roomw.controller);
+    CreepUtils.consoleLogIfWatched(this, `claiming controller: ${String(this.roomw.controller.pos)}`, result);
+    if (result === ERR_NOT_IN_RANGE) {
+      result = this.moveTo(this.roomw.controller);
+      CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, result);
+    }
+    return result;
   }
 
   protected reserveTargetRoom(): ScreepsReturnCode {
@@ -78,11 +80,13 @@ export class RemoteWorker extends CreepWrapper {
     }
 
     // go to controller and reserve it
-    const ret = this.moveTo(this.roomw.controller);
-    CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, ret);
-    const claimRet = this.reserveController(this.roomw.controller);
-    CreepUtils.consoleLogIfWatched(this, `reserving controller: ${String(this.roomw.controller.pos)}`, claimRet);
-    return ret;
+    let result: ScreepsReturnCode = this.reserveController(this.roomw.controller);
+    CreepUtils.consoleLogIfWatched(this, `reserving controller: ${String(this.roomw.controller.pos)}`, result);
+    if (result === ERR_NOT_IN_RANGE) {
+      result = this.moveTo(this.roomw.controller);
+      CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, result);
+    }
+    return result;
   }
 
   /**
