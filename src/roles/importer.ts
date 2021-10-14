@@ -99,20 +99,9 @@ export class Importer extends RemoteWorker {
 
     const target = this.findClosestActiveEnergySource() ?? this.findClosestEnergySource();
 
-    let result = this.moveToAndGet(target);
+    const result = this.moveToAndGet(target);
     if (result === OK) {
       return result;
-    }
-
-    const inactiveSource = this.findClosestEnergySource();
-    if (inactiveSource) {
-      if (this.pos.isNearTo(inactiveSource)) {
-        return OK;
-      } else {
-        result = this.moveTo(inactiveSource, { range: 1, reusePath: 10, visualizePathStyle: { stroke: "#ffaa00" } });
-        CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
-        return result;
-      }
     }
 
     this.say("🤔");
