@@ -3,12 +3,12 @@ import { Guard } from "roles/guard";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
-import { SpawnUtils } from "./spawn-utils";
 
 @profile
 export class DefenseControl {
   public run(): void {
     // spawn guard for each unguarded room with hostiles
+    // TODO don't spawn guard for untargeted rooms we don't own
     for (const roomName in Memory.rooms) {
       const roomDefense = Memory.rooms[roomName].defense;
       if (roomDefense && (roomDefense.creeps.length > 0 || roomDefense.structures.length > 0)) {
@@ -53,13 +53,15 @@ export class DefenseControl {
   }
 
   private spawnGuard(roomDefense: RoomDefense, spawnw: SpawnWrapper, roomName: string): void {
-    let body;
-    if (roomDefense.creeps.length > 0) {
-      body = SpawnUtils.getMaxBodyNow(Guard.BODY_PROFILE, spawnw);
-    } else {
-      body = SpawnUtils.getMaxBody(Guard.BODY_PROFILE, spawnw);
-    }
-    spawnw.spawn({ body, role: Guard.ROLE, targetRoom: roomName });
+    const spawnQueue = spawnw.room.memory.spawnQueue ?? [];
+    spawnQueue.push({
+      bodyProfile: Guard.BODY_PROFILE,
+      max: roomDefense.creeps.length <= 0,
+      role: Guard.ROLE,
+      targetRoom: roomName,
+      priority: 250
+    });
+    spawnw.room.memory.spawnQueue = spawnQueue;
     return;
   }
 

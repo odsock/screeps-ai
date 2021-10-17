@@ -1,7 +1,9 @@
+import { SpawnUtils } from "control/spawn-utils";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
-import { RoomWrapper } from "./room-wrapper";
+import { CreepBodyProfile } from "roles/creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
+import { RoomWrapper } from "./room-wrapper";
 
 @profile
 export class SpawnWrapper extends StructureSpawn {
@@ -14,18 +16,26 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   public spawn({
-    body,
+    bodyProfile,
+    max,
     role,
     replacing,
     targetRoom = this.roomw.name,
     homeRoom = this.roomw.name
   }: {
-    body: BodyPartConstant[];
+    bodyProfile: CreepBodyProfile;
+    max?: boolean;
     role: string;
     replacing?: string;
     targetRoom?: string;
     homeRoom?: string;
   }): ScreepsReturnCode {
+    let body: BodyPartConstant[];
+    if (max) {
+      body = SpawnUtils.getMaxBody(bodyProfile, this.roomw);
+    } else {
+      body = SpawnUtils.getMaxBodyNow(bodyProfile, this);
+    }
     const newName = `${role}_${Game.time.toString(16)}`;
     const memory: CreepMemory = { role, targetRoom, homeRoom };
     if (replacing) {
@@ -54,6 +64,8 @@ export class SpawnWrapper extends StructureSpawn {
     CreepUtils.consoleLogIfWatched(this, `spawning: ${role} ${CreepUtils.creepBodyToString(body)}`, result);
     if (result === ERR_INVALID_ARGS) {
       console.log(`Invalid spawn: ${role} ${CreepUtils.creepBodyToString(body)}`);
+    } else if (result === OK && replacing) {
+      Game.creeps[replacing].memory.retiring = true;
     }
     return result;
   }

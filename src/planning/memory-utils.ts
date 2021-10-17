@@ -2,6 +2,7 @@
 
 import { Sockpuppet } from "sockpuppet";
 import { Task } from "control/hauler-control";
+import { SpawnRequest } from "control/spawn-control";
 
 declare global {
   interface CreepMemory {
@@ -37,6 +38,7 @@ declare global {
     reconTick: number;
     centerPoint?: string;
     remoteHarvest?: { [roomName: string]: RemoteHarvest };
+    spawnQueue?: SpawnRequest[];
   }
 
   interface RemoteHarvest {

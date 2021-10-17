@@ -1,7 +1,6 @@
 import { CreepUtils } from "creep-utils";
 import { CreepBodyProfile } from "roles/creep-wrapper";
-import { Harvester } from "roles/harvester";
-import { Upgrader } from "roles/upgrader";
+import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 
 export class SpawnUtils {
@@ -9,7 +8,7 @@ export class SpawnUtils {
    * Creates creep body that could spawn with full capacity in room, based on profile.
    */
   // TODO implement maxWorkParts and other part type checks
-  public static getMaxBody(creepBodyProfile: CreepBodyProfile, spawnw: SpawnWrapper): BodyPartConstant[] {
+  public static getMaxBody(creepBodyProfile: CreepBodyProfile, roomw: RoomWrapper): BodyPartConstant[] {
     let body: BodyPartConstant[] = creepBodyProfile.seed.slice();
     // if no seed start with one instance of profile
     if (body.length === 0) {
@@ -19,7 +18,7 @@ export class SpawnUtils {
     if (creepBodyProfile.maxBodyParts > MAX_CREEP_SIZE) {
       creepBodyProfile.maxBodyParts = MAX_CREEP_SIZE;
     }
-    const energyCapacity = spawnw.roomw.energyCapacityAvailable;
+    const energyCapacity = roomw.energyCapacityAvailable;
     do {
       finalBody = body.slice();
       body = body.concat(creepBodyProfile.profile);
@@ -84,14 +83,14 @@ export class SpawnUtils {
    * Calculates the number of ticks to spawn a creep with max body for retirement.
    * Uses an estimate of 50 ticks to account for walking time, since creep will be hauled.
    */
-  public static calcReplacementTime(creepBodyProfile: CreepBodyProfile, spawnw: SpawnWrapper): number {
-    const body = SpawnUtils.getMaxBody(creepBodyProfile, spawnw);
+  public static calcReplacementTime(creepBodyProfile: CreepBodyProfile, roomw: RoomWrapper): number {
+    const body = SpawnUtils.getMaxBody(creepBodyProfile, roomw);
     const spawningTime = body.length * CREEP_SPAWN_TIME;
     // walk time is hard to calc if using a hauler to tug
     // overestimate it, and suicide the retiree when you arrive
     const WALK_TIME = 50;
     const replacementTime = spawningTime + WALK_TIME;
-    CreepUtils.consoleLogIfWatched(spawnw, `replacement time: ${replacementTime} ticks`);
+    CreepUtils.consoleLogIfWatched(roomw, `replacement time: ${replacementTime} ticks`);
     return replacementTime;
   }
 }
