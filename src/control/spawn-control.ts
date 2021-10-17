@@ -4,7 +4,6 @@ import { CreepBodyProfile } from "roles/creep-wrapper";
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { Fixer } from "roles/fixer";
-import { Harvester } from "roles/harvester";
 import { Importer } from "roles/importer";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
@@ -12,7 +11,6 @@ import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { SpawnUtils } from "./spawn-utils";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 import { TargetConfig } from "config/target-config";
-import { Upgrader } from "roles/upgrader";
 import { Worker } from "roles/worker";
 import { profile } from "../../screeps-typescript-profiler";
 
@@ -108,41 +106,6 @@ export class SpawnControl {
         role: Worker.ROLE,
         priority: 200
       });
-    }
-
-    // FIRST UPGRADER
-    // start upgrading once harvesting efficiently
-    if (this.creepCountsByRole[CreepRole.UPGRADER] === 0) {
-      this.creepCountsByRole[CreepRole.UPGRADER] += 1;
-      this.spawnQueue.push({
-        bodyProfile: Upgrader.BODY_PROFILE,
-        max: true,
-        role: Upgrader.ROLE,
-        priority: 80
-      });
-    }
-
-    // UPGRADER
-    // spawn enough upgraders to match source capacity
-    const upgraderCount = this.creepCountsByRole[Upgrader.ROLE];
-    // don't spawn upgraders during construction
-    if (this.roomw.find(FIND_MY_CONSTRUCTION_SITES).length > 0 && upgraderCount > 0) {
-      CreepUtils.consoleLogIfWatched(this.roomw, `skipping upgraders during construction`);
-    } else {
-      const upgradePositionCount = this.roomw.getUpgradePositions().length;
-      const upgraderWorkPartsNeeded = this.getUpgraderWorkPartsNeeded();
-      if (upgraderCount < upgradePositionCount) {
-        const bodyProfile = this.buildBodyProfile(Upgrader.BODY_PROFILE, upgraderWorkPartsNeeded);
-        this.creepCountsByRole[CreepRole.UPGRADER] += 1;
-        this.spawnQueue.push({
-          bodyProfile,
-          role: Upgrader.ROLE,
-          priority: 80
-        });
-      } else if (upgraderCount <= upgradePositionCount) {
-        // replace aging upgrader
-        this.spawnReplacementMinder(Upgrader);
-      }
     }
   }
 
@@ -297,7 +260,7 @@ export class SpawnControl {
     );
     if (conSiteCount > 0 && workPartsNeeded > 0) {
       this.spawnQueue.push({
-        bodyProfile: this.buildBodyProfile(Builder.BODY_PROFILE, workPartsNeeded),
+        bodyProfile: SpawnUtils.buildBodyProfile(Builder.BODY_PROFILE, workPartsNeeded),
         role: Builder.ROLE,
         priority: 30
       });
@@ -326,32 +289,6 @@ export class SpawnControl {
     });
   }
 
-  private spawnReplacementMinder(type: typeof Upgrader | typeof Harvester): void {
-    const creeps = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === type.ROLE });
-    const ticksToReplace = SpawnUtils.calcReplacementTime(type.BODY_PROFILE, this.roomw);
-    const oldestMinderIndex = creeps
-      .filter(c => !c.memory.retiring && c.ticksToLive && c.ticksToLive <= ticksToReplace)
-      .reduce((oldestIndex, c, index, array) => {
-        const oldest = array[oldestIndex];
-        if (!oldest || (c.ticksToLive && oldest.ticksToLive && c.ticksToLive < oldest.ticksToLive)) {
-          return index;
-        }
-        return oldestIndex;
-      }, -1);
-    const oldestMinder = creeps[oldestMinderIndex];
-    if (oldestMinder) {
-      this.spawnQueue.push({
-        bodyProfile: type.BODY_PROFILE,
-        max: true,
-        role: type.ROLE,
-        replacing: oldestMinder.name,
-        priority: 80
-      });
-      return;
-    }
-    return;
-  }
-
   /** plan creep count functions */
 
   private getMaxClaimerCount(): number {
@@ -378,13 +315,6 @@ export class SpawnControl {
 
   /** calculate creep bodies */
 
-  private buildBodyProfile(bodyProfile: CreepBodyProfile, workPartsNeeded: number): CreepBodyProfile {
-    const workPartsInProfile = bodyProfile.profile.filter(part => part === WORK).length;
-    bodyProfile.maxBodyParts =
-      (workPartsNeeded / workPartsInProfile) * bodyProfile.profile.length + bodyProfile.seed.length;
-    return bodyProfile;
-  }
-
   private getBuilderWorkPartsNeeded(): number {
     const conWork = this.roomw.constructionWork;
     const builders = this.roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === CreepRole.BUILDER });
@@ -392,9 +322,5 @@ export class SpawnControl {
     const workPartsNeeded = Math.ceil(conWork / SockPuppetConstants.WORK_PER_WORKER_PART);
     const workPartsDeficit = workPartsNeeded - activeWorkParts;
     return workPartsDeficit > 0 ? workPartsDeficit : 0;
-  }
-
-  private getUpgraderWorkPartsNeeded(): number {
-    return this.roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / UPGRADE_CONTROLLER_POWER;
   }
 }

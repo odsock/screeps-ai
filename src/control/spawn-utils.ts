@@ -93,4 +93,14 @@ export class SpawnUtils {
     CreepUtils.consoleLogIfWatched(roomw, `replacement time: ${replacementTime} ticks`);
     return replacementTime;
   }
+
+  /**
+   * Updates a creep body profile with a max size based on number of work parts needed
+   */
+  public static buildBodyProfile(bodyProfile: CreepBodyProfile, workPartsNeeded: number): CreepBodyProfile {
+    const workPartsInProfile = bodyProfile.profile.filter(part => part === WORK).length;
+    bodyProfile.maxBodyParts =
+      (workPartsNeeded / workPartsInProfile) * bodyProfile.profile.length + bodyProfile.seed.length;
+    return bodyProfile;
+  }
 }
