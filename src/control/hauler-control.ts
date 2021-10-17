@@ -33,7 +33,9 @@ export class HaulerControl {
         }
       });
 
-      this.requestHaulerSpawns(roomw, haulers);
+      if (roomw.controller?.my) {
+        this.requestHaulerSpawns(roomw, haulers);
+      }
     }
   }
 
