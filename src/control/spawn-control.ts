@@ -110,45 +110,6 @@ export class SpawnControl {
       });
     }
 
-    // FIRST HARVESTER
-    // always need at least one harvester
-    if (this.creepCountsByRole[CreepRole.HARVESTER] === 0) {
-      this.creepCountsByRole[CreepRole.HARVESTER] += 1;
-      this.spawnQueue.push({
-        bodyProfile: Harvester.BODY_PROFILE,
-        role: Harvester.ROLE,
-        priority: 90
-      });
-    }
-
-    // HARVESTER
-    // spawn enough harvesters to drain sources if they fit in harvest positions
-    // don't count retiring harvesters, since they are being replaced
-    const harvesters = this.roomw.find(FIND_MY_CREEPS, {
-      filter: creep => creep.memory.role === Harvester.ROLE && !creep.memory.retiring
-    });
-    const harvesterWorkParts = CreepUtils.countParts(WORK, ...harvesters);
-    const harvesterWorkPartsNeeded = this.roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
-    const harvesterCount = this.creepCountsByRole[CreepRole.HARVESTER];
-    const harvestPositionCount = this.roomw.harvestPositionCount;
-    CreepUtils.consoleLogIfWatched(
-      this.roomw,
-      `harvesters: ${harvesterCount}/${harvestPositionCount} positions, ${harvesterWorkParts}/${harvesterWorkPartsNeeded} parts`
-    );
-    if (harvesterWorkParts < harvesterWorkPartsNeeded && harvesterCount < harvestPositionCount) {
-      this.creepCountsByRole[CreepRole.HARVESTER] += 1;
-      this.spawnQueue.push({
-        bodyProfile: Harvester.BODY_PROFILE,
-        max: true,
-        role: Harvester.ROLE,
-        priority: 90
-      });
-    }
-    // replace aging harvester
-    if (harvesterWorkParts <= harvesterWorkPartsNeeded && harvesterCount <= harvestPositionCount) {
-      this.spawnReplacementMinder(Harvester);
-    }
-
     // FIRST UPGRADER
     // start upgrading once harvesting efficiently
     if (this.creepCountsByRole[CreepRole.UPGRADER] === 0) {
@@ -178,7 +139,7 @@ export class SpawnControl {
           role: Upgrader.ROLE,
           priority: 80
         });
-      } else if (harvesterCount <= harvestPositionCount) {
+      } else if (upgraderCount <= upgradePositionCount) {
         // replace aging upgrader
         this.spawnReplacementMinder(Upgrader);
       }

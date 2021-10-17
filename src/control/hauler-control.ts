@@ -17,7 +17,9 @@ export class HaulerControl {
   public run(): void {
     for (const roomName in Game.rooms) {
       const roomw = RoomWrapper.getInstance(roomName);
-      const haulers = roomw.find(FIND_MY_CREEPS, { filter: c => c.memory.role === "hauler" }).map(c => new Hauler(c));
+      const haulers = roomw
+        .find(FIND_MY_CREEPS, { filter: c => c.memory.role === Hauler.ROLE })
+        .map(c => new Hauler(c));
 
       // find creeps requesting hauling
       const creepsToHaul = this.findHaulRequesters(roomw);
@@ -34,7 +36,7 @@ export class HaulerControl {
       });
 
       if (roomw.controller?.my && roomw.spawns.length > 0) {
-        this.requestHaulerSpawns(roomw, haulers);
+        this.requestSpawns(roomw, haulers);
       }
     }
   }
@@ -45,7 +47,7 @@ export class HaulerControl {
     });
   }
 
-  private requestHaulerSpawns(roomw: RoomWrapper, haulers: Hauler[]) {
+  private requestSpawns(roomw: RoomWrapper, haulers: Hauler[]) {
     const spawnQueue = roomw.memory.spawnQueue ?? [];
 
     // FIRST HAULER

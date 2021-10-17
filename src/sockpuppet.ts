@@ -7,6 +7,7 @@ import { DefenseControl } from "control/defense-control";
 import { ReconControl } from "control/recon-control";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { HaulerControl } from "control/hauler-control";
+import { HarvestControl } from "control/harvest-control";
 
 export class Sockpuppet {
   public name = "sockpuppet";
@@ -21,6 +22,9 @@ export class Sockpuppet {
 
     // assign tasks to haulers
     new HaulerControl().run();
+
+    // manage harvesters
+    new HarvestControl().run();
 
     // Run each room
     _.filter(Game.rooms, room => room.controller?.my).forEach(room => {

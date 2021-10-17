@@ -1,3 +1,4 @@
+import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
@@ -7,6 +8,11 @@ export interface CreepBodyProfile {
   seed: BodyPartConstant[];
   maxBodyParts: number;
   maxWorkParts?: number;
+}
+
+export interface CreepWrapperProfile {
+  ROLE: CreepRole;
+  BODY_PROFILE: CreepBodyProfile;
 }
 
 @profile
