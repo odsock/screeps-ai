@@ -33,7 +33,7 @@ export class HaulerControl {
         }
       });
 
-      if (roomw.controller?.my) {
+      if (roomw.controller?.my && roomw.spawns.length > 0) {
         this.requestHaulerSpawns(roomw, haulers);
       }
     }
