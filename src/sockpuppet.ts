@@ -14,12 +14,13 @@ export class Sockpuppet {
 
   public run(): void {
     // collect data about rooms we can see
-    const reconControl = new ReconControl();
-    reconControl.run();
+    new ReconControl().run();
 
     // spawn defense creeps
-    const defenseControl = new DefenseControl();
-    defenseControl.run();
+    new DefenseControl().run();
+
+    // assign tasks to haulers
+    new HaulerControl().run();
 
     // Run each room
     _.filter(Game.rooms, room => room.controller?.my).forEach(room => {
@@ -37,19 +38,16 @@ export class Sockpuppet {
         roomw.visual.import(dismantleVisual);
       }
 
-      const spawnControl = new SpawnControl(roomw);
-      spawnControl.run();
       this.runTowers(roomw);
 
       // Plan each room on interval
-      const planner = new Planner(roomw);
       if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
-        planner.run();
+        new Planner(roomw).run();
       }
-    });
 
-    // assign tasks to haulers
-    new HaulerControl().run();
+      // spawn new creeps
+      new SpawnControl(roomw).run();
+    });
 
     this.runCreeps();
   }

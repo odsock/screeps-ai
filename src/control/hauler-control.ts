@@ -1,3 +1,4 @@
+import { CreepUtils } from "creep-utils";
 import { Hauler } from "roles/hauler";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
@@ -31,6 +32,8 @@ export class HaulerControl {
           emptyHaulers.splice(emptyHaulers.findIndex(h => h.id === closestHauler.id));
         }
       });
+
+      this.requestHaulerSpawns(roomw, haulers);
     }
   }
 
@@ -38,5 +41,49 @@ export class HaulerControl {
     return roomw.find(FIND_MY_CREEPS, {
       filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
     });
+  }
+
+  private requestHaulerSpawns(roomw: RoomWrapper, haulers: Hauler[]) {
+    const spawnQueue = roomw.memory.spawnQueue ?? [];
+
+    // FIRST HAULER
+    // always need at least one hauler to fill spawns and move harvesters
+    if (haulers.length === 0) {
+      spawnQueue.push({
+        bodyProfile: Hauler.BODY_PROFILE,
+        role: Hauler.ROLE,
+        priority: 110
+      });
+    }
+
+    // BACKUP HAULER
+    // spawn with max body
+    const youngHaulers = roomw.find(FIND_MY_CREEPS, {
+      filter: c => c.memory.role === Hauler.ROLE && c.ticksToLive && c.ticksToLive > 1000
+    });
+    CreepUtils.consoleLogIfWatched(roomw, `haulers: ${youngHaulers.length} younger than 1000`);
+    if (youngHaulers.length === 0 && haulers.length <= roomw.sources.length + 1) {
+      spawnQueue.push({
+        bodyProfile: Hauler.BODY_PROFILE,
+        max: true,
+        role: Hauler.ROLE,
+        priority: 109
+      });
+    }
+
+    // HAULER
+    // spawn enough haulers to keep up with hauling needed
+    const sourcesPlusOne = roomw.sources.length + 1;
+    CreepUtils.consoleLogIfWatched(roomw, `haulers: ${haulers.length}/${sourcesPlusOne}`);
+    if (haulers.length < sourcesPlusOne) {
+      spawnQueue.push({
+        bodyProfile: Hauler.BODY_PROFILE,
+        max: true,
+        role: Hauler.ROLE,
+        priority: 70
+      });
+    }
+
+    roomw.memory.spawnQueue = spawnQueue;
   }
 }

@@ -5,7 +5,6 @@ import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { Fixer } from "roles/fixer";
 import { Harvester } from "roles/harvester";
-import { Hauler } from "roles/hauler";
 import { Importer } from "roles/importer";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
@@ -75,12 +74,19 @@ export class SpawnControl {
   private workSpawnQueue(): void {
     this.spawnQueue.sort((a, b) => a.priority - b.priority);
     CreepUtils.consoleLogIfWatched(this.roomw, `spawn queue: ${JSON.stringify(this.spawnQueue)}`);
-    this.freeSpawns.forEach(s => {
+    this.freeSpawns.some(s => {
       const spawnRequest = this.spawnQueue.pop();
       if (spawnRequest) {
-        CreepUtils.consoleLogIfWatched(this.roomw, `spawning: ${JSON.stringify(spawnRequest)}`);
-        s.spawn(spawnRequest);
+        const result = s.spawn(spawnRequest);
+        CreepUtils.consoleLogIfWatched(
+          this.roomw,
+          `spawning: ${spawnRequest.role}, priority: ${spawnRequest.priority}`,
+          result
+        );
+        // don't use energy on lower priority creep if high priority couldn't spawn now
+        return result === ERR_NOT_ENOUGH_ENERGY;
       }
+      return true;
     });
     this.roomw.memory.spawnQueue = [];
   }
@@ -101,33 +107,6 @@ export class SpawnControl {
         bodyProfile: Worker.BODY_PROFILE,
         role: Worker.ROLE,
         priority: 200
-      });
-    }
-
-    // FIRST HAULER
-    // always need at least one hauler to fill spawns and move harvesters
-    if (this.creepCountsByRole[CreepRole.HAULER] === 0) {
-      this.creepCountsByRole[CreepRole.HAULER] += 1;
-      this.spawnQueue.push({
-        bodyProfile: Hauler.BODY_PROFILE,
-        role: Hauler.ROLE,
-        priority: 100
-      });
-    }
-
-    // BACKUP HAULER
-    // spawn with max body
-    const youngHaulers = this.roomw.find(FIND_MY_CREEPS, {
-      filter: c => c.memory.role === Hauler.ROLE && c.ticksToLive && c.ticksToLive > 1000
-    });
-    CreepUtils.consoleLogIfWatched(this.roomw, `haulers: ${youngHaulers.length} younger than 1000`);
-    if (youngHaulers.length === 0 && this.creepCountsByRole[CreepRole.HAULER] <= this.roomw.sources.length + 1) {
-      this.creepCountsByRole[CreepRole.HAULER] += 1;
-      this.spawnQueue.push({
-        bodyProfile: Hauler.BODY_PROFILE,
-        max: true,
-        role: Hauler.ROLE,
-        priority: 100
       });
     }
 
@@ -203,21 +182,6 @@ export class SpawnControl {
         // replace aging upgrader
         this.spawnReplacementMinder(Upgrader);
       }
-    }
-
-    // HAULER
-    // spawn enough haulers to keep up with hauling needed
-    const haulerCount = this.creepCountsByRole[Hauler.ROLE];
-    const sourcesPlusOne = this.roomw.sources.length + 1;
-    CreepUtils.consoleLogIfWatched(this.roomw, `haulers: ${haulerCount}/${sourcesPlusOne}`);
-    if (haulerCount < sourcesPlusOne) {
-      this.creepCountsByRole[CreepRole.HAULER] += 1;
-      this.spawnQueue.push({
-        bodyProfile: Hauler.BODY_PROFILE,
-        max: true,
-        role: Hauler.ROLE,
-        priority: 70
-      });
     }
   }
 
