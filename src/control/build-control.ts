@@ -33,7 +33,7 @@ export class BuildControl {
 
     // BUILDER
     // make builders if there's something to build
-    const builderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.FIXER);
+    const builderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.BUILDER);
     const workPartsNeeded = this.getBuilderWorkPartsNeeded(roomw);
     const conSiteCount = roomw.constructionSites.length;
     CreepUtils.consoleLogIfWatched(
