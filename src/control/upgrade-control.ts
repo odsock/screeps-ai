@@ -55,10 +55,12 @@ export class UpgradeControl {
           role: Upgrader.ROLE,
           priority: 80
         });
-      } else if (upgraderCount <= upgradePositionCount) {
-        // replace aging upgrader
-        this.requestReplacementMinder(roomw, Upgrader, spawnQueue);
       }
+      // TODO needs check on current spawning to avoid doubles
+      // else if (upgraderCount <= upgradePositionCount) {
+      //   // replace aging upgrader
+      //   this.requestReplacementMinder(roomw, Upgrader, spawnQueue);
+      // }
     }
 
     roomw.memory.spawnQueue = spawnQueue;

@@ -65,6 +65,7 @@ export class HaulerControl {
 
     // BACKUP HAULER
     // spawn with max body
+    // TODO this will double spawn haulers when all are old
     const youngHaulers = roomw.find(FIND_MY_CREEPS, {
       filter: c => c.memory.role === Hauler.ROLE && c.ticksToLive && c.ticksToLive > 1000
     });

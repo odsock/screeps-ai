@@ -51,9 +51,10 @@ export class HarvestControl {
       });
     }
     // replace aging harvester
-    if (harvesterWorkParts <= harvesterWorkPartsNeeded && harvesterCount <= harvestPositionCount) {
-      this.requestReplacementMinder(roomw, Harvester, spawnQueue);
-    }
+    // TODO needs check on current spawning to avoid doubles
+    // if (harvesterWorkParts <= harvesterWorkPartsNeeded && harvesterCount <= harvestPositionCount) {
+    //   this.requestReplacementMinder(roomw, Harvester, spawnQueue);
+    // }
 
     roomw.memory.spawnQueue = spawnQueue;
   }
