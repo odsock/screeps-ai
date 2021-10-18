@@ -1,5 +1,6 @@
+import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
-import { CreepBodyProfile } from "roles/creep-wrapper";
+import { CreepBodyProfile, CreepWrapperProfile } from "roles/creep-wrapper";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 
@@ -102,5 +103,12 @@ export class SpawnUtils {
     bodyProfile.maxBodyParts =
       (workPartsNeeded / workPartsInProfile) * bodyProfile.profile.length + bodyProfile.seed.length;
     return bodyProfile;
+  }
+
+  /** Gets count of creeps with role, including spawning creeps */
+  public static getCreepCountForRole(roomw: RoomWrapper, role: CreepRole): number {
+    const count = roomw.find(FIND_MY_CREEPS).filter(creep => creep.memory.role === role).length;
+    const numSpawning = roomw.spawns.filter(spawn => spawn.spawning?.name.startsWith(role)).length;
+    return count + numSpawning;
   }
 }
