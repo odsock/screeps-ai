@@ -24,9 +24,11 @@ export class HarvestControl {
   private requestSpawns(roomw: RoomWrapper, harvesters: Harvester[]) {
     const spawnQueue = roomw.memory.spawnQueue ?? [];
 
+    const harvesterCount = SpawnUtils.getCreepCountForRole(roomw, Harvester.ROLE);
+
     // FIRST HARVESTER
     // always need at least one harvester
-    if (harvesters.length === 0) {
+    if (harvesterCount === 0) {
       spawnQueue.push({
         bodyProfile: Harvester.BODY_PROFILE,
         role: Harvester.ROLE,
@@ -38,7 +40,6 @@ export class HarvestControl {
     // spawn enough harvesters to drain sources if they fit in harvest positions
     const harvesterWorkParts = CreepUtils.countParts(WORK, ...harvesters);
     const harvesterWorkPartsNeeded = roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
-    const harvesterCount = harvesters.length;
     const harvestPositionCount = roomw.harvestPositionCount;
     CreepUtils.consoleLogIfWatched(
       roomw,
