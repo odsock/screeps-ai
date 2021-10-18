@@ -1,4 +1,3 @@
-import { CreepRole } from "config/creep-types";
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
@@ -28,6 +27,7 @@ export class RemoteControl {
     });
     for (const targetRoom of remoteHarvestRooms) {
       const importersNeeded = this.calcImportersNeededForRoom(roomw, targetRoom);
+      // TODO doesn't count spawning importers for room, can lead to double spawn
       const importersOnRoom = _.filter(
         Game.creeps,
         creep => creep.memory.role === Importer.ROLE && creep.memory.targetRoom === targetRoom
@@ -45,9 +45,7 @@ export class RemoteControl {
     }
 
     // CLAIMER
-    const claimers = _.filter(Game.creeps, c => c.memory.role === CreepRole.CLAIMER).map(c => new Claimer(c));
-    const claimerCount =
-      claimers.length + _.filter(Game.spawns, spawn => spawn.spawning?.name.startsWith(Claimer.ROLE)).length;
+    const claimerCount = SpawnUtils.getCreepCountForRole(roomw, Claimer.ROLE);
     const maxClaimers = this.getMaxClaimerCount();
     if (claimerCount < maxClaimers) {
       const remoteTargetRooms = TargetConfig.TARGETS[Game.shard.name].filter(name => {
@@ -80,6 +78,7 @@ export class RemoteControl {
         room.controller?.owner.username === roomw.controller?.owner?.username &&
         room.find(FIND_MY_SPAWNS).length === 0
     );
+    // TODO doesn't count spawning workers
     const remoteWorkers = _.filter(Game.creeps, creep => creep.memory.role === Worker.ROLE && creep.memory.targetRoom);
     if (remoteWorkers.length < noSpawnClaimedRooms.length) {
       const targetRoom = noSpawnClaimedRooms.find(

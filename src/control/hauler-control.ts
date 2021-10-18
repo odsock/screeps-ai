@@ -2,6 +2,7 @@ import { CreepUtils } from "creep-utils";
 import { Hauler } from "roles/hauler";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
+import { SpawnUtils } from "./spawn-utils";
 
 export enum TaskType {
   HAUL = "haul"
@@ -36,7 +37,7 @@ export class HaulerControl {
       });
 
       if (roomw.controller?.my && roomw.spawns.length > 0) {
-        this.requestSpawns(roomw, haulers);
+        this.requestSpawns(roomw);
       }
     }
   }
@@ -47,12 +48,14 @@ export class HaulerControl {
     });
   }
 
-  private requestSpawns(roomw: RoomWrapper, haulers: Hauler[]) {
+  private requestSpawns(roomw: RoomWrapper) {
     const spawnQueue = roomw.memory.spawnQueue ?? [];
+
+    const haulerCount = SpawnUtils.getCreepCountForRole(roomw, Hauler.ROLE);
 
     // FIRST HAULER
     // always need at least one hauler to fill spawns and move harvesters
-    if (haulers.length === 0) {
+    if (haulerCount === 0) {
       spawnQueue.push({
         bodyProfile: Hauler.BODY_PROFILE,
         role: Hauler.ROLE,
@@ -66,7 +69,7 @@ export class HaulerControl {
       filter: c => c.memory.role === Hauler.ROLE && c.ticksToLive && c.ticksToLive > 1000
     });
     CreepUtils.consoleLogIfWatched(roomw, `haulers: ${youngHaulers.length} younger than 1000`);
-    if (youngHaulers.length === 0 && haulers.length <= roomw.sources.length + 1) {
+    if (youngHaulers.length === 0 && haulerCount <= roomw.sources.length + 1) {
       spawnQueue.push({
         bodyProfile: Hauler.BODY_PROFILE,
         max: true,
@@ -78,8 +81,8 @@ export class HaulerControl {
     // HAULER
     // spawn enough haulers to keep up with hauling needed
     const sourcesPlusOne = roomw.sources.length + 1;
-    CreepUtils.consoleLogIfWatched(roomw, `haulers: ${haulers.length}/${sourcesPlusOne}`);
-    if (haulers.length < sourcesPlusOne) {
+    CreepUtils.consoleLogIfWatched(roomw, `haulers: ${haulerCount}/${sourcesPlusOne}`);
+    if (haulerCount < sourcesPlusOne) {
       spawnQueue.push({
         bodyProfile: Hauler.BODY_PROFILE,
         max: true,
