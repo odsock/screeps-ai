@@ -43,7 +43,12 @@ export class UpgradeControl {
     } else {
       const upgradePositionCount = roomw.getUpgradePositions().length;
       const upgraderWorkPartsNeeded = roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / UPGRADE_CONTROLLER_POWER;
-      if (upgraderCount < upgradePositionCount) {
+      // TODO this doesn't count spawning upgrader parts, can lead to double spawning
+      const upgraderWorkPartsActive = CreepUtils.countParts(
+        WORK,
+        ...roomw.find(FIND_MY_CREEPS, { filter: c => (c.memory.role = Upgrader.ROLE) })
+      );
+      if (upgraderWorkPartsActive < upgraderWorkPartsNeeded && upgraderCount < upgradePositionCount) {
         const bodyProfile = SpawnUtils.buildBodyProfile(Upgrader.BODY_PROFILE, upgraderWorkPartsNeeded);
         spawnQueue.push({
           bodyProfile,
