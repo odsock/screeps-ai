@@ -46,7 +46,7 @@ export class UpgradeControl {
       // TODO this doesn't count spawning upgrader parts, can lead to double spawning
       const upgraderWorkPartsActive = CreepUtils.countParts(
         WORK,
-        ...roomw.find(FIND_MY_CREEPS, { filter: c => (c.memory.role = Upgrader.ROLE) })
+        ...roomw.find(FIND_MY_CREEPS, { filter: c => c.memory.role === Upgrader.ROLE })
       );
       CreepUtils.consoleLogIfWatched(
         roomw,
