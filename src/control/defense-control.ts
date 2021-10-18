@@ -56,7 +56,7 @@ export class DefenseControl {
     return _.filter(
       Game.spawns,
       s =>
-        s.spawning && s.memory.spawning.memory.role === Guard.ROLE && s.memory.spawning.memory.targetRoom === roomName
+        s.spawning && s.memory.spawning?.memory.role === Guard.ROLE && s.memory.spawning.memory.targetRoom === roomName
     ).length;
   }
 

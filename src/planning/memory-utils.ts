@@ -100,7 +100,7 @@ declare global {
 
   interface SpawnMemory {
     watched?: boolean;
-    spawning: SpawningInfo;
+    spawning?: SpawningInfo;
   }
 
   interface SpawningInfo {

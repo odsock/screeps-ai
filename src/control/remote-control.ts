@@ -78,7 +78,7 @@ export class RemoteControl {
         room.find(FIND_MY_SPAWNS).length === 0
     );
     const remoteWorkersSpawning = roomw.spawns.filter(
-      s => s.spawning && s.memory.spawning.memory.role === Worker.ROLE && s.memory.spawning.memory.targetRoom
+      s => s.spawning && s.memory.spawning?.memory.role === Worker.ROLE && s.memory.spawning.memory.targetRoom
     ).length;
     const remoteWorkers = _.filter(Game.creeps, creep => creep.memory.role === Worker.ROLE && creep.memory.targetRoom);
     if (remoteWorkers.length + remoteWorkersSpawning < noSpawnClaimedRooms.length) {

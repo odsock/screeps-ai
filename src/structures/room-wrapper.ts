@@ -364,13 +364,16 @@ export class RoomWrapper extends Room {
   /** count spawning creep parts */
   public getSpawningParts(type: CreepRole, part: string): number {
     return this.spawns
-      .filter(s => s.spawning && s.memory.spawning.memory.role === type)
-      .reduce<number>((count, s) => s.memory.spawning.body.filter(p => p === part).length, 0);
+      .filter(s => s.spawning && s.memory.spawning?.memory.role === type)
+      .reduce<number>((count, s) => {
+        const body = s.memory.spawning?.body ?? [];
+        return count + body.filter(p => p === part).length;
+      }, 0);
   }
 
-  public getSpawningCountForTarget(roomw: RoomWrapper, type: CreepRole, targetRoom: string) {
+  public getSpawningCountForTarget(roomw: RoomWrapper, type: CreepRole, targetRoom: string): number {
     return roomw.spawns.filter(
-      s => s.spawning && s.memory.spawning.memory.role === type && s.memory.spawning.memory.targetRoom === targetRoom
+      s => s.spawning && s.memory.spawning?.memory.role === type && s.memory.spawning.memory.targetRoom === targetRoom
     ).length;
   }
 }
