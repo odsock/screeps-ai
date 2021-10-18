@@ -98,6 +98,17 @@ declare global {
     pos: RoomPosition;
   }
 
+  interface SpawnMemory {
+    watched?: boolean;
+    spawning: SpawningInfo;
+  }
+
+  interface SpawningInfo {
+    name: string;
+    body: BodyPartConstant[];
+    memory: CreepMemory;
+  }
+
   interface Memory {
     cache?: string;
     version?: string;

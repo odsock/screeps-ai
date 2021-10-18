@@ -11,17 +11,14 @@ export class HarvestControl {
   public run(): void {
     for (const roomName in Game.rooms) {
       const roomw = RoomWrapper.getInstance(roomName);
-      const harvesters = roomw
-        .find(FIND_MY_CREEPS, { filter: c => c.memory.role === Harvester.ROLE })
-        .map(c => new Harvester(c));
 
       if (roomw.controller?.my && roomw.spawns.length > 0) {
-        this.requestSpawns(roomw, harvesters);
+        this.requestSpawns(roomw);
       }
     }
   }
 
-  private requestSpawns(roomw: RoomWrapper, harvesters: Harvester[]) {
+  private requestSpawns(roomw: RoomWrapper) {
     const spawnQueue = roomw.memory.spawnQueue ?? [];
 
     const harvesterCount = SpawnUtils.getCreepCountForRole(roomw, Harvester.ROLE);
@@ -38,7 +35,7 @@ export class HarvestControl {
 
     // HARVESTER
     // spawn enough harvesters to drain sources if they fit in harvest positions
-    const harvesterWorkParts = CreepUtils.countParts(WORK, ...harvesters);
+    const harvesterWorkParts = roomw.getActiveParts(Harvester.ROLE, WORK);
     const harvesterWorkPartsNeeded = roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
     const harvestPositionCount = roomw.harvestPositionCount;
     CreepUtils.consoleLogIfWatched(

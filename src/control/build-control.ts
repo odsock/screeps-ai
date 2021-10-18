@@ -53,8 +53,7 @@ export class BuildControl {
 
   private getBuilderWorkPartsNeeded(roomw: RoomWrapper): number {
     const conWork = roomw.constructionWork;
-    const builders = roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === CreepRole.BUILDER });
-    const activeWorkParts = CreepUtils.countParts(WORK, ...builders);
+    const activeWorkParts = roomw.getActiveParts(Builder.ROLE, WORK);
     const workPartsNeeded = Math.ceil(conWork / SockPuppetConstants.WORK_PER_WORKER_PART);
     const workPartsDeficit = workPartsNeeded - activeWorkParts;
     return workPartsDeficit > 0 ? workPartsDeficit : 0;

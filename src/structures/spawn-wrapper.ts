@@ -30,18 +30,26 @@ export class SpawnWrapper extends StructureSpawn {
     targetRoom?: string;
     homeRoom?: string;
   }): ScreepsReturnCode {
-    let body: BodyPartConstant[];
-    if (max) {
-      body = SpawnUtils.getMaxBody(bodyProfile, this.roomw);
-    } else {
-      body = SpawnUtils.getMaxBodyNow(bodyProfile, this);
-    }
-    const newName = `${role}_${Game.time.toString(16)}`;
+    const body: BodyPartConstant[] = this.getBodyFromProfile(max, bodyProfile);
+    const name = `${role}_${Game.time.toString(36)}`;
     const memory: CreepMemory = { role, targetRoom, homeRoom };
     if (replacing) {
       memory.replacing = replacing;
     }
 
+    const extensions = this.getOrderedExtensionList();
+    const result = this.spawnCreep(body, name, { memory, energyStructures: extensions });
+    CreepUtils.consoleLogIfWatched(this, `spawning: ${role} ${CreepUtils.creepBodyToString(body)}`, result);
+    if (result === ERR_INVALID_ARGS) {
+      console.log(`Invalid spawn: ${role} ${CreepUtils.creepBodyToString(body)}`);
+    } else if (result === OK && replacing) {
+      Game.creeps[replacing].memory.retiring = true;
+      Memory.spawns[this.name].spawning = { name, body, memory };
+    }
+    return result;
+  }
+
+  private getOrderedExtensionList(): (StructureSpawn | StructureExtension)[] {
     let extensions = MemoryUtils.getCache<(StructureExtension | StructureSpawn)[]>(
       `${this.room.name}_energyStructureOrder`
     );
@@ -60,13 +68,16 @@ export class SpawnWrapper extends StructureSpawn {
         .sort((a, b) => a.pos.getRangeTo(center) - b.pos.getRangeTo(center));
       MemoryUtils.setCache(`${this.room.name}_energyStructureOrder`, extensions, 100);
     }
-    const result = this.spawnCreep(body, newName, { memory, energyStructures: extensions });
-    CreepUtils.consoleLogIfWatched(this, `spawning: ${role} ${CreepUtils.creepBodyToString(body)}`, result);
-    if (result === ERR_INVALID_ARGS) {
-      console.log(`Invalid spawn: ${role} ${CreepUtils.creepBodyToString(body)}`);
-    } else if (result === OK && replacing) {
-      Game.creeps[replacing].memory.retiring = true;
+    return extensions;
+  }
+
+  private getBodyFromProfile(max: boolean | undefined, bodyProfile: CreepBodyProfile): BodyPartConstant[] {
+    let body: BodyPartConstant[];
+    if (max) {
+      body = SpawnUtils.getMaxBody(bodyProfile, this.roomw);
+    } else {
+      body = SpawnUtils.getMaxBodyNow(bodyProfile, this);
     }
-    return result;
+    return body;
   }
 }

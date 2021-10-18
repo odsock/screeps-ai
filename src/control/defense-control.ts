@@ -8,16 +8,16 @@ import { profile } from "../../screeps-typescript-profiler";
 export class DefenseControl {
   public run(): void {
     // spawn guard for each unguarded room with hostiles
-    // TODO don't spawn guard for untargeted rooms we don't own
+    // TODO don't spawn guard for non-targeted rooms we don't own
     for (const roomName in Memory.rooms) {
       const roomDefense = Memory.rooms[roomName].defense;
       if (roomDefense && (roomDefense.creeps.length > 0 || roomDefense.structures.length > 0)) {
-        // TODO this might not consider guards currently spawning, and could double them up
+        const spawningGuards = this.getSpawningGuardCount(roomName);
         const guardsAssigned = _.filter(
           Game.creeps,
           creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === roomName
         );
-        if (guardsAssigned.length === 0) {
+        if (guardsAssigned.length + spawningGuards === 0) {
           console.log(`DEBUG: defense room name `, roomName);
           const room = Game.rooms[roomName];
           console.log(`DEBUG: defense room `, room);
@@ -50,6 +50,14 @@ export class DefenseControl {
         }
       }
     }
+  }
+
+  private getSpawningGuardCount(roomName: string) {
+    return _.filter(
+      Game.spawns,
+      s =>
+        s.spawning && s.memory.spawning.memory.role === Guard.ROLE && s.memory.spawning.memory.targetRoom === roomName
+    ).length;
   }
 
   private spawnGuard(roomDefense: RoomDefense, spawnw: SpawnWrapper, roomName: string): void {
