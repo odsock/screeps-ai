@@ -11,7 +11,9 @@ import { HarvestControl } from "control/harvest-control";
 import { UpgradeControl } from "control/upgrade-control";
 import { BuildControl } from "control/build-control";
 import { RemoteControl } from "control/remote-control";
+import { profile } from "../screeps-typescript-profiler";
 
+@profile
 export class Sockpuppet {
   public name = "sockpuppet";
   public memory = {};
