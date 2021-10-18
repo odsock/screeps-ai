@@ -48,6 +48,10 @@ export class UpgradeControl {
         WORK,
         ...roomw.find(FIND_MY_CREEPS, { filter: c => (c.memory.role = Upgrader.ROLE) })
       );
+      CreepUtils.consoleLogIfWatched(
+        roomw,
+        `upgraders: ${upgraderCount}/${upgradePositionCount} positions, ${upgraderWorkPartsActive}/${upgraderWorkPartsNeeded} parts`
+      );
       if (upgraderWorkPartsActive < upgraderWorkPartsNeeded && upgraderCount < upgradePositionCount) {
         const bodyProfile = SpawnUtils.buildBodyProfile(Upgrader.BODY_PROFILE, upgraderWorkPartsNeeded);
         spawnQueue.push({
