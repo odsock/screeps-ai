@@ -8,23 +8,22 @@ import { ReconControl } from "control/recon-control";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { HaulerControl } from "control/hauler-control";
 import { HarvestControl } from "control/harvest-control";
+import { UpgradeControl } from "control/upgrade-control";
+import { BuildControl } from "control/build-control";
+import { RemoteControl } from "control/remote-control";
 
 export class Sockpuppet {
   public name = "sockpuppet";
   public memory = {};
 
   public run(): void {
-    // collect data about rooms we can see
-    new ReconControl().run();
-
-    // spawn defense creeps
+    new BuildControl().run();
     new DefenseControl().run();
-
-    // assign tasks to haulers
-    new HaulerControl().run();
-
-    // manage harvesters
     new HarvestControl().run();
+    new HaulerControl().run();
+    new ReconControl().run();
+    new RemoteControl().run();
+    new UpgradeControl().run();
 
     // Run each room
     _.filter(Game.rooms, room => room.controller?.my).forEach(room => {
