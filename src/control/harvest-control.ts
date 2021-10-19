@@ -19,6 +19,7 @@ export class HarvestControl {
   }
 
   private requestSpawns(roomw: RoomWrapper) {
+    // TODO create spawn queue singleton?
     const spawnQueue = roomw.memory.spawnQueue ?? [];
 
     const harvesterCount = SpawnUtils.getCreepCountForRole(roomw, Harvester.ROLE);
@@ -51,37 +52,10 @@ export class HarvestControl {
       });
     }
     // replace aging harvester
-    // TODO needs check on current spawning to avoid doubles
-    // if (harvesterWorkParts <= harvesterWorkPartsNeeded && harvesterCount <= harvestPositionCount) {
-    //   this.requestReplacementMinder(roomw, Harvester, spawnQueue);
-    // }
+    if (harvesterWorkParts <= harvesterWorkPartsNeeded && harvesterCount <= harvestPositionCount) {
+      SpawnUtils.requestReplacementCreep(roomw, Harvester, spawnQueue);
+    }
 
     roomw.memory.spawnQueue = spawnQueue;
-  }
-
-  private requestReplacementMinder(roomw: RoomWrapper, type: CreepWrapperProfile, spawnQueue: SpawnRequest[]): void {
-    const creeps = roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === type.ROLE });
-    const ticksToReplace = SpawnUtils.calcReplacementTime(type.BODY_PROFILE, roomw);
-    const oldestMinderIndex = creeps
-      .filter(c => !c.memory.retiring && c.ticksToLive && c.ticksToLive <= ticksToReplace)
-      .reduce((oldestIndex, c, index, array) => {
-        const oldest = array[oldestIndex];
-        if (!oldest || (c.ticksToLive && oldest.ticksToLive && c.ticksToLive < oldest.ticksToLive)) {
-          return index;
-        }
-        return oldestIndex;
-      }, -1);
-    const oldestMinder = creeps[oldestMinderIndex];
-    if (oldestMinder) {
-      spawnQueue.push({
-        bodyProfile: type.BODY_PROFILE,
-        max: true,
-        role: type.ROLE,
-        replacing: oldestMinder.name,
-        priority: 80
-      });
-      return;
-    }
-    return;
   }
 }

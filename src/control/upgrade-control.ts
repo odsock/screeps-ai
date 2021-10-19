@@ -55,40 +55,11 @@ export class UpgradeControl {
           role: Upgrader.ROLE,
           priority: 80
         });
+      } else if (upgraderCount <= upgradePositionCount) {
+        SpawnUtils.requestReplacementCreep(roomw, Upgrader, spawnQueue);
       }
-      // TODO needs check on current spawning to avoid doubles
-      // else if (upgraderCount <= upgradePositionCount) {
-      //   // replace aging upgrader
-      //   this.requestReplacementMinder(roomw, Upgrader, spawnQueue);
-      // }
     }
 
     roomw.memory.spawnQueue = spawnQueue;
-  }
-
-  private requestReplacementMinder(roomw: RoomWrapper, type: CreepWrapperProfile, spawnQueue: SpawnRequest[]): void {
-    const creeps = roomw.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === type.ROLE });
-    const ticksToReplace = SpawnUtils.calcReplacementTime(type.BODY_PROFILE, roomw);
-    const oldestMinderIndex = creeps
-      .filter(c => !c.memory.retiring && c.ticksToLive && c.ticksToLive <= ticksToReplace)
-      .reduce((oldestIndex, c, index, array) => {
-        const oldest = array[oldestIndex];
-        if (!oldest || (c.ticksToLive && oldest.ticksToLive && c.ticksToLive < oldest.ticksToLive)) {
-          return index;
-        }
-        return oldestIndex;
-      }, -1);
-    const oldestMinder = creeps[oldestMinderIndex];
-    if (oldestMinder) {
-      spawnQueue.push({
-        bodyProfile: type.BODY_PROFILE,
-        max: true,
-        role: type.ROLE,
-        replacing: oldestMinder.name,
-        priority: 80
-      });
-      return;
-    }
-    return;
   }
 }

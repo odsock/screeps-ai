@@ -3,6 +3,7 @@ import { CreepUtils } from "creep-utils";
 import { CreepBodyProfile, CreepWrapperProfile } from "roles/creep-wrapper";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
+import { SpawnRequest } from "./spawn-control";
 
 export class SpawnUtils {
   /**
@@ -110,5 +111,32 @@ export class SpawnUtils {
     const count = roomw.find(FIND_MY_CREEPS).filter(creep => creep.memory.role === role).length;
     const numSpawning = roomw.spawns.filter(spawn => spawn.spawning?.name.startsWith(role)).length;
     return count + numSpawning;
+  }
+
+  /** Request spawn of replacement for oldest creep of type, if ticks to live less than replacement time */
+  public static requestReplacementCreep(
+    roomw: RoomWrapper,
+    type: CreepWrapperProfile,
+    spawnQueue: SpawnRequest[]
+  ): void {
+    const oldestCreep = roomw
+      .find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === type.ROLE && !creep.memory.retiring })
+      .reduce((oldest: Creep | undefined, c) => {
+        if (!oldest || (c.ticksToLive && oldest.ticksToLive && c.ticksToLive < oldest.ticksToLive)) {
+          return c;
+        }
+        return oldest;
+      }, undefined);
+
+    const ticksToReplace = SpawnUtils.calcReplacementTime(type.BODY_PROFILE, roomw);
+    if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToReplace) {
+      spawnQueue.push({
+        bodyProfile: type.BODY_PROFILE,
+        max: true,
+        role: type.ROLE,
+        replacing: oldestCreep.name,
+        priority: 80
+      });
+    }
   }
 }
