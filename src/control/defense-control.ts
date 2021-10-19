@@ -24,7 +24,7 @@ export class DefenseControl {
           console.log(`DEBUG: defense room `, room);
           if (room) {
             console.log(`DEBUG: getting wrapper for ${roomName}`);
-            const roomw = RoomWrapper.getInstance(roomName);
+            const roomw = RoomWrapper.getInstance(room);
             if (roomw) {
               // try to pop a safe mode if being attacked
               this.activateSafeModeIfAttacked(roomw);
