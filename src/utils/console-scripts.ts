@@ -35,6 +35,7 @@ global.testGetRoomWrapper = (roomArg: string | Room) => {
   const room = roomArg instanceof Room ? roomArg : Game.rooms[name];
   if (room) {
     console.log(`mock get room wrapper...`);
+    return;
   }
   throw new Error(`ERROR: invalid room name ${name}`);
 };
