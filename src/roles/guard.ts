@@ -60,7 +60,8 @@ export class Guard extends RemoteWorker {
     } else {
       const result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
-      return;
+      const healCheck = this.findHealingIfDamaged();
+      CreepUtils.consoleLogIfWatched(this, `find healing if damaged`, healCheck);
     }
   }
 }
