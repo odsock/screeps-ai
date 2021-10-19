@@ -62,7 +62,7 @@ export class DefenseControl {
   }
 
   private spawnGuard(roomDefense: RoomDefense, spawnw: SpawnWrapper, roomName: string): void {
-    const spawnQueue = SpawnQueue.getInstance(roomName);
+    const spawnQueue = SpawnQueue.getInstance(spawnw.room);
 
     spawnQueue.push({
       bodyProfile: Guard.BODY_PROFILE,
