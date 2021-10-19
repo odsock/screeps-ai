@@ -64,9 +64,13 @@ export class DefenseControl {
   private spawnGuard(roomDefense: RoomDefense, spawnw: SpawnWrapper, roomName: string): void {
     const spawnQueue = SpawnQueue.getInstance(spawnw.room);
 
+    // spawn with what is available now if creeps in room
+    // request max size if hostile structure only (probably an invader core, so we can wait)
+    const hostileCreepsInRoom = roomDefense.creeps.length === 0;
+
     spawnQueue.push({
       bodyProfile: Guard.BODY_PROFILE,
-      max: roomDefense.creeps.length <= 0,
+      max: hostileCreepsInRoom,
       role: Guard.ROLE,
       targetRoom: roomName,
       priority: 250
