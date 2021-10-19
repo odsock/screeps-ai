@@ -3,6 +3,7 @@
 import { Sockpuppet } from "sockpuppet";
 import { Task } from "control/hauler-control";
 import { SpawnRequest } from "control/spawn-control";
+import { RoomWrapper } from "structures/room-wrapper";
 
 declare global {
   interface CreepMemory {
@@ -131,6 +132,7 @@ declare global {
       placeExt: (pos: RoomPosition, structure: StructureConstant) => void;
       printCpuUsage: () => void;
       clearCpuUsage: () => void;
+      testGetRoomWrapper: (roomArg: string | Room) => void;
       Profiler: Profiler;
     }
   }

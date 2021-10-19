@@ -1,4 +1,6 @@
 import { Watchable } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
+import { RoomWrapper } from "structures/room-wrapper";
 
 global.watch = (key: string) => {
   const watchable: Watchable = getWatchable(key);
@@ -27,3 +29,12 @@ function getWatchable(key: string) {
   }
   return watchable;
 }
+
+global.testGetRoomWrapper = (roomArg: string | Room) => {
+  const name = roomArg instanceof Room ? roomArg.name : roomArg;
+  const room = roomArg instanceof Room ? roomArg : Game.rooms[name];
+  if (room) {
+    console.log(`mock get room wrapper...`);
+  }
+  throw new Error(`ERROR: invalid room name ${name}`);
+};
