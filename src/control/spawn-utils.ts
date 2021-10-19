@@ -1,9 +1,9 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
+import { SpawnQueue } from "planning/spawn-queue";
 import { CreepBodyProfile, CreepWrapperProfile } from "roles/creep-wrapper";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
-import { SpawnRequest } from "./spawn-control";
 
 export class SpawnUtils {
   /**
@@ -114,11 +114,7 @@ export class SpawnUtils {
   }
 
   /** Request spawn of replacement for oldest creep of type, if ticks to live less than replacement time */
-  public static requestReplacementCreep(
-    roomw: RoomWrapper,
-    type: CreepWrapperProfile,
-    spawnQueue: SpawnRequest[]
-  ): void {
+  public static requestReplacementCreep(roomw: RoomWrapper, type: CreepWrapperProfile): void {
     const oldestCreep = roomw
       .find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === type.ROLE && !creep.memory.retiring })
       .reduce((oldest: Creep | undefined, c) => {
@@ -130,7 +126,7 @@ export class SpawnUtils {
 
     const ticksToReplace = SpawnUtils.calcReplacementTime(type.BODY_PROFILE, roomw);
     if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToReplace) {
-      spawnQueue.push({
+      SpawnQueue.getInstance(roomw).push({
         bodyProfile: type.BODY_PROFILE,
         max: true,
         role: type.ROLE,

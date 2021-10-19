@@ -1,4 +1,5 @@
 import { CreepUtils } from "creep-utils";
+import { SpawnQueue } from "planning/spawn-queue";
 import { Guard } from "roles/guard";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
@@ -61,7 +62,8 @@ export class DefenseControl {
   }
 
   private spawnGuard(roomDefense: RoomDefense, spawnw: SpawnWrapper, roomName: string): void {
-    const spawnQueue = spawnw.room.memory.spawnQueue ?? [];
+    const spawnQueue = SpawnQueue.getInstance(roomName);
+
     spawnQueue.push({
       bodyProfile: Guard.BODY_PROFILE,
       max: roomDefense.creeps.length <= 0,
@@ -69,8 +71,6 @@ export class DefenseControl {
       targetRoom: roomName,
       priority: 250
     });
-    spawnw.room.memory.spawnQueue = spawnQueue;
-    return;
   }
 
   private activateSafeModeIfAttacked(room: RoomWrapper): void {

@@ -1,6 +1,7 @@
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
+import { SpawnQueue } from "planning/spawn-queue";
 import { Builder } from "roles/builder";
 import { Fixer } from "roles/fixer";
 import { RoomWrapper } from "structures/room-wrapper";
@@ -18,7 +19,7 @@ export class BuildControl {
   }
 
   private requestSpawns(roomw: RoomWrapper) {
-    const spawnQueue = roomw.memory.spawnQueue ?? [];
+    const spawnQueue = SpawnQueue.getInstance(roomw);
 
     // FIXER
     const fixerCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.FIXER);
@@ -47,8 +48,6 @@ export class BuildControl {
         priority: 30
       });
     }
-
-    roomw.memory.spawnQueue = spawnQueue;
   }
 
   private getBuilderWorkPartsNeeded(roomw: RoomWrapper): number {

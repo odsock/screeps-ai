@@ -1,10 +1,9 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
-import { CreepWrapperProfile } from "roles/creep-wrapper";
+import { SpawnQueue } from "planning/spawn-queue";
 import { Upgrader } from "roles/upgrader";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
-import { SpawnRequest } from "./spawn-control";
 import { SpawnUtils } from "./spawn-utils";
 
 @profile
@@ -20,7 +19,7 @@ export class UpgradeControl {
   }
 
   private requestSpawns(roomw: RoomWrapper) {
-    const spawnQueue = roomw.memory.spawnQueue ?? [];
+    const spawnQueue = SpawnQueue.getInstance(roomw);
 
     const upgraderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.UPGRADER);
 
@@ -56,10 +55,8 @@ export class UpgradeControl {
           priority: 80
         });
       } else if (upgraderCount <= upgradePositionCount) {
-        SpawnUtils.requestReplacementCreep(roomw, Upgrader, spawnQueue);
+        SpawnUtils.requestReplacementCreep(roomw, Upgrader);
       }
     }
-
-    roomw.memory.spawnQueue = spawnQueue;
   }
 }

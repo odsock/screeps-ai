@@ -1,6 +1,7 @@
 import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
+import { SpawnQueue } from "planning/spawn-queue";
 import { Claimer } from "roles/claimer";
 import { Importer } from "roles/importer";
 import { Worker } from "roles/worker";
@@ -19,7 +20,7 @@ export class RemoteControl {
   }
 
   private requestSpawns(roomw: RoomWrapper) {
-    const spawnQueue = roomw.memory.spawnQueue ?? [];
+    const spawnQueue = SpawnQueue.getInstance(roomw);
 
     // IMPORTER
     const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => {
@@ -95,8 +96,6 @@ export class RemoteControl {
         });
       }
     }
-
-    roomw.memory.spawnQueue = spawnQueue;
   }
 
   private getMaxClaimerCount(): number {

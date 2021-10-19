@@ -1,4 +1,5 @@
 import { CreepUtils } from "creep-utils";
+import { SpawnQueue } from "planning/spawn-queue";
 import { CreepBodyProfile } from "roles/creep-wrapper";
 import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
@@ -19,10 +20,10 @@ export interface SpawnRequest {
 export class SpawnControl {
   private readonly rcl: number;
   private readonly freeSpawns: SpawnWrapper[];
-  private readonly spawnQueue: SpawnRequest[];
+  private readonly spawnQueue: SpawnQueue;
 
   public constructor(private readonly roomw: RoomWrapper) {
-    this.spawnQueue = this.roomw.memory.spawnQueue ?? [];
+    this.spawnQueue = SpawnQueue.getInstance(roomw);
 
     this.freeSpawns = this.roomw.spawns.filter(spawnw => !spawnw.spawning);
     this.rcl = this.roomw.controller?.level ? this.roomw.controller?.level : 0;
@@ -52,7 +53,6 @@ export class SpawnControl {
   }
 
   private workSpawnQueue(): void {
-    this.spawnQueue.sort((a, b) => a.priority - b.priority);
     CreepUtils.consoleLogIfWatched(this.roomw, `spawn queue: ${JSON.stringify(this.spawnQueue)}`);
     this.freeSpawns.some(s => {
       const spawnRequest = this.spawnQueue.pop();
@@ -68,7 +68,6 @@ export class SpawnControl {
       }
       return true;
     });
-    this.roomw.memory.spawnQueue = [];
   }
 
   /** prints room visual of spawning role */

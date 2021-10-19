@@ -1,9 +1,8 @@
 import { CreepUtils } from "creep-utils";
-import { CreepWrapperProfile } from "roles/creep-wrapper";
+import { SpawnQueue } from "planning/spawn-queue";
 import { Harvester } from "roles/harvester";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
-import { SpawnRequest } from "./spawn-control";
 import { SpawnUtils } from "./spawn-utils";
 
 @profile
@@ -19,8 +18,7 @@ export class HarvestControl {
   }
 
   private requestSpawns(roomw: RoomWrapper) {
-    // TODO create spawn queue singleton?
-    const spawnQueue = roomw.memory.spawnQueue ?? [];
+    const spawnQueue = SpawnQueue.getInstance(roomw);
 
     const harvesterCount = SpawnUtils.getCreepCountForRole(roomw, Harvester.ROLE);
 
@@ -53,9 +51,7 @@ export class HarvestControl {
     }
     // replace aging harvester
     if (harvesterWorkParts <= harvesterWorkPartsNeeded && harvesterCount <= harvestPositionCount) {
-      SpawnUtils.requestReplacementCreep(roomw, Harvester, spawnQueue);
+      SpawnUtils.requestReplacementCreep(roomw, Harvester);
     }
-
-    roomw.memory.spawnQueue = spawnQueue;
   }
 }

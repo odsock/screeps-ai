@@ -38,7 +38,6 @@ declare global {
     reconTick: number;
     centerPoint?: string;
     remoteHarvest?: { [roomName: string]: RemoteHarvest };
-    spawnQueue?: SpawnRequest[];
   }
 
   interface RemoteHarvest {

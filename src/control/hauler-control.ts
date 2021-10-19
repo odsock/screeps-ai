@@ -1,4 +1,5 @@
 import { CreepUtils } from "creep-utils";
+import { SpawnQueue } from "planning/spawn-queue";
 import { Hauler } from "roles/hauler";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
@@ -49,7 +50,7 @@ export class HaulerControl {
   }
 
   private requestSpawns(roomw: RoomWrapper) {
-    const spawnQueue = roomw.memory.spawnQueue ?? [];
+    const spawnQueue = SpawnQueue.getInstance(roomw);
 
     const haulerCount = SpawnUtils.getCreepCountForRole(roomw, Hauler.ROLE);
 
@@ -77,9 +78,7 @@ export class HaulerControl {
     }
 
     if (haulerCount <= sourcesPlusOne) {
-      SpawnUtils.requestReplacementCreep(roomw, Hauler, spawnQueue);
+      SpawnUtils.requestReplacementCreep(roomw, Hauler);
     }
-
-    roomw.memory.spawnQueue = spawnQueue;
   }
 }
