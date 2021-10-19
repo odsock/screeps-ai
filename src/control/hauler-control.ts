@@ -63,22 +63,6 @@ export class HaulerControl {
       });
     }
 
-    // BACKUP HAULER
-    // spawn with max body
-    // TODO this will double spawn haulers when all are old
-    const youngHaulers = roomw.find(FIND_MY_CREEPS, {
-      filter: c => c.memory.role === Hauler.ROLE && c.ticksToLive && c.ticksToLive > 1000
-    });
-    CreepUtils.consoleLogIfWatched(roomw, `haulers: ${youngHaulers.length} younger than 1000`);
-    if (youngHaulers.length === 0 && haulerCount <= roomw.sources.length + 1) {
-      spawnQueue.push({
-        bodyProfile: Hauler.BODY_PROFILE,
-        max: true,
-        role: Hauler.ROLE,
-        priority: 109
-      });
-    }
-
     // HAULER
     // spawn enough haulers to keep up with hauling needed
     const sourcesPlusOne = roomw.sources.length + 1;
@@ -90,6 +74,10 @@ export class HaulerControl {
         role: Hauler.ROLE,
         priority: 70
       });
+    }
+
+    if (haulerCount <= sourcesPlusOne) {
+      SpawnUtils.requestReplacementCreep(roomw, Hauler, spawnQueue);
     }
 
     roomw.memory.spawnQueue = spawnQueue;
