@@ -48,7 +48,6 @@ export class UpgradeControl {
         roomw,
         `upgraders: ${upgraderCount}/${upgradePositionCount} positions, ${upgraderWorkPartsActive}/${upgraderWorkPartsNeeded} parts`
       );
-      // TODO upgraders get crowded and confuse pathing of tugs before first RCL upgrade
       if (upgraderWorkPartsActive < upgraderWorkPartsNeeded && upgraderCount < upgradePositionCount) {
         const bodyProfile = SpawnUtils.buildBodyProfile(Upgrader.BODY_PROFILE, upgraderWorkPartsNeeded);
         spawnQueue.push({
