@@ -36,14 +36,13 @@ export class BuildControl {
     // make builders if there's something to build
     const conSiteCount = roomw.constructionSites.length;
     if (conSiteCount > 0) {
-      // TODO builders are crowding and wasteful at RCL1
       const builderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.BUILDER);
       const workPartsNeeded = this.getBuilderWorkPartsNeeded(roomw);
       CreepUtils.consoleLogIfWatched(
         roomw,
         `builders: ${builderCount}, ${conSiteCount} sites, ${workPartsNeeded} parts needed`
       );
-      if (conSiteCount > 0 && workPartsNeeded > 0) {
+      if (workPartsNeeded > 0) {
         spawnQueue.push({
           bodyProfile: Builder.BODY_PROFILE,
           role: Builder.ROLE,
