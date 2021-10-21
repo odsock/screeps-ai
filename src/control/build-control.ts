@@ -34,19 +34,22 @@ export class BuildControl {
 
     // BUILDER
     // make builders if there's something to build
-    const builderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.BUILDER);
-    const workPartsNeeded = this.getBuilderWorkPartsNeeded(roomw);
     const conSiteCount = roomw.constructionSites.length;
-    CreepUtils.consoleLogIfWatched(
-      roomw,
-      `builders: ${builderCount}, ${conSiteCount} sites, ${workPartsNeeded} parts needed`
-    );
-    if (conSiteCount > 0 && workPartsNeeded > 0) {
-      spawnQueue.push({
-        bodyProfile: SpawnUtils.buildBodyProfile(Builder.BODY_PROFILE, workPartsNeeded),
-        role: Builder.ROLE,
-        priority: 30
-      });
+    if (conSiteCount > 0) {
+      // TODO builders are crowding and wasteful at RCL1
+      const builderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.BUILDER);
+      const workPartsNeeded = this.getBuilderWorkPartsNeeded(roomw);
+      CreepUtils.consoleLogIfWatched(
+        roomw,
+        `builders: ${builderCount}, ${conSiteCount} sites, ${workPartsNeeded} parts needed`
+      );
+      if (conSiteCount > 0 && workPartsNeeded > 0) {
+        spawnQueue.push({
+          bodyProfile: Builder.BODY_PROFILE,
+          role: Builder.ROLE,
+          priority: 30
+        });
+      }
     }
   }
 
