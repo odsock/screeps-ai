@@ -23,10 +23,12 @@ export class RemoteControl {
     const spawnQueue = SpawnQueue.getInstance(roomw);
 
     // IMPORTER
-    const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => {
-      return !Game.rooms[name]?.controller?.my;
-    });
-    for (const targetRoom of remoteHarvestRooms) {
+    const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name] ?? [];
+    const remoteHarvestRoomsMy =
+      remoteHarvestRooms.filter(name => {
+        return !Game.rooms[name]?.controller?.my;
+      }) ?? [];
+    for (const targetRoom of remoteHarvestRoomsMy) {
       const importersNeeded = this.calcImportersNeededForRoom(roomw, targetRoom);
       const importersSpawningForRoom = roomw.getSpawningCountForTarget(roomw, Importer.ROLE, targetRoom);
       const importersOnRoom =
@@ -99,7 +101,9 @@ export class RemoteControl {
   }
 
   private getMaxClaimerCount(): number {
-    const targetRoomNames = TargetConfig.TARGETS[Game.shard.name].concat(TargetConfig.REMOTE_HARVEST[Game.shard.name]);
+    const targetedRooms = TargetConfig.TARGETS[Game.shard.name] ?? [];
+    const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name] ?? [];
+    const targetRoomNames = targetedRooms.concat(remoteHarvestRooms);
     if (targetRoomNames) {
       return targetRoomNames.filter(roomName => {
         // validate room name
