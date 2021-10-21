@@ -1,4 +1,5 @@
 import { CreepRole } from "config/creep-types";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Upgrader } from "roles/upgrader";
@@ -40,13 +41,14 @@ export class UpgradeControl {
     if (roomw.find(FIND_MY_CONSTRUCTION_SITES).length > 0 && upgraderCount > 0) {
       CreepUtils.consoleLogIfWatched(roomw, `skipping upgraders during construction`);
     } else {
-      const upgradePositionCount = roomw.getUpgradePositions().length;
+      const upgradePositionCount = Math.min(SockPuppetConstants.MAX_UPGRADERS, roomw.getUpgradePositions().length);
       const upgraderWorkPartsNeeded = roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / UPGRADE_CONTROLLER_POWER;
       const upgraderWorkPartsActive = roomw.getActiveParts(Upgrader.ROLE, WORK);
       CreepUtils.consoleLogIfWatched(
         roomw,
         `upgraders: ${upgraderCount}/${upgradePositionCount} positions, ${upgraderWorkPartsActive}/${upgraderWorkPartsNeeded} parts`
       );
+      // TODO upgraders get crowded and confuse pathing of tugs before first RCL upgrade
       if (upgraderWorkPartsActive < upgraderWorkPartsNeeded && upgraderCount < upgradePositionCount) {
         const bodyProfile = SpawnUtils.buildBodyProfile(Upgrader.BODY_PROFILE, upgraderWorkPartsNeeded);
         spawnQueue.push({
