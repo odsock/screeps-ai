@@ -17,6 +17,16 @@ export class Claimer extends RemoteWorker {
   public run(): void {
     CreepUtils.consoleLogIfWatched(this, `running ${this.name}`);
 
+    const fleeResult = this.fleeIfHostiles();
+    if (fleeResult !== ERR_NOT_FOUND) {
+      return;
+    }
+
+    const damagedResult = this.findHealingIfDamaged();
+    if (damagedResult !== ERR_FULL) {
+      return;
+    }
+
     // unsign controllers we didn't sign
     if (this.room.controller?.sign?.username && this.room.controller.sign.username !== this.owner.username) {
       this.moveTo(this.room.controller);
