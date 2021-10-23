@@ -114,11 +114,17 @@ export class Importer extends RemoteWorker {
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
-    const target = this.findClosestActiveEnergySource() ?? this.findClosestEnergySource();
+    const target = this.findClosestActiveEnergySource() ?? this.findClosestEnergySource() ?? undefined;
 
     const result = this.moveToAndGet(target);
     if (result === OK) {
       return result;
+    } else if (result === ERR_NO_PATH && target) {
+      const moveResult = this.moveTo(target.pos, { range: 2 });
+      CreepUtils.consoleLogIfWatched(this, `no path to source, trying to move closer`, moveResult);
+      if (moveResult === OK) {
+        return moveResult;
+      }
     }
 
     this.say("🤔");
