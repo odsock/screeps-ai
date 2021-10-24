@@ -24,11 +24,11 @@ export class SpawnWrapper extends StructureSpawn {
 
   public spawn(request: SpawnRequest): ScreepsReturnCode {
     const memory: CreepMemory = {
-      ...request.memory,
       ...{
         targetRoom: this.roomw.name,
         homeRoom: this.roomw.name
-      }
+      },
+      ...request.memory
     };
     const body: BodyPartConstant[] = this.getBodyFromProfile(request.max, request.bodyProfile);
     const name = `${memory.role}_${Game.time.toString(36)}`;
