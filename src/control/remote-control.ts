@@ -30,7 +30,7 @@ export class RemoteControl {
       }) ?? [];
     for (const targetRoom of remoteHarvestRoomsMy) {
       const importersNeeded = this.calcImportersNeededForRoom(roomw, targetRoom);
-      const importersSpawningForRoom = roomw.getSpawningCountForTarget(roomw, Importer.ROLE, targetRoom);
+      const importersSpawningForRoom = SpawnUtils.getSpawningCountForTarget(roomw, Importer.ROLE, targetRoom);
       const importersOnRoom =
         _.filter(Game.creeps, creep => creep.memory.role === Importer.ROLE && creep.memory.targetRoom === targetRoom)
           .length + importersSpawningForRoom;

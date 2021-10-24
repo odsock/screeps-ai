@@ -5,6 +5,7 @@ import { PlannerUtils } from "planning/planner-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
+import { SpawnUtils } from "control/spawn-utils";
 
 @profile
 export class RoomWrapper extends Room {
@@ -356,24 +357,7 @@ export class RoomWrapper extends Room {
   /** counts parts including spawning creeps */
   public getActiveParts(type: CreepRole, part: BodyPartConstant): number {
     const creeps = this.find(FIND_MY_CREEPS, { filter: c => c.memory.role === type });
-    const spawningCount = this.getSpawningParts(type, part);
-
+    const spawningCount = SpawnUtils.getSpawningPartsForType(this, type, part);
     return CreepUtils.countParts(part, ...creeps) + spawningCount;
-  }
-
-  /** count spawning creep parts */
-  public getSpawningParts(type: CreepRole, part: string): number {
-    return this.spawns
-      .filter(s => s.spawning && s.memory.spawning?.memory.role === type)
-      .reduce<number>((count, s) => {
-        const body = s.memory.spawning?.body ?? [];
-        return count + body.filter(p => p === part).length;
-      }, 0);
-  }
-
-  public getSpawningCountForTarget(roomw: RoomWrapper, type: CreepRole, targetRoom: string): number {
-    return roomw.spawns.filter(
-      s => s.spawning && s.memory.spawning?.memory.role === type && s.memory.spawning.memory.targetRoom === targetRoom
-    ).length;
   }
 }

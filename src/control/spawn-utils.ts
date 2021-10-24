@@ -137,4 +137,27 @@ export class SpawnUtils {
       });
     }
   }
+
+  /** count spawning creep parts in room for a type */
+  public static getSpawningPartsForType(roomw: RoomWrapper, type: CreepRole, part: string): number {
+    return roomw.spawns
+      .filter(s => s.spawning && s.memory.spawning?.memory.role === type)
+      .reduce<number>((count, s) => {
+        const body = s.memory.spawning?.body ?? [];
+        return count + body.filter(p => p === part).length;
+      }, 0);
+  }
+
+  /** count spawning creep parts */
+  public static getSpawningPartCount(spawnInfo: SpawningInfo[], part: BodyPartConstant): number {
+    return spawnInfo.reduce<number>((count, s) => {
+      return (count += s.body.filter(p => p === part).length);
+    }, 0);
+  }
+
+  public static getSpawningCountForTarget(roomw: RoomWrapper, type: CreepRole, targetRoom: string): number {
+    return roomw.spawns.filter(
+      s => s.spawning && s.memory.spawning?.memory.role === type && s.memory.spawning.memory.targetRoom === targetRoom
+    ).length;
+  }
 }
