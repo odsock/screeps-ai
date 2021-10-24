@@ -14,30 +14,6 @@ export class Guard extends RemoteWorker {
   };
 
   public run(): void {
-    // use current room for home (room spawned in)
-    if (!this.memory.homeRoom) {
-      this.memory.homeRoom = this.pos.roomName;
-    }
-
-    // check for flagged scary rooms
-    if (!this.memory.targetRoom) {
-      for (const roomName in Memory.rooms) {
-        const defenseMemory = Memory.rooms[roomName].defense;
-        if (defenseMemory) {
-          const hostiles = defenseMemory.creeps;
-          if (hostiles.length > 0) {
-            const guard = _.find(
-              Game.creeps,
-              creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === roomName
-            );
-            if (!guard) {
-              this.memory.targetRoom = roomName;
-            }
-          }
-        }
-      }
-    }
-
     if (this.roomw.hasHostiles) {
       const creeps = this.roomw.hostileCreeps;
       const structures = this.roomw.hostileStructures;
