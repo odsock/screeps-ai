@@ -27,7 +27,7 @@ export class BuildControl {
       spawnQueue.push({
         bodyProfile: Fixer.BODY_PROFILE,
         max: true,
-        role: Fixer.ROLE,
+        memory: { role: Fixer.ROLE },
         priority: 30
       });
     }
@@ -45,7 +45,7 @@ export class BuildControl {
       if (workPartsNeeded > 0) {
         spawnQueue.push({
           bodyProfile: Builder.BODY_PROFILE,
-          role: Builder.ROLE,
+          memory: { role: Builder.ROLE },
           priority: 30
         });
       }

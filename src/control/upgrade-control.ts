@@ -30,7 +30,7 @@ export class UpgradeControl {
       spawnQueue.push({
         bodyProfile: Upgrader.BODY_PROFILE,
         max: true,
-        role: Upgrader.ROLE,
+        memory: { role: Upgrader.ROLE },
         priority: 80
       });
     }
@@ -52,7 +52,7 @@ export class UpgradeControl {
         const bodyProfile = SpawnUtils.buildBodyProfile(Upgrader.BODY_PROFILE, upgraderWorkPartsNeeded);
         spawnQueue.push({
           bodyProfile,
-          role: Upgrader.ROLE,
+          memory: { role: Upgrader.ROLE },
           priority: 80
         });
       } else if (upgraderCount <= upgradePositionCount) {

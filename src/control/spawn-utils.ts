@@ -129,8 +129,10 @@ export class SpawnUtils {
       SpawnQueue.getInstance(roomw).push({
         bodyProfile: type.BODY_PROFILE,
         max: true,
-        role: type.ROLE,
-        replacing: oldestCreep.name,
+        memory: {
+          role: type.ROLE,
+          replacing: oldestCreep.name
+        },
         priority: 80
       });
     }

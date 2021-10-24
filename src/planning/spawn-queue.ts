@@ -1,4 +1,4 @@
-import { SpawnRequest } from "control/spawn-control";
+import { SpawnRequest } from "structures/spawn-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { MemoryUtils } from "./memory-utils";
 

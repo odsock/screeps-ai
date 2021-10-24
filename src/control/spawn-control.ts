@@ -1,20 +1,9 @@
 import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
-import { CreepBodyProfile } from "roles/creep-wrapper";
 import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
-
-export interface SpawnRequest {
-  priority: number;
-  bodyProfile: CreepBodyProfile;
-  max?: boolean;
-  role: string;
-  replacing?: string;
-  targetRoom?: string;
-  homeRoom?: string;
-}
 
 @profile
 export class SpawnControl {
@@ -43,7 +32,7 @@ export class SpawnControl {
       if (this.roomw.find(FIND_MY_CREEPS).length === 0) {
         this.spawnQueue.push({
           bodyProfile: Worker.BODY_PROFILE,
-          role: Worker.ROLE,
+          memory: { role: Worker.ROLE },
           priority: 200
         });
       }
@@ -60,7 +49,7 @@ export class SpawnControl {
         const result = s.spawn(spawnRequest);
         CreepUtils.consoleLogIfWatched(
           this.roomw,
-          `spawning: ${spawnRequest.role}, priority: ${spawnRequest.priority}`,
+          `spawning: ${spawnRequest.memory.role}, priority: ${spawnRequest.priority}`,
           result
         );
         // don't use energy on lower priority creep if high priority couldn't spawn now

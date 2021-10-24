@@ -92,6 +92,9 @@ export abstract class CreepWrapper extends Creep {
 
   /** find source that is understaffed by my role*/
   protected findShortHandedSourceInTargetRoom(): Id<Source> | undefined {
+    if (!this.memory.targetRoom) {
+      return undefined;
+    }
     let shortSource;
     let workPartsOnShortSource = 999;
     CreepUtils.consoleLogIfWatched(this, `choosing source`);

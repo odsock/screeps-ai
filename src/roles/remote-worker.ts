@@ -100,14 +100,16 @@ export class RemoteWorker extends CreepWrapper {
     }
     CreepUtils.consoleLogIfWatched(this, `room has hostile creeps!`);
 
-    let result = this.moveToRoom(this.memory.homeRoom);
-    CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
+    if (this.memory.homeRoom) {
+      const result = this.moveToRoom(this.memory.homeRoom);
+      CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
+    }
 
     const tower = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: structure => structure.structureType === STRUCTURE_TOWER
     });
     if (tower) {
-      result = this.moveTo(tower, { range: 2, reusePath: 10 });
+      const result = this.moveTo(tower, { range: 2, reusePath: 10 });
       CreepUtils.consoleLogIfWatched(this, `moving to tower`, result);
       return result;
     }
@@ -125,14 +127,16 @@ export class RemoteWorker extends CreepWrapper {
     }
     CreepUtils.consoleLogIfWatched(this, `hits ${this.hits}/${this.hitsMax}`);
 
-    let result = this.moveToRoom(this.memory.homeRoom);
-    CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
+    if (this.memory.homeRoom) {
+      const result = this.moveToRoom(this.memory.homeRoom);
+      CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
+    }
 
     const tower = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: structure => structure.structureType === STRUCTURE_TOWER
     });
     if (tower) {
-      result = this.moveTo(tower, { range: 5, reusePath: 10 });
+      const result = this.moveTo(tower, { range: 5, reusePath: 10 });
       CreepUtils.consoleLogIfWatched(this, `moving to tower`, result);
       return result;
     }

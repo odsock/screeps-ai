@@ -5,6 +5,13 @@ import { CreepBodyProfile } from "roles/creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { RoomWrapper } from "./room-wrapper";
 
+export interface SpawnRequest {
+  priority: number;
+  bodyProfile: CreepBodyProfile;
+  max?: boolean;
+  memory: CreepMemory;
+}
+
 @profile
 export class SpawnWrapper extends StructureSpawn {
   public constructor(spawn: StructureSpawn) {
@@ -15,37 +22,26 @@ export class SpawnWrapper extends StructureSpawn {
     return RoomWrapper.getInstance(this.room.name);
   }
 
-  public spawn({
-    bodyProfile,
-    max,
-    role,
-    replacing,
-    targetRoom = this.roomw.name,
-    homeRoom = this.roomw.name
-  }: {
-    bodyProfile: CreepBodyProfile;
-    max?: boolean;
-    role: string;
-    replacing?: string;
-    targetRoom?: string;
-    homeRoom?: string;
-  }): ScreepsReturnCode {
-    const body: BodyPartConstant[] = this.getBodyFromProfile(max, bodyProfile);
-    const name = `${role}_${Game.time.toString(36)}`;
-    const memory: CreepMemory = { role, targetRoom, homeRoom };
-    if (replacing) {
-      memory.replacing = replacing;
-    }
+  public spawn(request: SpawnRequest): ScreepsReturnCode {
+    const memory: CreepMemory = {
+      ...request.memory,
+      ...{
+        targetRoom: this.roomw.name,
+        homeRoom: this.roomw.name
+      }
+    };
+    const body: BodyPartConstant[] = this.getBodyFromProfile(request.max, request.bodyProfile);
+    const name = `${memory.role}_${Game.time.toString(36)}`;
 
     const extensions = this.getOrderedExtensionList();
     const result = this.spawnCreep(body, name, { memory, energyStructures: extensions });
-    CreepUtils.consoleLogIfWatched(this, `spawning: ${role} ${CreepUtils.creepBodyToString(body)}`, result);
+    CreepUtils.consoleLogIfWatched(this, `spawning: ${memory.role} ${CreepUtils.creepBodyToString(body)}`, result);
     if (result === ERR_INVALID_ARGS) {
-      console.log(`Invalid spawn: ${role} ${CreepUtils.creepBodyToString(body)}`);
+      console.log(`Invalid spawn: ${memory.role} ${CreepUtils.creepBodyToString(body)}`);
     } else if (result === OK) {
       Memory.spawns[this.name].spawning = { name, body, memory };
-      if (replacing) {
-        Game.creeps[replacing].memory.retiring = true;
+      if (memory.replacing) {
+        Game.creeps[memory.replacing].memory.retiring = true;
       }
     }
     return result;

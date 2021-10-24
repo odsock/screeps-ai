@@ -71,8 +71,10 @@ export class DefenseControl {
     spawnQueue.push({
       bodyProfile: Guard.BODY_PROFILE,
       max: hostileCreepsInRoom,
-      role: Guard.ROLE,
-      targetRoom: roomName,
+      memory: {
+        role: Guard.ROLE,
+        targetRoom: roomName
+      },
       priority: 250
     });
   }

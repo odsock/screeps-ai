@@ -12,6 +12,7 @@ export enum TaskType {
 export interface Task {
   type: TaskType;
   target: string;
+  priority: number;
 }
 
 @profile
@@ -30,7 +31,7 @@ export class HaulerControl {
       creepsToHaul.forEach(c => {
         const closestHauler = c.pos.findClosestByPath(emptyHaulers);
         if (closestHauler) {
-          closestHauler.memory.task = { type: TaskType.HAUL, target: c.name };
+          closestHauler.memory.task = { type: TaskType.HAUL, target: c.name, priority: 100 };
           closestHauler.memory.hauleeName = c.name;
           c.memory.haulerName = closestHauler.name;
           emptyHaulers.splice(emptyHaulers.findIndex(h => h.id === closestHauler.id));
@@ -59,7 +60,7 @@ export class HaulerControl {
     if (haulerCount === 0) {
       spawnQueue.push({
         bodyProfile: Hauler.BODY_PROFILE,
-        role: Hauler.ROLE,
+        memory: { role: Hauler.ROLE },
         priority: 110
       });
     }
@@ -72,7 +73,7 @@ export class HaulerControl {
       spawnQueue.push({
         bodyProfile: Hauler.BODY_PROFILE,
         max: true,
-        role: Hauler.ROLE,
+        memory: { role: Hauler.ROLE },
         priority: 70
       });
     }

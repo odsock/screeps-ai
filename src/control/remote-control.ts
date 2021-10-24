@@ -39,8 +39,10 @@ export class RemoteControl {
         spawnQueue.push({
           bodyProfile: Importer.BODY_PROFILE,
           max: true,
-          role: Importer.ROLE,
-          targetRoom,
+          memory: {
+            role: Importer.ROLE,
+            targetRoom
+          },
           priority: 50
         });
       }
@@ -63,8 +65,10 @@ export class RemoteControl {
           spawnQueue.push({
             bodyProfile: Claimer.BODY_PROFILE,
             max: true,
-            role: Claimer.ROLE,
-            targetRoom: roomName,
+            memory: {
+              role: Claimer.ROLE,
+              targetRoom: roomName
+            },
             priority: 40
           });
         }
@@ -92,8 +96,10 @@ export class RemoteControl {
         spawnQueue.push({
           bodyProfile: Worker.BODY_PROFILE,
           max: true,
-          role: Worker.ROLE,
-          targetRoom: targetRoom.name,
+          memory: {
+            role: Worker.ROLE,
+            targetRoom: targetRoom.name
+          },
           priority: 40
         });
       }

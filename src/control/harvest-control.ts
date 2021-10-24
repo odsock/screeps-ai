@@ -27,7 +27,7 @@ export class HarvestControl {
     if (harvesterCount === 0) {
       spawnQueue.push({
         bodyProfile: Harvester.BODY_PROFILE,
-        role: Harvester.ROLE,
+        memory: { role: Harvester.ROLE },
         priority: 90
       });
     }
@@ -45,7 +45,7 @@ export class HarvestControl {
       spawnQueue.push({
         bodyProfile: Harvester.BODY_PROFILE,
         max: true,
-        role: Harvester.ROLE,
+        memory: { role: Harvester.ROLE },
         priority: 90
       });
     }
