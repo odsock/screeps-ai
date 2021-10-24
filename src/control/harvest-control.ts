@@ -23,7 +23,7 @@ export class HarvestControl {
    * */
   private requestSpawns(roomw: RoomWrapper) {
     const spawnQueue = SpawnQueue.getInstance(roomw);
-    const harvesters = roomw.find(FIND_MY_CREEPS, { filter: c => (c.memory.role = Harvester.ROLE) });
+    const harvesters = roomw.find(FIND_MY_CREEPS, { filter: c => c.memory.role === Harvester.ROLE });
 
     for (const sourceId in roomw.memory.sources) {
       const source = Game.getObjectById(sourceId as Id<Source>);
