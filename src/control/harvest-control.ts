@@ -89,21 +89,6 @@ export class HarvestControl {
     }, undefined);
   }
 
-  private replaceOldCreep() {
-    if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToReplace) {
-      CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${type.ROLE}`);
-      SpawnQueue.getInstance(roomw).push({
-        bodyProfile: type.BODY_PROFILE,
-        max: true,
-        memory: {
-          role: type.ROLE,
-          replacing: oldestCreep.name
-        },
-        priority: 80
-      });
-    }
-  }
-
   private getSpawningHarvestersOnSource(roomw: RoomWrapper, sourceId: string): SpawningInfo[] {
     const spawning: SpawningInfo[] = [];
     roomw.spawns
