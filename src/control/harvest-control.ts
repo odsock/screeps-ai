@@ -46,6 +46,7 @@ export class HarvestControl {
         `harvesters: ${creepCount}/${positionsForSource} positions, ${partCount}/${partsNeeded} parts`
       );
       if (creepCount < positionsForSource && partCount < partsNeeded) {
+        CreepUtils.consoleLogIfWatched(roomw, `spawning ${Harvester.ROLE}`);
         spawnQueue.push({
           bodyProfile: Harvester.BODY_PROFILE,
           max: true,

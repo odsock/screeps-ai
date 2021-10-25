@@ -92,7 +92,6 @@ export class SpawnUtils {
     // overestimate it, and suicide the retiree when you arrive
     const WALK_TIME = 50;
     const replacementTime = spawningTime + WALK_TIME;
-    CreepUtils.consoleLogIfWatched(roomw, `replacement time: ${replacementTime} ticks`);
     return replacementTime;
   }
 
@@ -125,7 +124,12 @@ export class SpawnUtils {
       }, undefined);
 
     const ticksToReplace = SpawnUtils.calcReplacementTime(type.BODY_PROFILE, roomw);
+    CreepUtils.consoleLogIfWatched(
+      roomw,
+      `oldest ${type.ROLE} ${String(oldestCreep?.ticksToLive)} ticks, ${ticksToReplace} ticks to replace`
+    );
     if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToReplace) {
+      CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${type.ROLE}`);
       SpawnQueue.getInstance(roomw).push({
         bodyProfile: type.BODY_PROFILE,
         max: true,
