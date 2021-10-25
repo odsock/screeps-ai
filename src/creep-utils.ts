@@ -6,6 +6,7 @@ export interface Watchable {
   memory: { watched?: boolean; profile?: boolean };
 }
 import { profile } from "../screeps-typescript-profiler";
+import { RoomWrapper } from "structures/room-wrapper";
 
 @profile
 export class CreepUtils {
@@ -68,21 +69,22 @@ export class CreepUtils {
   };
 
   public static getRoadCostMatrix = (roomName: string): CostMatrix | boolean => {
-    const room = Game.rooms[roomName];
-    if (!room) return false;
+    const roomw = RoomWrapper.getInstance(roomName);
+    if (!roomw) {
+      return false;
+    }
+
     const cost = new PathFinder.CostMatrix();
 
-    const structures = room.find(FIND_STRUCTURES);
-    CreepUtils.updateRoadCostMatrixForStructures(structures, cost);
-
-    const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
-    CreepUtils.updateRoadCostMatrixForStructures(constructionSites, cost);
+    const structures = roomw.find(FIND_STRUCTURES);
+    const constructionSites = roomw.find(FIND_CONSTRUCTION_SITES);
+    CreepUtils.updateRoadCostMatrixForStructures([...structures, ...constructionSites], cost);
 
     return cost;
   };
 
   private static updateRoadCostMatrixForStructures(
-    structures: AnyStructure[] | ConstructionSite[],
+    structures: (AnyStructure | ConstructionSite)[],
     cost: CostMatrix
   ): CostMatrix {
     for (const structure of structures) {
