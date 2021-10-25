@@ -33,6 +33,7 @@ export class HarvestControl {
         continue;
       }
 
+      // spawn harvester capacity equal to source capacity
       const activeHarvestersOnSource = harvesters.filter(c => c.memory.source === sourceId);
       const spawningHarvestersOnSource = this.getSpawningHarvestersOnSource(roomw, sourceId);
       const creepCount = activeHarvestersOnSource.length + spawningHarvestersOnSource.length;
@@ -58,10 +59,48 @@ export class HarvestControl {
         });
       }
 
-      // replace aging harvester if at or below needed level
+      // replace harvester older than spawn time if at or below needed level
       if (creepCount <= positionsForSource && partCount <= partsNeeded) {
-        SpawnUtils.requestReplacementCreep(roomw, Harvester);
+        const ticksToSpawn = SpawnUtils.calcSpawnTime(Harvester.BODY_PROFILE, roomw);
+        const oldestCreep = this.findOldestCreep(activeHarvestersOnSource.filter(creep => !creep.memory.retiring));
+        if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToSpawn) {
+          CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${Harvester.ROLE}`);
+          spawnQueue.push({
+            bodyProfile: Harvester.BODY_PROFILE,
+            max: true,
+            memory: {
+              role: Harvester.ROLE,
+              source: sourceId as Id<Source>,
+              replacing: oldestCreep.name
+            },
+            priority: 90
+          });
+        }
       }
+    }
+  }
+
+  private findOldestCreep(creeps: Creep[]) {
+    return creeps.reduce((oldest: Creep | undefined, c) => {
+      if (!oldest || (c.ticksToLive && oldest.ticksToLive && c.ticksToLive < oldest.ticksToLive)) {
+        return c;
+      }
+      return oldest;
+    }, undefined);
+  }
+
+  private replaceOldCreep() {
+    if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToReplace) {
+      CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${type.ROLE}`);
+      SpawnQueue.getInstance(roomw).push({
+        bodyProfile: type.BODY_PROFILE,
+        max: true,
+        memory: {
+          role: type.ROLE,
+          replacing: oldestCreep.name
+        },
+        priority: 80
+      });
     }
   }
 

@@ -82,17 +82,11 @@ export class SpawnUtils {
   }
 
   /**
-   * Calculates the number of ticks to spawn a creep with max body for retirement.
-   * Uses an estimate of 50 ticks to account for walking time, since creep will be hauled.
+   * Calculates the number of ticks to spawn a creep with max body
    */
-  public static calcReplacementTime(creepBodyProfile: CreepBodyProfile, roomw: RoomWrapper): number {
+  public static calcSpawnTime(creepBodyProfile: CreepBodyProfile, roomw: RoomWrapper): number {
     const body = SpawnUtils.getMaxBody(creepBodyProfile, roomw);
-    const spawningTime = body.length * CREEP_SPAWN_TIME;
-    // walk time is hard to calc if using a hauler to tug
-    // overestimate it, and suicide the retiree when you arrive
-    const WALK_TIME = 50;
-    const replacementTime = spawningTime + WALK_TIME;
-    return replacementTime;
+    return body.length * CREEP_SPAWN_TIME;
   }
 
   /**
@@ -114,16 +108,8 @@ export class SpawnUtils {
 
   /** Request spawn of replacement for oldest creep of type, if ticks to live less than replacement time */
   public static requestReplacementCreep(roomw: RoomWrapper, type: CreepWrapperProfile): void {
-    const oldestCreep = roomw
-      .find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === type.ROLE && !creep.memory.retiring })
-      .reduce((oldest: Creep | undefined, c) => {
-        if (!oldest || (c.ticksToLive && oldest.ticksToLive && c.ticksToLive < oldest.ticksToLive)) {
-          return c;
-        }
-        return oldest;
-      }, undefined);
-
-    const ticksToReplace = SpawnUtils.calcReplacementTime(type.BODY_PROFILE, roomw);
+    const oldestCreep = SpawnUtils.findOldestCreepForRole(roomw, type);
+    const ticksToReplace = SpawnUtils.calcSpawnTime(type.BODY_PROFILE, roomw);
     CreepUtils.consoleLogIfWatched(
       roomw,
       `oldest ${type.ROLE} ${String(oldestCreep?.ticksToLive)} ticks, ${ticksToReplace} ticks to replace`
@@ -140,6 +126,17 @@ export class SpawnUtils {
         priority: 80
       });
     }
+  }
+
+  private static findOldestCreepForRole(roomw: RoomWrapper, type: CreepWrapperProfile) {
+    return roomw
+      .find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === type.ROLE && !creep.memory.retiring })
+      .reduce((oldest: Creep | undefined, c) => {
+        if (!oldest || (c.ticksToLive && oldest.ticksToLive && c.ticksToLive < oldest.ticksToLive)) {
+          return c;
+        }
+        return oldest;
+      }, undefined);
   }
 
   /** count spawning creep parts in room for a type */
