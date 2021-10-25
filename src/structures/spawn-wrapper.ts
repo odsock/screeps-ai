@@ -15,18 +15,10 @@ export interface SpawnRequest {
 
 @profile
 export class SpawnWrapper extends StructureSpawn {
-
-  private readonly BODY_PART_ORDER = [
-    TOUGH,
-    CARRY,
-    WORK,
-    MOVE,
-    CLAIM,
-    RANGED_ATTACK,
-    ATTACK,
-    HEAL
-  ];
-  private readonly BODY_PART_ORDER_LOOKUP = Object.fromEntries(this.BODY_PART_ORDER.map((part, index) => [part, index]);
+  private readonly BODY_PART_ORDER = [TOUGH, CARRY, WORK, MOVE, CLAIM, RANGED_ATTACK, ATTACK, HEAL];
+  private readonly BODY_PART_ORDER_LOOKUP = Object.fromEntries(
+    this.BODY_PART_ORDER.map((part, index) => [part, index])
+  );
 
   public constructor(spawn: StructureSpawn) {
     super(spawn.id);
