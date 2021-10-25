@@ -28,12 +28,12 @@ export class HaulerControl {
       const creepsToHaul = this.findHaulRequesters(roomw);
       // assign to empty hauler with no other task
       const emptyHaulers = haulers.filter(h => h.store.getUsedCapacity() === 0 && !h.memory.hauleeName);
-      creepsToHaul.forEach(c => {
-        const closestHauler = c.pos.findClosestByPath(emptyHaulers);
+      creepsToHaul.forEach(creepToHaul => {
+        const closestHauler = creepToHaul.pos.findClosestByPath(emptyHaulers);
         if (closestHauler) {
-          closestHauler.memory.task = { type: TaskType.HAUL, target: c.name, priority: 100 };
-          closestHauler.memory.hauleeName = c.name;
-          c.memory.haulerName = closestHauler.name;
+          closestHauler.memory.task = { type: TaskType.HAUL, target: creepToHaul.name, priority: 100 };
+          closestHauler.memory.hauleeName = creepToHaul.name;
+          creepToHaul.memory.haulerName = closestHauler.name;
           emptyHaulers.splice(emptyHaulers.findIndex(h => h.id === closestHauler.id));
         }
       });
