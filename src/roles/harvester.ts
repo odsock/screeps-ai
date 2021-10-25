@@ -105,38 +105,56 @@ export class Harvester extends Minder {
 
   /** get container from my memory or claim one*/
   protected getMyContainer(): StructureContainer | undefined {
+    const containerFromMemory = this.resolveContainerIdFromMemory();
+    if (containerFromMemory) {
+      return containerFromMemory;
+    }
+
+    if (!this.memory.source) {
+      CreepUtils.consoleLogIfWatched(this, `no source selected for harvest`);
+      return undefined;
+    }
+
+    const sourceInfo = this.roomw.memory.sources[this.memory.source];
+    if (!sourceInfo) {
+      CreepUtils.consoleLogIfWatched(this, `no source memory for id: ${this.memory.source}`);
+      return undefined;
+    }
+
+    const claimedContainer = this.claimContainerAtSource(sourceInfo);
+    if (claimedContainer) {
+      return claimedContainer;
+    }
+
+    CreepUtils.consoleLogIfWatched(this, `no free source container`);
+    return undefined;
+  }
+
+  /** set id's for minder and container if not already claimed */
+  private claimContainerAtSource(sourceInfo: SourceInfo) {
+    if (sourceInfo.containerId && (!sourceInfo.minderId || sourceInfo.minderId === this.id)) {
+      const container = Game.getObjectById(sourceInfo.containerId);
+      if (container) {
+        sourceInfo.minderId = this.id;
+        this.memory.containerId = sourceInfo.containerId;
+        CreepUtils.consoleLogIfWatched(this, `claimed source container: ${sourceInfo.containerId}`);
+        return container;
+      }
+      CreepUtils.consoleLogIfWatched(this, `container id invalid`);
+    }
+    return undefined;
+  }
+
+  /** get container object for id in memory, clear memory if not valid */
+  private resolveContainerIdFromMemory() {
     if (this.memory.containerId) {
       const container = Game.getObjectById(this.memory.containerId);
       if (container) {
         return container;
       }
+      CreepUtils.consoleLogIfWatched(this, `container id invalid: ${this.memory.containerId}`);
       this.memory.containerId = undefined;
-      CreepUtils.consoleLogIfWatched(this, `container id invalid`);
     }
-
-    for (const sourceId in this.roomw.memory.sources) {
-      const sourceInfo = this.roomw.memory.sources[sourceId];
-      if (!sourceInfo) {
-        CreepUtils.consoleLogIfWatched(this, `source id invalid: ${sourceId}`);
-        continue;
-      }
-
-      const containerId = sourceInfo.containerId;
-      if (containerId && (!sourceInfo.minderId || sourceInfo.minderId === this.id)) {
-        CreepUtils.consoleLogIfWatched(this, `claimed source container: ${containerId}`);
-        const container = Game.getObjectById(containerId);
-        if (container) {
-          sourceInfo.minderId = this.id;
-          this.memory.source = sourceId as Id<Source>;
-          this.memory.containerId = containerId;
-          return container;
-        }
-        this.memory.containerId = undefined;
-        CreepUtils.consoleLogIfWatched(this, `container id invalid`);
-      }
-    }
-
-    CreepUtils.consoleLogIfWatched(this, `no free source containers`);
     return undefined;
   }
 
