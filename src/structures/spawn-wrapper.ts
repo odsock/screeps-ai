@@ -10,10 +10,24 @@ export interface SpawnRequest {
   bodyProfile: CreepBodyProfile;
   max?: boolean;
   memory: CreepMemory;
+  sort?: boolean;
 }
 
 @profile
 export class SpawnWrapper extends StructureSpawn {
+
+  private readonly BODY_PART_ORDER = [
+    TOUGH,
+    CARRY,
+    WORK,
+    MOVE,
+    CLAIM,
+    RANGED_ATTACK,
+    ATTACK,
+    HEAL
+  ];
+  private readonly BODY_PART_ORDER_LOOKUP = Object.fromEntries(this.BODY_PART_ORDER.map((part, index) => [part, index]);
+
   public constructor(spawn: StructureSpawn) {
     super(spawn.id);
   }
@@ -30,7 +44,10 @@ export class SpawnWrapper extends StructureSpawn {
       },
       ...request.memory
     };
-    const body: BodyPartConstant[] = this.getBodyFromProfile(request.max, request.bodyProfile);
+    let body: BodyPartConstant[] = this.getBodyFromProfile(request.max, request.bodyProfile);
+    if (request.sort) {
+      body = this.sortBody(body);
+    }
     const name = `${memory.role}_${Game.time.toString(36)}`;
 
     const extensions = this.getOrderedExtensionList();
@@ -45,6 +62,12 @@ export class SpawnWrapper extends StructureSpawn {
       }
     }
     return result;
+  }
+
+  private sortBody(body: BodyPartConstant[]): BodyPartConstant[] {
+    return body.sort((a, b) => {
+      return this.BODY_PART_ORDER_LOOKUP[a] - this.BODY_PART_ORDER_LOOKUP[b];
+    });
   }
 
   private getOrderedExtensionList(): (StructureSpawn | StructureExtension)[] {

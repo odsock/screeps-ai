@@ -75,6 +75,7 @@ export class DefenseControl {
         role: Guard.ROLE,
         targetRoom: roomName
       },
+      sort: true,
       priority: 250
     });
   }

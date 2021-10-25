@@ -9,7 +9,7 @@ export class Guard extends RemoteWorker {
   public static readonly ROLE = CreepRole.GUARD;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
     profile: [TOUGH, MOVE, MOVE, ATTACK],
-    seed: [TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, ATTACK],
+    seed: [TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, ATTACK, HEAL],
     maxBodyParts: MAX_CREEP_SIZE
   };
 
@@ -28,6 +28,11 @@ export class Guard extends RemoteWorker {
         CreepUtils.consoleLogIfWatched(this, `attack`, attackResult);
         return;
       }
+    }
+
+    if (this.hits < this.hitsMax) {
+      const result = this.heal(this);
+      CreepUtils.consoleLogIfWatched(this, `heal self`, result);
     }
 
     if (!this.memory.targetRoom) {
