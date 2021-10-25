@@ -29,7 +29,7 @@ export class Hauler extends CreepWrapper {
      */
 
     // work haul request if assigned
-    const creepToHaul = this.getHaulRequest();
+    const creepToHaul = this.checkForHaulRequest();
     if (creepToHaul) {
       const result = this.haulCreepJob(creepToHaul);
       CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
@@ -142,14 +142,7 @@ export class Hauler extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `cleanup`, result);
       return result;
     } else {
-      CreepUtils.consoleLogIfWatched(this, `dumping`);
-      const storage = this.findRoomStorage();
-      if (storage) {
-        const result = this.moveToAndTransfer(storage);
-        CreepUtils.consoleLogIfWatched(this, `dump at ${String(storage)}`, result);
-        return result;
-      }
-      return ERR_FULL;
+      return this.storeLoad();
     }
   }
 
@@ -196,6 +189,10 @@ export class Hauler extends CreepWrapper {
   private haulCreepJob(creep: Creep): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `haul ${creep.name}`);
     this.updateJob(`tug`);
+
+    if (this.store.getUsedCapacity() > 0) {
+      return this.storeLoad();
+    }
 
     // this.startWorkingInRange(creep.pos, 1);
     if (this.pos.isNearTo(creep.pos)) {
@@ -288,18 +285,20 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private getHaulRequest(): Creep | undefined {
+  private checkForHaulRequest(): Creep | undefined {
     if (this.memory.hauleeName) {
       CreepUtils.consoleLogIfWatched(this, `validate haul request `);
       const haulee = Game.creeps[this.memory.hauleeName];
       if (haulee && haulee.memory.haulRequested) {
         return haulee;
       } else {
+        CreepUtils.consoleLogIfWatched(this, `haul request invalid`);
         this.memory.hauleeName = undefined;
         if (haulee) {
           haulee.memory.haulRequested = false;
           haulee.memory.haulerName = undefined;
         }
+        return undefined;
       }
     }
     CreepUtils.consoleLogIfWatched(this, `no haul request found`);
@@ -409,6 +408,18 @@ export class Hauler extends CreepWrapper {
     this.say("🤔");
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
     return ERR_NOT_FOUND;
+  }
+
+  /** finds storage and unloads creep there if carrying */
+  private storeLoad(): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `storing load`);
+    const storage = this.findRoomStorage();
+    if (storage) {
+      const result = this.moveToAndTransfer(storage);
+      CreepUtils.consoleLogIfWatched(this, `store at ${String(storage)}`, result);
+      return result;
+    }
+    return ERR_FULL;
   }
 
   private findClosestSourceContainerFillsMyStore() {
