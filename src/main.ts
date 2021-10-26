@@ -34,7 +34,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const logger = new Logger();
   logger.run();
 
-  Game.cpu.generatePixel();
+  if (Game.cpu.bucket >= PIXEL_CPU_COST) {
+    Game.cpu.generatePixel();
+  }
 });
 
 // Automatically delete memory of missing creeps
