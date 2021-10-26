@@ -1,5 +1,5 @@
-import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
+import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { profile } from "../../screeps-typescript-profiler";
 
 @profile
@@ -107,7 +107,7 @@ export class RoadPlan {
     const path = PathFinder.search(
       origin,
       { pos: goal, range },
-      { swampCost: 2, plainCost: 2, roomCallback: CreepUtils.getRoadCostMatrix }
+      { swampCost: 2, plainCost: 2, roomCallback: CostMatrixUtils.roadPlanningRoomCallback }
     );
     if (path.incomplete) {
       // console.log(`road plan incomplete: ${String(origin)} -> ${String(goal)}`);

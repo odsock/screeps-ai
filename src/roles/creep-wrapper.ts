@@ -1,6 +1,7 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
+import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { profile } from "../../screeps-typescript-profiler";
 
 export interface CreepBodyProfile {
@@ -465,9 +466,7 @@ export abstract class CreepWrapper extends Creep {
     if (result === ERR_NOT_IN_RANGE) {
       CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
       result = this.moveTo(structure, {
-        costCallback: (roomName, costMatrix) => {
-          this.roomw.getCostMatrixAvoidHarvestPositions(costMatrix);
-        }
+        costCallback: CostMatrixUtils.avoidHarvestPositionsCostCallback
       });
     }
     return result;
@@ -482,9 +481,7 @@ export abstract class CreepWrapper extends Creep {
     if (result === ERR_NOT_IN_RANGE) {
       CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
       result = this.moveTo(structure, {
-        costCallback: (roomName, costMatrix) => {
-          this.roomw.getCostMatrixAvoidHarvestPositions(costMatrix);
-        }
+        costCallback: CostMatrixUtils.avoidHarvestPositionsCostCallback
       });
     }
     return result;

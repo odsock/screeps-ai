@@ -99,7 +99,7 @@ export class CostMatrixUtils {
    * Creep movement prefering roads>plains>swamps, avoiding unwalkable areas.
    */
   public static getCreepMovementCostMatrix = (roomName: string): CostMatrix | boolean => {
-    const cost = CreepUtils.getRoadCostMatrix(roomName);
+    const cost = CostMatrixUtils.getRoadCostMatrix(roomName);
     if (typeof cost === "boolean") return cost;
 
     const room = Game.rooms[roomName];

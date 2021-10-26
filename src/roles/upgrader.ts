@@ -3,6 +3,7 @@ import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { Minder } from "./minder";
 import { profile } from "../../screeps-typescript-profiler";
+import { CostMatrixUtils } from "utils/cost-matrix-utils";
 
 @profile
 export class Upgrader extends Minder {
@@ -63,8 +64,7 @@ export class Upgrader extends Minder {
           target = container.pos;
           findPathOpts = {
             range: 1,
-            costCallback: (roomName, costMatrix) =>
-              this.roomw.getCostMatrixAvoidHarvestPositionsAndRoadsNearController(costMatrix)
+            costCallback: CostMatrixUtils.avoidHarvestPositionsAndRoadsNearControllerCostCallback
           };
         }
       }
@@ -75,8 +75,7 @@ export class Upgrader extends Minder {
         target = this.room.controller.pos;
         findPathOpts = {
           range: 3,
-          costCallback: (roomName, costMatrix) =>
-            this.roomw.getCostMatrixAvoidHarvestPositionsAndRoadsNearController(costMatrix)
+          costCallback: CostMatrixUtils.avoidHarvestPositionsAndRoadsNearControllerCostCallback
         };
       }
 

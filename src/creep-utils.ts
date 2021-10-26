@@ -1,3 +1,5 @@
+import { CostMatrixUtils } from "utils/cost-matrix-utils";
+import { profile } from "../screeps-typescript-profiler";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 
 export interface Watchable {
@@ -5,8 +7,6 @@ export interface Watchable {
   [key: string]: any;
   memory: { watched?: boolean; profile?: boolean };
 }
-import { profile } from "../screeps-typescript-profiler";
-import { RoomWrapper } from "structures/room-wrapper";
 
 @profile
 export class CreepUtils {
@@ -51,53 +51,9 @@ export class CreepUtils {
       {
         plainCost: 2,
         swampCost: 10,
-        roomCallback: this.getRoadCostMatrix
+        roomCallback: CostMatrixUtils.getRoadCostMatrix
       }
     );
-  }
-
-  public static getCreepMovementCostMatrix = (roomName: string): CostMatrix | boolean => {
-    const cost = CreepUtils.getRoadCostMatrix(roomName);
-    if (typeof cost === "boolean") return cost;
-
-    const room = Game.rooms[roomName];
-    if (!room) return false;
-
-    // avoid creeps
-    room.find(FIND_CREEPS).forEach(creep => cost.set(creep.pos.x, creep.pos.y, 0xff));
-    return cost;
-  };
-
-  public static getRoadCostMatrix = (roomName: string): CostMatrix | boolean => {
-    const roomw = RoomWrapper.getInstance(roomName);
-    if (!roomw) {
-      return false;
-    }
-
-    const cost = new PathFinder.CostMatrix();
-
-    const structures = roomw.find(FIND_STRUCTURES);
-    const constructionSites = roomw.find(FIND_CONSTRUCTION_SITES);
-    CreepUtils.updateRoadCostMatrixForStructures([...structures, ...constructionSites], cost);
-
-    return cost;
-  };
-
-  private static updateRoadCostMatrixForStructures(
-    structures: (AnyStructure | ConstructionSite)[],
-    cost: CostMatrix
-  ): CostMatrix {
-    for (const structure of structures) {
-      if (structure.structureType === STRUCTURE_ROAD) {
-        cost.set(structure.pos.x, structure.pos.y, 1);
-      } else if (
-        structure.structureType !== STRUCTURE_CONTAINER &&
-        (structure.structureType !== STRUCTURE_RAMPART || !structure.my)
-      ) {
-        cost.set(structure.pos.x, structure.pos.y, 0xff);
-      }
-    }
-    return cost;
   }
 
   /** counts creep body parts matching specified type */

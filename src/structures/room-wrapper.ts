@@ -262,60 +262,6 @@ export class RoomWrapper extends Room {
     this.room.memory.log.push(`${Game.time}: ${message}`);
   }
 
-  /** cost matrix caching */
-
-  private costMatrixCache: { [name: string]: CostMatrix } = {};
-
-  public getCostMatrixAvoidHarvestPositions(costMatrix: CostMatrix): CostMatrix {
-    const cacheKey = "avoidHarvestPositions";
-    const cachedCostMatrix = this.getCostMatrixFromCache(cacheKey);
-    if (cachedCostMatrix) {
-      return cachedCostMatrix;
-    }
-    this.sources.forEach(source =>
-      this.getHarvestPositions(source.id).forEach(pos => costMatrix.set(pos.x, pos.y, 0xff))
-    );
-    this.setCostMatrixInCache(cacheKey, costMatrix);
-    return costMatrix;
-  }
-
-  public getCostMatrixAvoidHarvestPositionsAndRoadsNearController(costMatrix: CostMatrix): CostMatrix {
-    const cacheKey = "avoidHarvestPositionsAndRoadsNearController";
-    const cachedCostMatrix = this.getCostMatrixFromCache(cacheKey);
-    if (cachedCostMatrix) {
-      return cachedCostMatrix;
-    }
-    this.sources.forEach(source =>
-      this.getHarvestPositions(source.id).forEach(pos => costMatrix.set(pos.x, pos.y, 0xff))
-    );
-    if (this.controller) {
-      const conPos = this.controller.pos;
-      const top = conPos.y - 3;
-      const left = conPos.x - 3;
-      const bottom = conPos.y + 3;
-      const right = conPos.x + 3;
-      this.lookForAtArea(LOOK_STRUCTURES, top, left, bottom, right, true)
-        .filter(s => s.structure.structureType === STRUCTURE_ROAD)
-        .forEach(road => costMatrix.set(road.x, road.y, 0xff));
-    }
-    this.setCostMatrixInCache(cacheKey, costMatrix);
-    return costMatrix;
-  }
-
-  private getCostMatrixFromCache(name: string): CostMatrix | undefined {
-    const cacheKey = `${this.name}_${name}`;
-    const costMatrix = MemoryUtils.getCache<CostMatrix>(cacheKey);
-    if (costMatrix) {
-      return costMatrix;
-    }
-    return undefined;
-  }
-
-  private setCostMatrixInCache(name: string, costMatrix: CostMatrix): void {
-    const cacheKey = `${this.name}_${name}`;
-    MemoryUtils.setCache(cacheKey, costMatrix, 100);
-  }
-
   /** various find methods */
 
   public findClosestDamagedNonRoad(pos: RoomPosition): AnyStructure | null {

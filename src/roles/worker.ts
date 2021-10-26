@@ -3,6 +3,7 @@ import { CreepUtils } from "creep-utils";
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { profile } from "../../screeps-typescript-profiler";
+import { CostMatrixUtils } from "utils/cost-matrix-utils";
 
 @profile
 export class Worker extends CreepWrapper {
@@ -99,9 +100,7 @@ export class Worker extends CreepWrapper {
           this.moveTo(site, {
             range: 3,
             visualizePathStyle: { stroke: "#ffffff" },
-            costCallback: (roomName, costMatrix) => {
-              this.roomw.getCostMatrixAvoidHarvestPositions(costMatrix);
-            }
+            costCallback: CostMatrixUtils.avoidHarvestPositionsCostCallback
           });
         } else if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource)) {
           const path = PathFinder.search(this.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
