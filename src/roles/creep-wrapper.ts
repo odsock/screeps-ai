@@ -349,17 +349,18 @@ export abstract class CreepWrapper extends Creep {
     if (!target) {
       return ERR_NOT_FOUND;
     }
-    CreepUtils.consoleLogIfWatched(this, `getting: ${String(target)}`);
     let result: ScreepsReturnCode;
-    if (target instanceof Resource) {
-      result = this.pickupW(target);
-    } else if (target instanceof Source) {
-      result = this.harvest(target);
+    if (target.pos.isNearTo(this.pos)) {
+      CreepUtils.consoleLogIfWatched(this, `getting: ${String(target)}`);
+      if (target instanceof Resource) {
+        result = this.pickupW(target);
+      } else if (target instanceof Source) {
+        result = this.harvest(target);
+      } else {
+        result = this.withdrawW(target, RESOURCE_ENERGY);
+      }
+      CreepUtils.consoleLogIfWatched(this, `get result`, result);
     } else {
-      result = this.withdrawW(target, RESOURCE_ENERGY);
-    }
-    CreepUtils.consoleLogIfWatched(this, `get result`, result);
-    if (result === ERR_NOT_IN_RANGE) {
       result = this.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ffaa00" }, reusePath: 10 });
       CreepUtils.consoleLogIfWatched(this, `move result`, result);
     }
@@ -367,14 +368,18 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected moveToAndAttack(target: Creep | Structure): ScreepsReturnCode {
-    let result: ScreepsReturnCode = this.moveTo(target, {
-      range: 1,
-      visualizePathStyle: { stroke: "#ff0000" },
-      ignoreCreeps: true
-    });
-    CreepUtils.consoleLogIfWatched(this, `move to ${typeof target}: ${String(target.pos)}`, result);
-    result = this.attack(target);
-    CreepUtils.consoleLogIfWatched(this, `attack ${typeof target}`, result);
+    let result: ScreepsReturnCode;
+    if (target.pos.isNearTo(this.pos)) {
+      result = this.attack(target);
+      CreepUtils.consoleLogIfWatched(this, `attack ${typeof target}`, result);
+    } else {
+      result = this.moveTo(target, {
+        range: 1,
+        visualizePathStyle: { stroke: "#ff0000" },
+        ignoreCreeps: true
+      });
+      CreepUtils.consoleLogIfWatched(this, `move to ${typeof target}: ${String(target.pos)}`, result);
+    }
     return result;
   }
 
