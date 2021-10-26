@@ -13,12 +13,18 @@ export interface SpawnRequest {
   sort?: boolean;
 }
 
+interface BodyPartPriorityLookupType {
+  [part: string]: number;
+}
+
 @profile
 export class SpawnWrapper extends StructureSpawn {
-  private readonly BODY_PART_ORDER = [TOUGH, CARRY, WORK, MOVE, CLAIM, RANGED_ATTACK, ATTACK, HEAL];
-  private readonly BODY_PART_ORDER_LOOKUP = Object.fromEntries(
-    this.BODY_PART_ORDER.map((part, index) => [part, index])
-  );
+  private static readonly BODY_PART_ORDER = [TOUGH, CARRY, WORK, MOVE, CLAIM, RANGED_ATTACK, ATTACK, HEAL];
+  private static readonly BODY_PART_ORDER_LOOKUP: BodyPartPriorityLookupType =
+    SpawnWrapper.BODY_PART_ORDER.reduce<BodyPartPriorityLookupType>((lookup, part, index) => {
+      lookup[part] = index;
+      return lookup;
+    }, {});
 
   public constructor(spawn: StructureSpawn) {
     super(spawn.id);
@@ -58,7 +64,7 @@ export class SpawnWrapper extends StructureSpawn {
 
   private sortBody(body: BodyPartConstant[]): BodyPartConstant[] {
     return body.sort((a, b) => {
-      return this.BODY_PART_ORDER_LOOKUP[a] - this.BODY_PART_ORDER_LOOKUP[b];
+      return SpawnWrapper.BODY_PART_ORDER_LOOKUP[a] - SpawnWrapper.BODY_PART_ORDER_LOOKUP[b];
     });
   }
 
