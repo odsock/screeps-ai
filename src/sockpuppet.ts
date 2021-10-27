@@ -35,10 +35,10 @@ export class Sockpuppet {
       let cpu = Game.cpu.getUsed();
       const extensions = roomw.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === "extension" });
       console.log(`cpu: ${Game.cpu.getUsed() - cpu}`);
-      cpu = Game.cpu.getUsed();
-      roomw.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === "extension" });
-      console.log(`cpu: ${Game.cpu.getUsed() - cpu}`);
       // cpu: 0.0328405999999859
+      cpu = Game.cpu.getUsed();
+      roomw.find(FIND_MY_STRUCTURES, { filter: s => s.structureType !== "extension" });
+      console.log(`cpu: ${Game.cpu.getUsed() - cpu}`);
       const ids = extensions.map(e => e.id);
       cpu = Game.cpu.getUsed();
       ids.forEach(id => Game.getObjectById(id));
