@@ -47,18 +47,45 @@ export class Claimer extends RemoteWorker {
       return;
     }
 
-    // go to controller and claim or reserve it
-    if (this.roomw.controller) {
-      const claimFlag = TargetConfig.TARGETS[Game.shard.name].includes(this.memory.targetRoom);
-      CreepUtils.consoleLogIfWatched(this, `claim target room? ${String(claimFlag)}`);
-      if (claimFlag) {
-        const result = this.claimTargetRoom();
-        CreepUtils.consoleLogIfWatched(this, `claim controller: ${String(this.roomw.controller)}`, result);
-      } else {
-        const reserveResult = this.reserveTargetRoom();
-        CreepUtils.consoleLogIfWatched(this, `reserve controller: ${String(this.roomw.controller)}`, reserveResult);
-      }
+    if (!this.roomw.controller) {
       return;
+    }
+
+    if (
+      (this.roomw.controller.owner && !this.roomw.controller.my) ||
+      (this.roomw.controller.reservation && this.roomw.controller.reservation.username !== this.owner.username)
+    ) {
+      this.moveToAndAttackController();
+      return;
+    }
+
+    // go to controller and claim or reserve it
+    const claimFlag = TargetConfig.TARGETS[Game.shard.name].includes(this.memory.targetRoom);
+    CreepUtils.consoleLogIfWatched(this, `claim target room? ${String(claimFlag)}`);
+    if (claimFlag) {
+      const result = this.claimTargetRoom();
+      CreepUtils.consoleLogIfWatched(this, `claim controller: ${String(this.roomw.controller)}`, result);
+    } else {
+      const reserveResult = this.reserveTargetRoom();
+      CreepUtils.consoleLogIfWatched(this, `reserve controller: ${String(this.roomw.controller)}`, reserveResult);
+    }
+    return;
+  }
+
+  private moveToAndAttackController(): ScreepsReturnCode {
+    if (!this.roomw.controller) {
+      CreepUtils.consoleLogIfWatched(this, `no controller to attack: ${String(this.roomw.name)}`);
+      return ERR_INVALID_TARGET;
+    }
+
+    if (!this.pos.isNearTo(this.roomw.controller)) {
+      const moveResult = this.moveTo(this.roomw.controller);
+      CreepUtils.consoleLogIfWatched(this, `move to controller: ${String(this.roomw.controller)}`, moveResult);
+      return moveResult;
+    } else {
+      const attackResult = this.attackController(this.roomw.controller);
+      CreepUtils.consoleLogIfWatched(this, `attack controller: ${String(this.roomw.controller)}`, attackResult);
+      return attackResult;
     }
   }
 }
