@@ -24,7 +24,7 @@ export class CostMatrixUtils {
    */
   public static avoidHarvestPositionsCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix => {
     const cacheKey = "avoidHarvestPositions";
-    const cachedCostMatrix = this.getCostMatrixFromCache(cacheKey);
+    const cachedCostMatrix = CostMatrixUtils.getCostMatrixFromCache(cacheKey);
     if (cachedCostMatrix) {
       return cachedCostMatrix;
     }
@@ -33,7 +33,7 @@ export class CostMatrixUtils {
     roomw.sources.forEach(source =>
       roomw.getHarvestPositions(source.id).forEach(pos => costMatrix.set(pos.x, pos.y, 0xff))
     );
-    this.setCostMatrixInCache(cacheKey, costMatrix);
+    CostMatrixUtils.setCostMatrixInCache(cacheKey, costMatrix);
     return costMatrix;
   };
 
@@ -47,7 +47,7 @@ export class CostMatrixUtils {
     costMatrix: CostMatrix
   ): CostMatrix => {
     const cacheKey = "avoidHarvestPositionsAndRoadsNearController";
-    const cachedCostMatrix = this.getCostMatrixFromCache(cacheKey);
+    const cachedCostMatrix = CostMatrixUtils.getCostMatrixFromCache(cacheKey);
     if (cachedCostMatrix) {
       return cachedCostMatrix;
     }
@@ -67,7 +67,7 @@ export class CostMatrixUtils {
         .filter(s => s.structure.structureType === STRUCTURE_ROAD)
         .forEach(road => costMatrix.set(road.x, road.y, 0xff));
     }
-    this.setCostMatrixInCache(cacheKey, costMatrix);
+    CostMatrixUtils.setCostMatrixInCache(cacheKey, costMatrix);
     return costMatrix;
   };
 
@@ -94,7 +94,7 @@ export class CostMatrixUtils {
       }
     }
 
-    return this.avoidHarvestPositionsCostCallback(roomName, cost);
+    return CostMatrixUtils.avoidHarvestPositionsCostCallback(roomName, cost);
   };
 
   /**
