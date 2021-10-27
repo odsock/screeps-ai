@@ -80,7 +80,7 @@ export class HaulerControl {
         bodyProfile: Hauler.BODY_PROFILE,
         max: true,
         memory: { role: Hauler.ROLE },
-        priority: 70
+        priority: 85
       });
     }
 
