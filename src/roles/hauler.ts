@@ -208,6 +208,7 @@ export class Hauler extends CreepWrapper {
         creepToHaul.memory.haulRequested = false;
         creepToHaul.memory.haulerName = undefined;
       }
+      delete this.memory.task;
       return ERR_INVALID_TARGET;
     } else {
       creepToHaul.memory.haulerName = this.name;
