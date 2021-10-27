@@ -52,6 +52,7 @@ export class Upgrader extends Minder {
     CreepUtils.consoleLogIfWatched(this, `stumped. sitting like a lump`);
   }
 
+  // TODO dry this up with harvester code
   public moveToDestination(): ScreepsReturnCode {
     if (this.room.controller) {
       let target: RoomPosition | undefined;

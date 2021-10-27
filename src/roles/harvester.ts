@@ -73,7 +73,7 @@ export class Harvester extends Minder {
     if (this.memory.haulerName) {
       const hauler = Game.creeps[this.memory.haulerName];
       if (hauler) {
-        CreepUtils.consoleLogIfWatched(this, `already have a hauler`);
+        CreepUtils.consoleLogIfWatched(this, `have a hauler`);
         // setup hauler pulling
         const pullResult = hauler.pull(this);
         const moveResult = this.move(hauler);

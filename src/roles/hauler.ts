@@ -6,6 +6,7 @@ import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { Upgrader } from "./upgrader";
 import { profile } from "../../screeps-typescript-profiler";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
+import { TaskType } from "control/hauler-control";
 
 @profile
 export class Hauler extends CreepWrapper {
@@ -29,12 +30,15 @@ export class Hauler extends CreepWrapper {
      * cleanup drops, tombs, ruins
      */
 
-    // work haul request if assigned
-    const creepToHaul = this.checkForHaulRequest();
-    if (creepToHaul) {
-      const result = this.haulCreepJob(creepToHaul);
-      CreepUtils.consoleLogIfWatched(this, `haul request result`, result);
-      return;
+    if (this.memory.task) {
+      switch (this.memory.task.type) {
+        case TaskType.HAUL:
+          CreepUtils.consoleLogIfWatched(this, `haul result`, this.workHaulTask());
+          return;
+
+        default:
+          break;
+      }
     }
 
     // pickup convenient energy
@@ -187,25 +191,40 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private haulCreepJob(creep: Creep): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `haul ${creep.name}`);
+  private workHaulTask(): ScreepsReturnCode {
+    if (this.memory.task?.type !== TaskType.HAUL) {
+      return ERR_INVALID_ARGS;
+    }
+
+    CreepUtils.consoleLogIfWatched(this, `haul ${String(this.memory.task.target)}`);
     this.updateJob(`tug`);
+
+    // TODO validation here may cause idle tick when haul ends
+    CreepUtils.consoleLogIfWatched(this, `validate haul request `);
+    const creepToHaul = Game.creeps[this.memory.task.target];
+    if (!creepToHaul || !creepToHaul.memory.haulRequested) {
+      CreepUtils.consoleLogIfWatched(this, `haul request invalid`);
+      if (creepToHaul) {
+        creepToHaul.memory.haulRequested = false;
+        creepToHaul.memory.haulerName = undefined;
+      }
+      return ERR_INVALID_TARGET;
+    } else {
+      creepToHaul.memory.haulerName = this.name;
+    }
 
     if (this.store.getUsedCapacity() > 0) {
       return this.storeLoad();
     }
 
-    // this.startWorkingInRange(creep.pos, 1);
-    if (this.pos.isNearTo(creep.pos)) {
+    if (this.pos.isNearTo(creepToHaul.pos)) {
       this.memory.working = true;
     } else {
       this.memory.working = false;
     }
 
-    let result: ScreepsReturnCode;
     if (!this.memory.working) {
-      // go find the creep to haul
-      result = this.moveTo(creep);
+      const result = this.moveTo(creepToHaul);
       CreepUtils.consoleLogIfWatched(this, `move to creep`, result);
     }
     return OK;

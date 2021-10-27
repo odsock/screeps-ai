@@ -13,6 +13,7 @@ export interface Task {
   type: TaskType;
   target: string;
   priority: number;
+  pos: RoomPosition;
 }
 
 @profile
@@ -24,19 +25,8 @@ export class HaulerControl {
         .find(FIND_MY_CREEPS, { filter: c => c.memory.role === Hauler.ROLE })
         .map(c => new Hauler(c));
 
-      // find creeps requesting hauling
-      const creepsToHaul = this.findHaulRequesters(roomw);
-      // assign to empty hauler with no other task
-      const freeHaulers = haulers.filter(h => !h.memory.hauleeName);
-      creepsToHaul.forEach(creepToHaul => {
-        const closestHauler = creepToHaul.pos.findClosestByPath(freeHaulers);
-        if (closestHauler) {
-          closestHauler.memory.task = { type: TaskType.HAUL, target: creepToHaul.name, priority: 100 };
-          closestHauler.memory.hauleeName = creepToHaul.name;
-          creepToHaul.memory.haulerName = closestHauler.name;
-          freeHaulers.splice(freeHaulers.findIndex(h => h.id === closestHauler.id));
-        }
-      });
+      const haulTasks = this.createHaulTasks(roomw);
+      this.assignTasks(haulers, haulTasks);
 
       if (roomw.controller?.my && roomw.spawns.length > 0) {
         this.requestSpawns(roomw);
@@ -44,13 +34,29 @@ export class HaulerControl {
     }
   }
 
-  private findHaulRequesters(roomw: RoomWrapper): Creep[] {
-    return roomw.find(FIND_MY_CREEPS, {
-      filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
+  private assignTasks(haulers: Hauler[], haulTasks: Task[]): void {
+    const freeHaulers = haulers.filter(h => !h.memory.task);
+
+    haulTasks.forEach(task => {
+      const closestHauler = task.pos.findClosestByPath(freeHaulers);
+      if (closestHauler) {
+        closestHauler.memory.task = task;
+        freeHaulers.splice(freeHaulers.findIndex(h => h.id === closestHauler.id));
+      }
     });
   }
 
-  private requestSpawns(roomw: RoomWrapper) {
+  private createHaulTasks(roomw: RoomWrapper): Task[] {
+    return roomw
+      .find(FIND_MY_CREEPS, {
+        filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
+      })
+      .map(c => {
+        return { type: TaskType.HAUL, target: c.name, pos: c.pos, priority: 100 };
+      });
+  }
+
+  private requestSpawns(roomw: RoomWrapper): void {
     const spawnQueue = SpawnQueue.getInstance(roomw);
 
     const haulerCount = SpawnUtils.getCreepCountForRole(roomw, Hauler.ROLE);
