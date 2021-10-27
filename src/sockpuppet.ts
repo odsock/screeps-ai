@@ -31,20 +31,6 @@ export class Sockpuppet {
     _.filter(Game.rooms, room => room.controller?.my).forEach(room => {
       const roomw = RoomWrapper.getInstance(room);
 
-      // cpu test
-      let cpu = Game.cpu.getUsed();
-      const extensions = roomw.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === "extension" });
-      console.log(`cpu: ${Game.cpu.getUsed() - cpu}`);
-      // cpu: 0.0328405999999859
-      cpu = Game.cpu.getUsed();
-      roomw.find(FIND_MY_STRUCTURES, { filter: s => s.structureType !== "extension" });
-      console.log(`cpu: ${Game.cpu.getUsed() - cpu}`);
-      const ids = extensions.map(e => e.id);
-      cpu = Game.cpu.getUsed();
-      ids.forEach(id => Game.getObjectById(id));
-      console.log(`cpu: ${Game.cpu.getUsed() - cpu}`);
-      // cpu: 0.0074802000000318
-
       // draw colony poc
       const planVisual = roomw.planVisual;
       if (planVisual) {
