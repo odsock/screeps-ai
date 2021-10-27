@@ -5,6 +5,7 @@ import { CreepUtils } from "creep-utils";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { Upgrader } from "./upgrader";
 import { profile } from "../../screeps-typescript-profiler";
+import { CostMatrixUtils } from "utils/cost-matrix-utils";
 
 @profile
 export class Hauler extends CreepWrapper {
@@ -174,7 +175,7 @@ export class Hauler extends CreepWrapper {
       const path = PathFinder.search(this.pos, goals, {
         plainCost: 2,
         swampCost: 10,
-        roomCallback: CreepUtils.getCreepMovementCostMatrix
+        roomCallback: CostMatrixUtils.getCreepMovementCostMatrix
       });
       CreepUtils.consoleLogIfWatched(this, `path: ${String(path.path)}`);
       const moveResult = this.moveByPath(path.path);
@@ -316,7 +317,7 @@ export class Hauler extends CreepWrapper {
     const path = PathFinder.search(this.pos, goals, {
       plainCost: 2,
       swampCost: 10,
-      roomCallback: CreepUtils.getCreepMovementCostMatrix
+      roomCallback: CostMatrixUtils.getCreepMovementCostMatrix
     });
 
     // this.memory.path = path.path
