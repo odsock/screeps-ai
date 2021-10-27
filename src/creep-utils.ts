@@ -1,4 +1,3 @@
-import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { profile } from "../screeps-typescript-profiler";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 
@@ -42,18 +41,6 @@ export class CreepUtils {
     } else {
       return 0;
     }
-  }
-
-  public static getPath(origin: RoomPosition, goal: RoomPosition): PathFinderPath {
-    return PathFinder.search(
-      origin,
-      { pos: goal, range: 1 },
-      {
-        plainCost: 2,
-        swampCost: 10,
-        roomCallback: CostMatrixUtils.getRoadCostMatrix
-      }
-    );
   }
 
   /** counts creep body parts matching specified type */

@@ -1,8 +1,6 @@
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
 
-@profile
 export class CostMatrixUtils {
   private static getCostMatrixFromCache(name: string): CostMatrix | undefined {
     const cacheKey = `${this.name}_${name}`;
@@ -101,6 +99,12 @@ export class CostMatrixUtils {
    * Creep movement prefering roads>plains>swamps, avoiding unwalkable areas.
    */
   public static getCreepMovementCostMatrix = (roomName: string): CostMatrix | boolean => {
+    const cacheKey = "creepMovement";
+    const cachedCostMatrix = CostMatrixUtils.getCostMatrixFromCache(cacheKey);
+    if (cachedCostMatrix) {
+      return cachedCostMatrix;
+    }
+
     const cost = CostMatrixUtils.getRoadCostMatrix(roomName);
     if (typeof cost === "boolean") return cost;
 
@@ -109,10 +113,11 @@ export class CostMatrixUtils {
 
     // avoid creeps
     room.find(FIND_CREEPS).forEach(creep => cost.set(creep.pos.x, creep.pos.y, 0xff));
+    CostMatrixUtils.setCostMatrixInCache(cacheKey, cost);
     return cost;
   };
 
-  public static getRoadCostMatrix = (roomName: string): CostMatrix | boolean => {
+  private static getRoadCostMatrix = (roomName: string): CostMatrix | boolean => {
     const roomw = RoomWrapper.getInstance(roomName);
     if (!roomw) {
       return false;
