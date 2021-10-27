@@ -1,6 +1,8 @@
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
+import { profile } from "../../screeps-typescript-profiler";
 
+@profile
 export class CostMatrixUtils {
   private static getCostMatrixFromCache(name: string): CostMatrix | undefined {
     const cacheKey = `${this.name}_${name}`;
