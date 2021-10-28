@@ -131,6 +131,7 @@ declare global {
       printCpuUsage: () => void;
       clearCpuUsage: () => void;
       testGetRoomWrapper: (roomArg: string | Room) => void;
+      drawCostMatrix: (roomName: string) => void;
       Profiler: Profiler;
     }
   }

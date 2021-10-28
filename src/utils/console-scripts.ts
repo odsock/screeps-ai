@@ -1,6 +1,6 @@
 import { Watchable } from "creep-utils";
-import { MemoryUtils } from "planning/memory-utils";
-import { RoomWrapper } from "structures/room-wrapper";
+import { isBoolean } from "lodash";
+import { CostMatrixUtils } from "./cost-matrix-utils";
 
 global.watch = (key: string) => {
   const watchable: Watchable = getWatchable(key);
@@ -28,4 +28,17 @@ function getWatchable(key: string) {
     watchable = Game.getObjectById(key as Id<Creep | Structure>) as Watchable;
   }
   return watchable;
+}
+
+global.drawCostMatrix = (roomName: string): void => {
+  const room = Game.rooms[roomName];
+  const matrix = CostMatrixUtils.roadPlanningRoomCallback(roomName);
+  if (!isBoolean(matrix)) {
+    for (let i = 0; i < 50; i++) {
+      for (let j = 0; j < 50; j++) {
+        const cost = matrix.get(i, j);
+        room.visual.text(String(cost), i, j);
+      }
+    }
+  }
 }
