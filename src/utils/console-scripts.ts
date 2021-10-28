@@ -42,10 +42,10 @@ global.drawCostMatrix = (roomName: string): void => {
       }
     }
   }
+};
 
-  global.drawRoadPlan = (origin: RoomPosition, goal: RoomPosition, range: number): void => {
-    const room = Game.rooms[origin.roomName];
-    const path = new RoadPlan(room).planRoad(origin, goal, range);
-    room.visual.poly(path.path);
-  };
+global.drawRoadPlan = (origin: RoomPosition, goal: RoomPosition, range: number): void => {
+  const room = Game.rooms[origin.roomName];
+  const path = new RoadPlan(room).planRoad(origin, goal, range);
+  room.visual.poly(path.path);
 };
