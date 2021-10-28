@@ -27,6 +27,7 @@ export class RoadPlan {
     // get a path and place road for each pair of containers
     for (const sourceContainer of sourceContainers) {
       for (const controllerContainer of controllerContainers) {
+        console.log(`DEBUG: place road source container to controller container`);
         const path: PathFinderPath = this.planRoad(sourceContainer.pos, controllerContainer.pos, 1);
         if (!path.incomplete) {
           this.placeRoadOnPath(path);
@@ -42,6 +43,7 @@ export class RoadPlan {
     if (this.room.controller) {
       const spawns = this.room.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
+        console.log(`DEBUG: place road controller to spawn`);
         const path = this.planRoad(spawns[0].pos, this.room.controller.pos, 1);
         if (!path.incomplete) {
           result = this.placeRoadOnPath(path);
@@ -50,33 +52,6 @@ export class RoadPlan {
     }
     // CreepUtils.consoleLogIfWatched(this.room, `spawn road placement result`, result);
     return result;
-  }
-
-  private placeRoadControllerToPosition(pos: RoomPosition): ScreepsReturnCode {
-    const controller = this.room.controller;
-    if (controller) {
-      const roadPlanner = new RoadPlan(this.room);
-      const path = roadPlanner.planRoad(pos, controller.pos, 1);
-      if (!path.incomplete) {
-        return roadPlanner.placeRoadOnPath(path);
-      }
-      return ERR_NO_PATH;
-    }
-    return OK;
-  }
-
-  private placeRoadControllerToSources(): ScreepsReturnCode {
-    const controller = this.room.controller;
-    if (controller) {
-      const sources = this.room.find(FIND_SOURCES);
-      for (const source of sources) {
-        const path = this.planRoad(source.pos, controller.pos, 3);
-        if (!path.incomplete) {
-          this.placeRoadOnPath(path);
-        }
-      }
-    }
-    return OK;
   }
 
   private placeRoadOnPath(path: PathFinderPath): ScreepsReturnCode {
@@ -114,14 +89,6 @@ export class RoadPlan {
       // console.log(`road plan incomplete: ${String(origin)} -> ${String(goal)}`);
     }
     return path;
-  }
-
-  private roomHasRoadsInConstruction(): boolean {
-    return (
-      this.room.find(FIND_MY_CONSTRUCTION_SITES, {
-        filter: s => s.structureType === STRUCTURE_ROAD
-      }).length > 0
-    );
   }
 
   public placeRoadSpawnToExtensions(): ScreepsReturnCode {
