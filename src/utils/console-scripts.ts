@@ -1,5 +1,6 @@
 import { Watchable } from "creep-utils";
 import { isBoolean } from "lodash";
+import { RoadPlan } from "planning/road-plan";
 import { CostMatrixUtils } from "./cost-matrix-utils";
 
 global.watch = (key: string) => {
@@ -41,4 +42,10 @@ global.drawCostMatrix = (roomName: string): void => {
       }
     }
   }
-}
+
+  global.drawRoadPlan = (origin: RoomPosition, goal: RoomPosition, range: number): void => {
+    const room = Game.rooms[origin.roomName];
+    const path = new RoadPlan(room).planRoad(origin, goal, range);
+    room.visual.poly(path.path);
+  };
+};

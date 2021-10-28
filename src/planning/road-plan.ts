@@ -78,7 +78,7 @@ export class RoadPlan {
     );
   }
 
-  private planRoad(origin: RoomPosition, goal: RoomPosition, range = 0): PathFinderPath {
+  public planRoad(origin: RoomPosition, goal: RoomPosition, range = 0): PathFinderPath {
     const path = PathFinder.search(
       origin,
       { pos: goal, range },
