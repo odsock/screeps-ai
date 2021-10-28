@@ -1,0 +1,35 @@
+10635: new RCL 1
+10635: new spawn count 1
+11593: new RCL 2
+12571: new extension count 2
+12837: new extension count 3
+12891: new extension count 4
+13128: new extension count 5
+22031: new RCL 3
+22502: new extension count 6
+22652: new extension count 7
+22792: new extension count 8
+22944: new extension count 9
+23103: new extension count 10
+34945: new RCL 4
+35310: new extension count 11
+35483: new extension count 12
+35700: new extension count 13
+35861: new extension count 14
+36000: new extension count 15
+36255: new extension count 16
+36506: new extension count 17
+37807: new extension count 18
+37937: new extension count 19
+38053: new extension count 20
+92465: new RCL 5
+92770: new extension count 21
+92836: new extension count 22
+92924: new extension count 23
+92971: new extension count 24
+93002: new extension count 25
+93055: new extension count 26
+93089: new extension count 27
+93131: new extension count 28
+93177: new extension count 29
+93225: new extension count 30
