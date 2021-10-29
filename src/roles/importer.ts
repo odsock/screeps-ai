@@ -14,10 +14,6 @@ export class Importer extends RemoteWorker {
   };
 
   public run(): void {
-    const dismantleResult = this.dismantleHostileStructures();
-    if (dismantleResult !== ERR_NOT_FOUND) {
-      return;
-    }
     const fleeResult = this.fleeIfHostiles();
     if (fleeResult !== ERR_NOT_FOUND) {
       return;
@@ -55,19 +51,6 @@ export class Importer extends RemoteWorker {
       CreepUtils.consoleLogIfWatched(this, `job result`, harvestResult);
       return;
     }
-  }
-
-  private dismantleHostileStructures(): ScreepsReturnCode {
-    const hostileStructures = this.roomw.hostileStructures;
-    if (this.roomw.hostileCreeps.length === 0 && hostileStructures.length > 0) {
-      const closestStructure = this.pos.findClosestByPath(hostileStructures);
-      if (closestStructure) {
-        const result = this.moveToAndDismantle(closestStructure);
-        CreepUtils.consoleLogIfWatched(this, `dismantle result`, result);
-        return result;
-      }
-    }
-    return ERR_NOT_FOUND;
   }
 
   private doHarvestJob(): ScreepsReturnCode {
