@@ -29,6 +29,12 @@ export class Hauler extends CreepWrapper {
      * cleanup drops, tombs, ruins
      */
 
+    // supply spawn/extensions if any capacity in room
+    if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
+      this.supplySpawnJob();
+      return;
+    }
+
     if (this.memory.task) {
       switch (this.memory.task.type) {
         case TaskType.HAUL:

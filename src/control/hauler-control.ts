@@ -7,8 +7,9 @@ import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 
 export enum TaskType {
-  HAUL = "haul",
-  SUPPLY = "SUPPLY"
+  HAUL = "HAUL",
+  SUPPLY = "SUPPLY",
+  SUPPLY_SPAWN = "SUPPLY_SPAWN"
 }
 
 export interface Task {
@@ -28,10 +29,9 @@ export class HaulerControl {
         .map(c => new Hauler(c));
 
       const haulTasks = this.createHaulTasks(roomw);
-      const supplySpawnTasks = this.createSupplySpawnTasks(roomw);
       const supplyTowerTasks = this.createTowerSupplyTasks(roomw);
       const supplyControllerTasks = this.createControllerSupplyTasks(roomw);
-      this.assignTasks(haulers, [...haulTasks, ...supplySpawnTasks, ...supplyTowerTasks, ...supplyControllerTasks]);
+      this.assignTasks(haulers, [...haulTasks, ...supplyTowerTasks, ...supplyControllerTasks]);
 
       if (roomw.controller?.my && roomw.spawns.length > 0) {
         this.requestSpawns(roomw);
@@ -40,22 +40,24 @@ export class HaulerControl {
   }
 
   /** supply spawn/extensions if any capacity in room */
-  private createSupplySpawnTasks(roomw: RoomWrapper): Task[] {
-    if (roomw.energyAvailable === roomw.energyCapacityAvailable) {
-      return [];
-    }
-    const spawns: (StructureExtension | StructureSpawn)[] = roomw.spawns.filter(
-      spawn => spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-    );
-    // TODO cache extension list
-    const extensions: (StructureExtension | StructureSpawn)[] = roomw.find<StructureExtension>(FIND_MY_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_EXTENSION && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-    });
-    const spawnStorage = spawns.concat(extensions);
-    return spawnStorage.map(s => {
-      return { type: TaskType.SUPPLY, target: s.id, pos: s.pos, priority: 250 };
-    });
-  }
+  // TODO find a way to task with list of targets, two two creeps
+  // private createSupplySpawnTasks(roomw: RoomWrapper): Task[] {
+  //   if (roomw.energyAvailable === roomw.energyCapacityAvailable) {
+  //     return [];
+  //   }
+  //   const spawns: (StructureExtension | StructureSpawn)[] = roomw.spawns.filter(
+  //     spawn => spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+  //   );
+  //   // TODO cache extension list
+  //   const extensions: (StructureExtension | StructureSpawn)[] = roomw.find<StructureExtension>(FIND_MY_STRUCTURES, {
+  //     filter: s => s.structureType === STRUCTURE_EXTENSION && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+  //   });
+  //   const spawnStorage = spawns.concat(extensions);
+
+  //   const ids = spawnStorage.map(s => s.id);
+  //   const positions = spawnStorage.map(s => s.pos);
+  //   return { type: TaskType.SUPPLY_SPAWN, priority: 250 };
+  // }
 
   /** supply towers */
   private createTowerSupplyTasks(roomw: RoomWrapper): Task[] {
