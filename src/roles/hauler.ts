@@ -268,7 +268,12 @@ export class Hauler extends CreepWrapper {
       }
     } else {
       // TODO when no energy found, try to work when partly full
-      return this.loadEnergy();
+      const result = this.loadEnergy();
+      // if can't get energy, cancel task
+      if (result === ERR_NOT_FOUND) {
+        this.completeTask();
+      }
+      return result;
     }
   }
 
