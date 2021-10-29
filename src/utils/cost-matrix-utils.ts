@@ -141,7 +141,7 @@ export class CostMatrixUtils {
     }
 
     const constructionSites = roomw.find(FIND_CONSTRUCTION_SITES);
-    for (const structure of [...structures, ...constructionSites]) {
+    for (const structure of constructionSites) {
       if (
         structure.structureType !== STRUCTURE_CONTAINER &&
         structure.structureType !== STRUCTURE_ROAD &&
