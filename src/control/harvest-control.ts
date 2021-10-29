@@ -1,6 +1,7 @@
 import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Harvester } from "roles/harvester";
+import { Hauler } from "roles/hauler";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
@@ -17,6 +18,14 @@ export class HarvestControl {
     }
   }
 
+  // TODO add dropped and tomb to this?
+  private energyInRoom(roomw: RoomWrapper) {
+    const storageEnergy = roomw.storage?.store.energy ?? 0;
+    const sourceContainerEnergy = roomw.sourceContainers.reduce<number>((sum, c) => (sum += c.store.energy), 0);
+    const controllerContainerEnergy = roomw.controllerContainers.reduce<number>((sum, c) => (sum += c.store.energy), 0);
+    return storageEnergy + sourceContainerEnergy + controllerContainerEnergy;
+  }
+
   /**
    * manage harvester population
    * should have enough to drain sources at regen time, and fit in harvest positions
@@ -24,6 +33,23 @@ export class HarvestControl {
   private requestSpawns(roomw: RoomWrapper) {
     const spawnQueue = SpawnQueue.getInstance(roomw);
     const harvesters = roomw.find(FIND_MY_CREEPS, { filter: c => c.memory.role === Harvester.ROLE });
+
+    // emergency harvester
+    if (
+      harvesters.length === 0 &&
+      roomw.find(FIND_MY_CREEPS, { filter: c => c.memory.role === Hauler.ROLE }).length > 0 &&
+      this.energyInRoom(roomw) === 0
+    ) {
+      CreepUtils.consoleLogIfWatched(roomw, `spawning emergency ${Harvester.ROLE}`);
+      spawnQueue.push({
+        bodyProfile: Harvester.BODY_PROFILE,
+        memory: {
+          role: Harvester.ROLE,
+          source: roomw.sources[0].id
+        },
+        priority: 200
+      });
+    }
 
     for (const sourceId in roomw.memory.sources) {
       const source = Game.getObjectById(sourceId as Id<Source>);
@@ -59,7 +85,7 @@ export class HarvestControl {
         });
       }
 
-      // replace harvester older than spawn time if at or below needed level
+      // replace harvester older than ticks to spawn replacement if at or below needed level
       if (creepCount <= positionsForSource && partCount <= partsNeeded) {
         const ticksToSpawn = SpawnUtils.calcSpawnTime(Harvester.BODY_PROFILE, roomw);
         const oldestCreep = this.findOldestCreep(activeHarvestersOnSource.filter(creep => !creep.memory.retiring));

@@ -99,21 +99,24 @@ export class CostMatrixUtils {
    * Creep movement prefering roads>plains>swamps, avoiding unwalkable areas.
    */
   public static getCreepMovementCostMatrix = (roomName: string): CostMatrix | boolean => {
-    const cacheKey = "creepMovement";
-    const cachedCostMatrix = CostMatrixUtils.getCostMatrixFromCache(cacheKey);
-    if (cachedCostMatrix) {
-      return cachedCostMatrix;
-    }
+    // BUG don't cache creep locations in cost matrix
+    // const cacheKey = "creepMovement";
+    // const cachedCostMatrix = CostMatrixUtils.getCostMatrixFromCache(cacheKey);
+    // if (cachedCostMatrix) {
+    //   return cachedCostMatrix;
+    // }
 
     const cost = CostMatrixUtils.getRoadCostMatrix(roomName);
     if (typeof cost === "boolean") return cost;
 
     const room = Game.rooms[roomName];
-    if (!room) return false;
+    if (!room) {
+      return false;
+    }
 
     // avoid creeps
     room.find(FIND_CREEPS).forEach(creep => cost.set(creep.pos.x, creep.pos.y, 0xff));
-    CostMatrixUtils.setCostMatrixInCache(cacheKey, cost);
+    // CostMatrixUtils.setCostMatrixInCache(cacheKey, cost);
     return cost;
   };
 
@@ -138,7 +141,7 @@ export class CostMatrixUtils {
     }
 
     const constructionSites = roomw.find(FIND_CONSTRUCTION_SITES);
-    for (const structure of [...structures, ...constructionSites]) {
+    for (const structure of constructionSites) {
       if (
         structure.structureType !== STRUCTURE_CONTAINER &&
         structure.structureType !== STRUCTURE_ROAD &&
