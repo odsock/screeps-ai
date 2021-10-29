@@ -45,6 +45,7 @@ export class BuildControl {
       if (workPartsNeeded > 0) {
         spawnQueue.push({
           bodyProfile: Builder.BODY_PROFILE,
+          max: true,
           memory: { role: Builder.ROLE },
           priority: 30
         });
