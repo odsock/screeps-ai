@@ -1,3 +1,4 @@
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Hauler } from "roles/hauler";
@@ -6,7 +7,8 @@ import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 
 export enum TaskType {
-  HAUL = "haul"
+  HAUL = "haul",
+  SUPPLY = "SUPPLY"
 }
 
 export interface Task {
@@ -26,7 +28,10 @@ export class HaulerControl {
         .map(c => new Hauler(c));
 
       const haulTasks = this.createHaulTasks(roomw);
-      this.assignTasks(haulers, haulTasks);
+      const supplySpawnTasks = this.createSupplySpawnTasks(roomw);
+      const supplyTowerTasks = this.createTowerSupplyTasks(roomw);
+      const supplyControllerTasks = this.createControllerSupplyTasks(roomw);
+      this.assignTasks(haulers, [...haulTasks, ...supplySpawnTasks, ...supplyTowerTasks, ...supplyControllerTasks]);
 
       if (roomw.controller?.my && roomw.spawns.length > 0) {
         this.requestSpawns(roomw);
@@ -34,10 +39,51 @@ export class HaulerControl {
     }
   }
 
-  private assignTasks(haulers: Hauler[], haulTasks: Task[]): void {
+  /** supply spawn/extensions if any capacity in room */
+  private createSupplySpawnTasks(roomw: RoomWrapper): Task[] {
+    if (roomw.energyAvailable === roomw.energyCapacityAvailable) {
+      return [];
+    }
+    const spawns: (StructureExtension | StructureSpawn)[] = roomw.spawns.filter(
+      spawn => spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+    );
+    // TODO cache extension list
+    const extensions: (StructureExtension | StructureSpawn)[] = roomw.find<StructureExtension>(FIND_MY_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_EXTENSION && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+    });
+    const spawnStorage = spawns.concat(extensions);
+    return spawnStorage.map(s => {
+      return { type: TaskType.SUPPLY, target: s.id, pos: s.pos, priority: 250 };
+    });
+  }
+
+  /** supply towers */
+  private createTowerSupplyTasks(roomw: RoomWrapper): Task[] {
+    return roomw.towers
+      .filter(
+        tower =>
+          tower.store.getFreeCapacity(RESOURCE_ENERGY) > 0 &&
+          CreepUtils.getEnergyStoreRatioFree(tower) > SockPuppetConstants.TOWER_RESUPPLY_THRESHOLD
+      )
+      .map(t => {
+        return { type: TaskType.SUPPLY, target: t.id, pos: t.pos, priority: 200 };
+      });
+  }
+
+  /** supply controller container */
+  private createControllerSupplyTasks(roomw: RoomWrapper): Task[] {
+    return roomw.controllerContainers
+      .filter(container => container.store.getFreeCapacity() > 0)
+      .map(c => {
+        return { type: TaskType.SUPPLY, target: c.id, pos: c.pos, priority: 150 };
+      });
+  }
+
+  private assignTasks(haulers: Hauler[], tasks: Task[]): void {
+    const tasksByPriority = tasks.sort((a, b) => a.priority - b.priority);
     const freeHaulers = haulers.filter(h => !h.memory.task);
 
-    haulTasks.forEach(task => {
+    tasksByPriority.forEach(task => {
       const closestHauler = task.pos.findClosestByPath(freeHaulers);
       if (closestHauler) {
         closestHauler.memory.task = task;
