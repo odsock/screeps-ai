@@ -217,6 +217,10 @@ export class Hauler extends CreepWrapper {
   }
 
   private supplyStructureJob(): ScreepsReturnCode {
+    // pickup convenient energy
+    this.pickupAdjacentDroppedEnergy();
+    this.withdrawAdjacentRuinOrTombEnergy();
+
     if (this.memory.task?.type !== TaskType.SUPPLY) {
       return ERR_INVALID_ARGS;
     }
@@ -275,6 +279,8 @@ export class Hauler extends CreepWrapper {
 
   // When supplying spawn, use priority to prefer storage
   private supplySpawnJob(): ScreepsReturnCode {
+    this.pickupAdjacentDroppedEnergy();
+    this.withdrawAdjacentRuinOrTombEnergy();
     CreepUtils.consoleLogIfWatched(this, `supply for spawning`);
     this.updateJob(`spawn`);
     this.stopWorkingIfEmpty();
