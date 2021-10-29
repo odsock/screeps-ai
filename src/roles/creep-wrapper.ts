@@ -128,6 +128,7 @@ export abstract class CreepWrapper extends Creep {
     return this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   }
 
+  /** find closest container with at least a minimum amount of energy */
   protected findClosestContainerWithEnergy(min = 0): StructureContainer | null {
     const container = this.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: s => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0 && s.store.energy > min
@@ -292,6 +293,11 @@ export abstract class CreepWrapper extends Creep {
     }
 
     result = this.moveToAndGet(this.findClosestContainerWithEnergy(this.store.getFreeCapacity()));
+    if (result === OK) {
+      return result;
+    }
+
+    result = this.moveToAndGet(this.findClosestContainerWithEnergy());
     if (result === OK) {
       return result;
     }
