@@ -90,7 +90,7 @@ export class HaulerControl {
       }
     });
     const newTasks = tasks.filter(t => !busyHaulers.some(h => _.isEqual(h.memory.task, t)));
-    const tasksByPriority = newTasks.sort((a, b) => a.priority - b.priority);
+    const tasksByPriority = newTasks.sort((a, b) => b.priority - a.priority);
 
     tasksByPriority.forEach(task => {
       const closestHauler = task.pos.findClosestByPath(freeHaulers);
