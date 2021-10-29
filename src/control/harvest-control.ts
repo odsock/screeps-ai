@@ -40,7 +40,7 @@ export class HarvestControl {
       roomw.find(FIND_MY_CREEPS, { filter: c => c.memory.role === Hauler.ROLE }).length > 0 &&
       this.energyInRoom(roomw) === 0
     ) {
-      CreepUtils.consoleLogIfWatched(roomw, `spawning ${Harvester.ROLE}`);
+      CreepUtils.consoleLogIfWatched(roomw, `spawning emergency ${Harvester.ROLE}`);
       spawnQueue.push({
         bodyProfile: Harvester.BODY_PROFILE,
         memory: {
