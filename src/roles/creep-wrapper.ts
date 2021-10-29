@@ -61,6 +61,16 @@ export abstract class CreepWrapper extends Creep {
     }
   }
 
+  protected startWorkingIfNotEmpty(): void {
+    if (!this.memory.working && this.store.getUsedCapacity() > 0) {
+      CreepUtils.consoleLogIfWatched(this, "start working, have energy");
+      if (!this.memory.working) {
+        this.memory.working = true;
+        this.say("🚧");
+      }
+    }
+  }
+
   protected startWorkingIfFull(): void {
     if (!this.memory.working && this.store.getFreeCapacity() === 0) {
       CreepUtils.consoleLogIfWatched(this, "start working, full");

@@ -284,6 +284,7 @@ export class Hauler extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `supply for spawning`);
     this.updateJob(`spawn`);
     this.stopWorkingIfEmpty();
+    this.startWorkingIfNotEmpty();
     this.startWorkingIfFull();
 
     if (this.memory.working) {
