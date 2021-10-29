@@ -80,8 +80,17 @@ export class HaulerControl {
   }
 
   private assignTasks(haulers: Hauler[], tasks: Task[]): void {
-    const tasksByPriority = tasks.sort((a, b) => a.priority - b.priority);
-    const freeHaulers = haulers.filter(h => !h.memory.task);
+    const busyHaulers: Hauler[] = [];
+    const freeHaulers: Hauler[] = [];
+    haulers.forEach(h => {
+      if (h.memory.task) {
+        busyHaulers.push(h);
+      } else {
+        freeHaulers.push(h);
+      }
+    });
+    const newTasks = tasks.filter(t => !busyHaulers.some(h => _.isEqual(h.memory.task, t)));
+    const tasksByPriority = newTasks.sort((a, b) => a.priority - b.priority);
 
     tasksByPriority.forEach(task => {
       const closestHauler = task.pos.findClosestByPath(freeHaulers);

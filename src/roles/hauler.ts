@@ -263,6 +263,7 @@ export class Hauler extends CreepWrapper {
   }
 
   private completeTask(): void {
+    CreepUtils.consoleLogIfWatched(this, `task complete: ${String(this.memory.task?.type)}`);
     delete this.memory.task;
   }
 
@@ -302,26 +303,6 @@ export class Hauler extends CreepWrapper {
       const harvestResult = this.harvestByPriority();
       return harvestResult;
     }
-  }
-
-  private checkForHaulRequest(): Creep | undefined {
-    if (this.memory.hauleeName) {
-      CreepUtils.consoleLogIfWatched(this, `validate haul request `);
-      const haulee = Game.creeps[this.memory.hauleeName];
-      if (haulee && haulee.memory.haulRequested) {
-        return haulee;
-      } else {
-        CreepUtils.consoleLogIfWatched(this, `haul request invalid`);
-        this.memory.hauleeName = undefined;
-        if (haulee) {
-          haulee.memory.haulRequested = false;
-          haulee.memory.haulerName = undefined;
-        }
-        return undefined;
-      }
-    }
-    CreepUtils.consoleLogIfWatched(this, `no haul request found`);
-    return undefined;
   }
 
   private getSpawnSupplyPath(spawnStorage: (StructureExtension | StructureSpawn)[]): RoomPosition[] {
@@ -498,56 +479,5 @@ export class Hauler extends CreepWrapper {
         }
       });
     return occupiedIdleZones;
-  }
-
-  /** find a source container without a hauler id set */
-  private claimSourceContainer(): Id<StructureContainer> | undefined {
-    for (const sourceId in this.roomw.memory.sources) {
-      const sourceInfo = this.roomw.memory.sources[sourceId];
-      const containerId = sourceInfo.containerId;
-      if (containerId && (!sourceInfo.haulerId || sourceInfo.haulerId === this.id)) {
-        sourceInfo.haulerId = this.id;
-        this.memory.containerId = containerId;
-        return containerId;
-      }
-    }
-    return undefined;
-  }
-
-  /** get container from my memory or claim one*/
-  private getHome(): StructureContainer | StructureStorage | Source | undefined {
-    if (this.memory.containerId) {
-      const container = Game.getObjectById(this.memory.containerId);
-      if (container) {
-        return container;
-      }
-      this.memory.containerId = undefined;
-      CreepUtils.consoleLogIfWatched(this, `container id invalid`);
-    }
-
-    if (this.memory.source) {
-      const sourceInfo = this.roomw.memory.sources[this.memory.source];
-      if (!sourceInfo) {
-        this.memory.source = undefined;
-        CreepUtils.consoleLogIfWatched(this, `source id invalid`);
-        return undefined;
-      }
-
-      const containerId = sourceInfo.containerId;
-      if (containerId && (!sourceInfo.minderId || sourceInfo.minderId === this.id)) {
-        CreepUtils.consoleLogIfWatched(this, `claimed source container: ${containerId}`);
-        const container = Game.getObjectById(containerId);
-        if (container) {
-          sourceInfo.minderId = this.id;
-          this.memory.containerId = containerId;
-          return container;
-        }
-        this.memory.containerId = undefined;
-        CreepUtils.consoleLogIfWatched(this, `container id invalid`);
-      }
-    }
-
-    CreepUtils.consoleLogIfWatched(this, `no free source containers`);
-    return undefined;
   }
 }
