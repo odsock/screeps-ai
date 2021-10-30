@@ -43,7 +43,7 @@ export class SpawnQueue {
       }
     }
     if (request) {
-      this.queue.splice(requestIndex);
+      this.queue.splice(requestIndex, 1);
     }
 
     return request;
