@@ -43,12 +43,14 @@ export class HaulerControl {
         .find(FIND_MY_CREEPS, { filter: c => c.memory.role === Hauler.ROLE })
         .map(c => new Hauler(c));
 
-      this.assignTasks(haulers, [
-        ...this.createHaulTasks(roomw),
-        ...this.createTowerSupplyTasks(roomw),
-        ...this.createControllerSupplyTasks(roomw),
-        ...this.createSupplySpawnTasks(roomw)
-      ]);
+      if (haulers.length > 0) {
+        this.assignTasks(haulers, [
+          ...this.createHaulTasks(roomw),
+          ...this.createTowerSupplyTasks(roomw),
+          ...this.createControllerSupplyTasks(roomw),
+          ...this.createSupplySpawnTasks(roomw)
+        ]);
+      }
 
       if (roomw.controller?.my && roomw.spawns.length > 0) {
         this.requestSpawns(roomw);
