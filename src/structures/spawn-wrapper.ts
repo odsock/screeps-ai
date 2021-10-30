@@ -11,6 +11,7 @@ export interface SpawnRequest {
   max?: boolean;
   memory: CreepMemory;
   sort?: boolean;
+  directions?: DirectionConstant[];
 }
 
 interface BodyPartPriorityLookupType {
@@ -47,9 +48,10 @@ export class SpawnWrapper extends StructureSpawn {
       body = this.sortBody(body);
     }
     const name = `${memory.role}_${Game.time.toString(36)}`;
+    const directions = request.directions ?? [LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, TOP];
 
     const extensions = this.getOrderedExtensionList();
-    const result = this.spawnCreep(body, name, { memory, energyStructures: extensions });
+    const result = this.spawnCreep(body, name, { memory, energyStructures: extensions, directions });
     CreepUtils.consoleLogIfWatched(this, `spawning: ${memory.role} ${CreepUtils.creepBodyToString(body)}`, result);
     if (result === ERR_INVALID_ARGS) {
       console.log(`Invalid spawn: ${memory.role} ${CreepUtils.creepBodyToString(body)}`);
