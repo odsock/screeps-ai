@@ -28,6 +28,7 @@ declare global {
     defense?: RoomDefense;
     sources: RoomSources;
     spawns?: Id<StructureSpawn>[];
+    extensions?: Id<StructureExtension>[];
     log: string[];
     logCounts?: LogCounts;
     construction: { [id: string]: ConstructionLog };

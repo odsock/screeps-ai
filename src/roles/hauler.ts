@@ -1,5 +1,5 @@
 import { CreepRole } from "config/creep-types";
-import { TaskType } from "control/hauler-control";
+import { HaulTask, SupplyTask, TaskType } from "control/hauler-control";
 import { CreepUtils } from "creep-utils";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { profile } from "../../screeps-typescript-profiler";
@@ -29,23 +29,21 @@ export class Hauler extends CreepWrapper {
      * cleanup drops, tombs, ruins
      */
 
-    // supply spawn/extensions if any capacity in room
-    if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
-      this.supplySpawnJob();
-      return;
-    }
-
     if (this.memory.task) {
-      switch (this.memory.task.type) {
+      const task = this.memory.task;
+      switch (task.type) {
         case TaskType.HAUL:
-          CreepUtils.consoleLogIfWatched(this, `haul result`, this.workHaulTask());
+          CreepUtils.consoleLogIfWatched(this, `haul result`, this.workHaulTask(task));
           return;
         case TaskType.SUPPLY:
-          CreepUtils.consoleLogIfWatched(this, `supply result`, this.supplyStructureJob());
+          CreepUtils.consoleLogIfWatched(this, `supply result`, this.supplyStructureJob(task));
+          return;
+        case TaskType.SUPPLY_SPAWN:
+          CreepUtils.consoleLogIfWatched(this, `supply spawn result`, this.workSupplySpawnTask());
           return;
 
         default:
-          break;
+          assertNever(task);
       }
     }
 
@@ -94,6 +92,10 @@ export class Hauler extends CreepWrapper {
     }
 
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
+
+    function assertNever(x: never): never {
+      throw new Error("Missing task handler: " + String(x));
+    }
   }
 
   private unloadSourceContainerJob(target: StructureContainer): ScreepsReturnCode {
@@ -176,24 +178,20 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private workHaulTask(): ScreepsReturnCode {
-    if (this.memory.task?.type !== TaskType.HAUL) {
-      return ERR_INVALID_ARGS;
-    }
-
-    CreepUtils.consoleLogIfWatched(this, `haul ${String(this.memory.task.target)}`);
+  private workHaulTask(haulTask: HaulTask): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `haul ${String(haulTask.creepName)}`);
     this.updateJob(`tug`);
 
     // TODO validation here may cause idle tick when haul ends
     CreepUtils.consoleLogIfWatched(this, `validate haul request `);
-    const creepToHaul = Game.creeps[this.memory.task.target];
+    const creepToHaul = Game.creeps[haulTask.creepName];
     if (!creepToHaul || !creepToHaul.memory.haulRequested) {
       CreepUtils.consoleLogIfWatched(this, `haul request invalid`);
       if (creepToHaul) {
         creepToHaul.memory.haulRequested = false;
         creepToHaul.memory.haulerName = undefined;
       }
-      delete this.memory.task;
+      this.completeTask();
       return ERR_INVALID_TARGET;
     } else {
       creepToHaul.memory.haulerName = this.name;
@@ -216,16 +214,12 @@ export class Hauler extends CreepWrapper {
     return OK;
   }
 
-  private supplyStructureJob(): ScreepsReturnCode {
+  private supplyStructureJob(supplyTask: SupplyTask): ScreepsReturnCode {
     // pickup convenient energy
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
-    if (this.memory.task?.type !== TaskType.SUPPLY) {
-      return ERR_INVALID_ARGS;
-    }
-
-    const target = Game.getObjectById(this.memory.task?.target as Id<StructureWithStorage>);
+    const target = Game.getObjectById(supplyTask.target as Id<StructureWithStorage>);
     if (!target) {
       return ERR_INVALID_TARGET;
     }
@@ -283,32 +277,39 @@ export class Hauler extends CreepWrapper {
   }
 
   // When supplying spawn, use priority to prefer storage
-  private supplySpawnJob(): ScreepsReturnCode {
-    this.pickupAdjacentDroppedEnergy();
-    this.withdrawAdjacentRuinOrTombEnergy();
+  private workSupplySpawnTask(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `supply for spawning`);
     this.updateJob(`spawn`);
     this.stopWorkingIfEmpty();
     this.startWorkingIfNotEmpty();
-    this.startWorkingIfFull();
+
+    this.pickupAdjacentDroppedEnergy();
+    this.withdrawAdjacentRuinOrTombEnergy();
 
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");
-      const spawnStorage = this.findSpawnStorageNotFull();
+      const spawnStorage = this.roomw.spawnStorage.filter(s => s.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
+      if (spawnStorage.length === 0) {
+        this.completeTask();
+        return ERR_FULL;
+      }
+      // update task with current state
+
       const targetIndex = spawnStorage.findIndex(s => s.pos.isNearTo(this.pos));
       if (targetIndex !== -1) {
         const target = spawnStorage[targetIndex];
-        // remove target from list
-        spawnStorage.splice(targetIndex, 1);
         const transferResult = this.transfer(target, RESOURCE_ENERGY);
         CreepUtils.consoleLogIfWatched(this, `supply ${target.structureType} result`, transferResult);
         // stores do NOT reflect transfer above until next tick
         const targetFreeCap = target.store.getFreeCapacity(RESOURCE_ENERGY);
         const creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
-        if (transferResult === OK && targetFreeCap >= creepStoredEnergy) {
-          CreepUtils.consoleLogIfWatched(this, `empty`);
-          const harvestResult = this.harvestByPriority();
-          return harvestResult;
+        if (transferResult === OK) {
+          // go find more energy if empty
+          if (targetFreeCap >= creepStoredEnergy) {
+            CreepUtils.consoleLogIfWatched(this, `empty`);
+            const harvestResult = this.harvestByPriority();
+            return harvestResult;
+          }
         }
       }
       // get path through remaining extensions

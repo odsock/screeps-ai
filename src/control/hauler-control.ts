@@ -12,9 +12,24 @@ export enum TaskType {
   SUPPLY_SPAWN = "SUPPLY_SPAWN"
 }
 
-export interface Task {
-  type: TaskType;
+export type Task = SupplyTask | HaulTask | SupplySpawnTask;
+
+export interface SupplyTask {
+  type: TaskType.SUPPLY;
+  priority: number;
+  pos: RoomPosition;
   target: string;
+}
+
+export interface HaulTask {
+  type: TaskType.HAUL;
+  priority: number;
+  pos: RoomPosition;
+  creepName: string;
+}
+
+export interface SupplySpawnTask {
+  type: TaskType.SUPPLY_SPAWN;
   priority: number;
   pos: RoomPosition;
 }
@@ -28,10 +43,12 @@ export class HaulerControl {
         .find(FIND_MY_CREEPS, { filter: c => c.memory.role === Hauler.ROLE })
         .map(c => new Hauler(c));
 
-      const haulTasks = this.createHaulTasks(roomw);
-      const supplyTowerTasks = this.createTowerSupplyTasks(roomw);
-      const supplyControllerTasks = this.createControllerSupplyTasks(roomw);
-      this.assignTasks(haulers, [...haulTasks, ...supplyTowerTasks, ...supplyControllerTasks]);
+      this.assignTasks(haulers, [
+        ...this.createHaulTasks(roomw),
+        ...this.createTowerSupplyTasks(roomw),
+        ...this.createControllerSupplyTasks(roomw),
+        ...this.createSupplySpawnTasks(roomw)
+      ]);
 
       if (roomw.controller?.my && roomw.spawns.length > 0) {
         this.requestSpawns(roomw);
@@ -40,24 +57,13 @@ export class HaulerControl {
   }
 
   /** supply spawn/extensions if any capacity in room */
-  // TODO find a way to task with list of targets, two two creeps
-  // private createSupplySpawnTasks(roomw: RoomWrapper): Task[] {
-  //   if (roomw.energyAvailable === roomw.energyCapacityAvailable) {
-  //     return [];
-  //   }
-  //   const spawns: (StructureExtension | StructureSpawn)[] = roomw.spawns.filter(
-  //     spawn => spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-  //   );
-  //   // TODO cache extension list
-  //   const extensions: (StructureExtension | StructureSpawn)[] = roomw.find<StructureExtension>(FIND_MY_STRUCTURES, {
-  //     filter: s => s.structureType === STRUCTURE_EXTENSION && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-  //   });
-  //   const spawnStorage = spawns.concat(extensions);
-
-  //   const ids = spawnStorage.map(s => s.id);
-  //   const positions = spawnStorage.map(s => s.pos);
-  //   return { type: TaskType.SUPPLY_SPAWN, priority: 250 };
-  // }
+  private createSupplySpawnTasks(roomw: RoomWrapper): SupplySpawnTask[] {
+    const tasks: SupplySpawnTask[] = [];
+    if (roomw.energyAvailable === roomw.energyCapacityAvailable) {
+      tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 250, pos: roomw.spawns[0].pos });
+    }
+    return tasks;
+  }
 
   /** supply towers */
   private createTowerSupplyTasks(roomw: RoomWrapper): Task[] {
@@ -98,18 +104,21 @@ export class HaulerControl {
       const closestHauler = task.pos.findClosestByPath(freeHaulers);
       if (closestHauler) {
         closestHauler.memory.task = task;
-        freeHaulers.splice(freeHaulers.findIndex(h => h.id === closestHauler.id));
+        freeHaulers.splice(
+          freeHaulers.findIndex(h => h.id === closestHauler.id),
+          1
+        );
       }
     });
   }
 
-  private createHaulTasks(roomw: RoomWrapper): Task[] {
+  private createHaulTasks(roomw: RoomWrapper): HaulTask[] {
     return roomw
       .find(FIND_MY_CREEPS, {
         filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
       })
       .map(c => {
-        return { type: TaskType.HAUL, target: c.name, pos: c.pos, priority: 100 };
+        return { type: TaskType.HAUL, creepName: c.name, pos: c.pos, priority: 100 };
       });
   }
 

@@ -82,8 +82,18 @@ export class RoomWrapper extends Room {
     return this.room.find(FIND_DEPOSITS);
   }
 
+  // TODO cache this as IDs and invalidate it on new construction somehow
   public get spawns(): SpawnWrapper[] {
     return this.room.find(FIND_MY_SPAWNS).map(spawn => new SpawnWrapper(spawn));
+  }
+
+  // TODO cache this as IDs and invalidate it on new construction somehow
+  public get extensions(): StructureExtension[] {
+    return this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_EXTENSION });
+  }
+
+  public get spawnStorage(): (StructureExtension | StructureSpawn)[] {
+    return [...this.spawns, ...this.extensions];
   }
 
   /**
