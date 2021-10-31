@@ -98,7 +98,7 @@ export class HaulerControl {
     unassignedTasks.forEach(task => {
       if (task.override) {
         const haulersWithLowerPriorityTask = busyHaulersSorted.filter(
-          h => h.memory.task?.priority ?? 0 < task.priority
+          h => (h.memory.task?.priority ?? 0) < task.priority
         );
         console.log(
           `DEBUG: ${JSON.stringify(task)}, ${JSON.stringify(haulersWithLowerPriorityTask.map(h => h.memory.task))}`
