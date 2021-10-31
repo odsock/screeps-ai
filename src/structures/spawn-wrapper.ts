@@ -4,6 +4,7 @@ import { MemoryUtils } from "planning/memory-utils";
 import { CreepBodyProfile } from "roles/creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { RoomWrapper } from "./room-wrapper";
+import * as namelist from "../utils/names-lotr.json";
 
 export interface SpawnRequest {
   priority: number;
@@ -47,7 +48,7 @@ export class SpawnWrapper extends StructureSpawn {
     if (request.sort) {
       body = this.sortBody(body);
     }
-    const name = `${memory.role}_${Game.time.toString(36)}`;
+    const name = this.getName(memory);
     const directions = request.directions ?? [LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, TOP];
 
     const extensions = this.getOrderedExtensionList();
@@ -62,6 +63,12 @@ export class SpawnWrapper extends StructureSpawn {
       }
     }
     return result;
+  }
+
+  private getName(memory: CreepMemory) {
+    const nameArray = namelist as string[];
+    const index = Math.random() * nameArray.length;
+    return `${memory.role}_${nameArray[index]}`;
   }
 
   private sortBody(body: BodyPartConstant[]): BodyPartConstant[] {
