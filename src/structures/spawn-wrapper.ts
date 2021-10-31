@@ -66,12 +66,10 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getName(memory: CreepMemory) {
-    console.log(`DEBUG: ${names.length}, ${names[0]}`);
     let name: string;
     do {
       const index = Math.floor(Math.random() * names.length);
       name = names[index];
-      console.log(`DEBUG: ${index}, ${names[index]}`);
       return `${memory.role}_${name}`;
     } while (_.some(Game.creeps, c => c.name === name));
   }
