@@ -133,7 +133,7 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private workSupplyCreepTask() {
+  private workSupplyCreepTask(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `supply creeps`);
     this.updateJob(`creeps`);
     this.pickupAdjacentDroppedEnergy();
@@ -144,6 +144,10 @@ export class Hauler extends CreepWrapper {
     const creeps = this.roomw.creeps.filter(
       c => [CreepRole.BUILDER, CreepRole.UPGRADER].includes(c.memory.role) && c.store.energy === 0
     );
+    if (creeps.length === 0) {
+      this.completeTask();
+      return ERR_NOT_FOUND;
+    }
 
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");
