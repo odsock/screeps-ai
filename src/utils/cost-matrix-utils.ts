@@ -17,6 +17,16 @@ export class CostMatrixUtils {
   }
 
   /**
+   * Avoid harvest positions and creeps.
+   * Not cached.
+   */
+  public static avoidHarvestPositionsAndCreepsCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix => {
+    const roomw = RoomWrapper.getInstance(roomName);
+    roomw.creeps.forEach(c => costMatrix.set(c.pos.x, c.pos.y, 0xff));
+    return costMatrix;
+  };
+
+  /**
    * Avoid harvest positions.
    * Cached.
    */

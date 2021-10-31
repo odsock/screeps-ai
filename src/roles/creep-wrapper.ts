@@ -482,7 +482,7 @@ export abstract class CreepWrapper extends Creep {
     if (result === ERR_NOT_IN_RANGE) {
       CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
       result = this.moveTo(structure, {
-        costCallback: CostMatrixUtils.avoidHarvestPositionsCostCallback
+        costCallback: CostMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
       });
     }
     return result;
@@ -497,7 +497,7 @@ export abstract class CreepWrapper extends Creep {
     if (result === ERR_NOT_IN_RANGE) {
       CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
       result = this.moveTo(structure, {
-        costCallback: CostMatrixUtils.avoidHarvestPositionsCostCallback
+        costCallback: CostMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
       });
     }
     return result;
