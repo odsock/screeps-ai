@@ -131,6 +131,8 @@ export class HaulerControl {
   private isDuplicateTask(task: Task | undefined, t: Task): boolean {
     console.log(`DEBUG: ${JSON.stringify(task)}`);
     console.log(`DEBUG: ${JSON.stringify(t)}`);
+    const isSamePos = _.isEqual(task?.pos, t.pos);
+    console.log(`DEBUG: duplicate pos: ${String(isSamePos)}`);
     const isDuplicate = _.isEqual(task, t);
     console.log(`DEBUG: duplicate: ${String(isDuplicate)}`);
     return isDuplicate;
