@@ -22,6 +22,8 @@ declare global {
     path?: string;
     idleZone?: Id<Source | StructureStorage | StructureSpawn>; // id of source, storage, or spawn where hauler is idling
     task?: Task;
+    lastPos?: RoomPosition;
+    stuckCount?: number;
   }
 
   interface RoomMemory {

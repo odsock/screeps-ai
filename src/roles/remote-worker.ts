@@ -24,6 +24,14 @@ export class RemoteWorker extends CreepWrapper {
 
     if (this.memory.path) {
       const path = Room.deserializePath(this.memory.path);
+      const lastPos = this.memory.lastPos;
+      if (lastPos?.isEqualTo(this.pos)) {
+        this.memory.stuckCount = (this.memory.stuckCount ?? 0) + 1;
+      }
+      if ((this.memory.stuckCount ?? 0) > 2) {
+        delete this.memory.path;
+      }
+      this.memory.lastPos = this.pos;
 
       const ret = this.moveByPath(path);
       CreepUtils.consoleLogIfWatched(this, `moving to exit by path`, ret);
