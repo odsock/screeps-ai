@@ -77,6 +77,8 @@ export class Hauler extends CreepWrapper {
   private workUnloadContainerJob(task: UnloadTask): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `unload source container`);
     this.updateJob(`source`);
+    this.pickupAdjacentDroppedEnergy();
+    this.withdrawAdjacentRuinOrTombEnergy();
     this.startWorkingIfEmpty();
     this.stopWorkingIfFull();
 
@@ -107,6 +109,8 @@ export class Hauler extends CreepWrapper {
   private workCleanupTask(task: CleanupTask): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `cleanup drops/tombs/ruins`);
     this.updateJob(`cleanup`);
+    this.pickupAdjacentDroppedEnergy();
+    this.withdrawAdjacentRuinOrTombEnergy();
     this.startWorkingIfEmpty();
     this.stopWorkingIfFull();
 
@@ -132,6 +136,8 @@ export class Hauler extends CreepWrapper {
   private workSupplyCreepTask() {
     CreepUtils.consoleLogIfWatched(this, `supply creeps`);
     this.updateJob(`creeps`);
+    this.pickupAdjacentDroppedEnergy();
+    this.withdrawAdjacentRuinOrTombEnergy();
     this.stopWorkingIfEmpty();
     this.startWorkingIfFull();
 
@@ -210,9 +216,7 @@ export class Hauler extends CreepWrapper {
   }
 
   private workSupplyStructureTask(supplyTask: SupplyTask): ScreepsReturnCode {
-    // pickup convenient energy
-    this.pickupAdjacentDroppedEnergy();
-    this.withdrawAdjacentRuinOrTombEnergy();
+    CreepUtils.consoleLogIfWatched(this, `supply structure`);
 
     const target = Game.getObjectById(supplyTask.targetId);
     if (!target) {
@@ -224,8 +228,10 @@ export class Hauler extends CreepWrapper {
       return ERR_FULL;
     }
 
-    CreepUtils.consoleLogIfWatched(this, `supply ${target.structureType}`);
     this.updateJob(`${target.structureType}`);
+    this.pickupAdjacentDroppedEnergy();
+    this.withdrawAdjacentRuinOrTombEnergy();
+
     this.stopWorkingIfEmpty();
     this.startWorkingIfFull();
     this.startWorkingInRange(target.pos, 1);
@@ -270,11 +276,10 @@ export class Hauler extends CreepWrapper {
   private workSupplySpawnTask(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `supply for spawning`);
     this.updateJob(`spawn`);
-    this.stopWorkingIfEmpty();
-    this.startWorkingIfNotEmpty();
-
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
+    this.stopWorkingIfEmpty();
+    this.startWorkingIfNotEmpty();
 
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");
