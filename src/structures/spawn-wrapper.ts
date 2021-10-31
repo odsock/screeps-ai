@@ -4,7 +4,7 @@ import { MemoryUtils } from "planning/memory-utils";
 import { CreepBodyProfile } from "roles/creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { RoomWrapper } from "./room-wrapper";
-import * as namelist from "../utils/names-lotr.json";
+import { names } from "../utils/names-lotr";
 
 export interface SpawnRequest {
   priority: number;
@@ -66,13 +66,12 @@ export class SpawnWrapper extends StructureSpawn {
   }
 
   private getName(memory: CreepMemory) {
-    const nameArray = namelist as string[];
-    console.log(`DEBUG: ${nameArray.length}, ${nameArray[0]}`);
+    console.log(`DEBUG: ${names.length}, ${names[0]}`);
     let name: string;
     do {
-      const index = Math.floor(Math.random() * nameArray.length);
-      name = nameArray[index];
-      console.log(`DEBUG: ${index}, ${nameArray[index]}`);
+      const index = Math.floor(Math.random() * names.length);
+      name = names[index];
+      console.log(`DEBUG: ${index}, ${names[index]}`);
       return `${memory.role}_${name}`;
     } while (_.some(Game.creeps, c => c.name === name));
   }

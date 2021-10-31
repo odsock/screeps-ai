@@ -1,4 +1,4 @@
-[
+export const names = [
   "Adalbert",
   "Adaldrida",
   "Adalgar",
@@ -743,4 +743,4 @@
   "Zamîn",
   "Zimrahin",
   "Ar-Zimrathôn"
-]
+];
