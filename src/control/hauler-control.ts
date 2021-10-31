@@ -20,6 +20,7 @@ export interface SupplyTask {
   priority: number;
   pos: RoomPosition;
   target: string;
+  override?: boolean;
 }
 
 export interface HaulTask {
@@ -27,12 +28,14 @@ export interface HaulTask {
   priority: number;
   pos: RoomPosition;
   creepName: string;
+  override?: boolean;
 }
 
 export interface SupplySpawnTask {
   type: TaskType.SUPPLY_SPAWN;
   priority: number;
   pos: RoomPosition;
+  override?: boolean;
 }
 
 @profile
@@ -59,12 +62,62 @@ export class HaulerControl {
     }
   }
 
+  /** assign tasks to creeps based on priority */
+  private assignTasks(haulers: Hauler[], tasks: Task[]): void {
+    const busyHaulers: Hauler[] = [];
+    const freeHaulers: Hauler[] = [];
+    haulers.forEach(h => {
+      if (h.memory.task) {
+        busyHaulers.push(h);
+      } else {
+        freeHaulers.push(h);
+      }
+    });
+    const newTasks = tasks.filter(t => !busyHaulers.some(h => _.isEqual(h.memory.task, t)));
+    const tasksByPriority = newTasks.sort((a, b) => b.priority - a.priority);
+
+    const unassignedTasks: Task[] = [];
+    tasksByPriority.forEach(task => {
+      const closestHauler = task.pos.findClosestByPath(freeHaulers);
+      if (closestHauler) {
+        closestHauler.memory.task = task;
+        freeHaulers.splice(
+          freeHaulers.findIndex(h => h.id === closestHauler.id),
+          1
+        );
+        busyHaulers.push(closestHauler);
+      } else {
+        unassignedTasks.push(task);
+      }
+    });
+
+    // bump low priority tasks for higher priority tasks with override flag set
+    const busyHaulersSorted = busyHaulers.sort(
+      (a, b) => (a.memory.task?.priority ?? 0) - (b.memory.task?.priority ?? 0)
+    );
+    unassignedTasks.forEach(task => {
+      if (task.override) {
+        const haulersWithLowerPriorityTask = busyHaulersSorted.filter(
+          h => h.memory.task?.priority ?? 0 < task.priority
+        );
+        if (haulersWithLowerPriorityTask.length > 0) {
+          const oldTask = haulersWithLowerPriorityTask[0].memory.task;
+          CreepUtils.consoleLogIfWatched(
+            haulersWithLowerPriorityTask[0].room,
+            `bumping ${String(oldTask?.type)} pri ${String(oldTask?.priority)} with ${task.type} pri ${task.priority}`
+          );
+          haulersWithLowerPriorityTask[0].memory.task = task;
+        }
+      }
+    });
+  }
+
   /** supply spawn/extensions if any capacity in room */
   private createSupplySpawnTasks(roomw: RoomWrapper): SupplySpawnTask[] {
     const spawns = roomw.spawns;
     const tasks: SupplySpawnTask[] = [];
     if (spawns.length > 0 && roomw.energyAvailable <= roomw.energyCapacityAvailable) {
-      tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 250, pos: spawns[0].pos });
+      tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 250, pos: spawns[0].pos, override: true });
     }
     return tasks;
   }
@@ -91,31 +144,6 @@ export class HaulerControl {
       });
   }
 
-  private assignTasks(haulers: Hauler[], tasks: Task[]): void {
-    const busyHaulers: Hauler[] = [];
-    const freeHaulers: Hauler[] = [];
-    haulers.forEach(h => {
-      if (h.memory.task) {
-        busyHaulers.push(h);
-      } else {
-        freeHaulers.push(h);
-      }
-    });
-    const newTasks = tasks.filter(t => !busyHaulers.some(h => _.isEqual(h.memory.task, t)));
-    const tasksByPriority = newTasks.sort((a, b) => b.priority - a.priority);
-
-    tasksByPriority.forEach(task => {
-      const closestHauler = task.pos.findClosestByPath(freeHaulers);
-      if (closestHauler) {
-        closestHauler.memory.task = task;
-        freeHaulers.splice(
-          freeHaulers.findIndex(h => h.id === closestHauler.id),
-          1
-        );
-      }
-    });
-  }
-
   private createHaulTasks(roomw: RoomWrapper): HaulTask[] {
     const creeps = roomw.find(FIND_MY_CREEPS, {
       filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
@@ -129,7 +157,7 @@ export class HaulerControl {
     const harvesterTasks: HaulTask[] = creeps
       .filter(c => c.memory.role === CreepRole.HARVESTER)
       .map(c => {
-        return { type: TaskType.HAUL, creepName: c.name, pos: c.pos, priority };
+        return { type: TaskType.HAUL, creepName: c.name, pos: c.pos, priority, override: true };
       });
     return [...upgraderTasks, ...harvesterTasks];
   }
