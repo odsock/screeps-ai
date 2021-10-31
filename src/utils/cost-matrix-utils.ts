@@ -75,11 +75,11 @@ export class CostMatrixUtils {
    * Does not cache result, since not called often.
    */
   public static roadPlanningRoomCallback = (roomName: string): CostMatrix | boolean => {
-    const roomw = RoomWrapper.getInstance(roomName);
-    if (!roomw) {
+    const room = Game.rooms[roomName];
+    if (!room) {
       return false;
     }
-
+    const roomw = RoomWrapper.getInstance(room);
     const cost = new PathFinder.CostMatrix();
 
     const structures = roomw.find(FIND_STRUCTURES);
