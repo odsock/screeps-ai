@@ -90,7 +90,7 @@ export class Hauler extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
 
     function assertNever(x: never): never {
-      throw new Error("Missing task handler: " + String(x));
+      throw new Error("Missing task handler: " + JSON.stringify(x));
     }
   }
 
