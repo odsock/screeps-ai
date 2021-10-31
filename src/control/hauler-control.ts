@@ -100,7 +100,7 @@ export class HaulerControl {
         const haulersWithLowerPriorityTask = busyHaulersSorted.filter(
           h => h.memory.task?.priority ?? 0 < task.priority
         );
-        console.log(`DEBUG: ${JSON.stringify(haulersWithLowerPriorityTask)}`);
+        console.log(`DEBUG: ${JSON.stringify(haulersWithLowerPriorityTask.map(h => h.memory.task))}`);
         if (haulersWithLowerPriorityTask.length > 0) {
           const hauler = haulersWithLowerPriorityTask[0];
           const oldTask = hauler.memory.task;
