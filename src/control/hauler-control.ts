@@ -1,3 +1,4 @@
+import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
@@ -86,7 +87,7 @@ export class HaulerControl {
     return roomw.controllerContainers
       .filter(container => container.store.getFreeCapacity() > 0)
       .map(c => {
-        return { type: TaskType.SUPPLY, target: c.id, pos: c.pos, priority: 150 };
+        return { type: TaskType.SUPPLY, target: c.id, pos: c.pos, priority: 100 };
       });
   }
 
@@ -116,13 +117,21 @@ export class HaulerControl {
   }
 
   private createHaulTasks(roomw: RoomWrapper): HaulTask[] {
-    return roomw
-      .find(FIND_MY_CREEPS, {
-        filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
-      })
+    const creeps = roomw.find(FIND_MY_CREEPS, {
+      filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
+    });
+    const upgraderTasks: HaulTask[] = creeps
+      .filter(c => c.memory.role === CreepRole.UPGRADER)
       .map(c => {
-        return { type: TaskType.HAUL, creepName: c.name, pos: c.pos, priority: 100 };
+        return { type: TaskType.HAUL, creepName: c.name, pos: c.pos, priority: 150 };
       });
+    const priority = roomw.storage?.store.energy ?? -1 > 0 ? 150 : 300;
+    const harvesterTasks: HaulTask[] = creeps
+      .filter(c => c.memory.role === CreepRole.HARVESTER)
+      .map(c => {
+        return { type: TaskType.HAUL, creepName: c.name, pos: c.pos, priority };
+      });
+    return [...upgraderTasks, ...harvesterTasks];
   }
 
   private requestSpawns(roomw: RoomWrapper): void {
