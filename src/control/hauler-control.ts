@@ -11,16 +11,18 @@ export enum TaskType {
   HAUL = "HAUL",
   SUPPLY = "SUPPLY",
   SUPPLY_SPAWN = "SUPPLY_SPAWN",
-  UNLOAD = "UNLOAD"
+  UNLOAD = "UNLOAD",
+  SUPPLY_CREEP = "SUPPLY_CREEP",
+  CLEANUP = "CLEANUP"
 }
 
-export type Task = SupplyTask | HaulTask | SupplySpawnTask | UnloadTask;
+export type Task = SupplyTask | HaulTask | SupplySpawnTask | UnloadTask | SupplyCreepTask | CleanupTask;
 
 export interface SupplyTask {
   type: TaskType.SUPPLY;
   priority: number;
   pos: RoomPosition;
-  target: string;
+  targetId: Id<StructureWithStorage>;
   override?: boolean;
 }
 
@@ -28,7 +30,15 @@ export interface UnloadTask {
   type: TaskType.UNLOAD;
   priority: number;
   pos: RoomPosition;
-  containerId: Id<StructureContainer>;
+  targetId: Id<StructureContainer>;
+  override?: boolean;
+}
+
+export interface CleanupTask {
+  type: TaskType.CLEANUP;
+  priority: number;
+  pos: RoomPosition;
+  targetId: Id<Resource | Tombstone | Ruin>;
   override?: boolean;
 }
 
@@ -37,11 +47,19 @@ export interface HaulTask {
   priority: number;
   pos: RoomPosition;
   creepName: string;
+  targetId: Id<Creep>;
   override?: boolean;
 }
 
 export interface SupplySpawnTask {
   type: TaskType.SUPPLY_SPAWN;
+  priority: number;
+  pos: RoomPosition;
+  override?: boolean;
+}
+
+export interface SupplyCreepTask {
+  type: TaskType.SUPPLY_CREEP;
   priority: number;
   pos: RoomPosition;
   override?: boolean;
@@ -62,7 +80,9 @@ export class HaulerControl {
           ...this.createTowerSupplyTasks(roomw),
           ...this.createControllerSupplyTasks(roomw),
           ...this.createSupplySpawnTasks(roomw),
-          ...this.createUnloadTasks(roomw)
+          ...this.createUnloadTasks(roomw),
+          ...this.createSupplyCreepTasks(roomw),
+          ...this.createCleanupTasks(roomw)
         ]);
       }
 
@@ -133,6 +153,35 @@ export class HaulerControl {
     return JSON.stringify(task) === JSON.stringify(t);
   }
 
+  /** clean up drops, tombs, ruins */
+  private createCleanupTasks(roomw: RoomWrapper): CleanupTask[] {
+    const tasks: CleanupTask[] = [];
+    roomw
+      .find(FIND_DROPPED_RESOURCES)
+      .forEach(d => tasks.push({ type: TaskType.CLEANUP, pos: d.pos, targetId: d.id, priority: 100 }));
+    roomw
+      .find(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity() > 0 })
+      .forEach(t => tasks.push({ type: TaskType.CLEANUP, pos: t.pos, targetId: t.id, priority: 100 }));
+    roomw
+      .find(FIND_RUINS, { filter: r => r.store.getUsedCapacity() > 0 })
+      .forEach(r => tasks.push({ type: TaskType.CLEANUP, pos: r.pos, targetId: r.id, priority: 100 }));
+    return tasks;
+  }
+
+  /** supply builders, upgraders */
+  // TODO cache id's to avoid double find in Hauler
+  private createSupplyCreepTasks(roomw: RoomWrapper): SupplyCreepTask[] {
+    const tasks: SupplyCreepTask[] = [];
+    const creeps = roomw.creeps.filter(
+      c => [CreepRole.BUILDER, CreepRole.UPGRADER].includes(c.memory.role) && c.store.energy === 0
+    );
+    if (creeps.length > 0) {
+      const pos = CreepUtils.averagePos(creeps);
+      tasks.push({ type: TaskType.SUPPLY_CREEP, priority: 90, pos });
+    }
+    return tasks;
+  }
+
   /** unload source containers over threshold */
   private createUnloadTasks(roomw: RoomWrapper): UnloadTask[] {
     return roomw.sourceContainers
@@ -141,7 +190,7 @@ export class HaulerControl {
         return {
           type: TaskType.UNLOAD,
           priority: 200,
-          containerId: c.id,
+          targetId: c.id,
           pos: c.pos
         };
       });
@@ -166,7 +215,7 @@ export class HaulerControl {
           CreepUtils.getEnergyStoreRatioFree(tower) > SockPuppetConstants.TOWER_RESUPPLY_THRESHOLD
       )
       .map(t => {
-        return { type: TaskType.SUPPLY, target: t.id, pos: t.pos, priority: 250 };
+        return { type: TaskType.SUPPLY, targetId: t.id, pos: t.pos, priority: 250 };
       });
   }
 
@@ -175,7 +224,7 @@ export class HaulerControl {
     return roomw.controllerContainers
       .filter(container => container.store.getFreeCapacity() > 0)
       .map(c => {
-        return { type: TaskType.SUPPLY, target: c.id, pos: c.pos, priority: 100 };
+        return { type: TaskType.SUPPLY, targetId: c.id, pos: c.pos, priority: 100 };
       });
   }
 
@@ -186,13 +235,13 @@ export class HaulerControl {
     const upgraderTasks: HaulTask[] = creeps
       .filter(c => c.memory.role === CreepRole.UPGRADER)
       .map(c => {
-        return { type: TaskType.HAUL, creepName: c.name, pos: c.pos, priority: 150 };
+        return { type: TaskType.HAUL, creepName: c.name, targetId: c.id, pos: c.pos, priority: 150 };
       });
     const priority = roomw.storage?.store.energy ?? -1 > 0 ? 150 : 300;
     const harvesterTasks: HaulTask[] = creeps
       .filter(c => c.memory.role === CreepRole.HARVESTER)
       .map(c => {
-        return { type: TaskType.HAUL, creepName: c.name, pos: c.pos, priority, override: true };
+        return { type: TaskType.HAUL, creepName: c.name, targetId: c.id, pos: c.pos, priority, override: true };
       });
     return [...upgraderTasks, ...harvesterTasks];
   }

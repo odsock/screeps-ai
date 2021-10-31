@@ -2,6 +2,7 @@
 
 import { Sockpuppet } from "sockpuppet";
 import { Task } from "control/hauler-control";
+import { CreepRole } from "config/creep-types";
 
 declare global {
   interface CreepMemory {
@@ -16,7 +17,7 @@ declare global {
     replacing?: string;
     retiring?: boolean;
     job?: string;
-    role: string;
+    role: CreepRole;
     working?: boolean;
     watched?: boolean;
     path?: string;

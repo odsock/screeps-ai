@@ -9,6 +9,20 @@ export interface Watchable {
 
 @profile
 export class CreepUtils {
+  public static averagePos(targets: { pos: RoomPosition }[]): RoomPosition {
+    if (targets.length === 1) {
+      return targets[0].pos;
+    }
+    const average = targets
+      .map(t => t.pos)
+      .reduce((avg, pos) => {
+        avg.x += pos.x;
+        avg.y += pos.y;
+        return avg;
+      });
+    return new RoomPosition(average.x / targets.length, average.y / targets.length, average.roomName);
+  }
+
   public static consoleLogIfWatched(
     watchable: Watchable,
     message: string,
