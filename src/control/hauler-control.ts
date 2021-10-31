@@ -83,7 +83,7 @@ export class HaulerControl {
         freeHaulers.push(h);
       }
     });
-    const newTasks = tasks.filter(t => !busyHaulers.some(h => _.isEqual(h.memory.task, t)));
+    const newTasks = tasks.filter(t => !busyHaulers.some(h => this.isDuplicateTask(h.memory.task, t)));
     const tasksByPriority = newTasks.sort((a, b) => b.priority - a.priority);
 
     const unassignedTasks: Task[] = [];
@@ -126,6 +126,14 @@ export class HaulerControl {
         }
       }
     });
+  }
+
+  private isDuplicateTask(task: Task | undefined, t: Task): boolean {
+    console.log(`DEBUG: ${JSON.stringify(task)}`);
+    console.log(`DEBUG: ${JSON.stringify(t)}`);
+    const isDuplicate = _.isEqual(task, t);
+    console.log(`DEBUG: duplicate: ${String(isDuplicate)}`);
+    return isDuplicate;
   }
 
   /** unload source containers over threshold */
