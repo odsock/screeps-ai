@@ -101,12 +101,15 @@ export class HaulerControl {
           h => h.memory.task?.priority ?? 0 < task.priority
         );
         if (haulersWithLowerPriorityTask.length > 0) {
-          const oldTask = haulersWithLowerPriorityTask[0].memory.task;
+          const hauler = haulersWithLowerPriorityTask[0];
+          const oldTask = hauler.memory.task;
           CreepUtils.consoleLogIfWatched(
-            haulersWithLowerPriorityTask[0].room,
-            `bumping ${String(oldTask?.type)} pri ${String(oldTask?.priority)} with ${task.type} pri ${task.priority}`
+            hauler.room,
+            `${hauler.name}: bumping ${String(oldTask?.type)} pri ${String(oldTask?.priority)} with ${task.type} pri ${
+              task.priority
+            }`
           );
-          haulersWithLowerPriorityTask[0].memory.task = task;
+          hauler.memory.task = task;
         }
       }
     });
