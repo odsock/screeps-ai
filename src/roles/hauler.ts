@@ -1,5 +1,5 @@
 import { CreepRole } from "config/creep-types";
-import { HaulTask, SupplyTask, TaskType } from "control/hauler-control";
+import { HaulTask, SupplyTask, TaskType, UnloadTask } from "control/hauler-control";
 import { CreepUtils } from "creep-utils";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { profile } from "../../screeps-typescript-profiler";
@@ -41,6 +41,9 @@ export class Hauler extends CreepWrapper {
         case TaskType.SUPPLY_SPAWN:
           CreepUtils.consoleLogIfWatched(this, `supply spawn result`, this.workSupplySpawnTask());
           return;
+        case TaskType.UNLOAD:
+          CreepUtils.consoleLogIfWatched(this, `unload container result`, this.workUnloadContainerJob(task));
+          return;
 
         default:
           assertNever(task);
@@ -50,13 +53,6 @@ export class Hauler extends CreepWrapper {
     // pickup convenient energy
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
-
-    // unload source containers
-    const sourceContainer = this.findClosestSourceContainerFillsMyStore();
-    if (sourceContainer) {
-      this.unloadSourceContainerJob(sourceContainer);
-      return;
-    }
 
     // supply empty builders
     const builders = this.room.find(FIND_MY_CREEPS, {
@@ -98,17 +94,23 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private unloadSourceContainerJob(target: StructureContainer): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `empty source container`);
+  private workUnloadContainerJob(task: UnloadTask): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `unload source container`);
     this.updateJob(`source`);
-
     this.startWorkingIfEmpty();
     this.stopWorkingIfFull();
+
+    // validate task
+    const target = Game.getObjectById(task.containerId);
+    if (!target || target.store.getUsedCapacity() === 0) {
+      this.completeTask();
+      return ERR_INVALID_TARGET;
+    }
 
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");
       const result = this.moveToAndGet(target);
-      CreepUtils.consoleLogIfWatched(this, `empty ${String(target)}`, result);
+      CreepUtils.consoleLogIfWatched(this, `unload ${String(target)}`, result);
       return result;
     } else {
       CreepUtils.consoleLogIfWatched(this, `dumping`);

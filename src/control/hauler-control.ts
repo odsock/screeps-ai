@@ -8,18 +8,27 @@ import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 
 export enum TaskType {
-  HAUL = "HAUL",
-  SUPPLY = "SUPPLY",
-  SUPPLY_SPAWN = "SUPPLY_SPAWN"
+  HAUL,
+  SUPPLY,
+  SUPPLY_SPAWN,
+  UNLOAD
 }
 
-export type Task = SupplyTask | HaulTask | SupplySpawnTask;
+export type Task = SupplyTask | HaulTask | SupplySpawnTask | UnloadTask;
 
 export interface SupplyTask {
   type: TaskType.SUPPLY;
   priority: number;
   pos: RoomPosition;
   target: string;
+  override?: boolean;
+}
+
+export interface UnloadTask {
+  type: TaskType.UNLOAD;
+  priority: number;
+  pos: RoomPosition;
+  containerId: Id<StructureContainer>;
   override?: boolean;
 }
 
@@ -52,7 +61,8 @@ export class HaulerControl {
           ...this.createHaulTasks(roomw),
           ...this.createTowerSupplyTasks(roomw),
           ...this.createControllerSupplyTasks(roomw),
-          ...this.createSupplySpawnTasks(roomw)
+          ...this.createSupplySpawnTasks(roomw),
+          ...this.createUnloadTasks(roomw)
         ]);
       }
 
@@ -116,6 +126,20 @@ export class HaulerControl {
         }
       }
     });
+  }
+
+  /** unload source containers over threshold */
+  private createUnloadTasks(roomw: RoomWrapper): UnloadTask[] {
+    return roomw.sourceContainers
+      .filter(c => c.store.getFreeCapacity() < c.store.getCapacity() / 4)
+      .map(c => {
+        return {
+          type: TaskType.UNLOAD,
+          priority: 200,
+          containerId: c.id,
+          pos: c.pos
+        };
+      });
   }
 
   /** supply spawn/extensions if any capacity in room */
