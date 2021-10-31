@@ -8,10 +8,10 @@ import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 
 export enum TaskType {
-  HAUL,
-  SUPPLY,
-  SUPPLY_SPAWN,
-  UNLOAD
+  HAUL = "HAUL",
+  SUPPLY = "SUPPLY",
+  SUPPLY_SPAWN = "SUPPLY_SPAWN",
+  UNLOAD = "UNLOAD"
 }
 
 export type Task = SupplyTask | HaulTask | SupplySpawnTask | UnloadTask;
