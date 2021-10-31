@@ -123,7 +123,7 @@ export class HaulerControl {
     const spawns = roomw.spawns;
     const tasks: SupplySpawnTask[] = [];
     if (spawns.length > 0 && roomw.energyAvailable <= roomw.energyCapacityAvailable) {
-      tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 250, pos: spawns[0].pos, override: true });
+      tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 240, pos: spawns[0].pos, override: true });
     }
     return tasks;
   }
@@ -137,7 +137,7 @@ export class HaulerControl {
           CreepUtils.getEnergyStoreRatioFree(tower) > SockPuppetConstants.TOWER_RESUPPLY_THRESHOLD
       )
       .map(t => {
-        return { type: TaskType.SUPPLY, target: t.id, pos: t.pos, priority: 200 };
+        return { type: TaskType.SUPPLY, target: t.id, pos: t.pos, priority: 250 };
       });
   }
 
