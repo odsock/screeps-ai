@@ -71,6 +71,7 @@ export class SpawnWrapper extends StructureSpawn {
     do {
       const index = Math.floor(Math.random() * nameArray.length);
       name = nameArray[index];
+      console.log(`DEBUG: ${index}, ${nameArray[index]}`);
       return `${memory.role}_${name}`;
     } while (_.some(Game.creeps, c => c.name === name));
   }
