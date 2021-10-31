@@ -26,7 +26,7 @@ export class RemoteWorker extends CreepWrapper {
       const path = Room.deserializePath(this.memory.path);
       const lastPos = this.memory.lastPos;
       console.log(`DEBUG: lastPos: ${JSON.stringify(lastPos)}, this.pos: ${JSON.stringify(this.pos)}`);
-      if (lastPos && this.pos.isEqualTo(lastPos)) {
+      if (lastPos && this.pos.isEqualTo(new RoomPosition(lastPos.x, lastPos.y, lastPos.roomName))) {
         console.log(`DEBUG: stuck`);
         this.memory.stuckCount = (this.memory.stuckCount ?? 0) + 1;
       }
