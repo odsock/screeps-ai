@@ -67,7 +67,7 @@ export class SpawnWrapper extends StructureSpawn {
 
   private getName(memory: CreepMemory) {
     const nameArray = namelist as string[];
-    const index = Math.random() * nameArray.length;
+    const index = Math.floor(Math.random() * nameArray.length);
     return `${memory.role}_${nameArray[index]}`;
   }
 
