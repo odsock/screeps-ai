@@ -3,10 +3,10 @@ import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { CreepBodyProfile } from "./creep-wrapper";
-import { RemoteWorker } from "./remote-worker";
+import { RemoteCreepWrapper } from "./remote-creep-wrapper";
 
 @profile
-export class Claimer extends RemoteWorker {
+export class Claimer extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.CLAIMER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
     profile: [MOVE, CLAIM],
