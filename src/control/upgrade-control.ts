@@ -23,6 +23,11 @@ export class UpgradeControl {
     const spawnQueue = SpawnQueue.getInstance(roomw);
 
     const upgraderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.UPGRADER);
+    const bodyProfile = Upgrader.BODY_PROFILE;
+    if (roomw.controller?.level === 8) {
+      // can only upgrade 15 points per tick at rcl 8
+      bodyProfile.maxBodyParts = 16;
+    }
 
     // FIRST UPGRADER
     // start upgrading once harvesting efficiently
