@@ -200,7 +200,7 @@ export class HaulerControl {
   private createSupplySpawnTasks(roomw: RoomWrapper): SupplySpawnTask[] {
     const spawns = roomw.spawns;
     const tasks: SupplySpawnTask[] = [];
-    if (spawns.length > 0 && roomw.energyAvailable <= roomw.energyCapacityAvailable) {
+    if (spawns.length > 0 && roomw.energyAvailable < roomw.energyCapacityAvailable) {
       tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 240, pos: spawns[0].pos, override: true });
     }
     return tasks;
