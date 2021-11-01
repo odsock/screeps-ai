@@ -100,6 +100,10 @@ export class Hauler extends CreepWrapper {
       if (storage) {
         const result = this.moveToAndTransfer(storage);
         CreepUtils.consoleLogIfWatched(this, `dump at ${String(storage)}`, result);
+        if (result === OK) {
+          // one scoop completes task
+          this.completeTask();
+        }
         return result;
       }
       return ERR_FULL;

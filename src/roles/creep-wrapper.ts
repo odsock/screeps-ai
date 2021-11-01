@@ -552,14 +552,20 @@ export abstract class CreepWrapper extends Creep {
     return undefined;
   }
 
+  /** moves to target and transfers energy */
   protected moveToAndTransfer(target: StructureWithStorage | Creep): ScreepsReturnCode {
-    let result = this.transfer(target, RESOURCE_ENERGY);
-    CreepUtils.consoleLogIfWatched(this, `transfer to ${String(target)}`, result);
-    if (result === ERR_NOT_IN_RANGE) {
-      CreepUtils.consoleLogIfWatched(this, `moving to ${String(target)} at ${String(target.pos)}`, result);
-      result = this.moveTo(target);
+    if (this.pos.isNearTo(target)) {
+      const transferResult = this.transfer(target, RESOURCE_ENERGY);
+      CreepUtils.consoleLogIfWatched(this, `transfer to ${String(target)}`, transferResult);
+      return transferResult;
+    } else {
+      const moveResult = this.moveTo(target);
+      CreepUtils.consoleLogIfWatched(this, `moving to ${String(target)} at ${String(target.pos)}`, moveResult);
+      if (moveResult === OK) {
+        return ERR_NOT_IN_RANGE;
+      }
+      return moveResult;
     }
-    return result;
   }
 
   /* Ability calculations */
