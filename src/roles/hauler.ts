@@ -15,19 +15,8 @@ export class Hauler extends CreepWrapper {
   };
 
   public run(): void {
-    /**
-     * hauler jobs:
-     * tug minders
-     * fill spawn
-     * fill towers
-     * empty source containers
-     * fill builders
-     * fill controller container
-     * fill upgraders
-     * cleanup drops, tombs, ruins
-     */
-
     if (this.memory.task) {
+      CreepUtils.consoleLogIfWatched(this, `task: ${this.memory.task.type} pri ${this.memory.task.priority}`);
       const task = this.memory.task;
       switch (task.type) {
         case TaskType.HAUL:
