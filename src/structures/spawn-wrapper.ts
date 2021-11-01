@@ -4,7 +4,7 @@ import { MemoryUtils } from "planning/memory-utils";
 import { CreepBodyProfile } from "roles/creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { RoomWrapper } from "./room-wrapper";
-import { names } from "../utils/names-lotr";
+import { names } from "../utils/names-hp";
 
 export interface SpawnRequest {
   priority: number;
