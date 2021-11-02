@@ -230,9 +230,7 @@ export class Hauler extends CreepWrapper {
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
-    if (this.store.getUsedCapacity() > 0) {
-      return this.storeLoad();
-    }
+    // TODO maybe store non-energy here
 
     this.stopWorkingIfEmpty();
     this.startWorkingIfFull();
