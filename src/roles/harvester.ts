@@ -3,6 +3,8 @@ import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { Minder } from "./minder";
 import { profile } from "../../screeps-typescript-profiler";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
+import { doesNotThrow } from "assert";
 
 @profile
 export class Harvester extends Minder {
@@ -74,6 +76,25 @@ export class Harvester extends Minder {
       const hauler = Game.creeps[this.memory.haulerName];
       if (hauler) {
         CreepUtils.consoleLogIfWatched(this, `have a hauler`);
+
+        // handle room exit
+        const pos = this.pos;
+        const roomSizeMax = SockPuppetConstants.ROOM_SIZE - 1;
+        let exitResult: ScreepsReturnCode | undefined;
+        if (pos.x === 0 && hauler.pos.x === roomSizeMax) {
+          exitResult = hauler.move(RIGHT);
+        } else if (pos.x === roomSizeMax && hauler.pos.x === 0) {
+          exitResult = hauler.move(LEFT);
+        } else if (pos.y === 0 && hauler.pos.y === roomSizeMax) {
+          exitResult = hauler.move(BOTTOM);
+        } else if (pos.y === roomSizeMax && hauler.pos.y === 0) {
+          exitResult = hauler.move(TOP);
+        }
+        if (exitResult) {
+          CreepUtils.consoleLogIfWatched(this, `move hauler out of exit`, exitResult);
+          return exitResult;
+        }
+
         // setup hauler pulling
         const pullResult = hauler.pull(this);
         const moveResult = this.move(hauler);
