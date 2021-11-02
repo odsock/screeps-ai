@@ -477,14 +477,16 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected moveToAndRepair(structure: Structure<StructureConstant>): ScreepsReturnCode {
-    let result: ScreepsReturnCode = this.repair(structure);
-    CreepUtils.consoleLogIfWatched(this, `repairing ${structure.structureType}`, result);
-    if (result === ERR_NOT_IN_RANGE) {
-      CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
-      result = this.moveTo(structure, {
-        costCallback: CostMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
-      });
+    if (this.pos.inRangeTo(structure, 3)) {
+      const result: ScreepsReturnCode = this.repair(structure);
+      CreepUtils.consoleLogIfWatched(this, `repairing ${structure.structureType}`, result);
+      return result;
     }
+    const result = this.moveTo(structure, {
+      range: 3,
+      costCallback: CostMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
+    });
+    CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
     return result;
   }
 
