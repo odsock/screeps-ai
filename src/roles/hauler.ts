@@ -229,6 +229,10 @@ export class Hauler extends CreepWrapper {
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
+    if (this.store.getUsedCapacity() > 0) {
+      return this.storeLoad();
+    }
+
     this.stopWorkingIfEmpty();
     this.startWorkingIfFull();
     this.startWorkingInRange(target.pos, 1);
@@ -267,6 +271,18 @@ export class Hauler extends CreepWrapper {
       }
       return result;
     }
+  }
+
+  /** get list of store contents sorted by amount */
+  private getStoreContents(): ResourceConstant[] {
+    const resources: ResourceConstant[] = [];
+    for (const resourceName in this.store) {
+      const type = resourceName as ResourceConstant;
+      if (this.store[type] > 0) {
+        resources.push(type);
+      }
+    }
+    return resources.sort((a, b) => this.store[a] - this.store[b]);
   }
 
   // When supplying spawn, use priority to prefer storage
@@ -409,9 +425,12 @@ export class Hauler extends CreepWrapper {
     CreepUtils.consoleLogIfWatched(this, `storing load`);
     const storage = this.findRoomStorage();
     if (storage) {
-      const result = this.moveToAndTransfer(storage);
-      CreepUtils.consoleLogIfWatched(this, `store at ${String(storage)}`, result);
-      return result;
+      const resources = this.getStoreContents();
+      if (resources.length > 0) {
+        const result = this.moveToAndTransfer(storage, resources[0]);
+        CreepUtils.consoleLogIfWatched(this, `store at ${String(storage)}`, result);
+        return result;
+      }
     }
     return ERR_FULL;
   }

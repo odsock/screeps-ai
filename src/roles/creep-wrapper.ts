@@ -42,7 +42,7 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected stopWorkingIfEmpty(): void {
-    if (this.memory.working && this.store[RESOURCE_ENERGY] === 0) {
+    if (this.memory.working && this.store.getFreeCapacity() === 0) {
       CreepUtils.consoleLogIfWatched(this, "stop working, empty");
       if (this.memory.working) {
         this.memory.working = false;
@@ -52,7 +52,7 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected startWorkingIfEmpty(): void {
-    if (!this.memory.working && this.store[RESOURCE_ENERGY] === 0) {
+    if (!this.memory.working && this.store.getFreeCapacity() === 0) {
       CreepUtils.consoleLogIfWatched(this, "start working, empty");
       if (!this.memory.working) {
         this.memory.working = true;
@@ -61,8 +61,8 @@ export abstract class CreepWrapper extends Creep {
     }
   }
 
-  protected startWorkingIfNotEmpty(): void {
-    if (!this.memory.working && this.store.getUsedCapacity() > 0) {
+  protected startWorkingIfNotEmpty(resourceType: ResourceConstant = RESOURCE_ENERGY): void {
+    if (!this.memory.working && this.store.getUsedCapacity(resourceType) > 0) {
       CreepUtils.consoleLogIfWatched(this, "start working, have energy");
       if (!this.memory.working) {
         this.memory.working = true;
@@ -71,8 +71,8 @@ export abstract class CreepWrapper extends Creep {
     }
   }
 
-  protected startWorkingIfFull(): void {
-    if (!this.memory.working && this.store.getFreeCapacity() === 0) {
+  protected startWorkingIfFull(resourceType: ResourceConstant = RESOURCE_ENERGY): void {
+    if (!this.memory.working && this.store.getFreeCapacity(resourceType) === 0) {
       CreepUtils.consoleLogIfWatched(this, "start working, full");
       if (!this.memory.working) {
         this.memory.working = true;
@@ -553,9 +553,12 @@ export abstract class CreepWrapper extends Creep {
   }
 
   /** moves to target and transfers energy */
-  protected moveToAndTransfer(target: StructureWithStorage | Creep): ScreepsReturnCode {
+  protected moveToAndTransfer(
+    target: StructureWithStorage | Creep,
+    resourceType: ResourceConstant = RESOURCE_ENERGY
+  ): ScreepsReturnCode {
     if (this.pos.isNearTo(target)) {
-      const transferResult = this.transfer(target, RESOURCE_ENERGY);
+      const transferResult = this.transfer(target, resourceType);
       CreepUtils.consoleLogIfWatched(this, `transfer to ${String(target)}`, transferResult);
       return transferResult;
     } else {
