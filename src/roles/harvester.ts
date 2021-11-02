@@ -90,7 +90,7 @@ export class Harvester extends Minder {
         } else if (pos.y === roomSizeMax && hauler.pos.y === 0) {
           exitResult = hauler.move(TOP);
         }
-        if (exitResult) {
+        if (exitResult !== undefined) {
           CreepUtils.consoleLogIfWatched(this, `move hauler out of exit`, exitResult);
           return exitResult;
         } else {
