@@ -1,3 +1,4 @@
+import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Harvester } from "roles/harvester";
@@ -14,6 +15,8 @@ export class HarvestControl {
 
       if (roomw.controller?.my && roomw.spawns.length > 0) {
         this.requestSpawns(roomw);
+        // TODO this won't scale for two claimed rooms, need to have home mapped for target config
+        this.requestRemoteHarvesters(roomw);
       }
     }
   }
@@ -104,6 +107,56 @@ export class HarvestControl {
         }
       }
     }
+  }
+
+  private requestRemoteHarvesters(roomw: RoomWrapper) {
+    const spawnQueue = SpawnQueue.getInstance(roomw);
+
+    const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name] ?? [];
+    const remoteHarvestRoomsMy =
+      remoteHarvestRooms.filter(name => {
+        return !Game.rooms[name]?.controller?.my;
+      }) ?? [];
+    for (const targetRoom of remoteHarvestRoomsMy) {
+      const harvesters = _.filter(
+        Game.creeps,
+        c => c.memory.role === Harvester.ROLE && c.memory.targetRoom === targetRoom
+      );
+      const spawningHarvesters = this.getSpawningHarvestersForTarget(roomw, targetRoom);
+
+      for (const sourceId in Memory.rooms[targetRoom].sources) {
+        const hasMinder = [...spawningHarvesters, ...harvesters].some(h => h.memory.source === sourceId);
+        if (!hasMinder) {
+          CreepUtils.consoleLogIfWatched(roomw, `spawning remote harvester ${Harvester.ROLE}`);
+          spawnQueue.push({
+            bodyProfile: Harvester.BODY_PROFILE,
+            max: true,
+            memory: {
+              role: Harvester.ROLE,
+              source: sourceId as Id<Source>,
+              targetRoom
+            },
+            priority: 50
+          });
+        }
+      }
+    }
+  }
+
+  private getSpawningHarvestersForTarget(roomw: RoomWrapper, targetRoom: string): SpawningInfo[] {
+    const spawningHarvesters: SpawningInfo[] = [];
+    roomw.spawns
+      .filter(
+        spawn =>
+          spawn.memory.spawning?.memory.role === Harvester.ROLE &&
+          spawn.memory.spawning?.memory.targetRoom === targetRoom
+      )
+      .forEach(spawn => {
+        if (spawn.memory.spawning) {
+          spawningHarvesters.push(spawn.memory.spawning);
+        }
+      });
+    return spawningHarvesters;
   }
 
   private findOldestCreep(creeps: Creep[]) {

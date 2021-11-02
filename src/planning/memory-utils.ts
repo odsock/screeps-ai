@@ -10,9 +10,9 @@ declare global {
     hauleeName?: string; // creep being hauled
     haulerName?: string; // creep doing the hauling
     haulRequested?: boolean; // true if waiting on hauler, or being hauled
-    homeRoom?: string;
+    homeRoom: string;
     constructionSiteId?: string;
-    targetRoom?: string;
+    targetRoom: string;
     containerId?: Id<StructureContainer>;
     replacing?: string;
     retiring?: boolean;

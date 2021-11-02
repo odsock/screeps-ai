@@ -3,14 +3,15 @@ import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { CreepBodyProfile } from "roles/creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
-import { RoomWrapper } from "./room-wrapper";
 import { names } from "../utils/names-hp";
+import { RoomWrapper } from "./room-wrapper";
 
 export interface SpawnRequest {
   priority: number;
   bodyProfile: CreepBodyProfile;
   max?: boolean;
-  memory: CreepMemory;
+  // all values in request memory are optional except 'role'
+  memory: Partial<CreepMemory> & {role: string};
   sort?: boolean;
   directions?: DirectionConstant[];
 }

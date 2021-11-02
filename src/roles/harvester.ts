@@ -115,7 +115,7 @@ export class Harvester extends Minder {
       return undefined;
     }
 
-    const sourceInfo = this.roomw.memory.sources[this.memory.source];
+    const sourceInfo = Memory.rooms[this.memory.targetRoom].sources[this.memory.source];
     if (!sourceInfo) {
       CreepUtils.consoleLogIfWatched(this, `no source memory for id: ${this.memory.source}`);
       return undefined;
@@ -159,11 +159,6 @@ export class Harvester extends Minder {
   }
 
   private getMySource(): Source | undefined {
-    let mySourceId = this.memory.source;
-    if (!mySourceId) {
-      mySourceId = this.findShortHandedSourceInTargetRoom();
-      this.memory.source = mySourceId;
-    }
-    return mySourceId ? Game.getObjectById(mySourceId) ?? undefined : undefined;
+    return this.memory.source ? Game.getObjectById(this.memory.source) ?? undefined : undefined;
   }
 }
