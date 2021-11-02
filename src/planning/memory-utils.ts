@@ -25,6 +25,7 @@ declare global {
     task?: Task;
     lastPos?: RoomPosition;
     stuckCount?: number;
+    moved?: boolean;
   }
 
   interface RoomMemory {

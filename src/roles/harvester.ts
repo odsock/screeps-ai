@@ -1,11 +1,10 @@
-import { CreepBodyProfile } from "./creep-wrapper";
 import { CreepRole } from "config/creep-types";
-import { CreepUtils } from "creep-utils";
-import { Minder } from "./minder";
-import { profile } from "../../screeps-typescript-profiler";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
-import { doesNotThrow } from "assert";
+import { CreepUtils } from "creep-utils";
+import { profile } from "../../screeps-typescript-profiler";
+import { CreepBodyProfile } from "./creep-wrapper";
 import { Hauler } from "./hauler";
+import { Minder } from "./minder";
 
 @profile
 export class Harvester extends Minder {
