@@ -5,6 +5,7 @@ import { Minder } from "./minder";
 import { profile } from "../../screeps-typescript-profiler";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { doesNotThrow } from "assert";
+import { Hauler } from "./hauler";
 
 @profile
 export class Harvester extends Minder {
@@ -73,7 +74,7 @@ export class Harvester extends Minder {
 
     // if we have a hauler, tell it where to go
     if (this.memory.haulerName) {
-      const hauler = Game.creeps[this.memory.haulerName];
+      const hauler = new Hauler(Game.creeps[this.memory.haulerName]);
       if (hauler) {
         CreepUtils.consoleLogIfWatched(this, `have a hauler`);
 
@@ -82,13 +83,13 @@ export class Harvester extends Minder {
         const roomSizeMax = SockPuppetConstants.ROOM_SIZE - 1;
         let exitResult: ScreepsReturnCode | undefined;
         if (pos.x === 0 && hauler.pos.x === roomSizeMax) {
-          exitResult = hauler.move(RIGHT);
+          exitResult = hauler.directHaulerMove(RIGHT);
         } else if (pos.x === roomSizeMax && hauler.pos.x === 0) {
-          exitResult = hauler.move(LEFT);
+          exitResult = hauler.directHaulerMove(LEFT);
         } else if (pos.y === 0 && hauler.pos.y === roomSizeMax) {
-          exitResult = hauler.move(BOTTOM);
+          exitResult = hauler.directHaulerMove(BOTTOM);
         } else if (pos.y === roomSizeMax && hauler.pos.y === 0) {
-          exitResult = hauler.move(TOP);
+          exitResult = hauler.directHaulerMove(TOP);
         }
         if (exitResult !== undefined) {
           CreepUtils.consoleLogIfWatched(this, `move hauler out of exit`, exitResult);

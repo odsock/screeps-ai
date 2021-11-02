@@ -13,6 +13,7 @@ export class Hauler extends CreepWrapper {
     seed: [],
     maxBodyParts: MAX_CREEP_SIZE
   };
+  private moved = false;
 
   public run(): void {
     if (this.memory.task) {
@@ -199,8 +200,9 @@ export class Hauler extends CreepWrapper {
       return this.storeLoad();
     }
 
-    if (this.pos.isNearTo(creepToHaul.pos)) {
+    if (this.pos.isNearTo(creepToHaul.pos) || this.moved) {
       this.memory.working = true;
+      this.moved = false;
     } else {
       this.memory.working = false;
     }
@@ -514,5 +516,11 @@ export class Hauler extends CreepWrapper {
   private completeTask(): void {
     CreepUtils.consoleLogIfWatched(this, `task complete: ${String(this.memory.task?.type)}`);
     delete this.memory.task;
+  }
+
+  public directHaulerMove(direction: DirectionConstant): ScreepsReturnCode {
+    const result = this.move(direction);
+    this.moved = true;
+    return result;
   }
 }
