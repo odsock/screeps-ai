@@ -96,7 +96,8 @@ export class Harvester extends Minder {
         } else {
           CreepUtils.consoleLogIfWatched(
             this,
-            `not in exit: harvester ${String(this.pos)}, hauler ${String(hauler.pos)}`
+            `not in exit: harvester ${String(this.pos)}, hauler ${String(hauler.pos)}`,
+            exitResult
           );
         }
 
