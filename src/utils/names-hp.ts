@@ -112,7 +112,7 @@ export const names = [
   "minerva",
   "molly",
   "morfin",
-  "mrs.",
+  "norris",
   "mundungus",
   "muriel",
   "myrtle",
