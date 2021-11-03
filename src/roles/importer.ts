@@ -108,7 +108,7 @@ export class Importer extends RemoteCreepWrapper {
     if (result === OK) {
       return result;
     } else if (result === ERR_NO_PATH) {
-      const moveResult = this.moveTo(target.pos, { range: 2, ignoreCreeps: true });
+      const moveResult = this.moveTo(target.pos, { range: 2, reusePath: 0 });
       CreepUtils.consoleLogIfWatched(this, `no path to source, trying to move closer`, moveResult);
       if (moveResult === OK) {
         return moveResult;
