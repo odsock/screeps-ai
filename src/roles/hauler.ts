@@ -243,19 +243,19 @@ export class Hauler extends CreepWrapper {
         CreepUtils.consoleLogIfWatched(this, `moving to ${target.structureType} at ${String(target.pos)}`, moveResult);
         return moveResult;
       } else {
-        const transferResult = this.transfer(target, RESOURCE_ENERGY);
+        const transferResult = this.transfer(target, supplyTask.resourceType);
         CreepUtils.consoleLogIfWatched(this, `transfer result`, transferResult);
 
         let targetFreeCap = 0;
         // Type issue, two different versions of getFreeCapacity. The if makes compiler happy.
         if (target instanceof OwnedStructure) {
-          targetFreeCap = target.store.getFreeCapacity(RESOURCE_ENERGY);
+          targetFreeCap = target.store.getFreeCapacity(supplyTask.resourceType);
         } else {
-          targetFreeCap = target.store.getFreeCapacity(RESOURCE_ENERGY);
+          targetFreeCap = target.store.getFreeCapacity(supplyTask.resourceType);
         }
-        const creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
+        const creepStoredResource = this.store.getUsedCapacity(supplyTask.resourceType);
         // stop if structure will be full after this transfer
-        if (transferResult === OK && targetFreeCap < creepStoredEnergy) {
+        if (transferResult === OK && targetFreeCap < creepStoredResource) {
           CreepUtils.consoleLogIfWatched(this, `${target.structureType} is full: ${String(target.pos)}`);
           this.completeTask();
         }

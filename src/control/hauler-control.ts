@@ -24,6 +24,7 @@ export interface SupplyTask {
   pos: RoomPosition;
   targetId: Id<StructureWithStorage>;
   override?: boolean;
+  resourceType: ResourceConstant;
 }
 
 export interface UnloadTask {
@@ -215,7 +216,7 @@ export class HaulerControl {
           CreepUtils.getEnergyStoreRatioFree(tower) > SockPuppetConstants.TOWER_RESUPPLY_THRESHOLD
       )
       .map(t => {
-        return { type: TaskType.SUPPLY, targetId: t.id, pos: t.pos, priority: 250 };
+        return { type: TaskType.SUPPLY, targetId: t.id, pos: t.pos, priority: 250, resourceType: RESOURCE_ENERGY };
       });
   }
 
@@ -224,7 +225,7 @@ export class HaulerControl {
     return roomw.controllerContainers
       .filter(container => container.store.getFreeCapacity() > 0)
       .map(c => {
-        return { type: TaskType.SUPPLY, targetId: c.id, pos: c.pos, priority: 100 };
+        return { type: TaskType.SUPPLY, targetId: c.id, pos: c.pos, priority: 100, resourceType: RESOURCE_ENERGY };
       });
   }
 
