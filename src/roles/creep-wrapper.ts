@@ -41,8 +41,8 @@ export abstract class CreepWrapper extends Creep {
     }
   }
 
-  protected stopWorkingIfEmpty(): void {
-    if (this.memory.working && this.store.getUsedCapacity() === 0) {
+  protected stopWorkingIfEmpty(resourceType: ResourceConstant = RESOURCE_ENERGY): void {
+    if (this.memory.working && this.store.getUsedCapacity(resourceType) === 0) {
       CreepUtils.consoleLogIfWatched(this, "stop working, empty");
       if (this.memory.working) {
         this.memory.working = false;
@@ -51,8 +51,8 @@ export abstract class CreepWrapper extends Creep {
     }
   }
 
-  protected startWorkingIfEmpty(): void {
-    if (!this.memory.working && this.store.getUsedCapacity() === 0) {
+  protected startWorkingIfEmpty(resourceType: ResourceConstant = RESOURCE_ENERGY): void {
+    if (!this.memory.working && this.store.getUsedCapacity(resourceType) === 0) {
       CreepUtils.consoleLogIfWatched(this, "start working, empty");
       if (!this.memory.working) {
         this.memory.working = true;
