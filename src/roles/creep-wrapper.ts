@@ -91,8 +91,12 @@ export abstract class CreepWrapper extends Creep {
     }
   }
 
-  protected startWorkingInRange(jobsite: RoomPosition, range = 3): void {
-    if (this.store.getUsedCapacity() !== 0 && this.pos.inRangeTo(jobsite, range)) {
+  protected startWorkingInRange(
+    jobsite: RoomPosition,
+    range = 3,
+    resourceType: ResourceConstant = RESOURCE_ENERGY
+  ): void {
+    if (this.store.getUsedCapacity(resourceType) !== 0 && this.pos.inRangeTo(jobsite, range)) {
       CreepUtils.consoleLogIfWatched(this, `in range: starting work`);
       if (!this.memory.working) {
         this.memory.working = true;
