@@ -365,7 +365,8 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected moveToAndGet(
-    target: Tombstone | Ruin | StructureContainer | StructureStorage | Resource | Source | null | undefined
+    target: Tombstone | Ruin | StructureContainer | StructureStorage | Resource | Source | null | undefined,
+    resourceType: ResourceConstant = RESOURCE_ENERGY
   ): ScreepsReturnCode {
     if (!target) {
       return ERR_NOT_FOUND;
@@ -378,7 +379,7 @@ export abstract class CreepWrapper extends Creep {
       } else if (target instanceof Source) {
         result = this.harvest(target);
       } else {
-        result = this.withdrawW(target, RESOURCE_ENERGY);
+        result = this.withdrawW(target, resourceType);
       }
       CreepUtils.consoleLogIfWatched(this, `get result`, result);
     } else {
@@ -558,7 +559,10 @@ export abstract class CreepWrapper extends Creep {
     return undefined;
   }
 
-  /** moves to target and transfers energy */
+  /**
+   * Moves to target and transfers a resource
+   * By default, energy
+   */
   protected moveToAndTransfer(
     target: StructureWithStorage | Creep,
     resourceType: ResourceConstant = RESOURCE_ENERGY

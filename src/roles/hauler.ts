@@ -115,7 +115,14 @@ export class Hauler extends CreepWrapper {
 
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");
-      const result = this.moveToAndGet(target);
+      let resourceType: ResourceConstant;
+      if (!(target instanceof Resource)) {
+        const resources = this.getStoreContents(target);
+        resourceType = resources[0];
+      } else {
+        resourceType = target.resourceType;
+      }
+      const result = this.moveToAndGet(target, resourceType);
       if (result === OK) {
         return result;
       }
@@ -272,12 +279,15 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  /** get list of store contents sorted by amount */
-  private getStoreContents(): ResourceConstant[] {
+  /**
+   * Get list of store contents sorted by amount
+   * Default to getting contents of this creep
+   */
+  private getStoreContents(target: RoomObjectWithStorage = this): ResourceConstant[] {
     const resources: ResourceConstant[] = [];
-    for (const resourceName in this.store) {
+    for (const resourceName in target.store) {
       const type = resourceName as ResourceConstant;
-      if (this.store[type] > 0) {
+      if (target.store[type] > 0) {
         resources.push(type);
       }
     }
