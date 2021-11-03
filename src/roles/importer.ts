@@ -98,11 +98,16 @@ export class Importer extends RemoteCreepWrapper {
     this.withdrawAdjacentRuinOrTombEnergy();
 
     const target = this.findClosestActiveEnergySource() ?? this.findClosestEnergySource() ?? undefined;
+    if (!target) {
+      CreepUtils.consoleLogIfWatched(this, `no target found. Just going to sit here.`);
+      return ERR_NOT_FOUND;
+    }
 
     const result = this.moveToAndGet(target);
+    CreepUtils.consoleLogIfWatched(this, `move to target and get`, result);
     if (result === OK) {
       return result;
-    } else if (result === ERR_NO_PATH && target) {
+    } else if (result === ERR_NO_PATH) {
       const moveResult = this.moveTo(target.pos, { range: 2 });
       CreepUtils.consoleLogIfWatched(this, `no path to source, trying to move closer`, moveResult);
       if (moveResult === OK) {

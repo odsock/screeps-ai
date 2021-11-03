@@ -189,11 +189,11 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected findClosestActiveEnergySource(): Source | undefined {
-    return this.pos.findClosestByPath(FIND_SOURCES_ACTIVE) ?? undefined;
+    return this.pos.findClosestByPath(FIND_SOURCES_ACTIVE, { ignoreCreeps: true }) ?? undefined;
   }
 
-  protected findClosestEnergySource(): Source | null {
-    return this.pos.findClosestByPath(FIND_SOURCES);
+  protected findClosestEnergySource(): Source | undefined {
+    return this.pos.findClosestByPath(FIND_SOURCES, { ignoreCreeps: true }) ?? undefined;
   }
 
   protected findClosestTowerNotFull(): StructureTower | null {
