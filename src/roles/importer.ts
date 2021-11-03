@@ -66,14 +66,14 @@ export class Importer extends RemoteCreepWrapper {
     let result: ScreepsReturnCode = OK;
     if (this.memory.working) {
       result = this.moveToRoom(this.memory.targetRoom);
-      CreepUtils.consoleLogIfWatched(this, `move to target result`, result);
+      CreepUtils.consoleLogIfWatched(this, `move to target room result`, result);
       if (this.pos.roomName === this.memory.targetRoom) {
         result = this.remoteHarvest();
       }
       return result;
     } else {
       result = this.moveToRoom(this.memory.homeRoom);
-      CreepUtils.consoleLogIfWatched(this, `move home result`, result);
+      CreepUtils.consoleLogIfWatched(this, `move to home room result`, result);
       if (this.pos.roomName === this.memory.homeRoom) {
         const storage = this.findRoomStorage();
         if (storage) {
@@ -104,7 +104,7 @@ export class Importer extends RemoteCreepWrapper {
     }
 
     const result = this.moveToAndGet(target);
-    CreepUtils.consoleLogIfWatched(this, `move to target and get`, result);
+    CreepUtils.consoleLogIfWatched(this, `move to target and get ${String(target)}`, result);
     if (result === OK) {
       return result;
     } else if (result === ERR_NO_PATH) {
