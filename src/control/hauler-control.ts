@@ -223,7 +223,7 @@ export class HaulerControl {
   /** supply controller container */
   private createControllerSupplyTasks(roomw: RoomWrapper): Task[] {
     return roomw.controllerContainers
-      .filter(container => container.store.getFreeCapacity() > 0)
+      .filter(container => container.store.getUsedCapacity() < container.store.getCapacity() / 4)
       .map(c => {
         return { type: TaskType.SUPPLY, targetId: c.id, pos: c.pos, priority: 100, resourceType: RESOURCE_ENERGY };
       });
