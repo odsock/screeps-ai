@@ -34,7 +34,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const logger = new Logger();
   logger.run();
 
-  if (Game.cpu.bucket >= PIXEL_CPU_COST) {
+  if (Game.shard.name === "shard3" && Game.cpu.bucket >= PIXEL_CPU_COST) {
     Game.cpu.generatePixel();
   }
 });
