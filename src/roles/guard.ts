@@ -23,16 +23,17 @@ export class Guard extends RemoteCreepWrapper {
       } else {
         target = this.pos.findClosestByPath(structures);
       }
+
+      if ((!target || !this.pos.isNearTo(target)) && this.hits < this.hitsMax) {
+        const result = this.heal(this);
+        CreepUtils.consoleLogIfWatched(this, `heal self`, result);
+      }
+
       if (target) {
         const attackResult = this.moveToAndAttack(target);
         CreepUtils.consoleLogIfWatched(this, `attack`, attackResult);
         return;
       }
-    }
-
-    if (this.hits < this.hitsMax) {
-      const result = this.heal(this);
-      CreepUtils.consoleLogIfWatched(this, `heal self`, result);
     }
 
     if (!this.memory.targetRoom) {
