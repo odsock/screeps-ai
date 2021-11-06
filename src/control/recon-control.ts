@@ -10,6 +10,7 @@ export class ReconControl {
     for (const roomName in Game.rooms) {
       const room = RoomWrapper.getInstance(roomName);
       room.memory.owner = room.controller?.owner?.username ?? room.controller?.reservation?.username;
+      console.log(`DEBUG: room ${room.name} owner ${String(room.memory.owner)}`);
       this.refreshRoomDefense(room);
       this.refreshSourceMemory(room);
       this.refreshControllerMemory(room);
