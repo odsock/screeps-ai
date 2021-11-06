@@ -14,12 +14,12 @@ export class UpgradeControl {
       const roomw = RoomWrapper.getInstance(roomName);
 
       if (roomw.controller?.my && roomw.spawns.length > 0) {
-        this.requestSpawns(roomw);
+        this.requestSpawns(roomw, roomw.controller.level);
       }
     }
   }
 
-  private requestSpawns(roomw: RoomWrapper): void {
+  private requestSpawns(roomw: RoomWrapper, rcl: number): void {
     if (roomw.find(FIND_MY_CONSTRUCTION_SITES).length > 0) {
       CreepUtils.consoleLogIfWatched(roomw, `skipping upgraders during construction`);
       return;
@@ -34,7 +34,9 @@ export class UpgradeControl {
         ? CONTROLLER_MAX_UPGRADE_PER_TICK / UPGRADE_CONTROLLER_POWER
         : roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / UPGRADE_CONTROLLER_POWER;
 
-    if (upgraderCount > 0) {
+    // don't spawn more than one upgrader at level 1
+    // don't calc required upgraders if we have none
+    if (upgraderCount > 0 && rcl > 1) {
       upgradePositionCount = Math.min(SockPuppetConstants.MAX_UPGRADERS, roomw.getUpgradePositions().length);
       upgraderWorkPartsActive = roomw.getActiveParts(Upgrader.ROLE, WORK);
       CreepUtils.consoleLogIfWatched(
