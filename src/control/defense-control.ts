@@ -11,6 +11,10 @@ export class DefenseControl {
   public run(): void {
     // spawn guard for each unguarded room with hostiles
     for (const roomName in Memory.rooms) {
+      const roomMemory = Memory.rooms[roomName];
+      if (!roomMemory) {
+        continue;
+      }
       const roomIsMine = Memory.rooms[roomName].owner === Game.spawns[0].owner.username;
       const remoteHarvestRoom = TargetControl.isRemoteHarvestRoom(roomName);
       const targetedRoom = TargetControl.isTargetRoom(roomName);
