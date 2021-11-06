@@ -22,13 +22,6 @@ export class Worker extends CreepWrapper {
       return;
     }
 
-    // become a harvester if have haulers now
-    const haulers = this.roomw.creeps.filter(c => c.memory.role === CreepRole.HAULER);
-    if (this.roomw.controller?.level === 1 && haulers.length > 0) {
-      this.memory.role = CreepRole.HARVESTER;
-      this.memory.source = this.pos.findClosestByPath(this.roomw.sources)?.id;
-    }
-
     // harvest if any capacity in room
     if (this.room.energyAvailable < this.room.energyCapacityAvailable) {
       CreepUtils.consoleLogIfWatched(this, "harvesting job");
