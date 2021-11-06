@@ -13,14 +13,17 @@ export class CreepUtils {
     if (targets.length === 1) {
       return targets[0].pos;
     }
-    const average = targets
+    let sumX = 0;
+    let sumY = 0;
+    let roomName = "";
+    targets
       .map(t => t.pos)
-      .reduce((avg, pos) => {
-        avg.x += pos.x;
-        avg.y += pos.y;
-        return avg;
+      .forEach(pos => {
+        sumX += pos.x;
+        sumY += pos.y;
+        roomName = pos.roomName;
       });
-    return new RoomPosition(average.x / targets.length, average.y / targets.length, average.roomName);
+    return new RoomPosition(sumX / targets.length, sumY / targets.length, roomName);
   }
 
   public static consoleLogIfWatched(
