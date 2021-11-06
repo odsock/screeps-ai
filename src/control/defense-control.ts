@@ -4,13 +4,21 @@ import { Guard } from "roles/guard";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
+import { TargetControl } from "./target-control";
 
 @profile
 export class DefenseControl {
   public run(): void {
     // spawn guard for each unguarded room with hostiles
-    // TODO don't spawn guard for non-targeted rooms we don't own
     for (const roomName in Memory.rooms) {
+      const roomIsMine = Memory.rooms[roomName].owner === Game.spawns[0].owner.username;
+      const remoteHarvestRoom = TargetControl.isRemoteHarvestRoom(roomName);
+      const targetedRoom = TargetControl.isTargetRoom(roomName);
+      const defendedRoom = roomIsMine || remoteHarvestRoom || targetedRoom;
+      if (!defendedRoom) {
+        continue;
+      }
+
       const roomDefense = Memory.rooms[roomName].defense;
       if (roomDefense && (roomDefense.creeps.length > 0 || roomDefense.structures.length > 0)) {
         const spawningGuards = this.getSpawningGuardCount(roomName);
