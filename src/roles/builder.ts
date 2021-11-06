@@ -33,6 +33,7 @@ export class Builder extends CreepWrapper {
   }
 
   private doBuildJob(): void {
+    // BUG builders are not focused on single site
     const site = this.getConstructionSite();
     if (site) {
       this.memory.constructionSiteId = site.id;
