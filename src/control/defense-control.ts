@@ -15,7 +15,8 @@ export class DefenseControl {
       if (!roomMemory) {
         continue;
       }
-      const roomIsMine = roomMemory.owner === Game.spawns[0].owner.username;
+      // TODO find a better way to get my username
+      const roomIsMine = roomMemory.owner === _.find(Game.spawns, () => true)?.owner.username;
       const remoteHarvestRoom = TargetControl.isRemoteHarvestRoom(roomName);
       const targetedRoom = TargetControl.isTargetRoom(roomName);
       const defendedRoom = roomIsMine || remoteHarvestRoom || targetedRoom;
