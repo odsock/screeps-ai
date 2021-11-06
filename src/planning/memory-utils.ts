@@ -42,11 +42,10 @@ declare global {
     reconTick: number;
     centerPoint?: string;
     remoteHarvest?: { [roomName: string]: RemoteHarvest };
+    owner?: string;
   }
 
   interface RemoteHarvest {
-    owned?: boolean;
-    scouting?: boolean;
     importersNeeded: number;
     spawnCapacity: number;
   }

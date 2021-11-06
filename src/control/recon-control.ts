@@ -9,6 +9,7 @@ export class ReconControl {
     // check each room we can see
     for (const roomName in Game.rooms) {
       const room = RoomWrapper.getInstance(roomName);
+      room.memory.owner = room.controller?.owner?.username ?? room.controller?.reservation?.username;
       this.refreshRoomDefense(room);
       this.refreshSourceMemory(room);
       this.refreshControllerMemory(room);
