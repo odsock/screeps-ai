@@ -95,6 +95,7 @@ export class HaulerControl {
 
   /** assign tasks to creeps based on priority */
   private assignTasks(haulers: Hauler[], tasks: Task[]): void {
+    CreepUtils.consoleLogIfWatched(haulers[0].room, `assigning ${tasks.length} tasks`);
     const busyHaulers: Hauler[] = [];
     const freeHaulers: Hauler[] = [];
     haulers.forEach(h => {
