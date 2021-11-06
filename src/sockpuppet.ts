@@ -19,11 +19,11 @@ export class Sockpuppet {
   public memory = {};
 
   public run(): void {
-    new BuildControl().run();
+    new ReconControl().run();
     new DefenseControl().run();
+    new BuildControl().run();
     new HarvestControl().run();
     new HaulerControl().run();
-    new ReconControl().run();
     new RemoteControl().run();
     new UpgradeControl().run();
 
