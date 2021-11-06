@@ -15,7 +15,7 @@ export class DefenseControl {
       if (!roomMemory) {
         continue;
       }
-      const roomIsMine = Memory.rooms[roomName].owner === Game.spawns[0].owner.username;
+      const roomIsMine = roomMemory.owner === Game.spawns[0].owner.username;
       const remoteHarvestRoom = TargetControl.isRemoteHarvestRoom(roomName);
       const targetedRoom = TargetControl.isTargetRoom(roomName);
       const defendedRoom = roomIsMine || remoteHarvestRoom || targetedRoom;
@@ -23,7 +23,7 @@ export class DefenseControl {
         continue;
       }
 
-      const roomDefense = Memory.rooms[roomName].defense;
+      const roomDefense = roomMemory.defense;
       if (roomDefense && (roomDefense.creeps.length > 0 || roomDefense.structures.length > 0)) {
         const spawningGuards = this.getSpawningGuardCount(roomName);
         const guardsAssigned = _.filter(
