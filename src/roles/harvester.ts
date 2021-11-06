@@ -81,19 +81,6 @@ export class Harvester extends Minder {
         const pos = this.pos;
         const roomSizeMax = SockPuppetConstants.ROOM_SIZE - 1;
         let exitResult: ScreepsReturnCode | undefined;
-        if (pos.x === 0 && hauler.pos.x === roomSizeMax) {
-          exitResult = hauler.directHaulerMove(RIGHT);
-          CreepUtils.consoleLogIfWatched(this, `move hauler RIGHT`, exitResult);
-        } else if (pos.x === roomSizeMax && hauler.pos.x === 0) {
-          exitResult = hauler.directHaulerMove(LEFT);
-          CreepUtils.consoleLogIfWatched(this, `move hauler LEFT`, exitResult);
-        } else if (pos.y === 0 && hauler.pos.y === roomSizeMax) {
-          exitResult = hauler.directHaulerMove(BOTTOM);
-          CreepUtils.consoleLogIfWatched(this, `move hauler BOTTOM`, exitResult);
-        } else if (pos.y === roomSizeMax && hauler.pos.y === 0) {
-          exitResult = hauler.directHaulerMove(TOP);
-          CreepUtils.consoleLogIfWatched(this, `move hauler TOP`, exitResult);
-        }
         if (exitResult !== undefined) {
           CreepUtils.consoleLogIfWatched(this, `move hauler out of exit`, exitResult);
           return exitResult;
