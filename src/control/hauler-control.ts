@@ -218,8 +218,12 @@ export class HaulerControl {
       });
   }
 
-  /** supply controller container */
+  /** supply controller container if have upgraders */
   private createControllerSupplyTasks(roomw: RoomWrapper): Task[] {
+    const upgraders = roomw.creeps.filter(c => c.memory.role === CreepRole.UPGRADER);
+    if (upgraders.length === 0) {
+      return [];
+    }
     return roomw.controllerContainers
       .filter(container => container.store.getUsedCapacity() < container.store.getCapacity() / 4)
       .map(c => {
