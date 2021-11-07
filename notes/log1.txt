@@ -1,0 +1,13 @@
+0	 new RCL 1
+0	 new spawn count 1
+792	 new RCL 2
+572	 new extension count 2
+246	 new extension count 3
+145	 new extension count 4
+322	 new extension count 5
+10836	 new RCL 3
+583	 new extension count 6
+240	 new extension count 7
+248	 new extension count 8
+175	 new extension count 9
+195	 new extension count 10
