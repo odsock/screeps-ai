@@ -34,12 +34,12 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected moveToW(target: RoomObject | RoomPosition, moveOpts?: MoveToOpts): ScreepsReturnCode {
-    this.clearPathIfStuck();
-    moveOpts = { ignoreCreeps: true, reusePath: 10, ...moveOpts };
+    const stuckFlag = this.clearPathIfStuck();
+    moveOpts = { ignoreCreeps: !stuckFlag, reusePath: 10, ...moveOpts };
     return this.moveTo(target, moveOpts);
   }
 
-  protected clearPathIfStuck(): void {
+  protected clearPathIfStuck(): boolean {
     if (this.memory.lastPos) {
       const lastPos = MemoryUtils.unpackRoomPosition(this.memory.lastPos);
       if (lastPos && this.pos.isEqualTo(new RoomPosition(lastPos.x, lastPos.y, lastPos.roomName))) {
@@ -49,8 +49,10 @@ export abstract class CreepWrapper extends Creep {
     if ((this.memory.stuckCount ?? 0) > 2) {
       delete this.memory.path;
       delete this.memory.stuckCount;
+      return true;
     }
     this.memory.lastPos = MemoryUtils.packRoomPosition(this.pos);
+    return false;
   }
 
   protected updateJob(job: string): void {

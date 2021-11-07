@@ -52,7 +52,7 @@ export class Hauler extends CreepWrapper {
     this.say("🤔");
     const idleZone = this.findIdleZone();
     if (idleZone) {
-      this.moveTo(idleZone, { range: 2, reusePath: 10 });
+      this.moveToW(idleZone, { range: 2 });
       return;
     }
 
@@ -214,7 +214,7 @@ export class Hauler extends CreepWrapper {
     }
 
     if (!this.memory.working) {
-      const result = this.moveTo(creepToHaul);
+      const result = this.moveToW(creepToHaul);
       CreepUtils.consoleLogIfWatched(this, `move to creep`, result);
     }
     return OK;
@@ -246,7 +246,7 @@ export class Hauler extends CreepWrapper {
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");
       if (!this.pos.isNearTo(target)) {
-        const moveResult = this.moveTo(target, { range: 1, reusePath: 10, visualizePathStyle: { stroke: "#ffffff" } });
+        const moveResult = this.moveToW(target, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
         CreepUtils.consoleLogIfWatched(this, `moving to ${target.structureType} at ${String(target.pos)}`, moveResult);
         return moveResult;
       } else {
