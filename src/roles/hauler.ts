@@ -171,7 +171,7 @@ export class Hauler extends CreepWrapper {
       const path = PathFinder.search(this.pos, goals, {
         plainCost: 2,
         swampCost: 10,
-        roomCallback: CostMatrixUtils.getCreepMovementCostMatrix
+        roomCallback: CostMatrixUtils.getRoadCostMatrix
       });
       CreepUtils.consoleLogIfWatched(this, `path: ${String(path.path)}`);
       const moveResult = this.moveByPath(path.path);
@@ -352,7 +352,7 @@ export class Hauler extends CreepWrapper {
     const path = PathFinder.search(this.pos, goals, {
       plainCost: 2,
       swampCost: 10,
-      roomCallback: CostMatrixUtils.getCreepMovementCostMatrix
+      roomCallback: CostMatrixUtils.getRoadCostMatrix
     });
 
     // this.memory.path = path.path

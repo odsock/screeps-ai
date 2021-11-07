@@ -130,7 +130,7 @@ export class CostMatrixUtils {
     return cost;
   };
 
-  private static getRoadCostMatrix = (roomName: string): CostMatrix | boolean => {
+  public static getRoadCostMatrix = (roomName: string): CostMatrix | boolean => {
     const roomw = RoomWrapper.getInstance(roomName);
     if (!roomw) {
       return false;
