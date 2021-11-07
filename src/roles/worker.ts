@@ -17,7 +17,7 @@ export class Worker extends CreepWrapper {
   public run(): void {
     // if target room, go there
     if (this.memory.targetRoom && this.pos.roomName !== this.memory.targetRoom) {
-      const moveResult = this.moveTo(new RoomPosition(10, 10, this.memory.targetRoom));
+      const moveResult = this.moveToW(new RoomPosition(10, 10, this.memory.targetRoom));
       CreepUtils.consoleLogIfWatched(this, `moving to target room ${this.memory.targetRoom}`, moveResult);
       return;
     }
@@ -73,7 +73,7 @@ export class Worker extends CreepWrapper {
 
       if (this.memory.working) {
         if (this.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-          this.moveTo(controller, { visualizePathStyle: { stroke: "#ffffff" } });
+          this.moveToW(controller, { visualizePathStyle: { stroke: "#ffffff" } });
         }
       } else {
         this.harvestByPriority();
@@ -97,7 +97,7 @@ export class Worker extends CreepWrapper {
         // don't block the source while working
         const closestEnergySource = this.findClosestActiveEnergySource();
         if (this.build(site) === ERR_NOT_IN_RANGE) {
-          this.moveTo(site, {
+          this.moveToW(site, {
             range: 3,
             visualizePathStyle: { stroke: "#ffffff" },
             costCallback: CostMatrixUtils.avoidHarvestPositionsCostCallback
@@ -165,7 +165,7 @@ export class Worker extends CreepWrapper {
 
       if (this.memory.working) {
         if (this.repair(site) === ERR_NOT_IN_RANGE) {
-          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
+          this.moveToW(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
       } else {
         this.harvestByPriority();
@@ -184,7 +184,7 @@ export class Worker extends CreepWrapper {
         const site = this.pos.findClosestByPath(spawnStorage);
         if (site) {
           if (this.transfer(site, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
+            this.moveToW(site, { visualizePathStyle: { stroke: "#ffffff" } });
           }
         }
       }
@@ -202,7 +202,7 @@ export class Worker extends CreepWrapper {
       const site = this.findClosestTowerNotFull();
       if (site) {
         if (this.transfer(site, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
+          this.moveToW(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
       } else {
         this.memory.job = "";

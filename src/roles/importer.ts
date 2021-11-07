@@ -32,7 +32,7 @@ export class Importer extends RemoteCreepWrapper {
     ) {
       let result: ScreepsReturnCode;
       if (!this.pos.isNearTo(this.room.controller)) {
-        result = this.moveTo(this.room.controller, { range: 1, reusePath: 20 });
+        result = this.moveToW(this.room.controller, { range: 1, reusePath: 20 });
         CreepUtils.consoleLogIfWatched(this, `move result`, result);
       } else {
         result = this.signController(this.room.controller, "");
@@ -108,7 +108,7 @@ export class Importer extends RemoteCreepWrapper {
     if (result === OK) {
       return result;
     } else if (result === ERR_NO_PATH) {
-      const moveResult = this.moveTo(target.pos, { range: 2, reusePath: 0 });
+      const moveResult = this.moveToW(target.pos, { range: 2, reusePath: 0 });
       CreepUtils.consoleLogIfWatched(this, `no path to source, trying to move closer`, moveResult);
       if (moveResult === OK) {
         return moveResult;
