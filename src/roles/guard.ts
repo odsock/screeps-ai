@@ -14,6 +14,11 @@ export class Guard extends RemoteCreepWrapper {
   };
 
   public run(): void {
+    if (this.hits < this.hitsMax) {
+      const result = this.heal(this);
+      CreepUtils.consoleLogIfWatched(this, `heal self`, result);
+    }
+
     if (this.roomw.hasHostiles) {
       const creeps = this.roomw.hostileCreeps;
       const structures = this.roomw.hostileStructures;
@@ -22,11 +27,6 @@ export class Guard extends RemoteCreepWrapper {
         target = this.pos.findClosestByPath(creeps);
       } else {
         target = this.pos.findClosestByPath(structures);
-      }
-
-      if ((!target || !this.pos.isNearTo(target)) && this.hits < this.hitsMax) {
-        const result = this.heal(this);
-        CreepUtils.consoleLogIfWatched(this, `heal self`, result);
       }
 
       if (target) {
