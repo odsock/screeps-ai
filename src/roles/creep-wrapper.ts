@@ -1,5 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { profile } from "../../screeps-typescript-profiler";
@@ -30,6 +31,26 @@ export abstract class CreepWrapper extends Creep {
 
   public get roomw(): RoomWrapper {
     return RoomWrapper.getInstance(this.room.name);
+  }
+
+  protected moveToW(target: RoomObject | RoomPosition, moveOpts?: MoveToOpts): ScreepsReturnCode {
+    this.clearPathIfStuck();
+    moveOpts = { ignoreCreeps: true, reusePath: 10, ...moveOpts };
+    return this.moveTo(target, moveOpts);
+  }
+
+  protected clearPathIfStuck(): void {
+    if (this.memory.lastPos) {
+      const lastPos = MemoryUtils.unpackRoomPosition(this.memory.lastPos);
+      if (lastPos && this.pos.isEqualTo(new RoomPosition(lastPos.x, lastPos.y, lastPos.roomName))) {
+        this.memory.stuckCount = (this.memory.stuckCount ?? 0) + 1;
+      }
+    }
+    if ((this.memory.stuckCount ?? 0) > 2) {
+      delete this.memory.path;
+      delete this.memory.stuckCount;
+    }
+    this.memory.lastPos = MemoryUtils.packRoomPosition(this.pos);
   }
 
   protected updateJob(job: string): void {
@@ -319,7 +340,7 @@ export abstract class CreepWrapper extends Creep {
 
       const inactiveSource = this.findClosestEnergySource();
       if (inactiveSource && !this.pos.isNearTo(inactiveSource)) {
-        result = this.moveTo(inactiveSource, { range: 1, reusePath: 10, visualizePathStyle: { stroke: "#ffaa00" } });
+        result = this.moveToW(inactiveSource, { range: 1, visualizePathStyle: { stroke: "#ffaa00" } });
         CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
         return result;
       }
@@ -383,7 +404,10 @@ export abstract class CreepWrapper extends Creep {
       }
       CreepUtils.consoleLogIfWatched(this, `get result`, result);
     } else {
-      result = this.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ffaa00" }, reusePath: 10 });
+      result = this.moveToW(target, {
+        range: 1,
+        visualizePathStyle: { stroke: "#ffaa00" }
+      });
       CreepUtils.consoleLogIfWatched(this, `move result`, result);
     }
     return result;
@@ -395,10 +419,9 @@ export abstract class CreepWrapper extends Creep {
       result = this.attack(target);
       CreepUtils.consoleLogIfWatched(this, `attack ${typeof target}`, result);
     } else {
-      result = this.moveTo(target, {
+      result = this.moveToW(target, {
         range: 1,
-        visualizePathStyle: { stroke: "#ff0000" },
-        ignoreCreeps: true
+        visualizePathStyle: { stroke: "#ff0000" }
       });
       CreepUtils.consoleLogIfWatched(this, `move to ${typeof target}: ${String(target.pos)}`, result);
     }
@@ -444,7 +467,7 @@ export abstract class CreepWrapper extends Creep {
         CreepUtils.consoleLogIfWatched(this, `requesting retirement of ${retiree.name}`);
         retiree.suicide();
       }
-      return this.moveTo(retiree.pos, { visualizePathStyle: { stroke: "#ffaa00" } });
+      return this.moveToW(retiree.pos, { visualizePathStyle: { stroke: "#ffaa00" } });
     } else {
       this.memory.replacing = undefined;
       return ERR_NOT_FOUND;
@@ -487,7 +510,7 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `repairing ${structure.structureType}`, result);
       return result;
     }
-    const result = this.moveTo(structure, {
+    const result = this.moveToW(structure, {
       range: 3,
       costCallback: CostMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
     });
@@ -503,7 +526,7 @@ export abstract class CreepWrapper extends Creep {
     CreepUtils.consoleLogIfWatched(this, `dismantling ${structure.structureType}`, result);
     if (result === ERR_NOT_IN_RANGE) {
       CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
-      result = this.moveTo(structure, {
+      result = this.moveToW(structure, {
         costCallback: CostMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
       });
     }
@@ -572,7 +595,7 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `transfer to ${String(target)}`, transferResult);
       return transferResult;
     } else {
-      const moveResult = this.moveTo(target);
+      const moveResult = this.moveToW(target);
       CreepUtils.consoleLogIfWatched(this, `moving to ${String(target)} at ${String(target.pos)}`, moveResult);
       if (moveResult === OK) {
         return ERR_NOT_IN_RANGE;

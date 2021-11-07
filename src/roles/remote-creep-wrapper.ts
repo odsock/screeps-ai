@@ -24,15 +24,7 @@ export class RemoteCreepWrapper extends CreepWrapper {
 
     if (this.memory.path) {
       const path = Room.deserializePath(this.memory.path);
-      const lastPos = this.memory.lastPos;
-      if (lastPos && this.pos.isEqualTo(new RoomPosition(lastPos.x, lastPos.y, lastPos.roomName))) {
-        this.memory.stuckCount = (this.memory.stuckCount ?? 0) + 1;
-      }
-      if ((this.memory.stuckCount ?? 0) > 2) {
-        delete this.memory.path;
-        delete this.memory.stuckCount;
-      }
-      this.memory.lastPos = this.pos;
+      this.clearPathIfStuck();
 
       const ret = this.moveByPath(path);
       CreepUtils.consoleLogIfWatched(this, `moving to exit by path`, ret);
