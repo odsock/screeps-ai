@@ -1,13 +1,46 @@
-0	 new RCL 1
-0	 new spawn count 1
-792	 new RCL 2
-572	 new extension count 2
-246	 new extension count 3
-145	 new extension count 4
-322	 new extension count 5
-10836	 new RCL 3
-583	 new extension count 6
-240	 new extension count 7
-248	 new extension count 8
-175	 new extension count 9
-195	 new extension count 10
+0	new RCL 1
+0	new spawn count 1
+792	new RCL 2
+572	new extension count 2
+246	new extension count 3
+145	new extension count 4
+322	new extension count 5
+10836	new RCL 3
+583	new extension count 6
+240	new extension count 7
+248	new extension count 8
+175	new extension count 9
+195	new extension count 10
+13730	new RCL 4
+375	new extension count 11
+194	new extension count 12
+119	new extension count 13
+97	new extension count 14
+196	new extension count 15
+164	new extension count 16
+244	new extension count 17
+203	new extension count 18
+484	new extension count 19
+195	new extension count 20
+39654	new RCL 5
+501	new extension count 21
+122	new extension count 22
+86	new extension count 23
+79	new extension count 24
+111	new extension count 25
+123	new extension count 26
+133	new extension count 27
+146	new extension count 28
+99	new extension count 29
+80	new extension count 30
+101172	new RCL 6
+407	new extension count 31
+217	new extension count 32
+246	new extension count 33
+323	new extension count 34
+253	new extension count 35
+285	new extension count 36
+1484	new extension count 37
+87	new extension count 38
+76	new extension count 39
+132	new extension count 40
