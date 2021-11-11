@@ -59,7 +59,7 @@ export abstract class CreepWrapper extends Creep {
     return RoomWrapper.getInstance(this.room.name);
   }
 
-  protected moveToW(target: RoomObject | RoomPosition, moveOpts?: MoveToOpts): ScreepsReturnCode {
+  public moveToW(target: RoomObject | RoomPosition, moveOpts?: MoveToOpts): ScreepsReturnCode {
     const stuckFlag = this.clearPathIfStuck();
     moveOpts = { ignoreCreeps: !stuckFlag, reusePath: 10, ...moveOpts };
     return this.moveTo(target, moveOpts);

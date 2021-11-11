@@ -206,9 +206,8 @@ export class Hauler extends CreepWrapper {
       return this.storeLoad();
     }
 
-    if (this.pos.isNearTo(creepToHaul.pos) || this.memory.moved) {
+    if (this.pos.isNearTo(creepToHaul.pos)) {
       this.memory.working = true;
-      this.memory.moved = false;
     } else {
       this.memory.working = false;
     }
@@ -523,11 +522,5 @@ export class Hauler extends CreepWrapper {
   private completeTask(): void {
     CreepUtils.consoleLogIfWatched(this, `task complete: ${String(this.memory.task?.type)}`);
     delete this.memory.task;
-  }
-
-  public directHaulerMove(direction: DirectionConstant): ScreepsReturnCode {
-    const result = this.move(direction);
-    this.memory.moved = true;
-    return result;
   }
 }
