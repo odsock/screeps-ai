@@ -1,9 +1,35 @@
 import { CreepRole } from "config/creep-types";
+import { Task } from "control/hauler-control";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { profile } from "../../screeps-typescript-profiler";
+
+declare global {
+  interface CreepMemory {
+    source?: Id<Source>;
+    hauleeName?: string; // creep being hauled
+    haulerName?: string; // creep doing the hauling
+    haulRequested?: boolean; // true if waiting on hauler, or being hauled
+    homeRoom: string;
+    constructionSiteId?: string;
+    targetRoom: string;
+    containerId?: Id<StructureContainer>;
+    replacing?: string;
+    retiring?: boolean;
+    job?: string;
+    role: CreepRole;
+    working?: boolean;
+    watched?: boolean;
+    path?: string;
+    idleZone?: Id<Source | StructureStorage | StructureSpawn>; // id of source, storage, or spawn where hauler is idling
+    task?: Task;
+    lastPos?: string;
+    stuckCount?: number;
+    moved?: boolean;
+  }
+}
 
 export interface CreepBodyProfile {
   profile: BodyPartConstant[];
