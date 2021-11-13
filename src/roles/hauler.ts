@@ -309,7 +309,6 @@ export class Hauler extends CreepWrapper {
         this.completeTask();
         return ERR_FULL;
       }
-      // update task with current state
 
       const targetIndex = spawnStorage.findIndex(s => s.pos.isNearTo(this.pos));
       if (targetIndex !== -1) {
