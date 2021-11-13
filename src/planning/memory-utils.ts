@@ -133,7 +133,8 @@ export class MemoryUtils {
     return `${pos.x}:${pos.y}:${pos.roomName}`;
   }
 
-  public static writeCacheToMemory(): void {
+  // TODO memory caching is flawed due to shallow serialization, and restoring objects that have no methods
+  private static writeCacheToMemory(): void {
     // init cache if not yet set
     if (!global.cache) {
       MemoryUtils.initCache();
