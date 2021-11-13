@@ -28,6 +28,7 @@ declare global {
     lastPos?: string;
     stuckCount?: number;
     moved?: boolean;
+    draw?: boolean;
   }
 }
 

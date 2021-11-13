@@ -104,6 +104,8 @@ declare global {
     interface Global {
       sockpuppet: Sockpuppet;
       cache: Map<string, CacheValue>;
+      spotCreeps: (...creeps: Creep[]) => void;
+      unspotCreeps: (...creeps: Creep[]) => void;
       watch: (key: string) => void;
       unwatch: (key: string) => void;
       placeExt: (pos: RoomPosition, structure: StructureConstant) => void;

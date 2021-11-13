@@ -3,6 +3,14 @@ import { isBoolean } from "lodash";
 import { RoadPlan } from "planning/road-plan";
 import { CostMatrixUtils } from "./cost-matrix-utils";
 
+global.spotCreeps = (...creeps: Creep[]) => {
+  creeps.forEach(c => (c.memory.draw = true));
+};
+
+global.unspotCreeps = (...creeps: Creep[]) => {
+  creeps.forEach(c => (c.memory.draw = false));
+};
+
 global.watch = (key: string) => {
   const watchable: Watchable = getWatchable(key);
   if (watchable) {
