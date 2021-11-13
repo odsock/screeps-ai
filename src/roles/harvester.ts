@@ -177,6 +177,7 @@ export class Harvester extends Minder {
 
   /** checks that hauler and harvester are swapping positions at exit tile */
   private atRoomExit() {
+    let atRoomExit = false;
     const hauler = this.getHauler();
     if (hauler) {
       const roomSizeMax = SockPuppetConstants.ROOM_SIZE - 1;
@@ -186,10 +187,11 @@ export class Harvester extends Minder {
         (this.pos.y === 0 && hauler.pos.y === roomSizeMax) ||
         (this.pos.y === roomSizeMax && hauler.pos.y === 0)
       ) {
-        return true;
+        atRoomExit = true;
       }
     }
-    return false;
+    console.log(`DEBUG: at room exit: ${String(atRoomExit)}`);
+    return atRoomExit;
   }
 
   private getHauler(): Hauler | undefined {
