@@ -65,7 +65,7 @@ export class Sockpuppet {
           const creepw = CreepFactory.getCreep(creep);
           creepw.run();
           if (creepw.memory.draw) {
-            creepw.roomw.visual.circle(creepw.pos.x, creepw.pos.y);
+            creepw.roomw.visual.circle(creepw.pos.x, creepw.pos.y, { fill: "#FF0000" });
           }
         } catch (error) {
           console.log(`ERROR: caught running creep ${creep.name}`, error);
