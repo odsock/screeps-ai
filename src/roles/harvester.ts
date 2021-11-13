@@ -35,6 +35,7 @@ export class Harvester extends Minder {
 
   public run(): void {
     if (this.atDestination()) {
+      this.cancelHauler();
       this.harvestFromNearbySource();
     } else if (this.memory.replacing) {
       this.replaceCreep(this.memory.replacing);
@@ -155,7 +156,7 @@ export class Harvester extends Minder {
           this.memory.exitState = ExitState.HAULER_MOVED;
         }
         break;
-      // hauler has stepped away from exist, and needs to wait one tick
+      // hauler has stepped away from exit, and needs to wait one tick
       case ExitState.HAULER_MOVED:
         this.memory.exitState = ExitState.HAULER_WAITING;
         break;
