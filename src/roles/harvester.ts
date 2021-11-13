@@ -185,6 +185,7 @@ export class Harvester extends Minder {
     const hauler = this.getHauler();
     if (hauler) {
       const roomSizeMax = SockPuppetConstants.ROOM_SIZE - 1;
+      CreepUtils.consoleLogIfWatched(this, `hauler pos: ${String(hauler.pos)}, cargo pos: ${String(this.pos)}`);
       if (
         (this.pos.x === 0 && hauler.pos.x === roomSizeMax) ||
         (this.pos.x === roomSizeMax && hauler.pos.x === 0) ||
