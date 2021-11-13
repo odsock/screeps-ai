@@ -101,8 +101,12 @@ export class Harvester extends Minder {
       return ERR_NOT_FOUND;
     }
 
+    if (this.atRoomExit() && this.memory.exitState === undefined) {
+      this.memory.exitState = ExitState.START_EXIT;
+    }
+
     console.log(
-      `DEBUG: ${String(this.memory.exitState)}`,
+      `DEBUG: handle exit check: ${String(this.memory.exitState)}`,
       this.memory.exitState !== undefined,
       this.memory.exitState !== ExitState.HAUL
     );
@@ -122,9 +126,6 @@ export class Harvester extends Minder {
       if (haulerPathToTarget.length === 0) {
         const result = hauler.moveToW(this);
         CreepUtils.consoleLogIfWatched(this, `swap with hauler`, result);
-        if (this.atRoomExit()) {
-          this.memory.exitState = ExitState.START_EXIT;
-        }
         return result;
       }
 
