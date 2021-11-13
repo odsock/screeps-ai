@@ -84,7 +84,7 @@ export class RoadPlan {
       { pos: goal, range },
       { swampCost: 2, plainCost: 2, roomCallback: CostMatrixUtils.roadPlanningRoomCallback }
     );
-    console.log(`DEBUG: ${JSON.stringify(path)}`);
+    // console.log(`DEBUG: ${JSON.stringify(path)}`);
     if (path.incomplete) {
       // console.log(`road plan incomplete: ${String(origin)} -> ${String(goal)}`);
     }
