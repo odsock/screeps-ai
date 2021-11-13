@@ -132,6 +132,7 @@ export class Harvester extends Minder {
   }
 
   private handleRoomExit(hauler: Hauler): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `handle room exit ${String(this.memory.exitState)}`);
     switch (this.memory.exitState) {
       case ExitState.START_EXIT:
         // hauler was at exit last tick, and should have phased through, pulling cargo along
