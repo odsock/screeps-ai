@@ -106,6 +106,7 @@ export class Harvester extends Minder {
       this.memory.exitState !== ExitState.HAUL
     );
     if (this.memory.exitState !== undefined && this.memory.exitState !== ExitState.HAUL) {
+      console.log(`WTF`);
       this.handleRoomExit(hauler);
     }
 
@@ -137,6 +138,7 @@ export class Harvester extends Minder {
   }
 
   private handleRoomExit(hauler: Hauler): ScreepsReturnCode {
+    console.log(`WTF`);
     CreepUtils.consoleLogIfWatched(this, `handle room exit ${String(this.memory.exitState)}`);
     switch (this.memory.exitState) {
       case ExitState.START_EXIT:
