@@ -85,6 +85,7 @@ export abstract class CreepWrapper extends Creep {
 
   protected updateJob(job: string): void {
     if (this.memory.job !== job) {
+      this.memory.working = false;
       // not idle if switching job
       this.memory.idleZone = undefined;
       this.memory.job = job;
