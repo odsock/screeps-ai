@@ -100,6 +100,7 @@ export class Harvester extends Minder {
       return ERR_NOT_FOUND;
     }
 
+    console.log(`DEBUG: ${String(this.memory.exitState)}`);
     if (this.memory.exitState && this.memory.exitState !== ExitState.HAUL) {
       this.handleRoomExit(hauler);
     }
