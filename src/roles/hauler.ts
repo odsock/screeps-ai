@@ -206,7 +206,7 @@ export class Hauler extends CreepWrapper {
       return this.storeLoad();
     }
 
-    if (this.pos.isNearTo(creepToHaul.pos) && creepToHaul.memory.haulerName === this.name) {
+    if (this.pos.isNearTo(creepToHaul.pos) || creepToHaul.memory.haulerName === this.name) {
       this.memory.working = true;
     } else {
       this.memory.working = false;
