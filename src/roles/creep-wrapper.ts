@@ -74,6 +74,7 @@ export abstract class CreepWrapper extends Creep {
       }
     }
     if ((this.memory.stuckCount ?? 0) > 2) {
+      CreepUtils.consoleLogIfWatched(this, `stuck, clearing path`);
       delete this.memory.path;
       delete this.memory.stuckCount;
       return true;
