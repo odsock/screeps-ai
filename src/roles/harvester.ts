@@ -103,23 +103,23 @@ export class Harvester extends Minder {
       return ERR_NOT_FOUND;
     }
 
+    // get haulers path to target
+    const haulerPathToTarget = hauler.pos.findPathTo(target, { range });
+
+    // path length 1 means near target, or leaving room
+    if (!hauler.memory.exitState && haulerPathToTarget.length === 1 && hauler.room.name !== target.roomName) {
+      hauler.memory.exitState = ExitState.AT_EDGE;
+    }
+
+    if (hauler.memory.exitState !== ExitState.NOT_EXITING) {
+      const exitResult = this.handleRoomExit(hauler);
+      return exitResult;
+    }
+
     // setup hauler pulling
     const pullResult = hauler.pull(this);
     const moveResult = this.move(hauler);
     if (pullResult === OK && moveResult === OK) {
-      // get haulers path to target
-      const haulerPathToTarget = hauler.pos.findPathTo(target, { range });
-
-      // path length 1 means near target, or leaving room
-      if (!hauler.memory.exitState && haulerPathToTarget.length === 1 && hauler.room.name !== target.roomName) {
-        hauler.memory.exitState = ExitState.AT_EDGE;
-      }
-
-      if (hauler.memory.exitState !== ExitState.NOT_EXITING) {
-        const exitResult = this.handleRoomExit(hauler);
-        return exitResult;
-      }
-
       // if path is 0 steps, hauler is at target or exit of a room, so swap positions
       if (haulerPathToTarget.length === 0) {
         const result = hauler.moveToW(this);
@@ -161,6 +161,8 @@ export class Harvester extends Minder {
     let result: ScreepsReturnCode;
     switch (exitState) {
       case ExitState.AT_EDGE:
+        hauler.pull(this);
+        this.move(hauler);
         result = hauler.move(exitDir);
         hauler.memory.exitState = ExitState.WAITING;
         break;
@@ -169,6 +171,8 @@ export class Harvester extends Minder {
         hauler.memory.exitState = ExitState.SWAPPING;
         break;
       case ExitState.SWAPPING:
+        hauler.pull(this);
+        this.move(hauler);
         result = hauler.move(this);
         hauler.memory.exitState = ExitState.EXITING;
         break;
@@ -181,6 +185,8 @@ export class Harvester extends Minder {
         hauler.memory.exitState = ExitState.PULL;
         break;
       case ExitState.PULL:
+        hauler.pull(this);
+        this.move(hauler);
         result = hauler.move(awayFromExitDir);
         hauler.memory.exitState = ExitState.NOT_EXITING;
         break;
