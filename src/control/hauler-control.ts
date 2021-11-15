@@ -71,9 +71,9 @@ export class HaulerControl {
   public run(): void {
     for (const roomName in Game.rooms) {
       const roomw = RoomWrapper.getInstance(roomName);
-      const haulers = roomw
-        .find(FIND_MY_CREEPS, { filter: c => c.memory.role === Hauler.ROLE })
-        .map(c => new Hauler(c));
+      const haulers = _.filter(Game.creeps, c => c.memory.role === Hauler.ROLE && c.memory.homeRoom === roomName).map(
+        c => new Hauler(c)
+      );
 
       if (haulers.length > 0) {
         this.assignTasks(haulers, [
