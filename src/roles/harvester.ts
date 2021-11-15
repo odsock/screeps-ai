@@ -164,31 +164,49 @@ export class Harvester extends Minder {
         hauler.pull(this);
         this.move(hauler);
         result = hauler.move(exitDir);
-        hauler.memory.exitState = ExitState.WAITING;
+        CreepUtils.consoleLogIfWatched(this, `at edge, moving to next room`, result);
+        if (result === OK) {
+          hauler.memory.exitState = ExitState.WAITING;
+        }
         break;
       case ExitState.WAITING:
         result = hauler.move(hauler);
-        hauler.memory.exitState = ExitState.SWAPPING;
+        CreepUtils.consoleLogIfWatched(this, `waiting a tick to return`, result);
+        if (result === OK) {
+          hauler.memory.exitState = ExitState.SWAPPING;
+        }
         break;
       case ExitState.SWAPPING:
         hauler.pull(this);
         this.move(hauler);
         result = hauler.move(this);
-        hauler.memory.exitState = ExitState.EXITING;
+        CreepUtils.consoleLogIfWatched(this, `swap with cargo`, result);
+        if (result === OK) {
+          hauler.memory.exitState = ExitState.EXITING;
+        }
         break;
       case ExitState.EXITING:
         result = hauler.move(exitDir);
-        hauler.memory.exitState = ExitState.LEAVE_EDGE;
+        CreepUtils.consoleLogIfWatched(this, `exit room after cargo`, result);
+        if (result === OK) {
+          hauler.memory.exitState = ExitState.LEAVE_EDGE;
+        }
         break;
       case ExitState.LEAVE_EDGE:
         result = hauler.move(awayFromExitDir);
-        hauler.memory.exitState = ExitState.PULL;
+        CreepUtils.consoleLogIfWatched(this, `move away from edge`, result);
+        if (result === OK) {
+          hauler.memory.exitState = ExitState.PULL;
+        }
         break;
       case ExitState.PULL:
         hauler.pull(this);
         this.move(hauler);
         result = hauler.move(awayFromExitDir);
-        hauler.memory.exitState = ExitState.NOT_EXITING;
+        CreepUtils.consoleLogIfWatched(this, `pull cargo away from edge`, result);
+        if (result === OK) {
+          hauler.memory.exitState = ExitState.NOT_EXITING;
+        }
         break;
       case ExitState.NOT_EXITING:
         result = ERR_INVALID_ARGS;
