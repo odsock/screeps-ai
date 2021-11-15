@@ -1,7 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
-import { MemoryUtils } from "planning/memory-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { CreepBodyProfile } from "./creep-wrapper";
 import { Hauler } from "./hauler";
@@ -14,10 +13,13 @@ declare global {
 }
 
 export enum ExitState {
-  START_EXIT,
-  HAULER_MOVED,
-  HAULER_WAITING,
-  HAUL
+  NOT_EXITING,
+  AT_EDGE,
+  WAITING,
+  SWAPPING,
+  EXITING,
+  LEAVE_EDGE,
+  PULL
 }
 
 @profile
@@ -101,22 +103,22 @@ export class Harvester extends Minder {
       return ERR_NOT_FOUND;
     }
 
-    if (this.atRoomExit() && this.memory.exitState === undefined) {
-      this.memory.exitState = ExitState.START_EXIT;
-    }
-
-    CreepUtils.consoleLogIfWatched(this, `DEBUG: handleRoomExit check: state ${String(this.memory.exitState)}`);
-    if (this.memory.exitState !== undefined && this.memory.exitState !== ExitState.HAUL) {
-      console.log(`WTF`);
-      this.handleRoomExit(hauler);
-    }
-
     // setup hauler pulling
     const pullResult = hauler.pull(this);
     const moveResult = this.move(hauler);
     if (pullResult === OK && moveResult === OK) {
       // get haulers path to target
       const haulerPathToTarget = hauler.pos.findPathTo(target, { range });
+
+      // path length 1 means near target, or leaving room
+      if (!hauler.memory.exitState && haulerPathToTarget.length === 1 && hauler.room.name !== target.roomName) {
+        hauler.memory.exitState = ExitState.AT_EDGE;
+      }
+
+      if (hauler.memory.exitState !== ExitState.NOT_EXITING) {
+        const exitResult = this.handleRoomExit(hauler);
+        return exitResult;
+      }
 
       // if path is 0 steps, hauler is at target or exit of a room, so swap positions
       if (haulerPathToTarget.length === 0) {
@@ -136,48 +138,110 @@ export class Harvester extends Minder {
   }
 
   private handleRoomExit(hauler: Hauler): ScreepsReturnCode {
-    console.log(`WTF`);
-    CreepUtils.consoleLogIfWatched(this, `handle room exit ${String(this.memory.exitState)}`);
-    switch (this.memory.exitState) {
-      case ExitState.START_EXIT:
-        // hauler was at exit last tick, and should have phased through, pulling cargo along
-        // hauler should step away from exit, and wait for cargo to phase through
-        if (this.memory.lastPos) {
-          const lastPos = MemoryUtils.unpackRoomPosition(this.memory.lastPos);
-          const returnDirection = hauler.roomw.findExitTo(lastPos.roomName);
-          if (returnDirection === ERR_NO_PATH || returnDirection === ERR_INVALID_ARGS) {
-            return returnDirection;
-          }
-          const directionAwayFromExit = (returnDirection + (4 % 8)) as DirectionConstant;
-          hauler.move(directionAwayFromExit);
-          this.memory.exitState = ExitState.HAULER_MOVED;
-        }
+    const exitPos = hauler.pos.findClosestByRange(FIND_EXIT);
+    if (!exitPos) {
+      CreepUtils.consoleLogIfWatched(this, `ERROR: no exit for hauler`);
+      return ERR_NO_PATH;
+    }
+    let exitDir = hauler.pos.getDirectionTo(exitPos);
+    if (!exitDir) {
+      if (hauler.pos.x === 0) exitDir = LEFT;
+      if (hauler.pos.y === 0) exitDir = TOP;
+      if (hauler.pos.x === 49) exitDir = RIGHT;
+      if (hauler.pos.y === 49) exitDir = BOTTOM;
+    }
+    const awayFromExitDir = ((exitDir + 4) % 8) as DirectionConstant;
+    console.log(`DEBUG: exitPos: ${String(exitPos)}, exit dir: ${exitDir}, reverse: ${awayFromExitDir}`);
+
+    if (hauler.memory.exitState === undefined) {
+      hauler.memory.exitState = ExitState.NOT_EXITING;
+    }
+    const exitState = hauler.memory.exitState;
+    console.log(`DEBUG: exit state: ${String(exitState)}`);
+    let result: ScreepsReturnCode;
+    switch (exitState) {
+      case ExitState.AT_EDGE:
+        result = hauler.move(exitDir);
+        hauler.memory.exitState = ExitState.WAITING;
         break;
-      // hauler has stepped away from exit, and needs to wait one tick
-      case ExitState.HAULER_MOVED:
-        this.memory.exitState = ExitState.HAULER_WAITING;
+      case ExitState.WAITING:
+        result = hauler.move(hauler);
+        hauler.memory.exitState = ExitState.SWAPPING;
         break;
-      // hauler waiting one tick
-      case ExitState.HAULER_WAITING:
-        this.memory.exitState = ExitState.HAUL;
+      case ExitState.SWAPPING:
+        result = hauler.move(this);
+        hauler.memory.exitState = ExitState.EXITING;
         break;
-      // hauler ready to haul cargo away from exit
-      case ExitState.HAUL:
-        this.memory.exitState = ExitState.HAUL;
+      case ExitState.EXITING:
+        result = hauler.move(exitDir);
+        hauler.memory.exitState = ExitState.LEAVE_EDGE;
         break;
-      // shouldn't reach this, but handled for compiler
-      case undefined:
-        return ERR_INVALID_ARGS;
+      case ExitState.LEAVE_EDGE:
+        result = hauler.move(awayFromExitDir);
+        hauler.memory.exitState = ExitState.PULL;
+        break;
+      case ExitState.PULL:
+        result = hauler.move(awayFromExitDir);
+        hauler.memory.exitState = ExitState.NOT_EXITING;
+        break;
+      case ExitState.NOT_EXITING:
+        result = ERR_INVALID_ARGS;
+        break;
 
       default:
-        assertNever(this.memory.exitState);
+        assertNever(exitState);
     }
 
     function assertNever(x: never): never {
       throw new Error("Missing enum case: " + JSON.stringify(x));
     }
-    return ERR_INVALID_ARGS;
+
+    return result;
   }
+
+  // private handleRoomExitOLD(hauler: Hauler): ScreepsReturnCode {
+  //   console.log(`WTF`);
+  //   CreepUtils.consoleLogIfWatched(this, `handle room exit ${String(this.memory.exitState)}`);
+  //   switch (this.memory.exitState) {
+  //     case ExitState.START_EXIT:
+  //       // hauler was at exit last tick, and should have phased through, pulling cargo along
+  //       // hauler should step away from exit, and wait for cargo to phase through
+  //       if (this.memory.lastPos) {
+  //         const lastPos = MemoryUtils.unpackRoomPosition(this.memory.lastPos);
+  //         const returnDirection = hauler.roomw.findExitTo(lastPos.roomName);
+  //         if (returnDirection === ERR_NO_PATH || returnDirection === ERR_INVALID_ARGS) {
+  //           return returnDirection;
+  //         }
+  //         const directionAwayFromExit = (returnDirection + (4 % 8)) as DirectionConstant;
+  //         hauler.move(directionAwayFromExit);
+  //         this.memory.exitState = ExitState.HAULER_MOVED;
+  //       }
+  //       break;
+  //     // hauler has stepped away from exit, and needs to wait one tick
+  //     case ExitState.HAULER_MOVED:
+  //       this.memory.exitState = ExitState.HAULER_WAITING;
+  //       break;
+  //     // hauler waiting one tick
+  //     case ExitState.HAULER_WAITING:
+  //       this.memory.exitState = ExitState.HAUL;
+  //       break;
+  //     // hauler ready to haul cargo away from exit
+  //     case ExitState.HAUL:
+  //       this.memory.exitState = ExitState.HAUL;
+  //       break;
+  //     // shouldn't reach this, but handled for compiler
+  //     case undefined:
+  //       return ERR_INVALID_ARGS;
+
+  //     default:
+  //       assertNever(this.memory.exitState);
+  //   }
+
+  //   function assertNever(x: never): never {
+  //     throw new Error("Missing enum case: " + JSON.stringify(x));
+  //   }
+  //   return ERR_INVALID_ARGS;
+  // }
 
   /** checks that hauler and harvester are swapping positions at exit tile */
   private atRoomExit() {
