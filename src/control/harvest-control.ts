@@ -16,7 +16,7 @@ export class HarvestControl {
       if (roomw.controller?.my && roomw.spawns.length > 0) {
         this.requestSpawns(roomw);
         // TODO this won't scale for two claimed rooms, need to have home mapped for target config
-        // this.requestRemoteHarvesters(roomw);
+        this.requestRemoteHarvesters(roomw);
       }
     }
   }

@@ -8,7 +8,7 @@ import { profile } from "../../screeps-typescript-profiler";
 export class Importer extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.IMPORTER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
-    profile: [WORK, CARRY, CARRY, MOVE, MOVE, MOVE],
+    profile: [MOVE, CARRY],
     seed: [],
     maxBodyParts: MAX_CREEP_SIZE
   };
