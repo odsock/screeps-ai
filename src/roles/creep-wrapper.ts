@@ -71,6 +71,7 @@ export abstract class CreepWrapper extends Creep {
       const lastPos = MemoryUtils.unpackRoomPosition(this.memory.lastPos);
       if (lastPos && this.pos.isEqualTo(new RoomPosition(lastPos.x, lastPos.y, lastPos.roomName))) {
         this.memory.stuckCount = (this.memory.stuckCount ?? 0) + 1;
+        this.room.visual.circle(this.pos.x, this.pos.y, { fill: "#FFFFFF" });
       }
     }
     if ((this.memory.stuckCount ?? 0) > 2) {
