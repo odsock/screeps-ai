@@ -109,20 +109,24 @@ export class HaulerControl {
     const tasksByPriority = newTasks.sort((a, b) => b.priority - a.priority);
 
     const unassignedTasks: Task[] = [];
-    tasksByPriority.forEach(task => {
-      const closestHauler = task.pos.findClosestByPath(freeHaulers) ?? task.pos.findClosestByRange(freeHaulers);
-      console.log(`DEBUG: closest hauler: ${String(closestHauler?.name)}`);
-      if (closestHauler) {
-        closestHauler.memory.task = task;
-        freeHaulers.splice(
-          freeHaulers.findIndex(h => h.id === closestHauler.id),
-          1
-        );
-        busyHaulers.push(closestHauler);
-      } else {
-        unassignedTasks.push(task);
-      }
-    });
+    if (freeHaulers.length > 0) {
+      tasksByPriority.forEach(task => {
+        const closestHauler = task.pos.findClosestByPath(freeHaulers) ?? task.pos.findClosestByRange(freeHaulers);
+        console.log(`DEBUG: closest hauler: ${String(closestHauler?.name)}`);
+        if (closestHauler) {
+          closestHauler.memory.task = task;
+          freeHaulers.splice(
+            freeHaulers.findIndex(h => h.id === closestHauler.id),
+            1
+          );
+          busyHaulers.push(closestHauler);
+        } else {
+          unassignedTasks.push(task);
+        }
+      });
+    } else {
+      CreepUtils.consoleLogIfWatched(haulers[0].room, `no free haulers`);
+    }
 
     // bump low priority tasks for higher priority tasks with override flag set
     const busyHaulersSorted = busyHaulers.sort(
