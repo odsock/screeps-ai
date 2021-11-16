@@ -157,29 +157,6 @@ export abstract class CreepWrapper extends Creep {
     }
   }
 
-  /** find source that is understaffed by my role*/
-  protected findShortHandedSourceInTargetRoom(): Id<Source> | undefined {
-    if (!this.memory.targetRoom) {
-      return undefined;
-    }
-    let shortSource;
-    let workPartsOnShortSource = 999;
-    CreepUtils.consoleLogIfWatched(this, `choosing source`);
-    for (const sourceId in Memory.rooms[this.memory.targetRoom]?.sources) {
-      const creepsOnSource = _.filter(
-        Game.creeps,
-        c => c.memory.role === this.memory.role && c.memory.source === sourceId
-      );
-      const workPartsOnSource = CreepUtils.countParts(WORK, ...creepsOnSource);
-      const harvestPositionsAtSource = Memory.rooms[this.memory.targetRoom].sources[sourceId].harvestPositions.length;
-      if (creepsOnSource.length < harvestPositionsAtSource && workPartsOnSource < workPartsOnShortSource) {
-        shortSource = sourceId as Id<Source>;
-        workPartsOnShortSource = workPartsOnSource;
-      }
-    }
-    return shortSource;
-  }
-
   protected findClosestTombstoneWithEnergy(): Tombstone | null {
     return this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   }

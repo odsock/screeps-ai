@@ -47,28 +47,22 @@ export class Importer extends RemoteCreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
       return;
     } else {
-      const harvestResult = this.doHarvestJob();
-      CreepUtils.consoleLogIfWatched(this, `job result`, harvestResult);
+      const result = this.pickupCargo();
+      CreepUtils.consoleLogIfWatched(this, `pickup cargo result`, result);
       return;
     }
   }
 
-  private doHarvestJob(): ScreepsReturnCode {
-    this.updateJob("harvesting");
+  private pickupCargo(): ScreepsReturnCode {
     this.startWorkingIfEmpty();
     this.stopWorkingIfFull();
-
-    if (!this.memory.targetRoom || !this.memory.homeRoom) {
-      CreepUtils.consoleLogIfWatched(this, `missing room configuration. sitting like a lump.`);
-      return ERR_INVALID_ARGS;
-    }
 
     let result: ScreepsReturnCode = OK;
     if (this.memory.working) {
       result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target room result`, result);
       if (this.pos.roomName === this.memory.targetRoom) {
-        result = this.remoteHarvest();
+        result = this.harvestByPriority();
       }
       return result;
     } else {
@@ -87,36 +81,5 @@ export class Importer extends RemoteCreepWrapper {
       }
     }
     return result;
-  }
-
-  private remoteHarvest(): ScreepsReturnCode {
-    if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
-      return ERR_FULL;
-    }
-
-    this.pickupAdjacentDroppedEnergy();
-    this.withdrawAdjacentRuinOrTombEnergy();
-
-    const target = this.findClosestActiveEnergySource() ?? this.findClosestEnergySource() ?? undefined;
-    if (!target) {
-      CreepUtils.consoleLogIfWatched(this, `no target found. Just going to sit here.`);
-      return ERR_NOT_FOUND;
-    }
-
-    const result = this.moveToAndGet(target);
-    CreepUtils.consoleLogIfWatched(this, `move to target and get ${String(target)}`, result);
-    if (result === OK) {
-      return result;
-    } else if (result === ERR_NO_PATH) {
-      const moveResult = this.moveToW(target.pos, { range: 2, reusePath: 0 });
-      CreepUtils.consoleLogIfWatched(this, `no path to source, trying to move closer`, moveResult);
-      if (moveResult === OK) {
-        return moveResult;
-      }
-    }
-
-    this.say("🤔");
-    CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
-    return ERR_NOT_FOUND;
   }
 }

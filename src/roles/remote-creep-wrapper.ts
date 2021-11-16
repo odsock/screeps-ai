@@ -96,7 +96,7 @@ export class RemoteCreepWrapper extends CreepWrapper {
    */
   // TODO dry up flee and find healing
   protected fleeIfHostiles(): ScreepsReturnCode {
-    if (!this.roomw.hasHostiles) {
+    if (!this.roomw.hasHostileCreeps) {
       return ERR_NOT_FOUND;
     }
     CreepUtils.consoleLogIfWatched(this, `room has hostile creeps!`);

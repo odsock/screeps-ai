@@ -70,8 +70,14 @@ export class RoomWrapper extends Room {
   public get hostileCreeps(): Creep[] {
     return this.room.find(FIND_HOSTILE_CREEPS);
   }
+  public get hasHostileCreeps(): boolean {
+    return this.room.find(FIND_HOSTILE_CREEPS).length > 0;
+  }
   public get hostileStructures(): AnyOwnedStructure[] {
     return this.room.find(FIND_HOSTILE_STRUCTURES);
+  }
+  public get hasHostileStructures(): boolean {
+    return this.room.find(FIND_HOSTILE_STRUCTURES).length > 0;
   }
 
   public get creeps(): Creep[] {
