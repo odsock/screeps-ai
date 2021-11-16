@@ -436,6 +436,69 @@ export abstract class CreepWrapper extends Creep {
     return result;
   }
 
+  protected moveToRoom(roomName: string): ScreepsReturnCode {
+    if (this.pos.roomName === roomName) {
+      delete this.memory.path;
+      CreepUtils.consoleLogIfWatched(this, `already in room ${roomName}`);
+      return OK;
+    }
+
+    if (!this.memory.path || this.memory.path.length === 0) {
+      const result = this.getPathToRoom(roomName);
+      if (result !== OK) {
+        return result;
+      }
+    }
+
+    if (this.memory.path) {
+      const path = Room.deserializePath(this.memory.path);
+      this.clearPathIfStuck();
+
+      const ret = this.moveByPath(path);
+      CreepUtils.consoleLogIfWatched(this, `moving to exit by path`, ret);
+      return ret;
+    }
+
+    return ERR_NOT_FOUND;
+  }
+
+  protected getPathToRoom(roomName: string): ScreepsReturnCode {
+    const exitDirection = this.roomw.findExitTo(roomName);
+    if (exitDirection === ERR_NO_PATH || exitDirection === ERR_INVALID_ARGS) {
+      CreepUtils.consoleLogIfWatched(this, `can't get to room: ${roomName}`, exitDirection);
+      return exitDirection;
+    }
+
+    const exitPos = this.pos.findClosestByPath(exitDirection);
+    if (!exitPos) {
+      CreepUtils.consoleLogIfWatched(this, `can't find exit to room: ${roomName}`);
+      return ERR_NO_PATH;
+    }
+
+    const path = this.pos.findPathTo(exitPos);
+    this.memory.path = Room.serializePath(path);
+    return OK;
+  }
+
+  protected claimTargetRoom(): ScreepsReturnCode {
+    if (this.room.name !== this.memory.targetRoom) {
+      return ERR_NOT_IN_RANGE;
+    }
+
+    if (!this.roomw.controller) {
+      return ERR_INVALID_TARGET;
+    }
+
+    // go to controller and claim it
+    let result: ScreepsReturnCode = this.claimController(this.roomw.controller);
+    CreepUtils.consoleLogIfWatched(this, `claiming controller: ${String(this.roomw.controller.pos)}`, result);
+    if (result === ERR_NOT_IN_RANGE) {
+      result = this.moveToW(this.roomw.controller);
+      CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, result);
+    }
+    return result;
+  }
+
   public calcWalkTime(path: PathFinderPath): number {
     let roadCount = 0;
     let plainCount = 0;

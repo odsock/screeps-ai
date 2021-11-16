@@ -15,47 +15,37 @@ export class Hauler extends CreepWrapper {
   };
 
   public run(): void {
-    if (this.memory.task) {
-      CreepUtils.consoleLogIfWatched(this, `task: ${this.memory.task.type} pri ${this.memory.task.priority}`);
-      const task = this.memory.task;
-      switch (task.type) {
-        case TaskType.HAUL:
-          CreepUtils.consoleLogIfWatched(this, `haul result`, this.workHaulTask(task));
-          return;
-        case TaskType.SUPPLY:
-          CreepUtils.consoleLogIfWatched(this, `supply result`, this.workSupplyStructureTask(task));
-          return;
-        case TaskType.SUPPLY_SPAWN:
-          CreepUtils.consoleLogIfWatched(this, `supply spawn result`, this.workSupplySpawnTask());
-          return;
-        case TaskType.UNLOAD:
-          CreepUtils.consoleLogIfWatched(this, `unload container result`, this.workUnloadContainerJob(task));
-          return;
-        case TaskType.SUPPLY_CREEP:
-          CreepUtils.consoleLogIfWatched(this, `supply creep result`, this.workSupplyCreepTask());
-          return;
-        case TaskType.CLEANUP:
-          CreepUtils.consoleLogIfWatched(this, `cleanup result`, this.workCleanupTask(task));
-          return;
+    CreepUtils.consoleLogIfWatched(
+      this,
+      `task: ${String(this.memory.task?.type)} pri ${String(this.memory.task?.priority)}`
+    );
+    const task = this.memory.task;
+    switch (task?.type) {
+      case TaskType.HAUL:
+        CreepUtils.consoleLogIfWatched(this, `haul result`, this.workHaulTask(task));
+        return;
+      case TaskType.SUPPLY:
+        CreepUtils.consoleLogIfWatched(this, `supply result`, this.workSupplyStructureTask(task));
+        return;
+      case TaskType.SUPPLY_SPAWN:
+        CreepUtils.consoleLogIfWatched(this, `supply spawn result`, this.workSupplySpawnTask());
+        return;
+      case TaskType.UNLOAD:
+        CreepUtils.consoleLogIfWatched(this, `unload container result`, this.workUnloadContainerJob(task));
+        return;
+      case TaskType.SUPPLY_CREEP:
+        CreepUtils.consoleLogIfWatched(this, `supply creep result`, this.workSupplyCreepTask());
+        return;
+      case TaskType.CLEANUP:
+        CreepUtils.consoleLogIfWatched(this, `cleanup result`, this.workCleanupTask(task));
+        return;
+      case undefined:
+        CreepUtils.consoleLogIfWatched(this, `idle tick`, this.handleIdleTick());
+        return;
 
-        default:
-          assertNever(task);
-      }
+      default:
+        assertNever(task);
     }
-
-    // pickup convenient energy
-    this.pickupAdjacentDroppedEnergy();
-    this.withdrawAdjacentRuinOrTombEnergy();
-
-    // idle
-    this.say("🤔");
-    const idleZone = this.findIdleZone();
-    if (idleZone) {
-      this.moveToW(idleZone, { range: 2 });
-      return;
-    }
-
-    CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
 
     function assertNever(x: never): never {
       throw new Error("Missing task handler: " + JSON.stringify(x));
@@ -528,5 +518,24 @@ export class Hauler extends CreepWrapper {
         }
       });
     return occupiedIdleZones;
+  }
+
+  private handleIdleTick(): ScreepsReturnCode {
+    this.pickupAdjacentDroppedEnergy();
+    this.withdrawAdjacentRuinOrTombEnergy();
+
+    if (this.room.name !== this.memory.homeRoom) {
+      return this.moveToRoom(this.memory.homeRoom);
+    }
+
+    this.say("🤔");
+    const idleZone = this.findIdleZone();
+    if (idleZone) {
+      const result = this.moveToW(idleZone, { range: 3 });
+      return result;
+    }
+
+    CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
+    return OK;
   }
 }
