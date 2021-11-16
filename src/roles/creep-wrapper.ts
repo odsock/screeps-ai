@@ -69,14 +69,18 @@ export abstract class CreepWrapper extends Creep {
   protected clearPathIfStuck(): boolean {
     if (this.memory.lastPos) {
       const lastPos = MemoryUtils.unpackRoomPosition(this.memory.lastPos);
-      if (lastPos && this.pos.isEqualTo(new RoomPosition(lastPos.x, lastPos.y, lastPos.roomName))) {
+      if (lastPos && this.pos.isEqualTo(lastPos)) {
         this.memory.stuckCount = (this.memory.stuckCount ?? 0) + 1;
-        this.room.visual.circle(this.pos.x, this.pos.y, { fill: "#FFFFFF" });
+        this.room.visual.circle(this.pos.x, this.pos.y, { fill: "#000000" });
+      } else {
+        this.memory.stuckCount = 0;
       }
     }
+    CreepUtils.consoleLogIfWatched(this, `stuck count: ${String(this.memory.stuckCount)}`);
     if ((this.memory.stuckCount ?? 0) > 2) {
       CreepUtils.consoleLogIfWatched(this, `stuck, clearing path`);
       delete this.memory.path;
+      delete this.memory.lastPos;
       delete this.memory.stuckCount;
       return true;
     }
