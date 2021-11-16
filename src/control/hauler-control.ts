@@ -98,13 +98,13 @@ export class HaulerControl {
     const busyHaulers: Hauler[] = [];
     const freeHaulers: Hauler[] = [];
     haulers.forEach(h => {
-      if (h.memory.task) {
+      if (h.hasTask()) {
         busyHaulers.push(h);
       } else {
         freeHaulers.push(h);
       }
     });
-    const newTasks = tasks.filter(t => !busyHaulers.some(h => this.isDuplicateTask(h.memory.task, t)));
+    const newTasks = tasks.filter(t => !busyHaulers.some(h => this.isDuplicateTask(h.getTask(), t)));
     CreepUtils.consoleLogIfWatched(haulers[0].room, `found ${tasks.length} tasks, ${tasks.length} new tasks`);
     const tasksByPriority = newTasks.sort((a, b) => b.priority - a.priority);
 
@@ -114,7 +114,7 @@ export class HaulerControl {
         const closestHauler = task.pos.findClosestByPath(freeHaulers) ?? task.pos.findClosestByRange(freeHaulers);
         console.log(`DEBUG: closest hauler: ${String(closestHauler?.name)}`);
         if (closestHauler) {
-          closestHauler.memory.task = task;
+          closestHauler.assignTask(task);
           freeHaulers.splice(
             freeHaulers.findIndex(h => h.id === closestHauler.id),
             1
@@ -129,31 +129,29 @@ export class HaulerControl {
     }
 
     // bump low priority tasks for higher priority tasks with override flag set
-    const busyHaulersSorted = busyHaulers.sort(
-      (a, b) => (a.memory.task?.priority ?? 0) - (b.memory.task?.priority ?? 0)
-    );
+    const busyHaulersSorted = busyHaulers.sort((a, b) => (a.getTask()?.priority ?? 0) - (b.getTask()?.priority ?? 0));
     unassignedTasks.forEach(task => {
       if (task.override) {
         const haulersWithLowerPriorityTask = busyHaulersSorted.filter(
-          h => (h.memory.task?.priority ?? 0) < task.priority
+          h => (h.getTask()?.priority ?? 0) < task.priority
         );
         if (haulersWithLowerPriorityTask.length > 0) {
           const hauler = haulersWithLowerPriorityTask[0];
-          const oldTask = hauler.memory.task;
+          const oldTask = hauler.getTask();
           CreepUtils.consoleLogIfWatched(
             hauler.room,
             `${hauler.name}: bumping ${String(oldTask?.type)} pri ${String(oldTask?.priority)} with ${task.type} pri ${
               task.priority
             }`
           );
-          hauler.memory.task = task;
+          hauler.assignTask(task);
         }
       }
     });
   }
 
   private isDuplicateTask(task: Task | undefined, t: Task): boolean {
-    // HACK stringifying to compare seems dumb
+    // HACK stringify to compare seems dumb
     return JSON.stringify(task) === JSON.stringify(t);
   }
 

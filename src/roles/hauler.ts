@@ -1,5 +1,5 @@
 import { CreepRole } from "config/creep-types";
-import { CleanupTask, HaulTask, SupplyTask, TaskType, UnloadTask } from "control/hauler-control";
+import { CleanupTask, HaulTask, SupplyTask, Task, TaskType, UnloadTask } from "control/hauler-control";
 import { CreepUtils } from "creep-utils";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { profile } from "../../screeps-typescript-profiler";
@@ -48,7 +48,6 @@ export class Hauler extends CreepWrapper {
     this.withdrawAdjacentRuinOrTombEnergy();
 
     // idle
-    this.updateJob(`idle`);
     this.say("🤔");
     const idleZone = this.findIdleZone();
     if (idleZone) {
@@ -63,9 +62,29 @@ export class Hauler extends CreepWrapper {
     }
   }
 
+  public assignTask(task: Task): void {
+    this.memory.task = task;
+    this.memory.working = false;
+    this.memory.idleZone = undefined;
+  }
+
+  public hasTask(): boolean {
+    return !!this.memory.task;
+  }
+
+  public getTask(): Task | undefined {
+    return this.memory.task;
+  }
+
+  public completeTask(): void {
+    CreepUtils.consoleLogIfWatched(this, `task complete: ${String(this.memory.task?.type)}`);
+    delete this.memory.task;
+    this.memory.working = false;
+    this.memory.idleZone = undefined;
+  }
+
   private workUnloadContainerJob(task: UnloadTask): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `unload source container`);
-    this.updateJob(`source`);
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
     this.startWorkingIfEmpty();
@@ -101,7 +120,6 @@ export class Hauler extends CreepWrapper {
 
   private workCleanupTask(task: CleanupTask): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `cleanup drops/tombs/ruins`);
-    this.updateJob(`cleanup`);
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
     this.startWorkingIfEmpty();
@@ -135,7 +153,6 @@ export class Hauler extends CreepWrapper {
 
   private workSupplyCreepTask(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `supply creeps`);
-    this.updateJob(`creeps`);
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
     this.stopWorkingIfEmpty();
@@ -185,7 +202,6 @@ export class Hauler extends CreepWrapper {
 
   private workHaulTask(haulTask: HaulTask): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `haul ${String(haulTask.creepName)}`);
-    this.updateJob(`tug`);
 
     // TODO validation here may cause idle tick when haul ends
     CreepUtils.consoleLogIfWatched(this, `validate haul request `);
@@ -230,7 +246,6 @@ export class Hauler extends CreepWrapper {
       return ERR_FULL;
     }
 
-    this.updateJob(`${target.structureType}`);
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
 
@@ -294,7 +309,6 @@ export class Hauler extends CreepWrapper {
   // When supplying spawn, use priority to prefer storage
   private workSupplySpawnTask(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `supply for spawning`);
-    this.updateJob(`spawn`);
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
     this.stopWorkingIfEmpty();
@@ -514,10 +528,5 @@ export class Hauler extends CreepWrapper {
         }
       });
     return occupiedIdleZones;
-  }
-
-  private completeTask(): void {
-    CreepUtils.consoleLogIfWatched(this, `task complete: ${String(this.memory.task?.type)}`);
-    delete this.memory.task;
   }
 }
