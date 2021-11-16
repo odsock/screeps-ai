@@ -308,6 +308,11 @@ export abstract class CreepWrapper extends Creep {
       return result;
     }
 
+    result = this.moveToAndGet(this.findClosestEnergyDrop());
+    if (result === OK) {
+      return result;
+    }
+
     if (this.room.storage && this.room.storage.store.energy > 0) {
       result = this.moveToAndGet(this.room.storage);
       if (result === OK) {
