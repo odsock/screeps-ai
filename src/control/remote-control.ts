@@ -153,7 +153,6 @@ export class RemoteControl {
     // spawn enough importers at current max size to maximize harvest
     const importerBody = SpawnUtils.getMaxBody(Importer.BODY_PROFILE, roomw);
     const energyCapacity = importerBody.filter(part => part === CARRY).length * CARRY_CAPACITY;
-    const ticksToFill = energyCapacity / (importerBody.filter(part => part === WORK).length * HARVEST_POWER);
 
     const dropPos = roomw.storage?.pos ?? roomw.spawns[0].pos;
     const sources = Memory.rooms[targetRoom].sources;
@@ -161,7 +160,9 @@ export class RemoteControl {
     for (const sourceId in sources) {
       const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
       const path = PathFinder.search(dropPos, sourcePos);
-      importersNeeded += (10 * (path.path.length * 2 + ticksToFill)) / energyCapacity;
+      const transportPerTick = energyCapacity / (path.path.length * 2);
+      const harvestPerTick = SOURCE_ENERGY_CAPACITY / ENERGY_REGEN_TIME;
+      importersNeeded += harvestPerTick / transportPerTick;
     }
     // cache result in memory
     const remoteHarvestRoom = { importersNeeded, spawnCapacity: roomw.energyCapacityAvailable };
