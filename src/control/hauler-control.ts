@@ -95,7 +95,6 @@ export class HaulerControl {
 
   /** assign tasks to creeps based on priority */
   private assignTasks(haulers: Hauler[], tasks: Task[]): void {
-    CreepUtils.consoleLogIfWatched(haulers[0].room, `assigning ${tasks.length} tasks`);
     const busyHaulers: Hauler[] = [];
     const freeHaulers: Hauler[] = [];
     haulers.forEach(h => {
@@ -106,11 +105,13 @@ export class HaulerControl {
       }
     });
     const newTasks = tasks.filter(t => !busyHaulers.some(h => this.isDuplicateTask(h.memory.task, t)));
+    CreepUtils.consoleLogIfWatched(haulers[0].room, `found ${tasks.length} tasks, ${tasks.length} new tasks`);
     const tasksByPriority = newTasks.sort((a, b) => b.priority - a.priority);
 
     const unassignedTasks: Task[] = [];
     tasksByPriority.forEach(task => {
       const closestHauler = task.pos.findClosestByPath(freeHaulers);
+      console.log(`DEBUG: closest hauler: ${String(closestHauler?.name)}`);
       if (closestHauler) {
         closestHauler.memory.task = task;
         freeHaulers.splice(
