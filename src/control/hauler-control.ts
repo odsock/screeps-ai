@@ -110,7 +110,7 @@ export class HaulerControl {
 
     const unassignedTasks: Task[] = [];
     tasksByPriority.forEach(task => {
-      const closestHauler = task.pos.findClosestByPath(freeHaulers);
+      const closestHauler = task.pos.findClosestByPath(freeHaulers) ?? task.pos.findClosestByRange(freeHaulers);
       console.log(`DEBUG: closest hauler: ${String(closestHauler?.name)}`);
       if (closestHauler) {
         closestHauler.memory.task = task;
