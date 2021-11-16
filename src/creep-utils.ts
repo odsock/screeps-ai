@@ -77,4 +77,19 @@ export class CreepUtils {
     centroid.y += pos.y / set.length;
     return centroid;
   };
+
+  /**
+   * Get list of store contents sorted by amount
+   * Default to getting contents of this creep
+   */
+  public static getStoreContents(target: RoomObjectWithStorage): ResourceConstant[] {
+    const resources: ResourceConstant[] = [];
+    for (const resourceName in target.store) {
+      const type = resourceName as ResourceConstant;
+      if (target.store[type] > 0) {
+        resources.push(type);
+      }
+    }
+    return resources.sort((a, b) => target.store[a] - target.store[b]);
+  }
 }

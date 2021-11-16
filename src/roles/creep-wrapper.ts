@@ -717,4 +717,8 @@ export abstract class CreepWrapper extends Creep {
   public get upgradeAmount(): number {
     return UPGRADE_CONTROLLER_POWER * this.getActiveBodyparts(WORK);
   }
+
+  public getStoreContents(): ResourceConstant[] {
+    return CreepUtils.getStoreContents(this);
+  }
 }

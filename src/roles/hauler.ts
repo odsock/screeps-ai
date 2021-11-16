@@ -89,14 +89,14 @@ export class Hauler extends CreepWrapper {
 
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");
-      const result = this.moveToAndGet(target);
+      const result = this.moveToAndGet(target, task.resourceType);
       CreepUtils.consoleLogIfWatched(this, `unload ${String(target)}`, result);
       return result;
     } else {
       CreepUtils.consoleLogIfWatched(this, `dumping`);
       const storage = this.findRoomStorage();
       if (storage) {
-        const result = this.moveToAndTransfer(storage);
+        const result = this.moveToAndTransfer(storage, task.resourceType);
         CreepUtils.consoleLogIfWatched(this, `dump at ${String(storage)}`, result);
         if (result === OK) {
           // one scoop completes task
@@ -125,7 +125,7 @@ export class Hauler extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, "working");
       let resourceType: ResourceConstant;
       if (!(target instanceof Resource)) {
-        const resources = this.getStoreContents(target);
+        const resources = CreepUtils.getStoreContents(target);
         resourceType = resources[0];
       } else {
         resourceType = target.resourceType;
@@ -279,21 +279,6 @@ export class Hauler extends CreepWrapper {
       }
       return result;
     }
-  }
-
-  /**
-   * Get list of store contents sorted by amount
-   * Default to getting contents of this creep
-   */
-  private getStoreContents(target: RoomObjectWithStorage = this): ResourceConstant[] {
-    const resources: ResourceConstant[] = [];
-    for (const resourceName in target.store) {
-      const type = resourceName as ResourceConstant;
-      if (target.store[type] > 0) {
-        resources.push(type);
-      }
-    }
-    return resources.sort((a, b) => this.store[a] - this.store[b]);
   }
 
   // When supplying spawn, use priority to prefer storage

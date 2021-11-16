@@ -33,6 +33,7 @@ export interface UnloadTask {
   pos: RoomPosition;
   targetId: Id<StructureContainer>;
   override?: boolean;
+  resourceType: ResourceConstant;
 }
 
 export interface CleanupTask {
@@ -83,7 +84,8 @@ export class HaulerControl {
           ...this.createSupplySpawnTasks(roomw),
           ...this.createUnloadTasks(roomw),
           ...this.createSupplyCreepTasks(roomw),
-          ...this.createCleanupTasks(roomw)
+          ...this.createCleanupTasks(roomw),
+          ...this.createControllerCleanupTasks(roomw)
         ]);
       }
 
@@ -194,9 +196,29 @@ export class HaulerControl {
           type: TaskType.UNLOAD,
           priority: 200,
           targetId: c.id,
-          pos: c.pos
+          pos: c.pos,
+          resourceType: RESOURCE_ENERGY
         };
       });
+  }
+
+  /** unload source containers over threshold */
+  private createControllerCleanupTasks(roomw: RoomWrapper): UnloadTask[] {
+    const tasks: UnloadTask[] = [];
+    roomw.controllerContainers
+      .filter(c => c.store.energy < c.store.getUsedCapacity())
+      .forEach(c => {
+        CreepUtils.getStoreContents(c).map(resource => {
+          tasks.push({
+            type: TaskType.UNLOAD,
+            priority: 50,
+            targetId: c.id,
+            pos: c.pos,
+            resourceType: resource
+          });
+        });
+      });
+    return tasks;
   }
 
   /** supply spawn/extensions if any capacity in room */
