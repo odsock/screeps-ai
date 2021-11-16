@@ -131,7 +131,7 @@ export class CostMatrixUtils {
   };
 
   public static getRoadCostMatrix = (roomName: string): CostMatrix | boolean => {
-    const roomw = RoomWrapper.getInstance(roomName);
+    const roomw = Game.rooms[roomName];
     if (!roomw) {
       return false;
     }
