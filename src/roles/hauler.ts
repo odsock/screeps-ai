@@ -520,8 +520,10 @@ export class Hauler extends CreepWrapper {
       if (!path.incomplete && path.path.length === 0) {
         path = PathFinder.search(this.pos, { pos: idleZone, range: 3 }, { flee: true });
       }
-      const result = this.moveByPath(path.path);
-      return result;
+      if (!path.incomplete && path.path.length > 0) {
+        const result = this.moveByPath(path.path);
+        return result;
+      }
     }
 
     CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
