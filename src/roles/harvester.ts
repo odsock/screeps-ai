@@ -1,5 +1,4 @@
 import { CreepRole } from "config/creep-types";
-import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { CreepBodyProfile } from "./creep-wrapper";
@@ -221,65 +220,6 @@ export class Harvester extends Minder {
     }
 
     return result;
-  }
-
-  // private handleRoomExitOLD(hauler: Hauler): ScreepsReturnCode {
-  //   console.log(`WTF`);
-  //   CreepUtils.consoleLogIfWatched(this, `handle room exit ${String(this.memory.exitState)}`);
-  //   switch (this.memory.exitState) {
-  //     case ExitState.START_EXIT:
-  //       // hauler was at exit last tick, and should have phased through, pulling cargo along
-  //       // hauler should step away from exit, and wait for cargo to phase through
-  //       if (this.memory.lastPos) {
-  //         const lastPos = MemoryUtils.unpackRoomPosition(this.memory.lastPos);
-  //         const returnDirection = hauler.roomw.findExitTo(lastPos.roomName);
-  //         if (returnDirection === ERR_NO_PATH || returnDirection === ERR_INVALID_ARGS) {
-  //           return returnDirection;
-  //         }
-  //         const directionAwayFromExit = (returnDirection + (4 % 8)) as DirectionConstant;
-  //         hauler.move(directionAwayFromExit);
-  //         this.memory.exitState = ExitState.HAULER_MOVED;
-  //       }
-  //       break;
-  //     // hauler has stepped away from exit, and needs to wait one tick
-  //     case ExitState.HAULER_MOVED:
-  //       this.memory.exitState = ExitState.HAULER_WAITING;
-  //       break;
-  //     // hauler waiting one tick
-  //     case ExitState.HAULER_WAITING:
-  //       this.memory.exitState = ExitState.HAUL;
-  //       break;
-  //     // hauler ready to haul cargo away from exit
-  //     case ExitState.HAUL:
-  //       this.memory.exitState = ExitState.HAUL;
-  //       break;
-  //     // shouldn't reach this, but handled for compiler
-  //     case undefined:
-  //       return ERR_INVALID_ARGS;
-
-  //     default:
-  //       assertNever(this.memory.exitState);
-  //   }
-
-  //   function assertNever(x: never): never {
-  //     throw new Error("Missing enum case: " + JSON.stringify(x));
-  //   }
-  //   return ERR_INVALID_ARGS;
-  // }
-
-  /** checks that hauler and harvester are swapping positions at exit tile */
-  private atRoomExit() {
-    let atRoomExit = false;
-    const hauler = this.getHauler();
-    if (hauler) {
-      const roomSizeMax = SockPuppetConstants.ROOM_SIZE - 1;
-      CreepUtils.consoleLogIfWatched(this, `hauler pos: ${String(hauler.pos)}, cargo pos: ${String(this.pos)}`);
-      if (this.pos.x === 0 || this.pos.x === roomSizeMax || this.pos.y === 0 || this.pos.y === roomSizeMax) {
-        atRoomExit = true;
-      }
-    }
-    console.log(`DEBUG: at room exit: ${String(atRoomExit)}`);
-    return atRoomExit;
   }
 
   private getHauler(): Hauler | undefined {
