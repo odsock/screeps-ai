@@ -525,8 +525,8 @@ export class Hauler extends CreepWrapper {
         path = PathFinder.search(this.pos, { pos: idleZone, range: 3 }, { flee: true });
       }
       if (!path.incomplete && path.path.length > 0) {
-        CreepUtils.consoleLogIfWatched(this, `moving to idle zone: ${String(idleZone)}`);
         const result = this.moveByPath(path.path);
+        CreepUtils.consoleLogIfWatched(this, `moving to idle zone: ${String(idleZone)}`, result);
         return result;
       }
     }
