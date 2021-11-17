@@ -520,9 +520,17 @@ export class Hauler extends CreepWrapper {
     this.say("🤔");
     const idleZone = this.findIdleZone();
     if (idleZone) {
-      let path = PathFinder.search(this.pos, { pos: idleZone, range: 3 });
+      let path = PathFinder.search(
+        this.pos,
+        { pos: idleZone, range: 3 },
+        { roomCallback: CostMatrixUtils.getCreepMovementCostMatrix }
+      );
       if (!path.incomplete && path.path.length === 0) {
-        path = PathFinder.search(this.pos, { pos: idleZone, range: 3 }, { flee: true });
+        path = PathFinder.search(
+          this.pos,
+          { pos: idleZone, range: 3 },
+          { flee: true, roomCallback: CostMatrixUtils.getCreepMovementCostMatrix }
+        );
       }
       if (!path.incomplete && path.path.length > 0) {
         const result = this.moveByPath(path.path);
