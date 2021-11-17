@@ -212,8 +212,12 @@ export class Hauler extends CreepWrapper {
       return this.storeLoad();
     }
 
+    // start working when near cargo
     if (this.pos.isNearTo(creepToHaul.pos)) {
       this.memory.working = true;
+    } else if (this.memory.working && !this.memory.exitState) {
+      // if not near cargo, and not in exit proccess, need to walk back to cargo
+      this.memory.working = false;
     }
 
     if (!this.memory.working) {
