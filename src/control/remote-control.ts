@@ -159,9 +159,15 @@ export class RemoteControl {
     let importersNeeded = 0;
     for (const sourceId in sources) {
       const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
-      const path = PathFinder.search(dropPos, sourcePos);
+      const path = PathFinder.search(dropPos, { pos: sourcePos, range: 1 });
       const transportPerTick = energyCapacity / (path.path.length * 2);
       const harvestPerTick = SOURCE_ENERGY_CAPACITY / ENERGY_REGEN_TIME;
+      CreepUtils.consoleLogIfWatched(
+        roomw,
+        `importer calc: roundtrip: ${
+          path.path.length * 2
+        }, transport/tick: ${transportPerTick}, harvest/tick: ${harvestPerTick}`
+      );
       importersNeeded += harvestPerTick / transportPerTick;
     }
     // cache result in memory
