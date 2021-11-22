@@ -68,7 +68,7 @@ export class HarvestControl {
       const creepCount = activeHarvestersOnSource.length + spawningHarvestersOnSource.length;
       const partCount =
         CreepUtils.countParts(WORK, ...activeHarvestersOnSource) +
-        SpawnUtils.getSpawningPartCount(spawningHarvestersOnSource, WORK);
+        SpawnUtils.countSpawningParts(WORK, spawningHarvestersOnSource);
       const positionsForSource = roomw.memory.sources[sourceId].harvestPositions.length;
       const partsNeeded = source.energyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
       CreepUtils.consoleLogIfWatched(

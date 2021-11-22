@@ -90,12 +90,16 @@ export class SpawnUtils {
   }
 
   /**
-   * Updates a creep body profile with a max size based on number of work parts needed
+   * Updates a creep body profile with a max size based on number of parts needed for a part type
    */
-  public static buildBodyProfile(bodyProfile: CreepBodyProfile, workPartsNeeded: number): CreepBodyProfile {
-    const workPartsInProfile = bodyProfile.profile.filter(part => part === WORK).length;
+  public static buildBodyProfile(
+    bodyProfile: CreepBodyProfile,
+    partsNeeded: number,
+    type: BodyPartConstant
+  ): CreepBodyProfile {
+    const partsOfTypeInProfile = bodyProfile.profile.filter(part => part === type).length;
     bodyProfile.maxBodyParts =
-      (workPartsNeeded / workPartsInProfile) * bodyProfile.profile.length + bodyProfile.seed.length;
+      (partsNeeded / partsOfTypeInProfile) * bodyProfile.profile.length + bodyProfile.seed.length;
     return bodyProfile;
   }
 
@@ -150,7 +154,7 @@ export class SpawnUtils {
   }
 
   /** count spawning creep parts */
-  public static getSpawningPartCount(spawnInfo: SpawningInfo[], part: BodyPartConstant): number {
+  public static countSpawningParts(part: BodyPartConstant, spawnInfo: SpawningInfo[]): number {
     return spawnInfo.reduce<number>((count, s) => {
       return (count += s.body.filter(p => p === part).length);
     }, 0);
@@ -160,5 +164,15 @@ export class SpawnUtils {
     return roomw.spawns.filter(
       s => s.spawning && s.memory.spawning?.memory.role === type && s.memory.spawning.memory.targetRoom === targetRoom
     ).length;
+  }
+
+  public static getSpawnInfoFor(roomw: RoomWrapper, filter: (info: SpawningInfo) => boolean): SpawningInfo[] {
+    const spawningInfos: SpawningInfo[] = [];
+    roomw.spawns.forEach(s => {
+      if (s.memory.spawning && filter(s.memory.spawning)) {
+        spawningInfos.push(s.memory.spawning);
+      }
+    });
+    return spawningInfos;
   }
 }

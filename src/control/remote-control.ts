@@ -23,28 +23,39 @@ export class RemoteControl {
     const spawnQueue = SpawnQueue.getInstance(roomw);
 
     // IMPORTER
-    const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name] ?? [];
-    const remoteHarvestRoomsMy =
-      remoteHarvestRooms.filter(name => {
-        return !Game.rooms[name]?.controller?.my;
-      }) ?? [];
-    for (const targetRoom of remoteHarvestRoomsMy) {
-      const importersNeeded = this.calcImportersNeededForRoom(roomw, targetRoom);
-      const importersSpawningForRoom = SpawnUtils.getSpawningCountForTarget(roomw, Importer.ROLE, targetRoom);
-      const importersOnRoom =
-        _.filter(Game.creeps, creep => creep.memory.role === Importer.ROLE && creep.memory.targetRoom === targetRoom)
-          .length + importersSpawningForRoom;
-      CreepUtils.consoleLogIfWatched(roomw, `importers for ${targetRoom}: ${importersOnRoom}/${importersNeeded}`);
-      if (importersNeeded > importersOnRoom) {
-        spawnQueue.push({
-          bodyProfile: Importer.BODY_PROFILE,
-          max: true,
-          memory: {
-            role: Importer.ROLE,
-            targetRoom
-          },
-          priority: 50
-        });
+    const remoteHarvestRooms =
+      TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => this.isValidRemote(name)) ?? [];
+    for (const targetRoom of remoteHarvestRooms) {
+      const sources = Memory.rooms[targetRoom].sources;
+      for (const sourceId in sources) {
+        const spawningImportersOnSource = SpawnUtils.getSpawnInfoFor(
+          roomw,
+          (spawningCreep: SpawningInfo) =>
+            spawningCreep.memory.role === Importer.ROLE && spawningCreep.memory.source === sourceId
+        );
+        const importersOnSource = _.filter(
+          Game.creeps,
+          creep => creep.memory.role === Importer.ROLE && creep.memory.source === sourceId
+        );
+        const carryParts =
+          SpawnUtils.countSpawningParts(CARRY, spawningImportersOnSource) +
+          CreepUtils.countParts(CARRY, ...importersOnSource);
+        const carryPartsNeeded = this.calcCarryPartsNeededForSource(roomw, targetRoom, sources[sourceId].id);
+        CreepUtils.consoleLogIfWatched(
+          roomw,
+          `importer cap: ${sources[sourceId].pos}: ${carryParts}/${carryPartsNeeded}`
+        );
+        if (carryParts < carryPartsNeeded) {
+          spawnQueue.push({
+            bodyProfile: SpawnUtils.buildBodyProfile(Importer.BODY_PROFILE, carryPartsNeeded, CARRY),
+            max: true,
+            memory: {
+              role: Importer.ROLE,
+              targetRoom
+            },
+            priority: 50
+          });
+        }
       }
     }
 
@@ -106,6 +117,21 @@ export class RemoteControl {
     }
   }
 
+  /**
+   * Validate remote harvest room
+   * Valid remotes are not owned (by me or anyone), and not reserved by other players
+   */
+  private isValidRemote(roomName: string): boolean {
+    const roomMemory = Memory.rooms[roomName];
+    if (
+      roomMemory.controller?.owner ||
+      roomMemory.controller?.reservation?.username !== Game.spawns[0]?.owner.username
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   private getMaxClaimerCount(): number {
     const targetedRooms = TargetConfig.TARGETS[Game.shard.name] ?? [];
     const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name] ?? [];
@@ -130,50 +156,19 @@ export class RemoteControl {
     return 0;
   }
 
-  private calcImportersNeededForRoom(roomw: RoomWrapper, targetRoom: string): number {
-    // return cached value if room capacity hasn't changed
-    const remoteHarvestRoomMemory = roomw.memory.remoteHarvest?.[targetRoom];
-    if (remoteHarvestRoomMemory?.spawnCapacity === roomw.energyCapacityAvailable) {
-      return remoteHarvestRoomMemory.importersNeeded;
-    }
+  private calcCarryPartsNeededForSource(homeRoom: RoomWrapper, targetRoomName: string, sourceId: Id<Source>): number {
+    const dropPos = homeRoom.storage?.pos ?? homeRoom.spawns[0].pos;
+    const sources = Memory.rooms[targetRoomName].sources;
+    const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
+    const path = PathFinder.search(dropPos, { pos: sourcePos, range: 1 });
+    const harvestPerTick = SOURCE_ENERGY_CAPACITY / ENERGY_REGEN_TIME;
+    const capacityNeeded = harvestPerTick * path.path.length * 2;
+    const carryPartsNeeded = Math.ceil(capacityNeeded / CARRY_CAPACITY);
 
-    // use importer as scout if no recon for room
-    const roomMemory = Memory.rooms[targetRoom];
-    if (!roomMemory) {
-      return 1;
-    }
-    // don't spawn importers for owned rooms, or reserved by other players
-    if (
-      roomMemory.controller?.owner ||
-      roomMemory.controller?.reservation?.username !== roomw.controller?.owner?.username
-    ) {
-      return 0;
-    }
-
-    // spawn enough importers at current max size to maximize harvest
-    const importerBody = SpawnUtils.getMaxBody(Importer.BODY_PROFILE, roomw);
-    const energyCapacity = importerBody.filter(part => part === CARRY).length * CARRY_CAPACITY;
-
-    const dropPos = roomw.storage?.pos ?? roomw.spawns[0].pos;
-    const sources = Memory.rooms[targetRoom].sources;
-    let importersNeeded = 0;
-    for (const sourceId in sources) {
-      const sourcePos = MemoryUtils.unpackRoomPosition(sources[sourceId].pos);
-      const path = PathFinder.search(dropPos, { pos: sourcePos, range: 1 });
-      const transportPerTick = energyCapacity / (path.path.length * 2);
-      const harvestPerTick = SOURCE_ENERGY_CAPACITY / ENERGY_REGEN_TIME;
-      CreepUtils.consoleLogIfWatched(
-        roomw,
-        `importer calc: roundtrip: ${
-          path.path.length * 2
-        }, transport/tick: ${transportPerTick}, harvest/tick: ${harvestPerTick}`
-      );
-      importersNeeded += harvestPerTick / transportPerTick;
-    }
-    // cache result in memory
-    const remoteHarvestRoom = { importersNeeded, spawnCapacity: roomw.energyCapacityAvailable };
-    roomw.memory.remoteHarvest = roomw.memory.remoteHarvest ?? {};
-    roomw.memory.remoteHarvest[targetRoom] = remoteHarvestRoom;
-    return importersNeeded;
+    CreepUtils.consoleLogIfWatched(
+      homeRoom,
+      `importer calc: roundtrip: ${path.path.length * 2}, parts: ${carryPartsNeeded}, harvest/tick: ${harvestPerTick}`
+    );
+    return carryPartsNeeded;
   }
 }

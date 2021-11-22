@@ -52,7 +52,8 @@ export class UpgradeControl {
       spawnQueue.push({
         bodyProfile: SpawnUtils.buildBodyProfile(
           Upgrader.BODY_PROFILE,
-          upgraderWorkPartsNeeded - upgraderWorkPartsActive
+          upgraderWorkPartsNeeded - upgraderWorkPartsActive,
+          WORK
         ),
         max: true,
         memory: { role: Upgrader.ROLE },
