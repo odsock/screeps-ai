@@ -21,9 +21,10 @@ export class CostMatrixUtils {
    * Not cached.
    */
   public static avoidHarvestPositionsAndCreepsCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix => {
+    const updatedCostMatrix = this.avoidHarvestPositionsCostCallback(roomName, costMatrix);
     const roomw = RoomWrapper.getInstance(roomName);
-    roomw.creeps.forEach(c => costMatrix.set(c.pos.x, c.pos.y, 0xff));
-    return costMatrix;
+    roomw.creeps.forEach(c => updatedCostMatrix.set(c.pos.x, c.pos.y, 0xff));
+    return updatedCostMatrix;
   };
 
   /**
