@@ -54,7 +54,8 @@ export class RemoteControl {
             max: true,
             memory: {
               role: Importer.ROLE,
-              targetRoom
+              targetRoom,
+              source: sources[sourceId].id
             },
             priority: 50
           });
