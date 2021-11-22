@@ -68,27 +68,17 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `stuckFlag set. Pathing around creeps.`);
     }
     moveOpts = { ignoreCreeps, reusePath: 10, visualizePathStyle: { stroke: "#00FF00" }, ...moveOpts };
-    this.memory.lastPos = MemoryUtils.packRoomPosition(this.pos);
     return this.moveTo(target, moveOpts);
   }
 
   public moveW(direction: DirectionConstant): ScreepsReturnCode {
-    this.memory.lastPos = MemoryUtils.packRoomPosition(this.pos);
+    // check if stuck, even though we don't handle it with directional moves
+    this.isStuck();
     return this.move(direction);
   }
 
   protected clearPathIfStuck(): boolean {
-    if (this.memory.lastPos) {
-      const lastPos = MemoryUtils.unpackRoomPosition(this.memory.lastPos);
-      if (lastPos && this.pos.isEqualTo(lastPos)) {
-        this.memory.stuckCount = (this.memory.stuckCount ?? 0) + 1;
-        this.room.visual.circle(this.pos.x, this.pos.y, { fill: "#000000" });
-      } else {
-        this.memory.stuckCount = 0;
-      }
-    }
-    CreepUtils.consoleLogIfWatched(this, `stuck count: ${String(this.memory.stuckCount)}`);
-    if ((this.memory.stuckCount ?? 0) > 2) {
+    if (this.isStuck()) {
       CreepUtils.consoleLogIfWatched(this, `stuck, clearing path`);
       delete this.memory.path;
       delete this.memory.lastPos;
@@ -96,6 +86,21 @@ export abstract class CreepWrapper extends Creep {
       return true;
     }
     return false;
+  }
+
+  protected isStuck(): boolean {
+    if (this.memory.lastPos) {
+      const lastPos = MemoryUtils.unpackRoomPosition(this.memory.lastPos);
+      if (this.pos.isEqualTo(lastPos)) {
+        this.memory.stuckCount = (this.memory.stuckCount ?? 0) + 1;
+        this.room.visual.circle(this.pos.x, this.pos.y, { fill: "#000000" });
+      } else {
+        this.memory.stuckCount = 0;
+      }
+      CreepUtils.consoleLogIfWatched(this, `stuck count: ${String(this.memory.stuckCount)}`);
+    }
+    this.memory.lastPos = MemoryUtils.packRoomPosition(this.pos);
+    return (this.memory.stuckCount ?? 0) > 2;
   }
 
   protected updateJob(job: string): void {
