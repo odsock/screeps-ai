@@ -62,10 +62,11 @@ export abstract class CreepWrapper extends Creep {
 
   public moveToW(target: RoomObject | RoomPosition, moveOpts?: MoveToOpts): ScreepsReturnCode {
     const ignoreCreeps = !this.clearPathIfStuck();
-    const visualizePathStyle: PolyStyle = { stroke: "#00FF00", opacity: 0.8 };
+    const visualizePathStyle: PolyStyle = { stroke: "#00FF00" };
     if (ignoreCreeps) {
       CreepUtils.consoleLogIfWatched(this, `Stuck. Pathing around creeps.`);
       visualizePathStyle.stroke = "#FF0000";
+      visualizePathStyle.opacity = 0.8;
     }
     moveOpts = { ignoreCreeps, reusePath: 10, visualizePathStyle, ...moveOpts };
     return this.moveTo(target, moveOpts);
