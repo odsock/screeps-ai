@@ -24,7 +24,7 @@ export class RemoteControl {
 
     // IMPORTER
     const remoteHarvestRooms =
-      TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => this.isValidRemote(name)) ?? [];
+      TargetConfig.REMOTE_HARVEST[Game.shard.name]?.filter(name => this.isValidRemote(name)) ?? [];
     console.log(`DEBUG: valid remotes: ${remoteHarvestRooms.length}`);
     for (const targetRoom of remoteHarvestRooms) {
       const sources = Memory.rooms[targetRoom].sources;
@@ -128,7 +128,7 @@ export class RemoteControl {
     const roomMemory = Memory.rooms[roomName];
     if (
       roomMemory.controller?.owner ||
-      roomMemory.controller?.reservation?.username !== Game.spawns[0]?.owner.username
+      roomMemory.controller?.reservation?.username !== _.toArray(Game.spawns)[0]?.owner.username
     ) {
       return false;
     }
