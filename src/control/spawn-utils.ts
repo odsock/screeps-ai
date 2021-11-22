@@ -105,7 +105,9 @@ export class SpawnUtils {
 
   /** Gets count of creeps with role, including spawning creeps */
   public static getCreepCountForRole(roomw: RoomWrapper, role: CreepRole): number {
-    const count = roomw.find(FIND_MY_CREEPS).filter(creep => creep.memory.role === role).length;
+    const count = roomw
+      .find(FIND_MY_CREEPS)
+      .filter(creep => creep.memory.role === role && creep.memory.homeRoom === roomw.name).length;
     const numSpawning = roomw.spawns.filter(spawn => spawn.spawning?.name.startsWith(role)).length;
     return count + numSpawning;
   }
