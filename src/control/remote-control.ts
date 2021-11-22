@@ -25,9 +25,12 @@ export class RemoteControl {
     // IMPORTER
     const remoteHarvestRooms =
       TargetConfig.REMOTE_HARVEST[Game.shard.name].filter(name => this.isValidRemote(name)) ?? [];
+    console.log(`DEBUG: valid remotes: ${remoteHarvestRooms.length}`);
     for (const targetRoom of remoteHarvestRooms) {
       const sources = Memory.rooms[targetRoom].sources;
+      console.log(`DEBUG: sources ${JSON.stringify(sources)}`);
       for (const sourceId in sources) {
+        console.log(`DEBUG: source ${sourceId}`);
         const spawningImportersOnSource = SpawnUtils.getSpawnInfoFor(
           roomw,
           (spawningCreep: SpawningInfo) =>
