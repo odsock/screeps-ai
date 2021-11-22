@@ -1,6 +1,7 @@
 import { CreepRole } from "config/creep-types";
 import { CleanupTask, HaulTask, SupplyTask, Task, TaskType, UnloadTask } from "control/hauler-control";
 import { CreepUtils } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
@@ -221,6 +222,16 @@ export class Hauler extends CreepWrapper {
     }
 
     if (!this.memory.working) {
+      // step away from exit if just crossed over and not hauling yet. Prevents room swap loop with cargo creep.
+      if (this.memory.lastPos && this.pos.roomName !== MemoryUtils.unpackRoomPosition(this.memory.lastPos).roomName) {
+        const exitDir = CreepUtils.getClosestExitDirection(this.pos);
+        if (exitDir) {
+          const reverseExitDir = CreepUtils.reverseDirection(exitDir);
+          const result = this.moveW(reverseExitDir);
+          CreepUtils.consoleLogIfWatched(this, `move away from exit`, result);
+          return result;
+        }
+      }
       const result = this.moveToW(creepToHaul);
       CreepUtils.consoleLogIfWatched(this, `move to creep`, result);
     }

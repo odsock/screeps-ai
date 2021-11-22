@@ -92,4 +92,23 @@ export class CreepUtils {
     }
     return resources.sort((a, b) => target.store[a] - target.store[b]);
   }
+
+  public static getClosestExitDirection(pos: RoomPosition): DirectionConstant | undefined {
+    const exitPos = pos.findClosestByRange(FIND_EXIT);
+    if (!exitPos) {
+      return undefined;
+    }
+    let exitDir = pos.getDirectionTo(exitPos);
+    if (!exitDir) {
+      if (pos.x === 0) exitDir = LEFT;
+      if (pos.y === 0) exitDir = TOP;
+      if (pos.x === 49) exitDir = RIGHT;
+      if (pos.y === 49) exitDir = BOTTOM;
+    }
+    return exitDir;
+  }
+
+  public static reverseDirection(dir: DirectionConstant): DirectionConstant {
+    return ((dir + 4) % 8) as DirectionConstant;
+  }
 }

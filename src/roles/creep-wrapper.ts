@@ -68,7 +68,13 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `stuckFlag set. Pathing around creeps.`);
     }
     moveOpts = { ignoreCreeps, reusePath: 10, visualizePathStyle: { stroke: "#00FF00" }, ...moveOpts };
+    this.memory.lastPos = MemoryUtils.packRoomPosition(this.pos);
     return this.moveTo(target, moveOpts);
+  }
+
+  public moveW(direction: DirectionConstant): ScreepsReturnCode {
+    this.memory.lastPos = MemoryUtils.packRoomPosition(this.pos);
+    return this.move(direction);
   }
 
   protected clearPathIfStuck(): boolean {
@@ -89,7 +95,6 @@ export abstract class CreepWrapper extends Creep {
       delete this.memory.stuckCount;
       return true;
     }
-    this.memory.lastPos = MemoryUtils.packRoomPosition(this.pos);
     return false;
   }
 
