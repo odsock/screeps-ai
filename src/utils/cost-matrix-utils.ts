@@ -61,10 +61,8 @@ export class CostMatrixUtils {
       return cachedCostMatrix;
     }
 
+    const updatedCostMatrix = this.avoidHarvestPositionsCostCallback(roomName, costMatrix);
     const roomw = RoomWrapper.getInstance(roomName);
-    roomw.sources.forEach(source =>
-      roomw.getHarvestPositions(source.id).forEach(pos => costMatrix.set(pos.x, pos.y, 0xff))
-    );
     if (roomw.controller) {
       const conPos = roomw.controller.pos;
       const top = conPos.y - 3;
@@ -74,10 +72,10 @@ export class CostMatrixUtils {
       roomw
         .lookForAtArea(LOOK_STRUCTURES, top, left, bottom, right, true)
         .filter(s => s.structure.structureType === STRUCTURE_ROAD)
-        .forEach(road => costMatrix.set(road.x, road.y, 0xff));
+        .forEach(road => updatedCostMatrix.set(road.x, road.y, 0xff));
     }
-    CostMatrixUtils.setCostMatrixInCache(cacheKey, costMatrix);
-    return costMatrix;
+    CostMatrixUtils.setCostMatrixInCache(cacheKey, updatedCostMatrix);
+    return updatedCostMatrix;
   };
 
   /**
