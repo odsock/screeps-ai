@@ -15,6 +15,7 @@ export class ReconControl {
       this.refreshControllerMemory(room);
       room.memory.reconTick = Game.time;
     }
+    // TODO spawn scouts for remotes we can't see, and haven't updated in X ticks
   }
 
   private refreshRoomDefense(room: RoomWrapper) {
