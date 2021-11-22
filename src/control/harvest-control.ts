@@ -92,7 +92,7 @@ export class HarvestControl {
       if (creepCount <= positionsForSource && partCount <= partsNeeded) {
         const ticksToSpawn = SpawnUtils.calcSpawnTime(Harvester.BODY_PROFILE, roomw);
         const oldestCreep = this.findOldestCreep(activeHarvestersOnSource.filter(creep => !creep.memory.retiring));
-        if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToSpawn) {
+        if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToSpawn + 50) {
           CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${Harvester.ROLE}`);
           spawnQueue.push({
             bodyProfile: Harvester.BODY_PROFILE,
