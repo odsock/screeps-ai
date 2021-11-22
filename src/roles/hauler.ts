@@ -331,8 +331,8 @@ export class Hauler extends CreepWrapper {
       }
       // get path through remaining extensions
       let path: RoomPosition[];
-      if (!this.isStuck()) {
-        path = this.getSpawnSupplyPath(spawnStorage);
+      if (this.isStuck()) {
+        path = this.getSpawnSupplyPath(spawnStorage, false);
       } else {
         path = this.getSpawnSupplyPath(spawnStorage);
       }
