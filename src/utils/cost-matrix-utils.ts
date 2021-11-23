@@ -3,11 +3,11 @@ import { RoomWrapper } from "structures/room-wrapper";
 
 export class CostMatrixUtils {
   private static getCostMatrixFromCache(name: string): CostMatrix | undefined {
-    const cacheKey = `${this.name}_${name}`;
-    const costMatrix = MemoryUtils.getCache<CostMatrix>(cacheKey);
-    if (costMatrix) {
-      return costMatrix;
-    }
+    // const cacheKey = `${this.name}_${name}`;
+    // const costMatrix = MemoryUtils.getCache<CostMatrix>(cacheKey);
+    // if (costMatrix) {
+    //   return costMatrix;
+    // }
     return undefined;
   }
 
@@ -123,20 +123,19 @@ export class CostMatrixUtils {
     if (!room) {
       return false;
     }
-    const roomw = RoomWrapper.getInstance(room);
-    const cost = new PathFinder.CostMatrix();
+    const costMatrix = CostMatrixUtils.avoidHarvestPositionsCostCallback(roomName, new PathFinder.CostMatrix());
 
-    const structures = roomw.find(FIND_STRUCTURES);
-    const constructionSites = roomw.find(FIND_CONSTRUCTION_SITES);
+    const structures = room.find(FIND_STRUCTURES);
+    const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
     for (const structure of [...structures, ...constructionSites]) {
       if (structure.structureType === STRUCTURE_ROAD) {
-        cost.set(structure.pos.x, structure.pos.y, 1);
+        costMatrix.set(structure.pos.x, structure.pos.y, 1);
       } else if (structure.structureType !== STRUCTURE_RAMPART || !structure.my) {
-        cost.set(structure.pos.x, structure.pos.y, 0xff);
+        costMatrix.set(structure.pos.x, structure.pos.y, 0xff);
       }
     }
 
-    return CostMatrixUtils.avoidHarvestPositionsCostCallback(roomName, cost);
+    return costMatrix;
   };
 
   /**
