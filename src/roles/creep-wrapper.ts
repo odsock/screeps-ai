@@ -69,10 +69,12 @@ export abstract class CreepWrapper extends Creep {
       visualizePathStyle.opacity = 0.8;
     }
     moveOpts = {
+      plainCost: 2,
+      swampCost: 10,
       ignoreCreeps: false,
       reusePath: 10,
       visualizePathStyle,
-      costCallback: CostMatrixUtils.structuresCostCallback,
+      costCallback: CostMatrixUtils.creepMovementCostCallback,
       ...moveOpts
     };
     return this.moveTo(target, moveOpts);
