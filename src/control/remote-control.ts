@@ -128,12 +128,13 @@ export class RemoteControl {
   private isValidRemote(roomName: string): boolean {
     const roomMemory = Memory.rooms[roomName];
     if (
-      roomMemory.controller?.owner ||
-      roomMemory.controller?.reservation?.username !== _.toArray(Game.spawns)[0]?.owner.username
+      !roomMemory.controller?.owner &&
+      (!roomMemory.controller?.reservation ||
+        roomMemory.controller.reservation.username === _.toArray(Game.spawns)[0]?.owner.username)
     ) {
-      return false;
+      return true;
     }
-    return true;
+    return false;
   }
 
   private getMaxClaimerCount(): number {
