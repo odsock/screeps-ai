@@ -179,7 +179,7 @@ export class Hauler extends CreepWrapper {
       const path = PathFinder.search(this.pos, goals, {
         plainCost: 2,
         swampCost: 10,
-        roomCallback: CostMatrixUtils.getRoadCostMatrix
+        roomCallback: CostMatrixUtils.creepMovementRoomCallback
       });
       CreepUtils.consoleLogIfWatched(this, `path: ${String(path.path)}`);
       const moveResult = this.moveByPath(path.path);
@@ -360,7 +360,7 @@ export class Hauler extends CreepWrapper {
     const path = PathFinder.search(this.pos, goals, {
       plainCost: 2,
       swampCost: 10,
-      roomCallback: ignoreCreeps ? CostMatrixUtils.getRoadCostMatrix : CostMatrixUtils.getCreepMovementCostMatrix
+      roomCallback: ignoreCreeps ? CostMatrixUtils.structuresRoomCallback : CostMatrixUtils.creepMovementRoomCallback
     });
 
     // this.memory.path = path.path
@@ -542,13 +542,13 @@ export class Hauler extends CreepWrapper {
       let path = PathFinder.search(
         this.pos,
         { pos: idleZone, range: 3 },
-        { roomCallback: CostMatrixUtils.getCreepMovementCostMatrix }
+        { roomCallback: CostMatrixUtils.creepMovementRoomCallback }
       );
       if (!path.incomplete && path.path.length === 0) {
         path = PathFinder.search(
           this.pos,
           { pos: idleZone, range: 3 },
-          { flee: true, roomCallback: CostMatrixUtils.getCreepMovementCostMatrix }
+          { flee: true, roomCallback: CostMatrixUtils.creepMovementRoomCallback }
         );
       }
       if (!path.incomplete && path.path.length > 0) {

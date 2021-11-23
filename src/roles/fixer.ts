@@ -39,7 +39,7 @@ export class Fixer extends CreepWrapper {
         flee: true,
         plainCost: 0,
         swampCost: 10,
-        roomCallback: CostMatrixUtils.getCreepMovementCostMatrix
+        roomCallback: CostMatrixUtils.creepMovementRoomCallback
       }
     );
     const result = this.moveByPath(path.path);

@@ -68,7 +68,13 @@ export abstract class CreepWrapper extends Creep {
       visualizePathStyle.stroke = "#FF0000";
       visualizePathStyle.opacity = 0.8;
     }
-    moveOpts = { ignoreCreeps, reusePath: 10, visualizePathStyle, ...moveOpts };
+    moveOpts = {
+      ignoreCreeps,
+      reusePath: 10,
+      visualizePathStyle,
+      costCallback: CostMatrixUtils.structuresCostCallback,
+      ...moveOpts
+    };
     return this.moveTo(target, moveOpts);
   }
 

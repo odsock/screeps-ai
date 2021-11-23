@@ -79,7 +79,42 @@ export class CostMatrixUtils {
   };
 
   /**
-   * Plan path to prefer attaching to existing or in construction roads.
+   * Sets roads to 1, unwalkable structures and unwalkable construction sites to 255
+   */
+  public static structuresCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix => {
+    const roomw = RoomWrapper.getInstance(roomName);
+    const structures = roomw.find(FIND_STRUCTURES);
+    for (const structure of structures) {
+      if (structure.structureType === STRUCTURE_ROAD) {
+        costMatrix.set(structure.pos.x, structure.pos.y, 1);
+      } else if (
+        structure.structureType !== STRUCTURE_CONTAINER &&
+        (structure.structureType !== STRUCTURE_RAMPART || !structure.my)
+      ) {
+        costMatrix.set(structure.pos.x, structure.pos.y, 0xff);
+      }
+    }
+
+    const constructionSites = roomw.find(FIND_CONSTRUCTION_SITES);
+    for (const structure of constructionSites) {
+      if (
+        structure.structureType !== STRUCTURE_CONTAINER &&
+        structure.structureType !== STRUCTURE_ROAD &&
+        (structure.structureType !== STRUCTURE_RAMPART || !structure.my)
+      ) {
+        costMatrix.set(structure.pos.x, structure.pos.y, 0xff);
+      }
+    }
+
+    return costMatrix;
+  };
+
+  /** *****************************************************
+   * Room Callbacks
+   */
+
+  /**
+   * Plan path to prefer attaching to existing roads and roads in construction.
    * Avoid unwalkable structures, harvest positions, and containers.
    * Does not cache result, since not called often.
    */
@@ -107,59 +142,24 @@ export class CostMatrixUtils {
   /**
    * Creep movement prefering roads>plains>swamps, avoiding unwalkable areas.
    */
-  public static getCreepMovementCostMatrix = (roomName: string): CostMatrix | boolean => {
-    // BUG don't cache creep locations in cost matrix
-    // const cacheKey = "creepMovement";
-    // const cachedCostMatrix = CostMatrixUtils.getCostMatrixFromCache(cacheKey);
-    // if (cachedCostMatrix) {
-    //   return cachedCostMatrix;
-    // }
-
-    const cost = CostMatrixUtils.getRoadCostMatrix(roomName);
-    if (typeof cost === "boolean") return cost;
-
+  public static creepMovementRoomCallback = (roomName: string): CostMatrix | boolean => {
     const room = Game.rooms[roomName];
     if (!room) {
       return false;
     }
-
-    // avoid creeps
-    room.find(FIND_CREEPS).forEach(creep => cost.set(creep.pos.x, creep.pos.y, 0xff));
-    // CostMatrixUtils.setCostMatrixInCache(cacheKey, cost);
-    return cost;
+    const costMatrix = this.structuresCostCallback(roomName, new PathFinder.CostMatrix());
+    room.find(FIND_CREEPS).forEach(creep => costMatrix.set(creep.pos.x, creep.pos.y, 0xff));
+    return costMatrix;
   };
 
-  public static getRoadCostMatrix = (roomName: string): CostMatrix | boolean => {
+  /**
+   * Prefer roads, avoid unwalkable structures
+   */
+  public static structuresRoomCallback = (roomName: string): CostMatrix | boolean => {
     const roomw = Game.rooms[roomName];
     if (!roomw) {
       return false;
     }
-
-    const cost = new PathFinder.CostMatrix();
-
-    const structures = roomw.find(FIND_STRUCTURES);
-    for (const structure of structures) {
-      if (structure.structureType === STRUCTURE_ROAD) {
-        cost.set(structure.pos.x, structure.pos.y, 1);
-      } else if (
-        structure.structureType !== STRUCTURE_CONTAINER &&
-        (structure.structureType !== STRUCTURE_RAMPART || !structure.my)
-      ) {
-        cost.set(structure.pos.x, structure.pos.y, 0xff);
-      }
-    }
-
-    const constructionSites = roomw.find(FIND_CONSTRUCTION_SITES);
-    for (const structure of constructionSites) {
-      if (
-        structure.structureType !== STRUCTURE_CONTAINER &&
-        structure.structureType !== STRUCTURE_ROAD &&
-        (structure.structureType !== STRUCTURE_RAMPART || !structure.my)
-      ) {
-        cost.set(structure.pos.x, structure.pos.y, 0xff);
-      }
-    }
-
-    return cost;
+    return this.structuresCostCallback(roomName, new PathFinder.CostMatrix());
   };
 }
