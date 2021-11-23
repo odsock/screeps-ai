@@ -109,6 +109,16 @@ export class CostMatrixUtils {
     return costMatrix;
   };
 
+  /**
+   * Creep movement prefering roads>plains>swamps, avoiding unwalkable areas.
+   */
+  public static creepMovementCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix => {
+    const room = Game.rooms[roomName];
+    costMatrix = this.structuresCostCallback(roomName, new PathFinder.CostMatrix());
+    room.find(FIND_CREEPS).forEach(creep => costMatrix.set(creep.pos.x, creep.pos.y, 0xff));
+    return costMatrix;
+  };
+
   /** *****************************************************
    * Room Callbacks
    */
