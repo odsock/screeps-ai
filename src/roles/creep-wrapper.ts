@@ -69,7 +69,7 @@ export abstract class CreepWrapper extends Creep {
       visualizePathStyle.opacity = 0.8;
     }
     moveOpts = {
-      ignoreCreeps: !stuckFlag,
+      ignoreCreeps: false,
       reusePath: 10,
       visualizePathStyle,
       costCallback: CostMatrixUtils.structuresCostCallback,
