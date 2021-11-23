@@ -20,8 +20,18 @@ export class CostMatrixUtils {
    * Avoid harvest positions and creeps.
    * Not cached.
    */
-  public static avoidHarvestPositionsAndCreepsCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix => {
+  public static avoidHarvestPositionsAndCreepsCostCallback = (
+    roomName: string,
+    costMatrix: CostMatrix
+  ): CostMatrix | void => {
     const updatedCostMatrix = this.avoidHarvestPositionsCostCallback(roomName, costMatrix);
+    if (!updatedCostMatrix) {
+      return;
+    }
+    const room = Game.rooms[roomName];
+    if (!room) {
+      return;
+    }
     const roomw = RoomWrapper.getInstance(roomName);
     roomw.creeps.forEach(c => updatedCostMatrix.set(c.pos.x, c.pos.y, 0xff));
     return updatedCostMatrix;
@@ -31,13 +41,16 @@ export class CostMatrixUtils {
    * Avoid harvest positions.
    * Cached.
    */
-  public static avoidHarvestPositionsCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix => {
+  public static avoidHarvestPositionsCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix | void => {
     const cacheKey = "avoidHarvestPositions";
     const cachedCostMatrix = CostMatrixUtils.getCostMatrixFromCache(cacheKey);
     if (cachedCostMatrix) {
       return cachedCostMatrix;
     }
-
+    const room = Game.rooms[roomName];
+    if (!room) {
+      return;
+    }
     const roomw = RoomWrapper.getInstance(roomName);
     roomw.sources.forEach(source =>
       roomw.getHarvestPositions(source.id).forEach(pos => costMatrix.set(pos.x, pos.y, 0xff))
@@ -54,7 +67,7 @@ export class CostMatrixUtils {
   public static avoidHarvestPositionsAndRoadsNearControllerCostCallback = (
     roomName: string,
     costMatrix: CostMatrix
-  ): CostMatrix => {
+  ): CostMatrix | void => {
     const cacheKey = "avoidHarvestPositionsAndRoadsNearController";
     const cachedCostMatrix = CostMatrixUtils.getCostMatrixFromCache(cacheKey);
     if (cachedCostMatrix) {
@@ -62,6 +75,13 @@ export class CostMatrixUtils {
     }
 
     const updatedCostMatrix = this.avoidHarvestPositionsCostCallback(roomName, costMatrix);
+    if (!updatedCostMatrix) {
+      return;
+    }
+    const room = Game.rooms[roomName];
+    if (!room) {
+      return;
+    }
     const roomw = RoomWrapper.getInstance(roomName);
     if (roomw.controller) {
       const conPos = roomw.controller.pos;
@@ -81,7 +101,11 @@ export class CostMatrixUtils {
   /**
    * Sets roads to 1, unwalkable structures and unwalkable construction sites to 255
    */
-  public static structuresCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix => {
+  public static structuresCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix | void => {
+    const room = Game.rooms[roomName];
+    if (!room) {
+      return;
+    }
     const roomw = RoomWrapper.getInstance(roomName);
     const structures = roomw.find(FIND_STRUCTURES);
     for (const structure of structures) {
@@ -112,11 +136,17 @@ export class CostMatrixUtils {
   /**
    * Creep movement prefering roads>plains>swamps, avoiding unwalkable areas.
    */
-  public static creepMovementCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix => {
+  public static creepMovementCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix | void => {
     const room = Game.rooms[roomName];
-    costMatrix = this.structuresCostCallback(roomName, new PathFinder.CostMatrix());
-    room.find(FIND_CREEPS).forEach(creep => costMatrix.set(creep.pos.x, creep.pos.y, 0xff));
-    return costMatrix;
+    if (!room) {
+      return;
+    }
+    const updatedCostMatrix = this.structuresCostCallback(roomName, costMatrix);
+    if (!updatedCostMatrix) {
+      return;
+    }
+    room.find(FIND_CREEPS).forEach(creep => updatedCostMatrix.set(creep.pos.x, creep.pos.y, 0xff));
+    return updatedCostMatrix;
   };
 
   /** *****************************************************
@@ -134,6 +164,9 @@ export class CostMatrixUtils {
       return false;
     }
     const costMatrix = CostMatrixUtils.avoidHarvestPositionsCostCallback(roomName, new PathFinder.CostMatrix());
+    if (!costMatrix) {
+      return false;
+    }
 
     const structures = room.find(FIND_STRUCTURES);
     const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
@@ -157,6 +190,9 @@ export class CostMatrixUtils {
       return false;
     }
     const costMatrix = this.structuresCostCallback(roomName, new PathFinder.CostMatrix());
+    if (!costMatrix) {
+      return false;
+    }
     room.find(FIND_CREEPS).forEach(creep => costMatrix.set(creep.pos.x, creep.pos.y, 0xff));
     return costMatrix;
   };
@@ -169,6 +205,10 @@ export class CostMatrixUtils {
     if (!roomw) {
       return false;
     }
-    return this.structuresCostCallback(roomName, new PathFinder.CostMatrix());
+    const updatedCostMatrix = this.structuresCostCallback(roomName, new PathFinder.CostMatrix());
+    if (!updatedCostMatrix) {
+      return false;
+    }
+    return updatedCostMatrix;
   };
 }
