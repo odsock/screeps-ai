@@ -168,7 +168,8 @@ export class RemoteControl {
     const path = PathFinder.search(dropPos, { pos: sourcePos, range: 1 });
     const harvestPerTick = SOURCE_ENERGY_CAPACITY / ENERGY_REGEN_TIME;
     const capacityNeeded = harvestPerTick * path.path.length * 2;
-    const carryPartsNeeded = Math.ceil(capacityNeeded / CARRY_CAPACITY);
+    // add an extra part as buffer for travel delays
+    const carryPartsNeeded = Math.ceil(capacityNeeded / CARRY_CAPACITY) + 1;
 
     CreepUtils.consoleLogIfWatched(
       homeRoom,
