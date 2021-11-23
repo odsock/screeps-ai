@@ -330,12 +330,7 @@ export class Hauler extends CreepWrapper {
         }
       }
       // get path through remaining extensions
-      let path: RoomPosition[];
-      if (this.isStuck()) {
-        path = this.getSpawnSupplyPath(spawnStorage, false);
-      } else {
-        path = this.getSpawnSupplyPath(spawnStorage);
-      }
+      const path = this.getSpawnSupplyPath(spawnStorage);
       CreepUtils.consoleLogIfWatched(this, `path: ${String(path)}`);
       const moveResult = this.moveByPath(path);
       CreepUtils.consoleLogIfWatched(this, `moving on path`, moveResult);
@@ -346,10 +341,7 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private getSpawnSupplyPath(
-    spawnStorage: (StructureExtension | StructureSpawn)[],
-    ignoreCreeps = true
-  ): RoomPosition[] {
+  private getSpawnSupplyPath(spawnStorage: (StructureExtension | StructureSpawn)[]): RoomPosition[] {
     // if (this.memory.path) {
     //   return Room.deserializePath(this.memory.path);
     // }
@@ -360,7 +352,7 @@ export class Hauler extends CreepWrapper {
     const path = PathFinder.search(this.pos, goals, {
       plainCost: 2,
       swampCost: 10,
-      roomCallback: ignoreCreeps ? CostMatrixUtils.structuresRoomCallback : CostMatrixUtils.creepMovementRoomCallback
+      roomCallback: CostMatrixUtils.creepMovementRoomCallback
     });
 
     // this.memory.path = path.path
