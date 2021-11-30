@@ -299,12 +299,13 @@ export class RoomWrapper extends Room {
     });
   }
 
-  public findWeakestWall(): StructureWall | undefined {
-    const wallsToRepair = this.room.find<StructureWall>(FIND_STRUCTURES, {
+  public findWeakestWall(): StructureWall | StructureRampart | undefined {
+    const wallsToRepair = this.room.find<StructureWall | StructureRampart>(FIND_STRUCTURES, {
       filter: structure =>
-        structure.hits < SockPuppetConstants.MAX_HITS_WALL &&
-        (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) &&
-        !this.dismantleQueue.find(dismantle => dismantle.id === structure.id)
+        (structure.structureType === STRUCTURE_WALL && structure.hits < SockPuppetConstants.MAX_HITS_WALL) ||
+        (structure.structureType === STRUCTURE_RAMPART &&
+          structure.hits < SockPuppetConstants.MAX_HITS_RAMPART &&
+          !this.dismantleQueue.find(dismantle => dismantle.id === structure.id))
     });
 
     if (wallsToRepair.length > 0) {
