@@ -17,7 +17,7 @@ export class Fixer extends CreepWrapper {
     let repairTarget: Structure | undefined;
     if (this.memory.lastTargetId) {
       repairTarget = Game.getObjectById(this.memory.lastTargetId) ?? undefined;
-      if (!repairTarget) {
+      if (!repairTarget || repairTarget.hits === repairTarget.hitsMax) {
         repairTarget = this.findStructureForRepair();
         this.memory.lastTargetId = repairTarget?.id;
       }
