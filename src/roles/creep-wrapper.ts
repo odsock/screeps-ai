@@ -48,7 +48,6 @@ export interface CreepWrapperProfile {
 export abstract class CreepWrapper extends Creep {
   private pickingUp = false;
   private withdrawing = false;
-  private moving = false;
 
   public constructor(private readonly creep: Creep) {
     super(creep.id);

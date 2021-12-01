@@ -14,20 +14,20 @@ export class Upgrader extends Minder {
     maxBodyParts: 21
   };
 
+  private myContainer: StructureContainer | undefined;
+
   public run(): void {
-    this.moveToDestination();
-
-    // retire old creep if valid retiree set
-    if (this.memory.replacing) {
-      const retiree = Game.creeps[this.memory.replacing];
-      if (retiree) {
-        this.retireCreep(retiree);
-        return;
-      } else {
-        this.memory.replacing = undefined;
-      }
+    if (this.atDestination()) {
+      this.cancelHauler();
+      this.buildRepairOrUpgrade();
+    } else if (this.memory.replacing) {
+      this.replaceCreep(this.memory.replacing);
+    } else {
+      this.moveToDestination();
     }
+  }
 
+  private buildRepairOrUpgrade(): void {
     if (this.buildNearbySite() !== ERR_NOT_FOUND) {
       if (this.store.energy < this.buildAmount * 2) {
         this.withdrawFromMyContainer();
@@ -52,80 +52,65 @@ export class Upgrader extends Minder {
     CreepUtils.consoleLogIfWatched(this, `stumped. sitting like a lump`);
   }
 
-  // TODO dry this up with harvester code
-  public moveToDestination(): ScreepsReturnCode {
-    if (this.room.controller) {
-      let target: RoomPosition | undefined;
-      let findPathOpts: FindPathOpts | undefined;
-      // move to controller container if it exists
-      if (this.room.memory.controller.containerId) {
-        const container = Game.getObjectById(this.room.memory.controller.containerId);
-        if (container) {
-          CreepUtils.consoleLogIfWatched(this, `finding path to controller container`);
-          target = container.pos;
-          findPathOpts = {
-            range: 1,
-            costCallback: CostMatrixUtils.avoidHarvestPositionsAndRoadsNearControllerCostCallback
-          };
-        }
-      }
-
-      // move to controller
-      if (!target) {
-        CreepUtils.consoleLogIfWatched(this, `finding path to controller`);
-        target = this.room.controller.pos;
-        findPathOpts = {
-          range: 3,
-          costCallback: CostMatrixUtils.avoidHarvestPositionsAndRoadsNearControllerCostCallback
-        };
-      }
-
-      if (target) {
-        // cancel hauler call if at target
-        const myPathToTarget = this.pos.findPathTo(target, findPathOpts);
-        if (myPathToTarget.length === 0) {
-          CreepUtils.consoleLogIfWatched(this, `at target, don't need hauler`);
-          this.cancelHauler();
-          return OK;
-        }
-
-        // call a hauler if not at target yet
-        CreepUtils.consoleLogIfWatched(this, `calling hauler for path`);
-        this.callHauler();
-
-        // if we have a hauler, tell it where to go
-        if (this.memory.haulerName) {
-          const hauler = Game.creeps[this.memory.haulerName];
-          if (hauler) {
-            CreepUtils.consoleLogIfWatched(this, `already have a hauler`);
-            // setup hauler pulling
-            const pullResult = hauler.pull(this);
-            const moveResult = this.move(hauler);
-            if (pullResult === OK && moveResult === OK) {
-              // get haulers path to target
-              const haulerPathToTarget = hauler.pos.findPathTo(target, findPathOpts);
-
-              // if path is 0 steps, hauler is at target, so swap positions
-              if (haulerPathToTarget.length === 0) {
-                const result = hauler.moveTo(this);
-                CreepUtils.consoleLogIfWatched(this, `haul last step`, result);
-                return result;
-              }
-
-              // move hauler along the path
-              const haulResult = hauler.moveByPath(haulerPathToTarget);
-              CreepUtils.consoleLogIfWatched(this, `haul`, haulResult);
-            } else {
-              CreepUtils.consoleLogIfWatched(this, `failed to pull. pull ${pullResult}, move ${moveResult}`);
-              return ERR_INVALID_ARGS;
-            }
-          } else {
-            this.cancelHauler();
-          }
-        }
-      }
+  private replaceCreep(creepName: string) {
+    const retiree = Game.creeps[creepName];
+    if (retiree) {
+      this.directHauler(retiree.pos, 1);
+      this.retireCreep(retiree);
+    } else {
+      this.memory.replacing = undefined;
     }
-    return OK;
+  }
+
+  /** Checks if on container or in range to source */
+  private atDestination(): boolean {
+    const container = this.getMyContainer();
+    if (container && this.pos.isEqualTo(container.pos)) {
+      return true;
+    }
+    // TODO consider roads and harvest positions in check
+    if (this.room.controller && this.pos.inRangeTo(this.room.controller, 3)) {
+      return true;
+    }
+    return false;
+  }
+
+  private getMyContainer(): StructureContainer | undefined {
+    if (this.myContainer) {
+      return this.myContainer;
+    }
+    const containerFromMemory = this.resolveContainerIdFromMemory();
+    if (containerFromMemory) {
+      this.myContainer = containerFromMemory;
+      return containerFromMemory;
+    }
+    CreepUtils.consoleLogIfWatched(this, `no controller container`);
+    return undefined;
+  }
+
+  public moveToDestination(): ScreepsReturnCode {
+    if (!this.room.controller) {
+      return ERR_NO_PATH;
+    }
+
+    // move to claimed container if it exists
+    const container = this.getMyContainer();
+    if (container) {
+      CreepUtils.consoleLogIfWatched(this, `finding path to controller container`);
+      return this.directHauler(
+        container.pos,
+        1,
+        CostMatrixUtils.avoidHarvestPositionsAndRoadsNearControllerCostCallback
+      );
+    }
+
+    // move to controller
+    CreepUtils.consoleLogIfWatched(this, `finding path to controller`);
+    return this.directHauler(
+      this.room.controller.pos,
+      3,
+      CostMatrixUtils.avoidHarvestPositionsAndRoadsNearControllerCostCallback
+    );
   }
 
   protected withdrawFromMyContainer(): ScreepsReturnCode {
