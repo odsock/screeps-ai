@@ -29,6 +29,7 @@ declare global {
     stuckCount?: number;
     moved?: boolean;
     draw?: boolean;
+    lastTargetId?: Id<Structure>;
   }
 }
 
@@ -578,10 +579,10 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected findStructureForRepair(): Structure | undefined {
-    // repair walls
-    const wall = this.roomw.findWeakestWall();
-    if (wall) {
-      return wall;
+    // repair ramparts
+    const rampart = this.roomw.findWeakestRampart();
+    if (rampart) {
+      return rampart;
     }
 
     // repair structures

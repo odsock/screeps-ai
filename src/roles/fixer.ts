@@ -14,15 +14,22 @@ export class Fixer extends CreepWrapper {
   };
 
   public run(): void {
-    let target = this.findStructureForRepair();
-    if (target) {
-      this.doRepairJob(target);
+    let repairTarget: Structure | undefined;
+    if (this.memory.lastTargetId) {
+      repairTarget = Game.getObjectById(this.memory.lastTargetId) ?? undefined;
+      if (!repairTarget) {
+        repairTarget = this.findStructureForRepair();
+        this.memory.lastTargetId = repairTarget?.id;
+      }
+    }
+    if (repairTarget) {
+      this.doRepairJob(repairTarget);
       return;
     }
 
-    target = this.findDismantleTarget();
-    if (target) {
-      this.doDismantleJob(target);
+    const dismantleTarget = this.findDismantleTarget();
+    if (dismantleTarget) {
+      this.doDismantleJob(dismantleTarget);
       return;
     }
 

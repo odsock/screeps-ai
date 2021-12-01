@@ -317,6 +317,23 @@ export class RoomWrapper extends Room {
     }
   }
 
+  public findWeakestRampart(): StructureRampart | undefined {
+    const wallsToRepair = this.room.find<StructureRampart>(FIND_STRUCTURES, {
+      filter: structure =>
+        structure.structureType === STRUCTURE_RAMPART &&
+        structure.hits < SockPuppetConstants.MAX_HITS_RAMPART &&
+        !this.dismantleQueue.find(dismantle => dismantle.id === structure.id)
+    });
+
+    if (wallsToRepair.length > 0) {
+      return wallsToRepair.reduce((weakestWall, wall) => {
+        return weakestWall.hits < wall.hits ? weakestWall : wall;
+      });
+    } else {
+      return undefined;
+    }
+  }
+
   /** counts parts including spawning creeps */
   public getActiveParts(type: CreepRole, part: BodyPartConstant): number {
     const creeps = this.find(FIND_MY_CREEPS, { filter: c => c.memory.role === type });

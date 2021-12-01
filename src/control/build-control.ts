@@ -33,9 +33,15 @@ export class BuildControl {
     }
 
     // BUILDER
-    // make builders if there's something to build
+    // make builders if there's something to build, or walls/ramparts to upgrade
     const conSiteCount = roomw.constructionSites.length;
-    if (conSiteCount > 0) {
+    const wallsBelowMax = roomw.find(FIND_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_WALL && s.hits < SockPuppetConstants.MAX_HITS_WALL
+    }).length;
+    const rampartsBelowMax = roomw.find(FIND_MY_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_RAMPART && s.hits < SockPuppetConstants.MAX_HITS_RAMPART
+    }).length;
+    if (conSiteCount > 0 || wallsBelowMax > 0 || rampartsBelowMax > 0) {
       const builderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.BUILDER);
       const workPartsNeeded = this.getBuilderWorkPartsNeeded(roomw);
       CreepUtils.consoleLogIfWatched(

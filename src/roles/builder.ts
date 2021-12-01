@@ -21,6 +21,21 @@ export class Builder extends CreepWrapper {
       return;
     }
 
+    // repair walls and ramparts to max
+    // TODO probably shouldn't spawn builder for minor rampart repair
+    let repairTarget: Structure | undefined;
+    if (this.memory.lastTargetId) {
+      repairTarget = Game.getObjectById(this.memory.lastTargetId) ?? undefined;
+      if (!repairTarget) {
+        repairTarget = this.roomw.findWeakestWall();
+        this.memory.lastTargetId = repairTarget?.id;
+      }
+    }
+    if (repairTarget) {
+      this.doRepairJob(repairTarget);
+      return;
+    }
+
     CreepUtils.consoleLogIfWatched(this, "no work left. this is the end.");
     const target = this.roomw.storage ?? this.roomw.spawns[0];
     const result = this.moveToW(target.pos, { range: 1 });
@@ -58,6 +73,22 @@ export class Builder extends CreepWrapper {
         CreepUtils.consoleLogIfWatched(this, `going to harvest`);
         this.harvestByPriority();
       }
+    }
+  }
+
+  private doRepairJob(target: Structure): ScreepsReturnCode {
+    this.updateJob("repairing");
+    this.stopWorkingIfEmpty();
+    this.startWorkingIfFull();
+    this.startWorkingInRange(target.pos);
+
+    if (this.memory.working) {
+      const result = this.moveToAndRepair(target);
+      CreepUtils.consoleLogIfWatched(this, `repair result`, result);
+      return result;
+    } else {
+      this.harvestByPriority();
+      return OK;
     }
   }
 
