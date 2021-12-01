@@ -56,7 +56,7 @@ export class UpgradeControl {
           WORK
         ),
         max: true,
-        memory: { role: Upgrader.ROLE },
+        memory: { role: Upgrader.ROLE, containerId: roomw.memory.controller.containerId },
         priority: 80
       });
     }
