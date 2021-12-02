@@ -27,7 +27,7 @@ export class Harvester extends Minder {
     }
   }
 
-  private replaceCreep(creepName: string) {
+  protected replaceCreep(creepName: string): void {
     const retiree = Game.creeps[creepName];
     if (retiree) {
       this.directHauler(retiree.pos, 1);
@@ -38,7 +38,7 @@ export class Harvester extends Minder {
   }
 
   /** Checks if on container or in range to source */
-  private atDestination(): boolean {
+  protected atDestination(): boolean {
     const container = this.getMyContainer();
     if (container && this.pos.isEqualTo(container.pos)) {
       return true;

@@ -140,22 +140,27 @@ export abstract class Minder extends CreepWrapper {
 
     // setup hauler pulling
     const pullResult = hauler.pull(this);
-    const moveResult = this.move(hauler);
-    if (pullResult === OK && moveResult === OK) {
-      // if path is 0 steps, hauler is at target or exit of a room, so swap positions
-      if (haulerPathToTarget.length === 0) {
-        const result = hauler.moveToW(this);
-        CreepUtils.consoleLogIfWatched(this, `swap with hauler`, result);
-        return result;
-      }
-
-      // move hauler along the path
-      const haulResult = hauler.moveByPath(haulerPathToTarget);
-      CreepUtils.consoleLogIfWatched(this, `haul`, haulResult);
-    } else {
-      CreepUtils.consoleLogIfWatched(this, `failed to pull. pull ${pullResult}, move ${moveResult}`);
-      return ERR_INVALID_ARGS;
+    if (pullResult !== OK) {
+      CreepUtils.consoleLogIfWatched(this, `hauler failed to pull`, pullResult);
+      return pullResult;
     }
+    const moveResult = this.move(hauler);
+    if (moveResult !== OK) {
+      CreepUtils.consoleLogIfWatched(this, `failed to move to hauler`, moveResult);
+      return moveResult;
+    }
+
+    // if path is 0 steps, hauler is at target or exit of a room, so swap positions
+    if (haulerPathToTarget.length === 0) {
+      const result = hauler.moveToW(this);
+      CreepUtils.consoleLogIfWatched(this, `swap with hauler`, result);
+      return result;
+    }
+
+    // move hauler along the path
+    const haulResult = hauler.moveByPath(haulerPathToTarget);
+    CreepUtils.consoleLogIfWatched(this, `haul`, haulResult);
+
     return OK;
   }
 
