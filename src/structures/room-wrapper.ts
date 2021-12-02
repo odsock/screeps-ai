@@ -304,7 +304,7 @@ export class RoomWrapper extends Room {
       filter: structure =>
         (structure.structureType === STRUCTURE_WALL && structure.hits < SockPuppetConstants.MAX_HITS_WALL) ||
         (structure.structureType === STRUCTURE_RAMPART &&
-          structure.hits < SockPuppetConstants.MAX_HITS_RAMPART &&
+          structure.hits < SockPuppetConstants.MAX_HITS_WALL &&
           !this.dismantleQueue.find(dismantle => dismantle.id === structure.id))
     });
 
@@ -321,7 +321,7 @@ export class RoomWrapper extends Room {
     const wallsToRepair = this.room.find<StructureRampart>(FIND_STRUCTURES, {
       filter: structure =>
         structure.structureType === STRUCTURE_RAMPART &&
-        structure.hits < SockPuppetConstants.MAX_HITS_RAMPART &&
+        structure.hits < SockPuppetConstants.MAX_HITS_WALL &&
         !this.dismantleQueue.find(dismantle => dismantle.id === structure.id)
     });
 

@@ -39,7 +39,7 @@ export class BuildControl {
       filter: s => s.structureType === STRUCTURE_WALL && s.hits < SockPuppetConstants.MAX_HITS_WALL
     }).length;
     const rampartsBelowMax = roomw.find(FIND_MY_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_RAMPART && s.hits < SockPuppetConstants.MAX_HITS_RAMPART
+      filter: s => s.structureType === STRUCTURE_RAMPART && s.hits < SockPuppetConstants.MAX_HITS_WALL
     }).length;
     if (conSiteCount > 0 || wallsBelowMax > 0 || rampartsBelowMax > 0) {
       const builderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.BUILDER);

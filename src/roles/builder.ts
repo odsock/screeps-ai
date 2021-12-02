@@ -27,7 +27,7 @@ export class Builder extends CreepWrapper {
     if (this.memory.lastTargetId) {
       repairTarget = Game.getObjectById(this.memory.lastTargetId) ?? undefined;
     }
-    if (!repairTarget || repairTarget.hits === repairTarget.hitsMax) {
+    if (!repairTarget || repairTarget.hits === SockPuppetConstants.MAX_HITS_WALL) {
       repairTarget = this.roomw.findWeakestWall();
       this.memory.lastTargetId = repairTarget?.id;
     }
