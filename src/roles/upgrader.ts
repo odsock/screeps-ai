@@ -77,11 +77,13 @@ export class Upgrader extends Minder {
 
   private getMyContainer(): StructureContainer | undefined {
     if (this.myContainer) {
+      CreepUtils.consoleLogIfWatched(this, `found cached container`);
       return this.myContainer;
     }
     const containerFromMemory = this.resolveContainerIdFromMemory();
     if (containerFromMemory) {
       this.myContainer = containerFromMemory;
+      CreepUtils.consoleLogIfWatched(this, `resolved container from memory`);
       return containerFromMemory;
     }
     CreepUtils.consoleLogIfWatched(this, `no controller container`);
