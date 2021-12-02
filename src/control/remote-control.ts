@@ -7,6 +7,7 @@ import { Importer } from "roles/importer";
 import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnUtils } from "./spawn-utils";
+import { TargetControl } from "./target-control";
 
 export class RemoteControl {
   public run(): void {
@@ -23,8 +24,7 @@ export class RemoteControl {
     const spawnQueue = SpawnQueue.getInstance(roomw);
 
     // IMPORTER
-    const remoteHarvestRooms =
-      TargetConfig.REMOTE_HARVEST[Game.shard.name]?.filter(name => this.isValidRemote(name)) ?? [];
+    const remoteHarvestRooms = TargetControl.remoteHarvestRooms;
     console.log(`DEBUG: valid remotes: ${remoteHarvestRooms.length}`);
     for (const targetRoom of remoteHarvestRooms) {
       const sources = Memory.rooms[targetRoom].sources;
@@ -67,9 +67,7 @@ export class RemoteControl {
     const claimerCount = SpawnUtils.getCreepCountForRole(roomw, Claimer.ROLE);
     const maxClaimers = this.getMaxClaimerCount();
     if (claimerCount < maxClaimers) {
-      const remoteTargetRooms = TargetConfig.TARGETS[Game.shard.name].filter(name => {
-        return !Game.rooms[name]?.controller?.my;
-      });
+      const remoteTargetRooms = TargetControl.targetRooms;
       for (const roomName of [...remoteTargetRooms, ...remoteHarvestRooms]) {
         const claimerOnRoom = !!_.filter(
           Game.creeps,
@@ -121,25 +119,9 @@ export class RemoteControl {
     }
   }
 
-  /**
-   * Validate remote harvest room
-   * Valid remotes are not owned (by me or anyone), and not reserved by other players
-   */
-  private isValidRemote(roomName: string): boolean {
-    const roomMemory = Memory.rooms[roomName];
-    if (
-      !roomMemory.controller?.owner &&
-      (!roomMemory.controller?.reservation ||
-        roomMemory.controller.reservation.username === _.toArray(Game.spawns)[0]?.owner.username)
-    ) {
-      return true;
-    }
-    return false;
-  }
-
   private getMaxClaimerCount(): number {
-    const targetedRooms = TargetConfig.TARGETS[Game.shard.name] ?? [];
-    const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name] ?? [];
+    const targetedRooms = TargetControl.targetRooms;
+    const remoteHarvestRooms = TargetControl.remoteHarvestRooms;
     const targetRoomNames = targetedRooms.concat(remoteHarvestRooms);
     if (targetRoomNames) {
       return targetRoomNames.filter(roomName => {

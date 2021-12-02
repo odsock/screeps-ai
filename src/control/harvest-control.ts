@@ -1,4 +1,3 @@
-import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Harvester } from "roles/harvester";
@@ -6,6 +5,7 @@ import { Hauler } from "roles/hauler";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
+import { TargetControl } from "./target-control";
 
 @profile
 export class HarvestControl {
@@ -112,7 +112,7 @@ export class HarvestControl {
   private requestRemoteHarvesters(roomw: RoomWrapper) {
     const spawnQueue = SpawnQueue.getInstance(roomw);
 
-    const remoteHarvestRooms = TargetConfig.REMOTE_HARVEST[Game.shard.name] ?? [];
+    const remoteHarvestRooms = TargetControl.remoteHarvestRooms;
     const remoteHarvestRoomsMy =
       remoteHarvestRooms.filter(name => {
         return !Game.rooms[name]?.controller?.my;
