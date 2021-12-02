@@ -69,7 +69,7 @@ export class Upgrader extends Minder {
       return true;
     }
     // TODO consider roads and harvest positions in check
-    if (this.room.controller && this.pos.inRangeTo(this.room.controller, 3)) {
+    if (!container && this.room.controller && this.pos.inRangeTo(this.room.controller, 3)) {
       return true;
     }
     return false;
