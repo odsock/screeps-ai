@@ -1,4 +1,3 @@
-import { TargetConfig } from "config/target-config";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { SpawnQueue } from "planning/spawn-queue";

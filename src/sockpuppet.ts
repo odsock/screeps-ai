@@ -27,7 +27,7 @@ export class Sockpuppet {
     new RemoteControl().run();
     new UpgradeControl().run();
 
-    // Run each room
+    // Run each colony
     _.filter(Game.rooms, room => room.controller?.my).forEach(room => {
       const roomw = RoomWrapper.getInstance(room);
 
@@ -45,16 +45,16 @@ export class Sockpuppet {
 
       this.runTowers(roomw);
 
-      // Plan each room on interval
-      if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
-        new Planner(roomw).run();
-      }
-
       // spawn new creeps
       new SpawnControl(roomw).run();
     });
 
     this.runCreeps();
+
+    // Plan each room on interval, both colony and remotes
+    if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
+      new Planner().run();
+    }
   }
 
   public runCreeps(): void {
