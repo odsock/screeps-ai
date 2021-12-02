@@ -87,6 +87,8 @@ export class Builder extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `repair result`, result);
       return result;
     } else {
+      // clear cached repair target when not working
+      delete this.memory.lastTargetId;
       this.harvestByPriority();
       return OK;
     }
