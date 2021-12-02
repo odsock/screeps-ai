@@ -1,6 +1,7 @@
 export class SockPuppetConstants {
   public static readonly MAX_UPGRADERS = 3;
-  public static readonly MAX_FIXER_CREEPS: number = 1;
+  public static readonly MAX_FIXER_CREEPS = 1;
+  public static readonly MAX_BUILDER_CREEPS = 10;
 
   public static readonly WORK_PER_WORKER_PART = 5000;
 

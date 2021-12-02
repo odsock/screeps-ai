@@ -46,9 +46,9 @@ export class BuildControl {
       const workPartsNeeded = this.getBuilderWorkPartsNeeded(roomw);
       CreepUtils.consoleLogIfWatched(
         roomw,
-        `builders: ${builderCount}, ${conSiteCount} sites, ${workPartsNeeded} parts needed`
+        `builders: ${builderCount}, ${conSiteCount} sites, ${wallsBelowMax} walls to build, ${workPartsNeeded} parts needed`
       );
-      if (workPartsNeeded > 0) {
+      if (workPartsNeeded > 0 && builderCount < SockPuppetConstants.MAX_BUILDER_CREEPS) {
         spawnQueue.push({
           bodyProfile: Builder.BODY_PROFILE,
           max: true,
@@ -60,9 +60,16 @@ export class BuildControl {
   }
 
   private getBuilderWorkPartsNeeded(roomw: RoomWrapper): number {
+    const wallWork = roomw
+      .find(FIND_STRUCTURES, {
+        filter: s =>
+          (s.structureType === STRUCTURE_WALL || s.structureType === STRUCTURE_RAMPART) &&
+          s.hits < SockPuppetConstants.MAX_HITS_WALL
+      })
+      .reduce((hits, wall) => (hits += SockPuppetConstants.MAX_HITS_WALL - wall.hits), 0);
     const conWork = roomw.constructionWork;
     const activeWorkParts = roomw.getActiveParts(Builder.ROLE, WORK);
-    const workPartsNeeded = Math.ceil(conWork / SockPuppetConstants.WORK_PER_WORKER_PART);
+    const workPartsNeeded = Math.ceil((conWork + wallWork) / SockPuppetConstants.WORK_PER_WORKER_PART);
     const workPartsDeficit = workPartsNeeded - activeWorkParts;
     return workPartsDeficit > 0 ? workPartsDeficit : 0;
   }
