@@ -280,12 +280,13 @@ export class RoomWrapper extends Room {
 
   /** various find methods */
 
-  public findClosestDamagedNonRoad(pos: RoomPosition): AnyStructure | null {
+  public findClosestDamagedNonRoadNotWall(pos: RoomPosition): AnyStructure | null {
     return pos.findClosestByRange(FIND_STRUCTURES, {
       filter: structure =>
         structure.hits < structure.hitsMax &&
         structure.structureType !== STRUCTURE_ROAD &&
         structure.structureType !== STRUCTURE_WALL &&
+        structure.structureType !== STRUCTURE_RAMPART &&
         !this.dismantleQueue.find(dismantle => dismantle.id === structure.id)
     });
   }

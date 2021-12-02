@@ -580,7 +580,7 @@ export abstract class CreepWrapper extends Creep {
 
   protected findStructureForRepair(): Structure | undefined {
     // repair structures
-    const structure = this.roomw.findClosestDamagedNonRoad(this.pos);
+    const structure = this.roomw.findClosestDamagedNonRoadNotWall(this.pos);
     if (structure) {
       return structure;
     }
