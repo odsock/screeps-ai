@@ -1,5 +1,5 @@
 import { CreepRole } from "config/creep-types";
-import { CleanupTask, HaulTask, SupplyTask, Task, TaskType, UnloadTask } from "control/hauler-control";
+import { CleanupTask, HaulTask, SupplyTask, TaskType, UnloadTask } from "control/hauler-control";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
@@ -51,27 +51,6 @@ export class Hauler extends CreepWrapper {
     function assertNever(x: never): never {
       throw new Error("Missing task handler: " + JSON.stringify(x));
     }
-  }
-
-  public assignTask(task: Task): void {
-    this.memory.task = task;
-    this.memory.working = false;
-    this.memory.idleZone = undefined;
-  }
-
-  public hasTask(): boolean {
-    return !!this.memory.task;
-  }
-
-  public getTask(): Task | undefined {
-    return this.memory.task;
-  }
-
-  public completeTask(): void {
-    CreepUtils.consoleLogIfWatched(this, `task complete: ${String(this.memory.task?.type)}`);
-    delete this.memory.task;
-    this.memory.working = false;
-    this.memory.idleZone = undefined;
   }
 
   private workUnloadContainerJob(task: UnloadTask): ScreepsReturnCode {

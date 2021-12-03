@@ -743,4 +743,27 @@ export abstract class CreepWrapper extends Creep {
   public getStoreContents(): ResourceConstant[] {
     return CreepUtils.getStoreContents(this);
   }
+
+  /** Task management */
+
+  public assignTask(task: Task): void {
+    this.memory.task = task;
+    this.memory.working = false;
+    this.memory.idleZone = undefined;
+  }
+
+  public hasTask(): boolean {
+    return !!this.memory.task;
+  }
+
+  public getTask(): Task | undefined {
+    return this.memory.task;
+  }
+
+  public completeTask(): void {
+    CreepUtils.consoleLogIfWatched(this, `task complete: ${String(this.memory.task?.type)}`);
+    delete this.memory.task;
+    this.memory.working = false;
+    this.memory.idleZone = undefined;
+  }
 }
