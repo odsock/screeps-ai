@@ -83,7 +83,7 @@ export class Harvester extends Minder {
       return true;
     }
     const source = this.getMySource();
-    if (source && this.pos.inRangeTo(source.pos, 1)) {
+    if (!container && source && this.pos.inRangeTo(source.pos, 1)) {
       return true;
     }
     return false;
