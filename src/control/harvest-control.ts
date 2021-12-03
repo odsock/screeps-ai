@@ -129,7 +129,7 @@ export class HarvestControl {
         if (!hasMinder) {
           CreepUtils.consoleLogIfWatched(roomw, `spawning remote harvester ${Harvester.ROLE}`);
           spawnQueue.push({
-            bodyProfile: Harvester.BODY_PROFILE,
+            bodyProfile: Harvester.BODY_PROFILE_REMOTE,
             max: true,
             memory: {
               role: Harvester.ROLE,

@@ -13,18 +13,57 @@ export class Harvester extends Minder {
     maxBodyParts: 5
   };
 
+  public static BODY_PROFILE_REMOTE: CreepBodyProfile = {
+    profile: [WORK],
+    seed: [CARRY],
+    maxBodyParts: 6
+  };
+
   private myContainer: StructureContainer | undefined;
   private mySource: Source | undefined;
 
   public run(): void {
     if (this.atDestination()) {
       this.cancelHauler();
-      this.harvestFromNearbySource();
+      const result = this.buildOrRepairMyContainer();
+      if (result === ERR_NO_BODYPART || result === ERR_NOT_ENOUGH_ENERGY || result === ERR_INVALID_TARGET) {
+        this.harvestFromNearbySource();
+      }
     } else if (this.memory.replacing) {
       this.replaceCreep(this.memory.replacing);
     } else {
       this.moveToDestination();
     }
+  }
+
+  private buildOrRepairMyContainer(): ScreepsReturnCode {
+    if (this.getActiveBodyparts(CARRY) === 0 || this.getActiveBodyparts(WORK) === 0) {
+      return ERR_NO_BODYPART;
+    }
+    const source = this.getMySource();
+    const container = this.getMyContainer();
+    if (container && container.hits < container.hitsMax) {
+      if (this.store.energy < this.repairCost) {
+        return ERR_NOT_ENOUGH_ENERGY;
+      }
+      const result = this.repair(container);
+      CreepUtils.consoleLogIfWatched(this, `repair container`, result);
+      return result;
+    } else if (source) {
+      const constructionSiteId = Memory.rooms[source.room.name]?.sources[source.id]?.containerConstructionSiteId;
+      if (constructionSiteId) {
+        const site = Game.getObjectById<ConstructionSite<BuildableStructureConstant>>(constructionSiteId);
+        if (site) {
+          if (this.store.energy < this.buildAmount) {
+            return ERR_NOT_ENOUGH_ENERGY;
+          }
+          const result = this.build(site);
+          CreepUtils.consoleLogIfWatched(this, `build container`, result);
+          return result;
+        }
+      }
+    }
+    return ERR_INVALID_TARGET;
   }
 
   protected replaceCreep(creepName: string): void {
@@ -120,12 +159,10 @@ export class Harvester extends Minder {
     if (this.mySource) {
       return this.mySource;
     }
-
     if (!this.memory.source) {
       CreepUtils.consoleLogIfWatched(this, `no source selected for harvest`);
       return undefined;
     }
-
     return this.memory.source ? Game.getObjectById(this.memory.source) ?? undefined : undefined;
   }
 }
