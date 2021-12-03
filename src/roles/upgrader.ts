@@ -63,12 +63,12 @@ export class Upgrader extends Minder {
   }
 
   /** Checks if on container or in range to source */
+  // TODO consider roads and harvest positions in check
   private atDestination(): boolean {
     const container = this.getMyContainer();
-    if (container && this.pos.isEqualTo(container.pos)) {
+    if (container && this.pos.isNearTo(container.pos)) {
       return true;
     }
-    // TODO consider roads and harvest positions in check
     if (!container && this.room.controller && this.pos.inRangeTo(this.room.controller, 3)) {
       return true;
     }
