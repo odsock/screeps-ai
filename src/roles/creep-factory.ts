@@ -14,6 +14,7 @@ import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class CreepFactory {
+  /** Instantiate role class for creep based on memory value. */
   public static getCreep(creep: Creep): CreepWrapper {
     switch (creep.memory.role) {
       case CreepRole.WORKER:
@@ -36,7 +37,11 @@ export class CreepFactory {
         return new Guard(creep);
 
       default:
-        throw new Error(`Unknown creep role: ${creep.memory.role}`);
+        assertNever(creep.memory.role);
+    }
+
+    function assertNever(x: never): never {
+      throw new Error("Missing role handler: " + JSON.stringify(x));
     }
   }
 
