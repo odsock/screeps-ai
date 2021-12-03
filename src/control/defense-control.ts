@@ -36,8 +36,9 @@ export class DefenseControl {
           if (room) {
             const roomw = RoomWrapper.getInstance(room);
             if (roomw) {
+              // TODO safe modes activate too often, change requirements for activating
               // try to pop a safe mode if being attacked
-              this.activateSafeModeIfAttacked(roomw);
+              // this.activateSafeModeIfAttacked(roomw);
 
               // try to spawn guard in the room
               const availableSpawnsInRoom = roomw.spawns.filter(spawn => !spawn.spawning);
