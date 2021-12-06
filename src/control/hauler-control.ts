@@ -146,7 +146,7 @@ export class HaulerControl {
 
   private createHaulTasks(roomw: RoomWrapper): HaulTask[] {
     const creeps = roomw.find(FIND_MY_CREEPS, {
-      filter: creep => creep.memory.haulRequested && !creep.memory.haulerName
+      filter: creep => creep.memory.haulRequested && !creep.memory.haulerName && creep.memory.targetRoom === roomw.name
     });
     const upgraderTasks: HaulTask[] = creeps
       .filter(c => c.memory.role === CreepRole.UPGRADER)
