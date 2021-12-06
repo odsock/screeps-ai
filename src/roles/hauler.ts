@@ -1,5 +1,5 @@
 import { CreepRole } from "config/creep-types";
-import { CleanupTask, HaulTask, SupplyTask, TaskType, UnloadTask } from "control/hauler-control";
+import { CleanupTask, HaulTask, SupplyTask, TaskType, UnloadTask } from "control/task-management";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
