@@ -3,6 +3,8 @@ import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { RemoteCreepWrapper } from "./remote-creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
+import { MemoryUtils } from "planning/memory-utils";
+import { HaulTask, TaskType } from "control/task-management";
 
 @profile
 export class Importer extends RemoteCreepWrapper {
@@ -21,6 +23,17 @@ export class Importer extends RemoteCreepWrapper {
     const damagedResult = this.findHealingIfDamaged();
     if (damagedResult !== ERR_FULL) {
       return;
+    }
+
+    if (this.memory.task) {
+      switch (this.memory.task.type) {
+        case TaskType.HAUL:
+          CreepUtils.consoleLogIfWatched(this, `haul harvester`, this.workHaulTask(this.memory.task));
+          return;
+
+        default:
+          break;
+      }
     }
 
     // TODO dry this up with claimer code and test cpu usage
@@ -72,20 +85,73 @@ export class Importer extends RemoteCreepWrapper {
       }
       return result;
     } else {
-      result = this.moveToRoom(this.memory.homeRoom);
-      CreepUtils.consoleLogIfWatched(this, `move to home room result`, result);
-      if (this.pos.roomName === this.memory.homeRoom) {
-        const storage = this.findRoomStorage();
-        if (storage) {
-          CreepUtils.consoleLogIfWatched(this, `storage found: ${String(storage)} ${String(storage.pos)}`);
-          result = this.moveToAndTransfer(storage);
-          CreepUtils.consoleLogIfWatched(this, `fill storage result`, result);
-        } else {
-          CreepUtils.consoleLogIfWatched(this, `no storage found. sitting like a lump.`);
-          result = ERR_FULL;
-        }
+      result = this.storeLoad();
+    }
+    return result;
+  }
+
+  // TODO dry this up with hauler storeLoad
+  private storeLoad() {
+    let result = this.moveToRoom(this.memory.homeRoom);
+    CreepUtils.consoleLogIfWatched(this, `move to home room result`, result);
+    if (this.pos.roomName === this.memory.homeRoom) {
+      const storage = this.findRoomStorage();
+      if (storage) {
+        CreepUtils.consoleLogIfWatched(this, `storage found: ${String(storage)} ${String(storage.pos)}`);
+        result = this.moveToAndTransfer(storage);
+        CreepUtils.consoleLogIfWatched(this, `fill storage result`, result);
+      } else {
+        CreepUtils.consoleLogIfWatched(this, `no storage found. sitting like a lump.`);
+        result = ERR_FULL;
       }
     }
     return result;
+  }
+
+  private workHaulTask(haulTask: HaulTask): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(this, `haul ${String(haulTask.creepName)}`);
+
+    // TODO validation here may cause idle tick when haul ends
+    CreepUtils.consoleLogIfWatched(this, `validate haul request `);
+    const creepToHaul = Game.creeps[haulTask.creepName];
+    if (!creepToHaul || !creepToHaul.memory.haulRequested) {
+      CreepUtils.consoleLogIfWatched(this, `haul request invalid`);
+      if (creepToHaul) {
+        creepToHaul.memory.haulRequested = false;
+        creepToHaul.memory.haulerName = undefined;
+      }
+      this.completeTask();
+      return ERR_INVALID_TARGET;
+    } else {
+      creepToHaul.memory.haulerName = this.name;
+    }
+
+    if (this.store.getUsedCapacity() > 0) {
+      return this.storeLoad();
+    }
+
+    // start working when near cargo
+    if (this.pos.isNearTo(creepToHaul.pos)) {
+      this.memory.working = true;
+    } else if (this.memory.working && !this.memory.exitState) {
+      // if not near cargo, and not in exit proccess, need to walk back to cargo
+      this.memory.working = false;
+    }
+
+    if (!this.memory.working) {
+      // step away from exit if just crossed over and not hauling yet. Prevents room swap loop with cargo creep.
+      if (this.memory.lastPos && this.pos.roomName !== MemoryUtils.unpackRoomPosition(this.memory.lastPos).roomName) {
+        const exitDir = CreepUtils.getClosestExitDirection(this.pos);
+        if (exitDir) {
+          const reverseExitDir = CreepUtils.reverseDirection(exitDir);
+          const result = this.moveW(reverseExitDir);
+          CreepUtils.consoleLogIfWatched(this, `move away from exit`, result);
+          return result;
+        }
+      }
+      const result = this.moveToW(creepToHaul);
+      CreepUtils.consoleLogIfWatched(this, `move to creep`, result);
+    }
+    return OK;
   }
 }

@@ -1,22 +1,53 @@
+import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Claimer } from "roles/claimer";
+import { CreepFactory } from "roles/creep-factory";
 import { Importer } from "roles/importer";
 import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
+import { HaulTask, TaskManagement, TaskType } from "./task-management";
 
 export class RemoteControl {
   public run(): void {
     for (const roomName in Game.rooms) {
       const roomw = RoomWrapper.getInstance(roomName);
 
+      const importers = roomw
+        .find(FIND_MY_CREEPS, { filter: c => c.memory.role === CreepRole.IMPORTER })
+        .map(c => CreepFactory.getCreep(c));
+      const importersByTargetRoom = _.groupBy(importers, c => c.memory.targetRoom);
+      for (const targetRoom in importersByTargetRoom) {
+        TaskManagement.assignTasks(importersByTargetRoom[targetRoom], this.createHaulTasks(roomw, targetRoom));
+      }
+
       if (roomw.controller?.my && roomw.spawns.length > 0) {
         this.requestSpawns(roomw);
       }
     }
+  }
+
+  private createHaulTasks(roomw: RoomWrapper, targetRoom: string): HaulTask[] {
+    return roomw
+      .find(FIND_MY_CREEPS, {
+        filter: creep =>
+          creep.memory.haulRequested &&
+          !creep.memory.haulerName &&
+          creep.memory.targetRoom === targetRoom &&
+          creep.memory.role === CreepRole.HARVESTER
+      })
+      .map(c => {
+        return {
+          type: TaskType.HAUL,
+          creepName: c.name,
+          targetId: c.id,
+          pos: c.pos,
+          priority: 200
+        };
+      });
   }
 
   private requestSpawns(roomw: RoomWrapper) {

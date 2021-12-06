@@ -46,7 +46,6 @@ export interface HaulTask {
   creepName: string;
   targetId: Id<Creep>;
   override?: boolean;
-  targetRoom?: string;
 }
 
 export interface SupplySpawnTask {
