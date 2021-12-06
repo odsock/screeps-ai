@@ -76,7 +76,10 @@ export class TaskManagement {
       }
     });
     const newTasks = tasks.filter(t => !busyHaulers.some(h => this.isDuplicateTask(h.getTask(), t)));
-    CreepUtils.consoleLogIfWatched(haulers[0].room, `found ${tasks.length} tasks, ${tasks.length} new tasks`);
+    CreepUtils.consoleLogIfWatched(
+      haulers[0].room,
+      `${busyHaulers.length}/${freeHaulers.length} busy/free, found ${tasks.length} tasks, ${tasks.length} new tasks`
+    );
     const tasksByPriority = newTasks.sort((a, b) => b.priority - a.priority);
 
     const unassignedTasks: Task[] = [];
