@@ -16,9 +16,10 @@ export class RemoteControl {
     for (const roomName in Game.rooms) {
       const roomw = RoomWrapper.getInstance(roomName);
 
-      const importers = roomw
-        .find(FIND_MY_CREEPS, { filter: c => c.memory.role === CreepRole.IMPORTER })
-        .map(c => CreepFactory.getCreep(c));
+      const importers = _.filter(
+        Game.creeps,
+        c => c.memory.role === CreepRole.IMPORTER && c.memory.homeRoom === roomw.name
+      ).map(c => CreepFactory.getCreep(c));
       const importersByTargetRoom = _.groupBy(importers, c => c.memory.targetRoom);
       console.log(`DEBUG: grouped importers ${JSON.stringify(importersByTargetRoom)}`);
       for (const targetRoom in importersByTargetRoom) {
