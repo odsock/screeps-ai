@@ -103,7 +103,7 @@ export class SpawnUtils {
     return bodyProfile;
   }
 
-  /** Gets count of creeps with role, including spawning creeps */
+  /** Gets count of creeps with role in room, including spawning creeps */
   public static getCreepCountForRole(roomw: RoomWrapper, role: CreepRole): number {
     const count = roomw
       .find(FIND_MY_CREEPS)
