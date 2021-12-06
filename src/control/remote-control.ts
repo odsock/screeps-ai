@@ -94,16 +94,17 @@ export class RemoteControl {
     }
 
     // CLAIMER
-    const claimerCount = SpawnUtils.getCreepCountForRole(roomw, Claimer.ROLE);
-    const maxClaimers = this.getMaxClaimerCount();
-    if (claimerCount < maxClaimers) {
-      const remoteTargetRooms = TargetControl.targetRooms;
-      for (const roomName of [...remoteTargetRooms, ...remoteHarvestRooms]) {
-        const claimerOnRoom = !!_.filter(
-          Game.creeps,
-          creep => creep.memory.role === Claimer.ROLE && creep.memory.targetRoom === roomName
-        ).length;
-        CreepUtils.consoleLogIfWatched(roomw, `claimer for ${roomName}: ${String(claimerOnRoom)}`);
+    const spawningClaimers = SpawnUtils.getSpawnInfoFor(roomw, info => info.memory.role === CreepRole.CLAIMER);
+    const claimers = _.filter(
+      Game.creeps,
+      c => c.memory.role === CreepRole.CLAIMER && c.memory.homeRoom === roomw.name
+    );
+    const claimerCount = claimers.length + spawningClaimers.length;
+    const remoteTargetRooms = TargetControl.targetRooms;
+    if (claimerCount < remoteTargetRooms.length + remoteHarvestRooms.length) {
+      remoteTargetRooms.forEach(roomName => {
+        const claimerOnRoom = claimers.some(c => c.memory.targetRoom === roomName);
+        CreepUtils.consoleLogIfWatched(roomw, `claimer on ${roomName}: ${String(claimerOnRoom)}`);
         if (!claimerOnRoom) {
           spawnQueue.push({
             bodyProfile: Claimer.BODY_PROFILE,
@@ -115,7 +116,27 @@ export class RemoteControl {
             priority: 40
           });
         }
-      }
+      });
+
+      remoteHarvestRooms.forEach(roomName => {
+        const claimerOnRoom = claimers.some(c => c.memory.targetRoom === roomName);
+        CreepUtils.consoleLogIfWatched(roomw, `claimer on ${roomName}: ${String(claimerOnRoom)}`);
+        const roomMemory = Memory.rooms[roomName];
+        if (
+          !claimerOnRoom &&
+          (!roomMemory.controller.reservation || roomMemory.controller.reservation?.ticksToEnd < 1000)
+        ) {
+          spawnQueue.push({
+            bodyProfile: Claimer.BODY_PROFILE,
+            max: true,
+            memory: {
+              role: Claimer.ROLE,
+              targetRoom: roomName
+            },
+            priority: 40
+          });
+        }
+      });
     }
 
     // REMOTE WORKER
@@ -147,30 +168,6 @@ export class RemoteControl {
         });
       }
     }
-  }
-
-  private getMaxClaimerCount(): number {
-    const targetedRooms = TargetControl.targetRooms;
-    const remoteHarvestRooms = TargetControl.remoteHarvestRooms;
-    const targetRoomNames = targetedRooms.concat(remoteHarvestRooms);
-    if (targetRoomNames) {
-      return targetRoomNames.filter(roomName => {
-        // validate room name
-        try {
-          new RoomPosition(0, 0, roomName);
-          // can't do this without a creep in the room
-        } catch (error) {
-          console.log(`ERROR: bad target config: ${roomName}`);
-          return false;
-        }
-        // don't spawn claimers for rooms we own
-        if (Game.rooms[roomName]?.controller?.my) {
-          return false;
-        }
-        return true;
-      }).length;
-    }
-    return 0;
   }
 
   private calcCarryPartsNeededForSource(homeRoom: RoomWrapper, targetRoomName: string, sourceId: Id<Source>): number {
