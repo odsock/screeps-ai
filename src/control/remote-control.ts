@@ -20,7 +20,7 @@ export class RemoteControl {
         .find(FIND_MY_CREEPS, { filter: c => c.memory.role === CreepRole.IMPORTER })
         .map(c => CreepFactory.getCreep(c));
       const importersByTargetRoom = _.groupBy(importers, c => c.memory.targetRoom);
-      console.log(`DEBUG: ${JSON.stringify(importersByTargetRoom)}`);
+      console.log(`DEBUG: grouped importers ${JSON.stringify(importersByTargetRoom)}`);
       for (const targetRoom in importersByTargetRoom) {
         TaskManagement.assignTasks(importersByTargetRoom[targetRoom], this.createHaulTasks(roomw, targetRoom));
       }
