@@ -16,7 +16,7 @@ export class Harvester extends Minder {
   public static BODY_PROFILE_REMOTE: CreepBodyProfile = {
     profile: [WORK],
     seed: [CARRY],
-    maxBodyParts: 6
+    maxBodyParts: 7
   };
 
   private myContainer: StructureContainer | undefined;
