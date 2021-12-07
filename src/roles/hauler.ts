@@ -71,6 +71,9 @@ export class Hauler extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, "working");
       const result = this.moveToAndGet(target, task.resourceType);
       CreepUtils.consoleLogIfWatched(this, `unload ${String(target)}`, result);
+      if (result === OK) {
+        this.memory.working = false;
+      }
       return result;
     } else {
       CreepUtils.consoleLogIfWatched(this, `dumping`);
