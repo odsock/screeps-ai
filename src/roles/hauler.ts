@@ -62,7 +62,7 @@ export class Hauler extends CreepWrapper {
 
     // validate task
     const target = Game.getObjectById(task.targetId);
-    if (!target || target.store.getUsedCapacity() === 0) {
+    if (!target || target.store.getUsedCapacity(task.resourceType) === 0) {
       this.completeTask();
       return ERR_INVALID_TARGET;
     }
