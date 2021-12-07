@@ -49,6 +49,7 @@ export interface CreepWrapperProfile {
 export abstract class CreepWrapper extends Creep {
   private pickingUp = false;
   private withdrawing = false;
+  private pickingUpAmount = 0;
 
   public constructor(private readonly creep: Creep) {
     super(creep.id);
@@ -404,6 +405,7 @@ export abstract class CreepWrapper extends Creep {
     if (!this.pickingUp || force) {
       const result = this.pickup(target);
       if (result === OK) {
+        this.pickingUpAmount = Math.min(target.amount, this.store.getFreeCapacity());
         this.pickingUp = true;
       }
       return result;
@@ -412,12 +414,15 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected withdrawW(
-    target: Structure<StructureConstant> | Tombstone | Ruin,
+    target: StructureContainer | Tombstone | Ruin | StructureStorage,
     type: ResourceConstant,
     force = false
   ): ScreepsReturnCode {
     if (!this.withdrawing || force) {
-      const result = this.withdraw(target, type);
+      // only withdraw remaining capacity if also picking up drop this tick
+      const targetAmount = target.store.getUsedCapacity(type);
+      const withdrawAmount = Math.min(targetAmount, this.store.getFreeCapacity() - this.pickingUpAmount);
+      const result = this.withdraw(target, type, withdrawAmount);
       if (result === OK) {
         this.withdrawing = true;
       }
