@@ -75,6 +75,7 @@ export class Importer extends RemoteCreepWrapper {
       result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target room result`, result);
       if (this.pos.roomName === this.memory.targetRoom) {
+        // TODO avoid withdrawing every tick rather than a single withdrawl when container has enough
         result = this.harvestByPriority();
         if (result === ERR_NOT_FOUND) {
           const closestSource = this.pos.findClosestByRange(this.roomw.sources);
