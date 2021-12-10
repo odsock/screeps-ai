@@ -73,8 +73,11 @@ export class RoomWrapper extends Room {
   public get hasHostileCreeps(): boolean {
     return this.room.find(FIND_HOSTILE_CREEPS).length > 0;
   }
+  /** get hostile structures other than controller */
   public get hostileStructures(): AnyOwnedStructure[] {
-    return this.room.find(FIND_HOSTILE_STRUCTURES);
+    return this.room.find(FIND_HOSTILE_STRUCTURES, {
+      filter: structure => structure.structureType !== STRUCTURE_CONTROLLER
+    });
   }
   public get hasHostileStructures(): boolean {
     return this.room.find(FIND_HOSTILE_STRUCTURES).length > 0;
