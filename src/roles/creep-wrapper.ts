@@ -464,6 +464,10 @@ export abstract class CreepWrapper extends Creep {
     if (target.pos.isNearTo(this.pos)) {
       result = this.attack(target);
       CreepUtils.consoleLogIfWatched(this, `attack ${typeof target}`, result);
+      if (result === OK) {
+        // don't heal when attacking, heal overrides the attack
+        this.cancelOrder(HEAL);
+      }
     } else {
       result = this.moveToW(target, {
         range: 1,
