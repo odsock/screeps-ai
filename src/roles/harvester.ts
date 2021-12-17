@@ -1,5 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { CreepBodyProfile } from "./creep-wrapper";
 import { Minder } from "./minder";
@@ -91,22 +92,57 @@ export class Harvester extends Minder {
 
   public moveToDestination(): ScreepsReturnCode {
     // move to claimed container if it exists
-    const container = this.getMyContainer();
-    if (container) {
+    const containerPos = this.getMyContainerPosition();
+    if (containerPos) {
       CreepUtils.consoleLogIfWatched(this, `finding path to source container`);
-      return this.directHauler(container.pos);
+      return this.directHauler(containerPos);
     }
 
     // move to chosen source if no container claim
-    const source = this.getMySource();
-    if (source) {
+    const sourcePos = this.getMySourcePosition();
+    if (sourcePos) {
       CreepUtils.consoleLogIfWatched(this, `finding path to source`);
-      return this.directHauler(source.pos, 1);
+      return this.directHauler(sourcePos, 1);
     }
 
     // nowhere to move
     CreepUtils.consoleLogIfWatched(this, `stumped. no source to harvest.`);
     return ERR_INVALID_TARGET;
+  }
+
+  protected getMyContainerPosition(): RoomPosition | undefined {
+    const container = this.getMyContainer();
+    if (container) {
+      return container.pos;
+    }
+
+    const containerId = this.memory.containerId;
+    const sourceId = this.memory.source;
+    const targetRoom = this.memory.targetRoom;
+    if (containerId && sourceId) {
+      const posString = Memory.rooms[targetRoom].sources[sourceId].containerPos;
+      if (posString) {
+        return MemoryUtils.unpackRoomPosition(posString);
+      }
+    }
+    return undefined;
+  }
+
+  protected getMySourcePosition(): RoomPosition | undefined {
+    const source = this.getMySource();
+    if (source) {
+      return source.pos;
+    }
+
+    const sourceId = this.memory.source;
+    const targetRoom = this.memory.targetRoom;
+    if (sourceId) {
+      const posString = Memory.rooms[targetRoom].sources[sourceId].pos;
+      if (posString) {
+        return MemoryUtils.unpackRoomPosition(posString);
+      }
+    }
+    return undefined;
   }
 
   /** get container from my memory or claim one*/
