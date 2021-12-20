@@ -21,7 +21,6 @@ export class RemoteControl {
         c => c.memory.role === CreepRole.IMPORTER && c.memory.homeRoom === roomw.name
       ).map(c => CreepFactory.getCreep(c));
       const importersByTargetRoom = _.groupBy(importers, c => c.memory.targetRoom);
-      console.log(`DEBUG: grouped importers ${JSON.stringify(importersByTargetRoom)}`);
       for (const targetRoom in importersByTargetRoom) {
         TaskManagement.assignTasks(importersByTargetRoom[targetRoom], this.createHaulTasks(roomw, targetRoom));
       }
@@ -57,12 +56,9 @@ export class RemoteControl {
 
     // IMPORTER
     const remoteHarvestRooms = TargetControl.remoteHarvestRooms;
-    console.log(`DEBUG: valid remotes: ${remoteHarvestRooms.length}`);
     for (const targetRoom of remoteHarvestRooms) {
       const sources = Memory.rooms[targetRoom].sources;
-      console.log(`DEBUG: sources ${JSON.stringify(sources)}`);
       for (const sourceId in sources) {
-        console.log(`DEBUG: source ${sourceId}`);
         const spawningImportersOnSource = SpawnUtils.getSpawnInfoFor(
           roomw,
           (spawningCreep: SpawningInfo) =>

@@ -527,7 +527,6 @@ export class Hauler extends CreepWrapper {
       }
       if (!path.incomplete && path.path.length > 0) {
         const result = this.moveByPath(path.path);
-        console.log(`DEBUG: ${JSON.stringify(path.path)}`);
         CreepUtils.consoleLogIfWatched(this, `moving to idle zone: ${String(idleZone)}`, result);
         return result;
       }

@@ -178,13 +178,11 @@ export abstract class Minder extends CreepWrapper {
       if (hauler.pos.y === 49) exitDir = BOTTOM;
     }
     const awayFromExitDir = ((exitDir + 4) % 8) as DirectionConstant;
-    console.log(`DEBUG: exitPos: ${String(exitPos)}, exit dir: ${exitDir}, reverse: ${awayFromExitDir}`);
 
     if (hauler.memory.exitState === undefined) {
       hauler.memory.exitState = ExitState.NOT_EXITING;
     }
     const exitState = hauler.memory.exitState;
-    console.log(`DEBUG: exit state: ${String(exitState)}`);
     let result: ScreepsReturnCode;
     switch (exitState) {
       case ExitState.AT_EDGE:

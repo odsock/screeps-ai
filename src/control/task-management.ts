@@ -87,7 +87,6 @@ export class TaskManagement {
       tasksByPriority.forEach(task => {
         const closestHauler =
           task.pos.findClosestByPath(freeHaulers) ?? task.pos.findClosestByRange(freeHaulers) ?? freeHaulers[0];
-        console.log(`DEBUG: closest hauler: ${String(closestHauler?.name)}`);
         if (closestHauler) {
           closestHauler.assignTask(task);
           freeHaulers.splice(
