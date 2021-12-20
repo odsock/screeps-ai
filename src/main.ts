@@ -9,6 +9,8 @@ global.sockpuppet = new Sockpuppet();
 
 global.Profiler = Profiler.init();
 
+recordUsername();
+
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
@@ -38,6 +40,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
     Game.cpu.generatePixel();
   }
 });
+
+function recordUsername() {
+  if (!Memory.username) {
+    const spawn = _.find(Game.spawns, () => true);
+    if (spawn) {
+      Memory.username = spawn.owner.username;
+    }
+  }
+}
 
 // Automatically delete memory of missing creeps
 function cleanupDeadCreepMemory() {

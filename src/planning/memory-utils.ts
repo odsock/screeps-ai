@@ -90,6 +90,7 @@ declare global {
     cache?: string;
     version?: string;
     cpu: CpuTracking;
+    username: string;
   }
 
   interface CpuTracking {
