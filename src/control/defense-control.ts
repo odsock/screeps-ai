@@ -1,66 +1,59 @@
+import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Guard } from "roles/guard";
 import { RoomWrapper } from "structures/room-wrapper";
-import { SpawnWrapper } from "structures/spawn-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { TargetControl } from "./target-control";
 
 @profile
 export class DefenseControl {
   public run(): void {
-    // spawn guard for each unguarded room with hostiles
+    const guards = _.filter(Game.creeps, c => c.memory.role === CreepRole.GUARD);
+    const freeGuards = guards.filter(guard => !this.roomNeedsDefense(guard.memory.targetRoom));
+
+    // assign or spawn a guard for each unguarded room with hostiles
     for (const roomName in Memory.rooms) {
       const roomMemory = Memory.rooms[roomName];
-      if (!roomMemory) {
-        continue;
-      }
-      const roomIsMine = roomMemory.owner === Memory.username;
-      const remoteHarvestRoom = TargetControl.isRemoteHarvestRoom(roomName);
-      const targetedRoom = TargetControl.isTargetRoom(roomName);
-      const defendedRoom = roomIsMine || remoteHarvestRoom || targetedRoom;
-      if (!defendedRoom) {
+      if (!roomMemory.defense || !this.isDefendedRoom(roomName) || !this.roomNeedsDefense(roomName)) {
         continue;
       }
 
-      const roomDefense = roomMemory.defense;
-      if (roomDefense && (roomDefense.creeps.length > 0 || roomDefense.structures.length > 0)) {
-        const spawningGuards = this.getSpawningGuardCount(roomName);
-        const guardsAssigned = _.filter(
-          Game.creeps,
-          creep => creep.memory.role === Guard.ROLE && creep.memory.targetRoom === roomName
-        );
-        if (guardsAssigned.length + spawningGuards === 0) {
-          const room = Game.rooms[roomName];
-          if (room) {
-            const roomw = RoomWrapper.getInstance(room);
-            if (roomw) {
-              // TODO safe modes activate too often, change requirements for activating
-              // try to pop a safe mode if being attacked
-              // this.activateSafeModeIfAttacked(roomw);
-
-              // try to spawn guard in the room
-              const availableSpawnsInRoom = roomw.spawns.filter(spawn => !spawn.spawning);
-              if (availableSpawnsInRoom.length) {
-                const spawnw = availableSpawnsInRoom[0];
-                return this.spawnGuard(roomDefense, spawnw, roomName);
-              }
-            }
-          }
-
-          // try to spawn in nearby room
-          const availableSpawns = _.filter(Game.spawns, spawn => !spawn.spawning);
-          if (availableSpawns.length) {
-            // TODO find closest room with spawn
-            // const posInRoom = new RoomPosition(10, 10, roomName);
-            // const closestSpawn = posInRoom.findClosestByPath(availableSpawns);
-            // if (closestSpawn) {
-            return this.spawnGuard(roomDefense, new SpawnWrapper(availableSpawns[0]), roomName);
-            //   }
-          }
+      const guardsAssigned = guards.filter(guard => guard.memory.targetRoom === roomName);
+      const spawningGuards = this.getSpawningGuardCount(roomName);
+      if (guardsAssigned.length + spawningGuards === 0) {
+        if (freeGuards.length > 0) {
+          // TODO assign closest guard
+          freeGuards[0].memory.targetRoom = roomName;
+          continue;
+        } else {
+          this.spawnGuardForRoom(roomName);
         }
       }
     }
+  }
+
+  private spawnGuardForRoom(roomName: string): void {
+    const availableSpawns = _.filter(Game.spawns, spawn => !spawn.spawning);
+    const spawnsInRoom = availableSpawns.filter(spawn => spawn.room.name === roomName);
+    // TODO use cosest spawn
+    const spawn = spawnsInRoom[0] ?? availableSpawns[0];
+    if (spawn) {
+      this.spawnGuard(spawn, roomName);
+    }
+  }
+
+  private isDefendedRoom(roomName: string) {
+    return (
+      Memory.rooms[roomName].owner === Memory.username ||
+      TargetControl.isRemoteHarvestRoom(roomName) ||
+      TargetControl.isTargetRoom(roomName)
+    );
+  }
+
+  private roomNeedsDefense(roomName: string) {
+    const roomDefense = Memory.rooms[roomName].defense;
+    return roomDefense && (roomDefense.creeps.length > 0 || roomDefense.structures.length > 0);
   }
 
   private getSpawningGuardCount(roomName: string) {
@@ -71,12 +64,12 @@ export class DefenseControl {
     ).length;
   }
 
-  private spawnGuard(roomDefense: RoomDefense, spawnw: SpawnWrapper, roomName: string): void {
-    const spawnQueue = SpawnQueue.getInstance(spawnw.room);
+  private spawnGuard(spawn: StructureSpawn, roomName: string): void {
+    const spawnQueue = SpawnQueue.getInstance(spawn.room);
 
     // spawn with what is available now if creeps in room
     // request max size if hostile structure only (probably an invader core, so we can wait)
-    const hostileCreepsInRoom = roomDefense.creeps.length === 0;
+    const hostileCreepsInRoom = spawn.room.memory.defense?.creeps.length === 0;
 
     spawnQueue.push({
       bodyProfile: Guard.BODY_PROFILE,
