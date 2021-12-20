@@ -1,5 +1,7 @@
+import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
+import { Raider } from "roles/raider";
 import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
@@ -36,6 +38,18 @@ export class SpawnControl {
           priority: 200
         });
       }
+    }
+
+    // HACK make a raid controller
+    const raiders = _.filter(Game.creeps, c => c.memory.role === CreepRole.RAIDER);
+    if (raiders.length === 0) {
+      this.spawnQueue.push({
+        bodyProfile: Raider.BODY_PROFILE,
+        max: true,
+        sort: true,
+        memory: { role: Raider.ROLE, targetRoom: "E19N55" },
+        priority: 100
+      });
     }
 
     this.workSpawnQueue();
