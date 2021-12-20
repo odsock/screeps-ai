@@ -145,10 +145,7 @@ export class RemoteControl {
     // spawn one remote worker for each claimed room with no spawn
     const noSpawnClaimedRooms = _.filter(
       Game.rooms,
-      room =>
-        room.controller?.owner &&
-        room.controller?.owner.username === roomw.controller?.owner?.username &&
-        room.find(FIND_MY_SPAWNS).length === 0
+      room => room.controller?.my && room.find(FIND_MY_SPAWNS).length === 0
     );
     const remoteWorkersSpawning = roomw.spawns.filter(
       s => s.spawning && s.memory.spawning?.memory.role === Worker.ROLE && s.memory.spawning.memory.targetRoom
