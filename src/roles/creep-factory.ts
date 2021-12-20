@@ -11,6 +11,7 @@ import { Harvester } from "./harvester";
 import { CreepWrapper } from "./creep-wrapper";
 import { Minder } from "./minder";
 import { profile } from "../../screeps-typescript-profiler";
+import { Raider } from "./raider";
 
 @profile
 export class CreepFactory {
@@ -35,6 +36,8 @@ export class CreepFactory {
         return new Importer(creep);
       case CreepRole.GUARD:
         return new Guard(creep);
+      case CreepRole.RAIDER:
+        return new Raider(creep);
 
       default:
         assertNever(creep.memory.role);
