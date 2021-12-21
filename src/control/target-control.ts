@@ -38,6 +38,7 @@ export class TargetControl {
     }
     const roomNames = _.filter(Game.flags, flag => flag.color === COLOR_RED).map(flag => flag.pos.roomName);
     this.validCleanRooms = roomNames.filter(name => TargetControl.isValidClean(name));
+    console.log(`DEBUG: valid clean rooms ${JSON.stringify(this.validCleanRooms)}`);
     return this.validCleanRooms;
   }
 
