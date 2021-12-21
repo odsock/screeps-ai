@@ -23,6 +23,7 @@ declare global {
     working?: boolean;
     watched?: boolean;
     path?: string;
+    pathRoom?: string; // name of room path is valid for
     idleZone?: Id<Source | StructureStorage | StructureSpawn>; // id of source, storage, or spawn where hauler is idling
     task?: Task;
     lastPos?: string;
@@ -485,6 +486,15 @@ export abstract class CreepWrapper extends Creep {
       return OK;
     }
 
+    if (this.memory.path && this.memory.pathRoom !== this.room.name) {
+      delete this.memory.path;
+      delete this.memory.pathRoom;
+    }
+
+    if (this.memory.path) {
+      this.clearPathIfStuck();
+    }
+
     if (!this.memory.path || this.memory.path.length === 0) {
       const result = this.getPathToRoom(roomName);
       if (result !== OK) {
@@ -494,7 +504,6 @@ export abstract class CreepWrapper extends Creep {
 
     if (this.memory.path) {
       const path = Room.deserializePath(this.memory.path);
-      this.clearPathIfStuck();
 
       const ret = this.moveByPath(path);
       CreepUtils.consoleLogIfWatched(this, `moving to exit by path`, ret);
@@ -519,6 +528,7 @@ export abstract class CreepWrapper extends Creep {
 
     const path = this.pos.findPathTo(exitPos);
     this.memory.path = Room.serializePath(path);
+    this.memory.pathRoom = this.room.name;
     return OK;
   }
 
