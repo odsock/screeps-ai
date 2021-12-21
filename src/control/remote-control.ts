@@ -59,7 +59,7 @@ export class RemoteControl {
     for (const targetRoom of remoteHarvestRooms) {
       const sources = Memory.rooms[targetRoom].sources;
       for (const sourceId in sources) {
-        const spawningImportersOnSource = SpawnUtils.getSpawnInfoFor(
+        const spawningImportersOnSource = SpawnUtils.getSpawnInfoForRoom(
           roomw,
           (spawningCreep: SpawningInfo) =>
             spawningCreep.memory.role === Importer.ROLE && spawningCreep.memory.source === sourceId
@@ -92,7 +92,7 @@ export class RemoteControl {
     }
 
     // CLAIMER
-    const spawningClaimers = SpawnUtils.getSpawnInfoFor(roomw, info => info.memory.role === CreepRole.CLAIMER);
+    const spawningClaimers = SpawnUtils.getSpawnInfoForRoom(roomw, info => info.memory.role === CreepRole.CLAIMER);
     const claimers = _.filter(
       Game.creeps,
       c => c.memory.role === CreepRole.CLAIMER && c.memory.homeRoom === roomw.name

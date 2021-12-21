@@ -168,9 +168,22 @@ export class SpawnUtils {
     ).length;
   }
 
-  public static getSpawnInfoFor(roomw: RoomWrapper, filter: (info: SpawningInfo) => boolean): SpawningInfo[] {
+  public static getSpawnInfoForRoom(
+    roomw: RoomWrapper,
+    filter: (info: SpawningInfo) => boolean = () => true
+  ): SpawningInfo[] {
     const spawningInfos: SpawningInfo[] = [];
     roomw.spawns.forEach(s => {
+      if (s.memory.spawning && filter(s.memory.spawning)) {
+        spawningInfos.push(s.memory.spawning);
+      }
+    });
+    return spawningInfos;
+  }
+
+  public static getSpawnInfo(filter: (info: SpawningInfo) => boolean = () => true): SpawningInfo[] {
+    const spawningInfos: SpawningInfo[] = [];
+    _.forEach(Game.spawns, s => {
       if (s.memory.spawning && filter(s.memory.spawning)) {
         spawningInfos.push(s.memory.spawning);
       }
