@@ -17,7 +17,7 @@ export class Planner {
       const roomw = RoomWrapper.getInstance(room.name);
       console.log(`${roomw.name}: running planning`);
 
-      if (TargetControl.isRemoteHarvestRoom(room.name)) {
+      if (TargetControl.remoteHarvestRooms.includes(room.name)) {
         ContainerPlan.placeSourceContainers(roomw);
       } else if (roomw.controller?.my) {
         this.planColony(roomw);

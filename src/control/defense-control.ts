@@ -46,8 +46,8 @@ export class DefenseControl {
   private isDefendedRoom(roomName: string) {
     return (
       Memory.rooms[roomName].owner === Memory.username ||
-      TargetControl.isRemoteHarvestRoom(roomName) ||
-      TargetControl.isTargetRoom(roomName)
+      TargetControl.remoteHarvestRooms.includes(roomName) ||
+      TargetControl.targetRooms.includes(roomName)
     );
   }
 

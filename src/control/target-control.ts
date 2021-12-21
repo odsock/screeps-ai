@@ -5,6 +5,7 @@ import { profile } from "../../screeps-typescript-profiler";
 export class TargetControl {
   private static validRemoteHarvestRooms: string[];
   private static validTargetRooms: string[];
+  private static validCleanRooms: string[];
 
   public static get remoteHarvestRooms(): string[] {
     if (this.validRemoteHarvestRooms) {
@@ -13,6 +14,10 @@ export class TargetControl {
     const roomNames = TargetConfig.REMOTE_HARVEST[Game.shard.name] ?? [];
     this.validRemoteHarvestRooms = roomNames.filter(name => TargetControl.isValidRemote(name));
     return this.validRemoteHarvestRooms;
+  }
+
+  private static isValidRemote(roomName: string): boolean {
+    return this.isNotOwned(roomName) && this.isNotReservedByOthers(roomName);
   }
 
   public static get targetRooms(): string[] {
@@ -24,38 +29,40 @@ export class TargetControl {
     return this.validTargetRooms;
   }
 
-  public static isTargetRoom(roomName: string): boolean {
-    return (TargetConfig.TARGETS[Game.shard.name] ?? []).includes(roomName);
-  }
-
-  public static isRemoteHarvestRoom(roomName: string): boolean {
-    return (TargetConfig.REMOTE_HARVEST[Game.shard.name] ?? []).includes(roomName);
-  }
-
-  /**
-   * Validate remote harvest room
-   * Valid remotes are not owned (by me or anyone), and not reserved by other players
-   */
-  private static isValidRemote(roomName: string): boolean {
-    const roomMemory = Memory.rooms[roomName];
-    if (
-      !roomMemory.controller?.owner &&
-      (!roomMemory.controller?.reservation || roomMemory.controller.reservation.username === Memory.username)
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Validate target room
-   * Valid targets are not owned by me
-   */
   private static isValidTarget(roomName: string): boolean {
-    const roomMemory = Memory.rooms[roomName];
-    if (roomMemory.controller.owner?.username !== Memory.username) {
-      return true;
+    return this.isNotOwnedByMe(roomName);
+  }
+
+  public static get cleanRooms(): string[] {
+    if (this.validCleanRooms) {
+      return this.validCleanRooms;
     }
-    return false;
+    const roomNames = TargetConfig.CLEAN[Game.shard.name] ?? [];
+    this.validCleanRooms = roomNames.filter(name => TargetControl.isValidClean(name));
+    return this.validCleanRooms;
+  }
+
+  private static isValidClean(roomName: string): boolean {
+    return !this.isNotOwnedByMe(roomName) && !this.isNotReservedByMe(roomName);
+  }
+
+  private static isNotOwned(roomName: string): boolean {
+    const roomMemory = Memory.rooms[roomName];
+    return !roomMemory.controller?.owner;
+  }
+
+  private static isNotReservedByMe(roomName: string): boolean {
+    const roomMemory = Memory.rooms[roomName];
+    return roomMemory.controller?.reservation?.username !== Memory.username;
+  }
+
+  private static isNotReservedByOthers(roomName: string): boolean {
+    const roomMemory = Memory.rooms[roomName];
+    return !roomMemory.controller?.reservation || roomMemory.controller.reservation.username === Memory.username;
+  }
+
+  private static isNotOwnedByMe(roomName: string): boolean {
+    const roomMemory = Memory.rooms[roomName];
+    return roomMemory.controller.owner?.username !== Memory.username;
   }
 }

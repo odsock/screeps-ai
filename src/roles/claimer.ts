@@ -60,7 +60,7 @@ export class Claimer extends RemoteCreepWrapper {
     }
 
     // go to controller and claim or reserve it
-    const claimFlag = TargetControl.isTargetRoom(this.memory.targetRoom);
+    const claimFlag = TargetControl.targetRooms.includes(this.memory.targetRoom);
     CreepUtils.consoleLogIfWatched(this, `claim target room? ${String(claimFlag)}`);
     if (claimFlag) {
       const result = this.claimTargetRoom();
