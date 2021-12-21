@@ -34,6 +34,7 @@ export class TargetControl {
 
   public static get cleanRooms(): string[] {
     if (this.validCleanRooms) {
+      console.log(`DEBUG: found cached clean rooms list: ${JSON.stringify(this.validCleanRooms)}`);
       return this.validCleanRooms;
     }
     const roomNames = _.filter(Game.flags, flag => flag.color === COLOR_RED).map(flag => flag.pos.roomName);
