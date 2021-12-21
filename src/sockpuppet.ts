@@ -12,6 +12,7 @@ import { UpgradeControl } from "control/upgrade-control";
 import { BuildControl } from "control/build-control";
 import { RemoteControl } from "control/remote-control";
 import { profile } from "../screeps-typescript-profiler";
+import { AttackControl } from "control/attack-control";
 
 @profile
 export class Sockpuppet {
@@ -21,6 +22,7 @@ export class Sockpuppet {
   public run(): void {
     new ReconControl().run();
     new DefenseControl().run();
+    new AttackControl().run();
     new BuildControl().run();
     new HarvestControl().run();
     new HaulerControl().run();
