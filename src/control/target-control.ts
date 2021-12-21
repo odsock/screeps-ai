@@ -28,7 +28,7 @@ export class TargetControl {
   }
 
   private static isValidClean(roomName: string): boolean {
-    return !this.isNotOwnedByMe(roomName) && !this.isNotReservedByMe(roomName);
+    return this.isNotOwnedByMe(roomName) && this.isNotReservedByMe(roomName);
   }
 
   private static isNotOwned(roomName: string): boolean {
