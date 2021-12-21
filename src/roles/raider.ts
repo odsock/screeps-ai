@@ -53,26 +53,11 @@ export class Raider extends RemoteCreepWrapper {
       if (target) {
         const attackResult = this.moveToAndAttack(target);
         CreepUtils.consoleLogIfWatched(this, `attack`, attackResult);
+        this.fleeArmedTowers();
         return;
       }
 
-      const armedTowers = this.roomw.hostileStructures.filter(
-        s =>
-          s.structureType === STRUCTURE_TOWER &&
-          s.store.energy >= TOWER_ENERGY_COST &&
-          this.pos.getRangeTo(s) < TOWER_FALLOFF_RANGE
-      );
-      if (armedTowers.length > 0) {
-        this.moveByPath(
-          PathFinder.search(
-            this.pos,
-            armedTowers.map(t => {
-              return { pos: t.pos, range: TOWER_FALLOFF_RANGE + 1 };
-            }),
-            { flee: true, roomCallback: CostMatrixUtils.creepMovementRoomCallback }
-          ).path
-        );
-      }
+      this.fleeArmedTowers();
     }
 
     if (!this.memory.targetRoom) {
@@ -83,6 +68,27 @@ export class Raider extends RemoteCreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
       const healCheck = this.findHealingIfDamaged();
       CreepUtils.consoleLogIfWatched(this, `find healing if damaged`, healCheck);
+    }
+  }
+
+  private fleeArmedTowers() {
+    const armedTowers = this.roomw.hostileStructures.filter(
+      s =>
+        s.structureType === STRUCTURE_TOWER &&
+        s.store.energy >= TOWER_ENERGY_COST &&
+        this.pos.getRangeTo(s) < TOWER_FALLOFF_RANGE
+    );
+    if (armedTowers.length > 0) {
+      CreepUtils.consoleLogIfWatched(this, `found ${armedTowers.length} armed towers`);
+      const path = PathFinder.search(
+        this.pos,
+        armedTowers.map(t => {
+          return { pos: t.pos, range: TOWER_FALLOFF_RANGE + 1 };
+        }),
+        { flee: true, roomCallback: CostMatrixUtils.creepMovementRoomCallback }
+      ).path;
+      const result = this.moveByPath(path);
+      CreepUtils.consoleLogIfWatched(this, `tower avoidance`, result);
     }
   }
 }
