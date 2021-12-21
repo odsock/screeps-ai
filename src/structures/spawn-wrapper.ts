@@ -11,7 +11,7 @@ export interface SpawnRequest {
   bodyProfile: CreepBodyProfile;
   max?: boolean;
   // all values in request memory are optional except 'role'
-  memory: Partial<CreepMemory> & {role: string};
+  memory: Partial<CreepMemory> & { role: string };
   sort?: boolean;
   directions?: DirectionConstant[];
 }
@@ -50,7 +50,7 @@ export class SpawnWrapper extends StructureSpawn {
       body = this.sortBody(body);
     }
     const name = this.getName(memory);
-    const directions = request.directions ?? [LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, TOP];
+    const directions = request.directions ?? [TOP_LEFT, TOP_RIGHT, TOP];
 
     const extensions = this.getOrderedExtensionList();
     const result = this.spawnCreep(body, name, { memory, energyStructures: extensions, directions });
