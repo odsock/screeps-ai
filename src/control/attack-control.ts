@@ -9,14 +9,16 @@ import { TargetControl } from "./target-control";
 export class AttackControl {
   public run(): void {
     const raiders = _.filter(Game.creeps, c => c.memory.role === CreepRole.RAIDER);
-    const freeRaiders = raiders.filter(guard => !this.roomNeedsAttack(guard.memory.targetRoom));
+    const freeRaiders = raiders.filter(raider => !this.roomNeedsAttack(raider.memory.targetRoom));
 
     // assign or spawn a raider for each unclean attack room
     for (const roomName of TargetControl.cleanRooms) {
       const roomMemory = Memory.rooms[roomName];
       if (!roomMemory.defense || !this.roomNeedsAttack(roomName)) {
+        console.log(`DEBUG: no attack ${roomName}`);
         continue;
       }
+      console.log(`DEBUG: attack ${roomName}`);
 
       const raidersAssigned = raiders.filter(raider => raider.memory.targetRoom === roomName);
       const spawningRaiders = SpawnUtils.getSpawnInfo(
