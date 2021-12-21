@@ -8,6 +8,7 @@ import { TargetControl } from "./target-control";
 @profile
 export class AttackControl {
   public run(): void {
+    console.log(`DEBUG: run attack control`);
     const raiders = _.filter(Game.creeps, c => c.memory.role === CreepRole.RAIDER);
     const freeRaiders = raiders.filter(raider => !this.roomNeedsAttack(raider.memory.targetRoom));
 
