@@ -1,6 +1,7 @@
 import { CreepRole } from "config/creep-types";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Guard } from "roles/guard";
+import { Raider } from "roles/raider";
 import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
@@ -48,10 +49,10 @@ export class AttackControl {
     if (spawn) {
       const spawnQueue = SpawnQueue.getInstance(spawn.room);
       spawnQueue.push({
-        bodyProfile: Guard.BODY_PROFILE,
+        bodyProfile: Raider.BODY_PROFILE,
         max: true,
         memory: {
-          role: Guard.ROLE,
+          role: Raider.ROLE,
           targetRoom
         },
         sort: true,
