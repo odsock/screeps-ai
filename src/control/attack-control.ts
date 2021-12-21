@@ -1,6 +1,5 @@
 import { CreepRole } from "config/creep-types";
 import { SpawnQueue } from "planning/spawn-queue";
-import { Guard } from "roles/guard";
 import { Raider } from "roles/raider";
 import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
