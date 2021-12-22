@@ -13,7 +13,7 @@ export class AttackControl {
     const freeRaiders = raiders.filter(raider => !this.roomNeedsAttack(raider.memory.targetRoom));
 
     // assign or spawn a raider for each unclean attack room
-    for (const roomName of TargetControl.cleanRooms) {
+    for (const roomName of TargetControl.attackRooms) {
       const roomMemory = Memory.rooms[roomName];
       if (!roomMemory.defense || !this.roomNeedsAttack(roomName)) {
         console.log(`DEBUG: no attack ${roomName}`);

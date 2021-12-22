@@ -20,14 +20,14 @@ export class TargetControl {
     return this.isNotOwnedByMe(roomName);
   }
 
-  public static get cleanRooms(): string[] {
+  public static get attackRooms(): string[] {
     const roomNames = _.filter(Game.flags, flag => flag.color === COLOR_RED).map(flag => flag.pos.roomName);
-    const validCleanRooms = roomNames.filter(name => TargetControl.isValidClean(name));
-    console.log(`DEBUG: valid clean rooms ${JSON.stringify(validCleanRooms)}`);
-    return validCleanRooms;
+    const validAttackRooms = roomNames.filter(name => TargetControl.isValidAttack(name));
+    console.log(`DEBUG: valid attack rooms ${JSON.stringify(validAttackRooms)}`);
+    return validAttackRooms;
   }
 
-  private static isValidClean(roomName: string): boolean {
+  private static isValidAttack(roomName: string): boolean {
     return this.isNotOwnedByMe(roomName) && this.isNotReservedByMe(roomName);
   }
 
