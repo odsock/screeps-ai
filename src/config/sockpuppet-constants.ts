@@ -61,6 +61,10 @@ export class SockPuppetConstants {
     [-14, "ERR_RCL_NOT_ENOUGH"],
     [-15, "ERR_GCL_NOT_ENOUGH"]
   ]);
+
+  public static FLAG_COLOR_ATTACK = COLOR_RED;
+  public static FLAG_COLOR_REMOTE = COLOR_YELLOW;
+  public static FLAG_COLOR_TARGET = COLOR_GREEN;
 }
 
 declare global {
