@@ -1,4 +1,5 @@
 import { CreepRole } from "config/creep-types";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Raider } from "roles/raider";
 import { profile } from "../../screeps-typescript-profiler";
@@ -21,43 +22,48 @@ export class AttackControl {
       }
       console.log(`DEBUG: attack ${roomName}`);
 
+      const attackFlag = _.find(
+        Game.flags,
+        flag => flag.pos.roomName === roomName && flag.color === SockPuppetConstants.FLAG_COLOR_ATTACK
+      );
+      const raidersRequested = attackFlag?.secondaryColor.valueOf() ?? 0;
       const raidersAssigned = raiders.filter(raider => raider.memory.targetRoom === roomName);
       const spawningRaiders = SpawnUtils.getSpawnInfo(
         info => info.memory.role === CreepRole.RAIDER && info.memory.targetRoom === roomName
       );
-      if (raidersAssigned.length + spawningRaiders.length === 0) {
+      let raidersNeeded = raidersRequested - raidersAssigned.length - spawningRaiders.length;
+      if (raidersNeeded > 0) {
         if (freeRaiders.length > 0) {
           // TODO assign closest raider
-          freeRaiders[0].memory.targetRoom = roomName;
+          const reassignSlice = freeRaiders.splice(0, raidersNeeded);
+          reassignSlice.forEach(creep => (creep.memory.targetRoom = roomName));
+          raidersNeeded -= reassignSlice.length;
           continue;
-        } else {
-          this.queueSpawn(roomName);
+        }
+        if (raidersNeeded > 0) {
+          this.queueSpawn(roomName, raidersNeeded);
         }
       }
     }
   }
 
-  // TODO use cosest spawn
-  private getClosestFreeSpawn(targetRoom: string): StructureSpawn | undefined {
-    const availableSpawns = _.filter(Game.spawns, spawn => !spawn.spawning);
-    return availableSpawns[0];
-  }
-
-  private queueSpawn(targetRoom: string): void {
-    const spawn = this.getClosestFreeSpawn(targetRoom);
-    if (spawn) {
-      const spawnQueue = SpawnQueue.getInstance(spawn.room);
-      spawnQueue.push({
-        bodyProfile: Raider.BODY_PROFILE,
-        max: true,
-        memory: {
-          role: Raider.ROLE,
-          targetRoom
-        },
-        sort: true,
-        priority: 250
+  private queueSpawn(targetRoom: string, raidersNeeded: number): void {
+    // TODO use closest spawn
+    _.filter(Game.spawns, spawn => !spawn.spawning)
+      .slice(0, raidersNeeded)
+      .forEach(spawn => {
+        const spawnQueue = SpawnQueue.getInstance(spawn.room);
+        spawnQueue.push({
+          bodyProfile: Raider.BODY_PROFILE,
+          max: true,
+          memory: {
+            role: Raider.ROLE,
+            targetRoom
+          },
+          sort: true,
+          priority: 250
+        });
       });
-    }
   }
 
   private roomNeedsAttack(roomName: string) {
