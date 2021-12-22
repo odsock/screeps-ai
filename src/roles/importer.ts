@@ -4,7 +4,7 @@ import { CreepUtils } from "creep-utils";
 import { RemoteCreepWrapper } from "./remote-creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { MemoryUtils } from "planning/memory-utils";
-import { HaulTask, TaskType } from "control/task-management";
+import { HaulTask, TaskType } from "../control/task-management";
 
 @profile
 export class Importer extends RemoteCreepWrapper {
@@ -109,6 +109,7 @@ export class Importer extends RemoteCreepWrapper {
     return result;
   }
 
+  // TODO dry up with hauler code
   private workHaulTask(haulTask: HaulTask): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `haul ${String(haulTask.creepName)}`);
 
