@@ -73,20 +73,4 @@ export class TargetControl {
     const roomMemory = Memory.rooms[roomName];
     return roomMemory.controller.owner?.username !== Memory.username;
   }
-
-  /**
-   * Utility functions
-   */
-
-  public static calcRoomDistance(roomArgA: Room | string, roomArgB: Room | string): number {
-    const roomNameA = roomArgA instanceof Room ? roomArgA.name : roomArgA;
-    const roomNameB = roomArgB instanceof Room ? roomArgB.name : roomArgB;
-    const roomNameASplit = roomNameA.split(/(\w)/);
-    const posAx = (roomNameASplit[0] === "W" ? 1 : -1) * Number(roomNameASplit[1]);
-    const posAy = (roomNameASplit[2] === "N" ? 1 : -1) * Number(roomNameASplit[3]);
-    const roomNameBSplit = roomNameB.split(/(\w)/);
-    const posBx = (roomNameBSplit[0] === "W" ? 1 : -1) * Number(roomNameBSplit[1]);
-    const posBy = (roomNameBSplit[2] === "N" ? 1 : -1) * Number(roomNameBSplit[3]);
-    return Math.sqrt(Math.pow(posAx - posBx, 2) + Math.pow(posAy - posBy, 2));
-  }
 }
