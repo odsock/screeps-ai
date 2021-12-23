@@ -3,17 +3,17 @@ import { RoomWrapper } from "structures/room-wrapper";
 
 export class CostMatrixUtils {
   private static getCostMatrixFromCache(name: string): CostMatrix | undefined {
-    // const cacheKey = `${this.name}_${name}`;
-    // const costMatrix = MemoryUtils.getCache<CostMatrix>(cacheKey);
-    // if (costMatrix) {
-    //   return costMatrix;
-    // }
+    const cacheKey = `${this.name}_${name}`;
+    const costMatrix = MemoryUtils.getCache<CostMatrix>(cacheKey);
+    if (costMatrix) {
+      return costMatrix;
+    }
     return undefined;
   }
 
   private static setCostMatrixInCache(name: string, costMatrix: CostMatrix): void {
     const cacheKey = `${this.name}_${name}`;
-    MemoryUtils.setCache(cacheKey, costMatrix, 100);
+    MemoryUtils.setCache(cacheKey, costMatrix);
   }
 
   /**
