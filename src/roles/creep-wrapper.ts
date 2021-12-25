@@ -542,7 +542,10 @@ export abstract class CreepWrapper extends Creep {
       return ERR_INVALID_TARGET;
     }
 
-    if (this.roomw.controller.owner && this.roomw.controller.owner.username !== Memory.username) {
+    if (
+      (this.roomw.controller.owner && this.roomw.controller.owner.username !== Memory.username) ||
+      (this.roomw.controller.reservation && this.roomw.controller.reservation.username !== Memory.username)
+    ) {
       // go to controller and attack it
       let result: ScreepsReturnCode = this.attackController(this.roomw.controller);
       CreepUtils.consoleLogIfWatched(this, `attacking controller: ${String(this.roomw.controller.pos)}`, result);
