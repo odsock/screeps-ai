@@ -28,17 +28,20 @@ export class Raider extends RemoteCreepWrapper {
 
     if (this.roomw.hasHostiles) {
       const creeps = this.roomw.hostileCreeps;
+      const attackCreeps = creeps.filter(c => c.body.some(part => part.type === ATTACK || part.type === RANGED_ATTACK));
       const structures = this.roomw.hostileStructures;
       let target: Creep | AnyOwnedStructure | null;
-      if (creeps.length) {
-        target = this.pos.findClosestByPath(creeps);
-      } else {
+      if (attackCreeps.length) {
+        target = this.pos.findClosestByPath(attackCreeps);
+      } else if (structures.length > 0) {
         const towers = structures.filter(s => s.structureType === STRUCTURE_TOWER);
         if (towers.length > 0) {
           target = this.pos.findClosestByPath(towers);
         } else {
           target = this.pos.findClosestByPath(structures);
         }
+      } else {
+        target = this.pos.findClosestByPath(creeps);
       }
 
       let rangedTarget: Creep | AnyOwnedStructure | undefined;
