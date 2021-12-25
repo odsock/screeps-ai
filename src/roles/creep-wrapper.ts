@@ -1,4 +1,5 @@
 import { CreepRole } from "config/creep-types";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { Task } from "control/task-management";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
@@ -539,6 +540,17 @@ export abstract class CreepWrapper extends Creep {
 
     if (!this.roomw.controller) {
       return ERR_INVALID_TARGET;
+    }
+
+    if (this.roomw.controller.owner && this.roomw.controller.owner.username !== Memory.username) {
+      // go to controller and attack it
+      let result: ScreepsReturnCode = this.attackController(this.roomw.controller);
+      CreepUtils.consoleLogIfWatched(this, `attacking controller: ${String(this.roomw.controller.pos)}`, result);
+      if (result === ERR_NOT_IN_RANGE) {
+        result = this.moveToW(this.roomw.controller);
+        CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, result);
+      }
+      return result;
     }
 
     // go to controller and claim it
