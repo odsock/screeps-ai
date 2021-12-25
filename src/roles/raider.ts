@@ -45,6 +45,7 @@ export class Raider extends RemoteCreepWrapper {
         target = this.pos.findClosestByPath(creeps);
       }
 
+      // TODO create structure attack priority
       let rangedTarget: Creep | AnyOwnedStructure | undefined;
       if (target && this.pos.inRangeTo(target, 3)) {
         rangedTarget = target;
