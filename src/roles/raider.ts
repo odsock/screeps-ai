@@ -15,7 +15,7 @@ declare global {
 export class Raider extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.RAIDER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
-    profile: [MOVE, MOVE, MOVE, MOVE, MOVE, TOUGH, ATTACK, RANGED_ATTACK, HEAL, HEAL],
+    profile: [MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, RANGED_ATTACK, HEAL, HEAL, HEAL],
     seed: [],
     maxBodyParts: MAX_CREEP_SIZE
   };
