@@ -50,7 +50,7 @@ export class AttackControl {
         let raidersStillNeeded = raidersRequested - raidersAssigned.length - spawningRaiders.length;
         // remove rally point if raiding party is ready (triggers attack)
         if (
-          raidersRequested === raidersAssigned.length &&
+          raidersRequested <= raidersAssigned.length &&
           raidersAssigned.every(r => r.room.name === attackFlag.memory.rallyRoom)
         ) {
           raidersAssigned.forEach(r => delete r.memory.rallyRoom);
