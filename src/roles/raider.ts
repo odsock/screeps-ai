@@ -8,6 +8,7 @@ import { CostMatrixUtils } from "utils/cost-matrix-utils";
 declare global {
   interface CreepMemory {
     rallyRoom?: string; // room to wait in until activated by control
+    avoidTowers?: boolean;
   }
 }
 
@@ -103,6 +104,13 @@ export class Raider extends RemoteCreepWrapper {
   }
 
   private fleeArmedTowers(): boolean {
+    if (this.memory.avoidTowers === undefined) {
+      this.memory.avoidTowers = true;
+    }
+    if (!this.memory.avoidTowers) {
+      CreepUtils.consoleLogIfWatched(this, `not avoiding towers`);
+      return false;
+    }
     const armedTowers = this.roomw.hostileStructures.filter(
       s =>
         s.structureType === STRUCTURE_TOWER &&
@@ -116,6 +124,7 @@ export class Raider extends RemoteCreepWrapper {
           if (event.event === EVENT_TRANSFER) {
             const target = Game.getObjectById(event.objectId as Id<Structure>);
             if (target?.structureType === STRUCTURE_TOWER) {
+              CreepUtils.consoleLogIfWatched(this, `enemy tower resupplied`);
               return true;
             }
           }
