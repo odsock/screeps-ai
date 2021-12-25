@@ -2,9 +2,17 @@ import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Raider } from "roles/raider";
+import { TravelUtils } from "utils/travel-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
+
+declare global {
+  interface FlagMemory {
+    rallyRoom?: string;
+    raidSent?: boolean;
+  }
+}
 
 @profile
 export class AttackControl {
@@ -26,28 +34,47 @@ export class AttackControl {
         Game.flags,
         flag => flag.pos.roomName === roomName && flag.color === SockPuppetConstants.FLAG_COLOR_ATTACK
       );
-      const raidersRequested = attackFlag?.secondaryColor.valueOf() ?? 0;
-      const raidersAssigned = raiders.filter(raider => raider.memory.targetRoom === roomName);
-      const spawningRaiders = SpawnUtils.getSpawnInfo(
-        info => info.memory.role === CreepRole.RAIDER && info.memory.targetRoom === roomName
-      );
-      let raidersNeeded = raidersRequested - raidersAssigned.length - spawningRaiders.length;
-      if (raidersNeeded > 0) {
-        if (freeRaiders.length > 0) {
-          // TODO assign closest raider
-          const reassignSlice = freeRaiders.splice(0, raidersNeeded);
-          reassignSlice.forEach(creep => (creep.memory.targetRoom = roomName));
-          raidersNeeded -= reassignSlice.length;
-          continue;
+      if (attackFlag) {
+        const raidersAssigned = raiders.filter(raider => raider.memory.targetRoom === roomName);
+        // increase raiding party size if previous raid failed
+        if (attackFlag.memory.raidSent && raidersAssigned.length === 0 && attackFlag.secondaryColor < 10) {
+          attackFlag.secondaryColor += 1;
+          attackFlag.memory.raidSent = false;
         }
-        if (raidersNeeded > 0) {
-          this.queueSpawn(roomName, raidersNeeded);
+        // secondary flag color constant is proxy for raiding party size
+        const raidersRequested = attackFlag.secondaryColor.valueOf() ?? 0;
+        const spawningRaiders = SpawnUtils.getSpawnInfo(
+          info => info.memory.role === CreepRole.RAIDER && info.memory.targetRoom === roomName
+        );
+        let raidersStillNeeded = raidersRequested - raidersAssigned.length - spawningRaiders.length;
+        // remove rally point if raiding party is ready (triggers attack)
+        if (raidersRequested === raidersAssigned.length && raidersAssigned.every(r => r.room.name === roomName)) {
+          raidersAssigned.forEach(r => delete r.memory.rallyRoom);
+          attackFlag.memory.raidSent = true;
+        } else if (raidersStillNeeded > 0) {
+          const rallyRoom =
+            attackFlag.memory.rallyRoom ??
+            TravelUtils.findClosestRoom(roomName, TargetControl.claimedRooms.concat(TargetControl.remoteHarvestRooms));
+          if (!rallyRoom) {
+            console.log(`ERROR: no rally room found`);
+          } else {
+            if (freeRaiders.length > 0) {
+              // TODO assign closest raider
+              const reassignSlice = freeRaiders.splice(0, raidersStillNeeded);
+              reassignSlice.forEach(creep => (creep.memory.targetRoom = roomName));
+              raidersStillNeeded -= reassignSlice.length;
+              continue;
+            }
+            if (raidersStillNeeded > 0) {
+              this.queueSpawn(roomName, raidersStillNeeded, rallyRoom);
+            }
+          }
         }
       }
     }
   }
 
-  private queueSpawn(targetRoom: string, raidersNeeded: number): void {
+  private queueSpawn(targetRoom: string, raidersNeeded: number, rallyRoom: string): void {
     // TODO use closest spawn
     _.filter(Game.spawns, spawn => !spawn.spawning)
       .slice(0, raidersNeeded)
@@ -58,7 +85,8 @@ export class AttackControl {
           max: true,
           memory: {
             role: Raider.ROLE,
-            targetRoom
+            targetRoom,
+            rallyRoom
           },
           sort: true,
           priority: 250

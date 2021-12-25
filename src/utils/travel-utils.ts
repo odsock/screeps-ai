@@ -11,4 +11,19 @@ export class TravelUtils {
     }
     return NaN;
   }
+
+  public static findClosestRoom(roomName: string, roomNames: string[]): string | undefined {
+    let closestRoomName: string | undefined;
+    let distance: number | undefined;
+    for (const newRoom of roomNames) {
+      const newDistance = this.calcRoomGridDistance(roomName, newRoom);
+      closestRoomName = closestRoomName ?? newRoom;
+      distance = distance ?? newDistance;
+      if (newDistance < distance) {
+        distance = newDistance;
+        closestRoomName = newRoom;
+      }
+    }
+    return closestRoomName;
+  }
 }

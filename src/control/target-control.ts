@@ -4,14 +4,20 @@ import { profile } from "../../screeps-typescript-profiler";
 @profile
 export class TargetControl {
   /**
+   * Claimed rooms
+   */
+  public static get claimedRooms(): string[] {
+    return _.filter(Game.rooms, room => room.controller?.my).map(room => room.name);
+  }
+
+  /**
    * Remote harvest rooms
    */
 
   public static get remoteHarvestRooms(): string[] {
-    const roomNames = _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_REMOTE).map(
-      flag => flag.pos.roomName
-    );
-    return roomNames.filter(name => TargetControl.isValidRemote(name));
+    return _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_REMOTE)
+      .map(flag => flag.pos.roomName)
+      .filter(name => TargetControl.isValidRemote(name));
   }
 
   private static isValidRemote(roomName: string): boolean {
@@ -23,10 +29,9 @@ export class TargetControl {
    */
 
   public static get targetRooms(): string[] {
-    const roomNames = _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_TARGET).map(
-      flag => flag.pos.roomName
-    );
-    return roomNames.filter(name => TargetControl.isValidTarget(name));
+    return _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_TARGET)
+      .map(flag => flag.pos.roomName)
+      .filter(name => TargetControl.isValidTarget(name));
   }
 
   private static isValidTarget(roomName: string): boolean {
@@ -38,10 +43,9 @@ export class TargetControl {
    */
 
   public static get attackRooms(): string[] {
-    const roomNames = _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_ATTACK).map(
-      flag => flag.pos.roomName
-    );
-    const validAttackRooms = roomNames.filter(name => TargetControl.isValidAttack(name));
+    const validAttackRooms = _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_ATTACK)
+      .map(flag => flag.pos.roomName)
+      .filter(name => TargetControl.isValidAttack(name));
     console.log(`DEBUG: valid attack rooms ${JSON.stringify(validAttackRooms)}`);
     return validAttackRooms;
   }

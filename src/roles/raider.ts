@@ -5,6 +5,12 @@ import { RemoteCreepWrapper } from "./remote-creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
 
+declare global {
+  interface CreepMemory {
+    rallyRoom?: string; // room to wait in until activated by control
+  }
+}
+
 @profile
 export class Raider extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.RAIDER;
@@ -60,15 +66,31 @@ export class Raider extends RemoteCreepWrapper {
       this.fleeArmedTowers();
     }
 
-    if (!this.memory.targetRoom) {
-      CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
-      return;
-    } else {
+    if (this.memory.rallyRoom) {
+      if (this.room.name !== this.memory.rallyRoom) {
+        const result = this.moveToRoom(this.memory.rallyRoom);
+        CreepUtils.consoleLogIfWatched(this, `move to rally room`, result);
+      } else {
+        const exit = this.room.findExitTo(this.memory.targetRoom);
+        if (exit !== ERR_INVALID_ARGS && exit !== ERR_NO_PATH) {
+          const rallyPointPos = this.pos.findClosestByPath(exit, {
+            range: 10,
+            costCallback: CostMatrixUtils.creepMovementCostCallback
+          });
+          if (rallyPointPos) {
+            const result = this.moveToW(rallyPointPos);
+            CreepUtils.consoleLogIfWatched(this, `move to rally point`, result);
+          }
+        }
+      }
+    } else if (this.memory.targetRoom) {
       const result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
-      const healCheck = this.findHealingIfDamaged();
-      CreepUtils.consoleLogIfWatched(this, `find healing if damaged`, healCheck);
+    } else {
+      CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
     }
+    const healCheck = this.findHealingIfDamaged();
+    CreepUtils.consoleLogIfWatched(this, `find healing if damaged`, healCheck);
   }
 
   private fleeArmedTowers() {
