@@ -33,7 +33,12 @@ export class Raider extends RemoteCreepWrapper {
       if (creeps.length) {
         target = this.pos.findClosestByPath(creeps);
       } else {
-        target = this.pos.findClosestByPath(structures);
+        const towers = structures.filter(s => s.structureType === STRUCTURE_TOWER);
+        if (towers.length > 0) {
+          target = this.pos.findClosestByPath(towers);
+        } else {
+          target = this.pos.findClosestByPath(structures);
+        }
       }
 
       let rangedTarget: Creep | AnyOwnedStructure | undefined;
@@ -46,7 +51,8 @@ export class Raider extends RemoteCreepWrapper {
         } else {
           const rangedTargetStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, 3);
           if (rangedTargetStructures.length > 0) {
-            rangedTarget = rangedTargetStructures[0];
+            rangedTarget =
+              rangedTargetStructures.find(s => s.structureType === STRUCTURE_TOWER) ?? rangedTargetStructures[0];
           }
         }
       }
