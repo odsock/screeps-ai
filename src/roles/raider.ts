@@ -69,11 +69,11 @@ export class Raider extends RemoteCreepWrapper {
       if (target) {
         const attackResult = this.moveToAndAttack(target);
         CreepUtils.consoleLogIfWatched(this, `attack`, attackResult);
-        // this.fleeArmedTowers();
+        this.fleeArmedTowers();
         return;
       }
 
-      // this.fleeArmedTowers();
+      this.fleeArmedTowers();
     }
 
     if (this.memory.rallyRoom) {
