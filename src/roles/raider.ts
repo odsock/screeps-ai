@@ -108,14 +108,19 @@ export class Raider extends RemoteCreepWrapper {
     );
     if (armedTowers.length > 0) {
       CreepUtils.consoleLogIfWatched(this, `found ${armedTowers.length} armed towers`);
-      this.room.getEventLog().filter(event => {
-        if (event.event === EVENT_TRANSFER) {
-          const target = Game.getObjectById(event.objectId as Id<Structure>);
-          if (target?.structureType === STRUCTURE_TOWER) {
-            return false;
+      if (
+        this.room.getEventLog().find(event => {
+          if (event.event === EVENT_TRANSFER) {
+            const target = Game.getObjectById(event.objectId as Id<Structure>);
+            if (target?.structureType === STRUCTURE_TOWER) {
+              return true;
+            }
           }
-        }
-      });
+          return false;
+        })
+      ) {
+        return false;
+      }
       const path = PathFinder.search(
         this.pos,
         armedTowers.map(t => {
