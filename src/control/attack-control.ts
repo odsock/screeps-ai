@@ -1,5 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
+import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Raider } from "roles/raider";
 import { TravelUtils } from "utils/travel-utils";
@@ -48,13 +49,17 @@ export class AttackControl {
         );
         let raidersStillNeeded = raidersRequested - raidersAssigned.length - spawningRaiders.length;
         // remove rally point if raiding party is ready (triggers attack)
-        if (raidersRequested === raidersAssigned.length && raidersAssigned.every(r => r.room.name === roomName)) {
+        if (
+          raidersRequested === raidersAssigned.length &&
+          raidersAssigned.every(r => r.room.name === attackFlag.memory.rallyRoom)
+        ) {
           raidersAssigned.forEach(r => delete r.memory.rallyRoom);
           attackFlag.memory.raidSent = true;
         } else if (raidersStillNeeded > 0) {
           const rallyRoom =
             attackFlag.memory.rallyRoom ??
             TravelUtils.findClosestRoom(roomName, TargetControl.claimedRooms.concat(TargetControl.remoteHarvestRooms));
+          attackFlag.memory.rallyRoom = rallyRoom;
           if (!rallyRoom) {
             console.log(`ERROR: no rally room found`);
           } else {
