@@ -81,17 +81,8 @@ export class Raider extends RemoteCreepWrapper {
         const result = this.moveToRoom(this.memory.rallyRoom);
         CreepUtils.consoleLogIfWatched(this, `move to rally room`, result);
       } else {
-        const exit = this.room.findExitTo(this.memory.targetRoom);
-        if (exit !== ERR_INVALID_ARGS && exit !== ERR_NO_PATH) {
-          const rallyPointPos = this.pos.findClosestByPath(exit, {
-            range: 10,
-            costCallback: CostMatrixUtils.creepMovementCostCallback
-          });
-          if (rallyPointPos) {
-            const result = this.moveToW(rallyPointPos);
-            CreepUtils.consoleLogIfWatched(this, `move to rally point`, result);
-          }
-        }
+        const result = this.moveToW(new RoomPosition(25, 25, this.room.name), { range: 10 });
+        CreepUtils.consoleLogIfWatched(this, `move to rally point`, result);
       }
     } else if (this.memory.targetRoom) {
       const result = this.moveToRoom(this.memory.targetRoom);
