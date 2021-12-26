@@ -3,6 +3,19 @@ import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class TargetControl {
+  public static get scoutRooms(): string[] {
+    const flaggedRooms = _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_SCOUT).map(
+      flag => flag.pos.roomName
+    );
+    return [
+      ...flaggedRooms,
+      ...this.targetRooms,
+      ...this.remoteHarvestRooms,
+      ...this.attackRooms,
+      ...this.claimedRooms
+    ];
+  }
+
   /**
    * Claimed rooms
    */

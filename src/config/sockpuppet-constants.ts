@@ -65,6 +65,7 @@ export class SockPuppetConstants {
   public static FLAG_COLOR_ATTACK = COLOR_RED;
   public static FLAG_COLOR_REMOTE = COLOR_YELLOW;
   public static FLAG_COLOR_TARGET = COLOR_GREEN;
+  public static FLAG_COLOR_SCOUT = COLOR_WHITE;
 }
 
 declare global {

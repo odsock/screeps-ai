@@ -4,8 +4,10 @@ import { PlannerUtils } from "planning/planner-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Scout } from "roles/scout";
 import { RoomWrapper } from "structures/room-wrapper";
+import { TravelUtils } from "utils/travel-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
+import { TargetControl } from "./target-control";
 
 // TODO create recon memory separate from colony memory
 @profile
@@ -24,9 +26,9 @@ export class ReconControl {
     const scouts = _.filter(Game.creeps, c => c.memory.role === CreepRole.SCOUT);
     const spawningScouts = SpawnUtils.getSpawnInfo(s => s.memory.role === CreepRole.SCOUT);
     const freeScouts = scouts.filter(s => Game.time - Memory.rooms[s.memory.targetRoom].reconTick < 1000);
-    for (const roomName in Memory.rooms) {
+    for (const roomName of TargetControl.scoutRooms) {
       const scoutOnRoom = [...scouts, ...spawningScouts].some(s => s.memory.targetRoom === roomName);
-      if (!scoutOnRoom && Game.time - Memory.rooms[roomName].reconTick > 1000) {
+      if (!scoutOnRoom && Game.time - Memory.rooms[roomName].reconTick >= 1000) {
         if (freeScouts.length > 0) {
           freeScouts[0].memory.targetRoom = roomName;
         } else {
