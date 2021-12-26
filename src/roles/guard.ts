@@ -9,7 +9,7 @@ export class Guard extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.GUARD;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
     profile: [TOUGH, MOVE, MOVE, ATTACK],
-    seed: [TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, ATTACK, HEAL],
+    seed: [MOVE, MOVE, MOVE, MOVE, ATTACK, HEAL, HEAL, HEAL],
     maxBodyParts: MAX_CREEP_SIZE
   };
 
