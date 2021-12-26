@@ -1,7 +1,11 @@
+import { CreepRole } from "config/creep-types";
 import { MemoryUtils } from "planning/memory-utils";
 import { PlannerUtils } from "planning/planner-utils";
+import { SpawnQueue } from "planning/spawn-queue";
+import { Scout } from "roles/scout";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
+import { SpawnUtils } from "./spawn-utils";
 
 // TODO create recon memory separate from colony memory
 @profile
@@ -16,7 +20,36 @@ export class ReconControl {
       this.refreshControllerMemory(room);
       room.memory.reconTick = Game.time;
     }
-    // TODO spawn scouts for remotes we can't see, and haven't updated in X ticks
+
+    const scouts = _.filter(Game.creeps, c => c.memory.role === CreepRole.SCOUT);
+    const spawningScouts = SpawnUtils.getSpawnInfo(s => s.memory.role === CreepRole.SCOUT);
+    const freeScouts = scouts.filter(s => Game.time - Memory.rooms[s.memory.targetRoom].reconTick < 1000);
+    for (const roomName in Memory.rooms) {
+      const scoutOnRoom = [...scouts, ...spawningScouts].some(s => s.memory.targetRoom === roomName);
+      if (!scoutOnRoom && Game.time - Memory.rooms[roomName].reconTick > 1000) {
+        if (freeScouts.length > 0) {
+          freeScouts[0].memory.targetRoom = roomName;
+        } else {
+          this.requestSpawn(roomName);
+        }
+      }
+    }
+  }
+
+  private requestSpawn(targetRoom: string): void {
+    const closestSpawnRoom = SpawnUtils.findClosestAvailableSpawnRoom(targetRoom);
+    if (closestSpawnRoom) {
+      const spawnQueue = SpawnQueue.getInstance(closestSpawnRoom);
+      spawnQueue.push({
+        bodyProfile: Scout.BODY_PROFILE,
+        max: true,
+        memory: {
+          role: CreepRole.SCOUT,
+          targetRoom
+        },
+        priority: 200
+      });
+    }
   }
 
   private refreshRoomDefense(room: RoomWrapper) {

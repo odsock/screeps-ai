@@ -8,5 +8,6 @@ export enum CreepRole {
   GUARD = "guard",
   HARVESTER = "harvester",
   UPGRADER = "upgrader",
-  RAIDER = "raider"
+  RAIDER = "raider",
+  SCOUT = "scout"
 }

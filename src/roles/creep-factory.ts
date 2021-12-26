@@ -1,17 +1,18 @@
-import { Worker } from "./worker";
-import { Hauler } from "./hauler";
+import { CreepRole } from "config/creep-types";
+import { profile } from "../../screeps-typescript-profiler";
 import { Builder } from "./builder";
 import { Claimer } from "./claimer";
-import { Fixer } from "./fixer";
-import { Importer } from "./importer";
-import { Guard } from "./guard";
-import { Upgrader } from "./upgrader";
-import { CreepRole } from "config/creep-types";
-import { Harvester } from "./harvester";
 import { CreepWrapper } from "./creep-wrapper";
+import { Fixer } from "./fixer";
+import { Guard } from "./guard";
+import { Harvester } from "./harvester";
+import { Hauler } from "./hauler";
+import { Importer } from "./importer";
 import { Minder } from "./minder";
-import { profile } from "../../screeps-typescript-profiler";
 import { Raider } from "./raider";
+import { Scout } from "./scout";
+import { Upgrader } from "./upgrader";
+import { Worker } from "./worker";
 
 @profile
 export class CreepFactory {
@@ -38,6 +39,8 @@ export class CreepFactory {
         return new Guard(creep);
       case CreepRole.RAIDER:
         return new Raider(creep);
+      case CreepRole.SCOUT:
+        return new Scout(creep);
 
       default:
         assertNever(creep.memory.role);

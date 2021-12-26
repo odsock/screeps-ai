@@ -4,6 +4,7 @@ import { SpawnQueue } from "planning/spawn-queue";
 import { CreepBodyProfile, CreepWrapperProfile } from "roles/creep-wrapper";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
+import { TravelUtils } from "utils/travel-utils";
 
 export class SpawnUtils {
   /**
@@ -189,5 +190,11 @@ export class SpawnUtils {
       }
     });
     return spawningInfos;
+  }
+
+  public static findClosestAvailableSpawnRoom(room: string | Room): string | undefined {
+    const roomName = room instanceof Room ? room.name : room;
+    const roomsWithAAvailableSpawns = _.filter(Game.spawns, s => !s.spawning).map(s => s.room.name);
+    return TravelUtils.findClosestRoom(roomName, roomsWithAAvailableSpawns);
   }
 }
