@@ -1,5 +1,4 @@
 import { CreepRole } from "config/creep-types";
-import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { Task } from "control/task-management";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";

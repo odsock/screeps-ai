@@ -3,6 +3,7 @@ import { PlannerUtils } from "planning/planner-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 
+// TODO create recon memory separate from colony memory
 @profile
 export class ReconControl {
   public run(): void {
@@ -31,12 +32,16 @@ export class ReconControl {
     // initialize controller memory
     if (!room.memory.controller) {
       room.memory.controller = {
-        pos: MemoryUtils.packRoomPosition(room.controller?.pos)
+        pos: MemoryUtils.packRoomPosition(room.controller?.pos),
+        ticksToDowngrade: room.controller.ticksToDowngrade,
+        upgradeBlocked: room.controller.upgradeBlocked,
+        level: room.controller.level
       };
     }
     const controllerInfo = room.memory.controller;
 
     // update ownership
+    // TODO object copy stuff instead of this
     room.memory.controller.owner = room.controller.owner;
     room.memory.controller.reservation = room.controller.reservation;
 

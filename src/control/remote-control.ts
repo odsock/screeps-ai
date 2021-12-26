@@ -103,9 +103,14 @@ export class RemoteControl {
       remoteTargetRooms.forEach(roomName => {
         const claimerOnRoom = claimers.some(c => c.memory.targetRoom === roomName);
         CreepUtils.consoleLogIfWatched(roomw, `claimer on ${roomName}: ${String(claimerOnRoom)}`);
-        if (!claimerOnRoom) {
+        const roomMemory = Memory.rooms[roomName];
+        if (!claimerOnRoom && roomMemory.controller.upgradeBlocked < 300) {
+          const bodyProfile = { ...Claimer.BODY_PROFILE };
+          if (roomMemory.controller.owner) {
+            bodyProfile.maxBodyParts = 50;
+          }
           spawnQueue.push({
-            bodyProfile: Claimer.BODY_PROFILE,
+            bodyProfile,
             max: true,
             memory: {
               role: Claimer.ROLE,

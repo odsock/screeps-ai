@@ -64,6 +64,9 @@ declare global {
     containerId?: Id<StructureContainer>;
     haulerId?: Id<Creep>;
     linkId?: Id<StructureLink>;
+    ticksToDowngrade: number;
+    upgradeBlocked: number;
+    level: number;
   }
 
   interface ConstructionLog {
