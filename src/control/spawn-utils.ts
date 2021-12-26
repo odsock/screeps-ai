@@ -18,13 +18,12 @@ export class SpawnUtils {
       body = creepBodyProfile.profile.slice();
     }
     let finalBody: BodyPartConstant[] = [];
-    if (creepBodyProfile.maxBodyParts > MAX_CREEP_SIZE) {
-      creepBodyProfile.maxBodyParts = MAX_CREEP_SIZE;
-    }
+    creepBodyProfile.maxBodyParts = Math.min(creepBodyProfile.maxBodyParts, MAX_CREEP_SIZE);
     const energyCapacity = roomw.energyCapacityAvailable;
     do {
       finalBody = body.slice();
       body = body.concat(creepBodyProfile.profile);
+      console.log(`DEBUG: max body loop`);
     } while (this.calcBodyCost(body) <= energyCapacity && body.length <= creepBodyProfile.maxBodyParts);
     return finalBody;
   }
