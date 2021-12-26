@@ -79,6 +79,9 @@ export class ReconControl {
     // TODO object copy stuff instead of this
     room.memory.controller.owner = room.controller.owner;
     room.memory.controller.reservation = room.controller.reservation;
+    room.memory.controller.ticksToDowngrade = room.controller.ticksToDowngrade;
+    room.memory.controller.upgradeBlocked = room.controller.upgradeBlocked;
+    room.memory.controller.level = room.controller.level;
 
     // validate id's
     if (controllerInfo.containerId && !Game.getObjectById(controllerInfo.containerId)) {
