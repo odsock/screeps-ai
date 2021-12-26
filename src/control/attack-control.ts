@@ -1,6 +1,5 @@
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
-import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Raider } from "roles/raider";
 import { TravelUtils } from "utils/travel-utils";
