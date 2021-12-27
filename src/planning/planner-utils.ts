@@ -2,7 +2,6 @@ import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { StructurePlan, StructurePlanPosition } from "planning/structure-plan";
 import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
-import { StructurePatterns } from "config/structure-patterns";
 
 export class PlannerUtils {
   public static findSiteForPattern(
@@ -26,13 +25,11 @@ export class PlannerUtils {
         const range = nearPosition.getRangeTo(
           new RoomPosition(x + patternWidth / 2, y + patternHeight / 2, nearPosition.roomName)
         );
-        if (range) {
-          if (range >= shortestRange) {
-            continue;
-          } else if (structurePlan.translate(x, y, ignoreStructures)) {
-            shortestRange = range;
-            closestSite = { x, y };
-          }
+        if (range >= shortestRange) {
+          continue;
+        } else if (structurePlan.translate(x, y, ignoreStructures)) {
+          shortestRange = range;
+          closestSite = { x, y };
         }
       }
     }
