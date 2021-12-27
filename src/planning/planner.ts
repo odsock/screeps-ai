@@ -1,5 +1,6 @@
 import { StructurePatterns } from "config/structure-patterns";
 import { TargetControl } from "control/target-control";
+import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { ContainerPlan } from "./container-plan";
@@ -48,6 +49,7 @@ export class Planner {
   private createColonyPlan(roomw: RoomWrapper): void {
     const cacheKey = `${roomw.name}_plan`;
     if (!MemoryUtils.hasCache(cacheKey)) {
+      CreepUtils.consoleLogIfWatched(roomw, `no colony plan found, generating plan`);
       const controllerPos = roomw.controller?.pos;
       if (controllerPos) {
         const sourcePositions = roomw.sources.map(source => source.pos);
