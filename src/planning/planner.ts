@@ -58,14 +58,16 @@ export class Planner {
         roomw.memory.centerPoint = MemoryUtils.packRoomPosition(centerPoint);
         const plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, roomw, centerPoint, true);
 
-        // draw plan visual
-        roomw.visual.clear();
-        roomw.visual.circle(centerPoint.x, centerPoint.y, { fill: "#FF0000" });
-        plan.drawPattern();
-        roomw.planVisual = roomw.visual.export();
+        if (plan) {
+          // draw plan visual
+          roomw.visual.clear();
+          roomw.visual.circle(centerPoint.x, centerPoint.y, { fill: "#FF0000" });
+          plan.drawPattern();
+          roomw.planVisual = roomw.visual.export();
 
-        // cache plan forever
-        MemoryUtils.setCache(cacheKey, plan.getPlan(), -1);
+          // cache plan forever
+          MemoryUtils.setCache(cacheKey, plan.getPlan(), -1);
+        }
       }
     }
   }

@@ -2,6 +2,7 @@ import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { StructurePlan, StructurePlanPosition } from "planning/structure-plan";
 import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
+import { StructurePatterns } from "config/structure-patterns";
 
 export class PlannerUtils {
   public static findSiteForPattern(
@@ -9,7 +10,7 @@ export class PlannerUtils {
     room: Room,
     nearPosition: RoomPosition,
     ignoreStructures = false
-  ): StructurePlan {
+  ): StructurePlan | undefined {
     console.log(`finding site`);
     const structurePlan = StructurePlan.parseStructurePlan(pattern, room);
     const patternWidth = structurePlan.getWidth();
@@ -40,10 +41,10 @@ export class PlannerUtils {
     if (closestSite) {
       structurePlan.translate(closestSite.x, closestSite.y, ignoreStructures);
       console.log(`closest site: ${closestSite.x},${closestSite.y}`);
-    } else {
-      console.log(`No site for pattern found.`);
+      return structurePlan;
     }
-    return structurePlan;
+    console.log(`No site for pattern found.`);
+    return undefined;
   }
 
   public static findMidpoint(positions: RoomPosition[]): RoomPosition {

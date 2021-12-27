@@ -17,7 +17,10 @@ export class ExtensionPlan {
         this.roomw,
         this.roomw.spawns[0].pos
       );
-      return PlannerUtils.placeStructurePlan({ plan: structurePlan, roomw: this.roomw });
+      if (structurePlan) {
+        return PlannerUtils.placeStructurePlan({ plan: structurePlan, roomw: this.roomw });
+      }
+      return ERR_NOT_FOUND;
     }
     return OK;
   }
