@@ -40,6 +40,22 @@ export class StructurePatterns {
     "    r"
   ];
 
+  public static readonly SPAWN_GROUP: string[] = [
+    "  rrr",
+    " rsssr",
+    "rtPrltr",
+    " rTSFr",
+    "  rrr"
+  ];
+
+  public static readonly LAB_GROUP: string[] = [
+    "  r",
+    " rLr",
+    "rLLLr",
+    " rLr",
+    "  r"
+  ];
+
   public static readonly CHARACTERS: {[x: string]: BuildableStructureConstant | undefined} = {
     r: STRUCTURE_ROAD,
     e: STRUCTURE_EXTENSION,
