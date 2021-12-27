@@ -11,6 +11,7 @@ export class PlannerUtils {
     ignoreStructures = false
   ): StructurePlan | undefined {
     console.log(`finding site`);
+    console.log(`DEBUG: cpu ${Game.cpu.getUsed()}`);
     const structurePlan = StructurePlan.parseStructurePlan(pattern, room);
     const patternWidth = structurePlan.getWidth();
     const patternHeight = structurePlan.getHeight();
@@ -31,6 +32,7 @@ export class PlannerUtils {
           shortestRange = range;
           closestSite = { x, y };
         }
+        console.log(`DEBUG: cpu ${Game.cpu.getUsed()}`);
       }
     }
 
