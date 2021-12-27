@@ -10,7 +10,7 @@ export class PlannerUtils {
     nearPosition: RoomPosition,
     ignoreStructures = false
   ): StructurePlan | undefined {
-    console.log(`finding site`);
+    console.log(`finding pattern site in ${nearPosition.roomName}`);
     console.log(`DEBUG: cpu ${Game.cpu.getUsed()}`);
     const structurePlan = StructurePlan.parseStructurePlan(pattern, room);
     const patternWidth = structurePlan.getWidth();
@@ -32,7 +32,6 @@ export class PlannerUtils {
           shortestRange = range;
           closestSite = { x, y };
         }
-        console.log(`DEBUG: cpu ${Game.cpu.getUsed()}`);
       }
     }
 
