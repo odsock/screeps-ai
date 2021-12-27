@@ -4,7 +4,6 @@ import { PlannerUtils } from "planning/planner-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Scout } from "roles/scout";
 import { RoomWrapper } from "structures/room-wrapper";
-import { TravelUtils } from "utils/travel-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
