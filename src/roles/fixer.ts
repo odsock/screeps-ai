@@ -2,7 +2,6 @@ import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
-import { CostMatrixUtils } from "utils/cost-matrix-utils";
 
 @profile
 export class Fixer extends CreepWrapper {
@@ -33,25 +32,7 @@ export class Fixer extends CreepWrapper {
       return;
     }
 
-    if (this.pos.lookFor(LOOK_STRUCTURES).some(item => item.structureType === STRUCTURE_ROAD)) {
-      return this.moveOffTheRoad();
-    }
-  }
-
-  private moveOffTheRoad(): void {
-    const path = PathFinder.search(
-      this.pos,
-      { pos: this.pos, range: 20 },
-      {
-        flee: true,
-        plainCost: 0,
-        swampCost: 10,
-        roomCallback: CostMatrixUtils.creepMovementRoomCallback
-      }
-    );
-    const result = this.moveByPath(path.path);
-    CreepUtils.consoleLogIfWatched(this, `moving off the road`, result);
-    return;
+    this.moveOffTheRoad();
   }
 
   private doRepairJob(target: Structure): ScreepsReturnCode {

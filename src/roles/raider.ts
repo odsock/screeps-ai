@@ -74,7 +74,10 @@ export class Raider extends RemoteCreepWrapper {
         return;
       }
 
-      this.fleeArmedTowers();
+      if (!this.fleeArmedTowers()) {
+        const result = this.moveOffTheRoad();
+        CreepUtils.consoleLogIfWatched(this, `move off the road`, result);
+      }
     }
 
     if (this.memory.rallyRoom) {

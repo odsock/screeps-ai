@@ -673,6 +673,26 @@ export abstract class CreepWrapper extends Creep {
     return result;
   }
 
+  protected moveOffTheRoad(): ScreepsReturnCode {
+    const onRoad = this.pos.lookFor(LOOK_STRUCTURES).some(item => item.structureType === STRUCTURE_ROAD);
+    if (!onRoad) {
+      return OK;
+    }
+    const path = PathFinder.search(
+      this.pos,
+      { pos: this.pos, range: 20 },
+      {
+        flee: true,
+        plainCost: 0,
+        swampCost: 10,
+        roomCallback: CostMatrixUtils.creepMovementRoomCallback
+      }
+    );
+    const result = this.moveByPath(path.path);
+    CreepUtils.consoleLogIfWatched(this, `moving off the road`, result);
+    return result;
+  }
+
   /**
    * Finds a structure, or creep, that can accept energy from this creep's store.
    * Storage is found in order of storage, spawn, tower, controller container, or any other role creep with space.

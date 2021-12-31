@@ -38,12 +38,15 @@ export class Guard extends RemoteCreepWrapper {
 
     if (!this.memory.targetRoom) {
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
-      return;
     } else {
       const result = this.moveToRoom(this.memory.targetRoom);
       CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
       const healCheck = this.findHealingIfDamaged();
       CreepUtils.consoleLogIfWatched(this, `find healing if damaged`, healCheck);
+      return;
     }
+
+    const result = this.moveOffTheRoad();
+    CreepUtils.consoleLogIfWatched(this, `move off the road`, result);
   }
 }
