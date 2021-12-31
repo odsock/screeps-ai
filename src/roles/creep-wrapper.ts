@@ -536,7 +536,9 @@ export abstract class CreepWrapper extends Creep {
     }
 
     const path = this.pos.findPathTo(exitPos);
-    this.memory.path = Room.serializePath(path);
+    const serializedPath = Room.serializePath(path);
+    CreepUtils.consoleLogIfWatched(this, `path found: ${serializedPath}`);
+    this.memory.path = serializedPath;
     this.memory.pathRoom = this.room.name;
     return OK;
   }
