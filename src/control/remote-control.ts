@@ -45,7 +45,8 @@ export class RemoteControl {
         creepName: c.name,
         targetId: c.id,
         pos: c.pos,
-        priority: 200
+        priority: 200,
+        requirements: (hauler: Creep) => hauler.store.getUsedCapacity() === 0
       };
     });
   }

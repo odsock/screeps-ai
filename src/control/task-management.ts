@@ -20,6 +20,7 @@ export interface SupplyTask {
   targetId: Id<StructureWithStorage>;
   override?: boolean;
   resourceType: ResourceConstant;
+  requirements?: (creep: Creep) => boolean;
 }
 
 export interface UnloadTask {
@@ -29,6 +30,7 @@ export interface UnloadTask {
   targetId: Id<StructureContainer>;
   override?: boolean;
   resourceType: ResourceConstant;
+  requirements?: (creep: Creep) => boolean;
 }
 
 export interface CleanupTask {
@@ -37,6 +39,7 @@ export interface CleanupTask {
   pos: RoomPosition;
   targetId: Id<Resource | Tombstone | Ruin>;
   override?: boolean;
+  requirements?: (creep: Creep) => boolean;
 }
 
 export interface HaulTask {
@@ -46,6 +49,7 @@ export interface HaulTask {
   creepName: string;
   targetId: Id<Creep>;
   override?: boolean;
+  requirements?: (creep: Creep) => boolean;
 }
 
 export interface SupplySpawnTask {
@@ -53,6 +57,7 @@ export interface SupplySpawnTask {
   priority: number;
   pos: RoomPosition;
   override?: boolean;
+  requirements?: (creep: Creep) => boolean;
 }
 
 export interface SupplyCreepTask {
@@ -60,6 +65,7 @@ export interface SupplyCreepTask {
   priority: number;
   pos: RoomPosition;
   override?: boolean;
+  requirements?: (creep: Creep) => boolean;
 }
 
 @profile
@@ -85,9 +91,12 @@ export class TaskManagement {
     const unassignedTasks: Task[] = [];
     if (freeHaulers.length > 0) {
       tasksByPriority.forEach(task => {
-        const closestHauler =
-          task.pos.findClosestByPath(freeHaulers) ?? task.pos.findClosestByRange(freeHaulers) ?? freeHaulers[0];
-        if (closestHauler) {
+        const acceptableHaulers = freeHaulers.filter(hauler => !task.requirements || task.requirements(hauler));
+        if (acceptableHaulers.length > 0) {
+          const closestHauler =
+            task.pos.findClosestByPath(acceptableHaulers) ??
+            task.pos.findClosestByRange(acceptableHaulers) ??
+            acceptableHaulers[0];
           closestHauler.assignTask(task);
           freeHaulers.splice(
             freeHaulers.findIndex(h => h.id === closestHauler.id),
@@ -95,6 +104,7 @@ export class TaskManagement {
           );
           busyHaulers.push(closestHauler);
         } else {
+          CreepUtils.consoleLogIfWatched(haulers[0].room, `no acceptable haulers for task: ${task.type}`);
           unassignedTasks.push(task);
         }
       });
