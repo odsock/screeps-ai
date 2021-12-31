@@ -22,7 +22,7 @@ export class RemoteControl {
       ).map(c => CreepFactory.getCreep(c));
       const importersByTargetRoom = _.groupBy(importers, c => c.memory.targetRoom);
       for (const targetRoom in importersByTargetRoom) {
-        TaskManagement.assignTasks(importersByTargetRoom[targetRoom], this.createHaulTasks(roomw, targetRoom));
+        TaskManagement.assignTasks(importersByTargetRoom[targetRoom], this.createHaulTasks(targetRoom));
       }
 
       if (roomw.controller?.my && roomw.spawns.length > 0) {
@@ -31,24 +31,23 @@ export class RemoteControl {
     }
   }
 
-  private createHaulTasks(roomw: RoomWrapper, targetRoom: string): HaulTask[] {
-    return roomw
-      .find(FIND_MY_CREEPS, {
-        filter: creep =>
-          creep.memory.haulRequested &&
-          !creep.memory.haulerName &&
-          creep.memory.targetRoom === targetRoom &&
-          creep.memory.role === CreepRole.HARVESTER
-      })
-      .map(c => {
-        return {
-          type: TaskType.HAUL,
-          creepName: c.name,
-          targetId: c.id,
-          pos: c.pos,
-          priority: 200
-        };
-      });
+  private createHaulTasks(targetRoom: string): HaulTask[] {
+    return _.filter(
+      Game.creeps,
+      creep =>
+        creep.memory.haulRequested &&
+        !creep.memory.haulerName &&
+        creep.memory.targetRoom === targetRoom &&
+        creep.memory.role === CreepRole.HARVESTER
+    ).map(c => {
+      return {
+        type: TaskType.HAUL,
+        creepName: c.name,
+        targetId: c.id,
+        pos: c.pos,
+        priority: 200
+      };
+    });
   }
 
   private requestSpawns(roomw: RoomWrapper) {
