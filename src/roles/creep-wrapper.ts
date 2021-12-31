@@ -535,7 +535,7 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `can't find exit to room: ${roomName}`);
       return ERR_NO_PATH;
     }
-    CreepUtils.consoleLogIfWatched(this, `exit position: ${String(exitPos)}`);
+    CreepUtils.consoleLogIfWatched(this, `exit position: ${String(exitPos)}, current pos: ${String(this.pos)}`);
 
     const path = this.pos.findPathTo(exitPos);
     CreepUtils.consoleLogIfWatched(this, `path found: ${JSON.stringify(path)}`);
