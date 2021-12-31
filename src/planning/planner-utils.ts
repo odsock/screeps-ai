@@ -8,7 +8,7 @@ export class PlannerUtils {
     pattern: string[],
     room: Room,
     nearPosition: RoomPosition,
-    ignoreStructures = false
+    ignoreStructures = false // ignore existing structures to avoid blocking self by partially built sites
   ): StructurePlan | undefined {
     console.log(`finding pattern site in ${nearPosition.roomName}`);
     console.log(`DEBUG: cpu ${Game.cpu.getUsed()}`);
