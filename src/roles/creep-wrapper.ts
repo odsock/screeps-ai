@@ -495,7 +495,16 @@ export abstract class CreepWrapper extends Creep {
       this.clearPathIfStuck();
     }
 
+    if (!this.memory.path) {
+      CreepUtils.consoleLogIfWatched(this, `no stored path`);
+    }
+
+    if (this.memory.path?.length === 0) {
+      CreepUtils.consoleLogIfWatched(this, `stored path is 0 steps`);
+    }
+
     if (!this.memory.path || this.memory.path.length === 0) {
+      CreepUtils.consoleLogIfWatched(this, `getting new path to room`);
       const result = this.getPathToRoom(roomName);
       if (result !== OK) {
         return result;
@@ -504,12 +513,12 @@ export abstract class CreepWrapper extends Creep {
 
     if (this.memory.path) {
       const path = Room.deserializePath(this.memory.path);
-
       const ret = this.moveByPath(path);
       CreepUtils.consoleLogIfWatched(this, `moving to exit by path`, ret);
       return ret;
     }
 
+    CreepUtils.consoleLogIfWatched(this, `no path found`);
     return ERR_NOT_FOUND;
   }
 
