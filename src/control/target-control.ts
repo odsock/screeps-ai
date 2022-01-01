@@ -97,7 +97,11 @@ export class TargetControl {
 
   private static isNotReservedByOthers(roomName: string): boolean {
     const roomMemory = Memory.rooms[roomName];
-    return !roomMemory.controller?.reservation || roomMemory.controller.reservation.username === Memory.username;
+    return (
+      !roomMemory.controller?.reservation ||
+      roomMemory.controller.reservation.username === Memory.username ||
+      roomMemory.controller.reservation.username === SYSTEM_USERNAME
+    );
   }
 
   private static isNotOwnedByMe(roomName: string): boolean {
