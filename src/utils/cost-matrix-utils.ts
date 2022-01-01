@@ -1,3 +1,4 @@
+import { TargetControl } from "control/target-control";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 
@@ -138,7 +139,7 @@ export class CostMatrixUtils {
    */
   public static creepMovementCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix | void => {
     const room = Game.rooms[roomName];
-    if (!room) {
+    if (!room || TargetControl.isForbidden(roomName)) {
       return;
     }
     const updatedCostMatrix = this.structuresCostCallback(roomName, costMatrix);
@@ -160,7 +161,7 @@ export class CostMatrixUtils {
    */
   public static roadPlanningRoomCallback = (roomName: string): CostMatrix | boolean => {
     const room = Game.rooms[roomName];
-    if (!room) {
+    if (!room || TargetControl.isForbidden(roomName)) {
       return false;
     }
     const costMatrix = CostMatrixUtils.avoidHarvestPositionsCostCallback(roomName, new PathFinder.CostMatrix());
@@ -186,7 +187,7 @@ export class CostMatrixUtils {
    */
   public static creepMovementRoomCallback = (roomName: string): CostMatrix | boolean => {
     const room = Game.rooms[roomName];
-    if (!room) {
+    if (!room || TargetControl.isForbidden(roomName)) {
       return false;
     }
     const costMatrix = this.structuresCostCallback(roomName, new PathFinder.CostMatrix());

@@ -17,6 +17,20 @@ export class TargetControl {
   }
 
   /**
+   * Forbidden rooms
+   */
+  public static get forbiddenRooms(): string[] {
+    return _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_FORBIDDEN).map(
+      flag => flag.pos.roomName
+    );
+  }
+
+  public static isForbidden(room: Room | string): boolean {
+    const roomName = room instanceof Room ? room.name : room;
+    return this.forbiddenRooms.includes(roomName);
+  }
+
+  /**
    * Claimed rooms
    */
   public static get claimedRooms(): string[] {
