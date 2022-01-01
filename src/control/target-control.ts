@@ -100,7 +100,7 @@ export class TargetControl {
     return (
       !roomMemory.controller?.reservation ||
       roomMemory.controller.reservation.username === Memory.username ||
-      roomMemory.controller.reservation.username === SYSTEM_USERNAME
+      roomMemory.controller.reservation.username === "Invader"
     );
   }
 
