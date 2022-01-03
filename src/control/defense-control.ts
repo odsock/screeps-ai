@@ -16,15 +16,6 @@ export class DefenseControl {
     for (const roomName in Memory.rooms) {
       const roomMemory = Memory.rooms[roomName];
       if (!roomMemory.defense || !this.isDefendedRoom(roomName) || !this.roomNeedsDefense(roomName)) {
-        let cause = "";
-        if (!roomMemory.defense) {
-          cause = "no defense memory";
-        } else if (!this.isDefendedRoom(roomName)) {
-          cause = "not defended room";
-        } else if (!this.roomNeedsDefense(roomName)) {
-          cause = "no defense needed";
-        }
-        console.log(`DEBUG: defense ${roomName} guard not needed - ${cause}`);
         continue;
       }
 
@@ -34,11 +25,9 @@ export class DefenseControl {
         if (freeGuards.length > 0) {
           // TODO assign closest guard
           freeGuards[0].memory.targetRoom = roomName;
-          console.log(`DEBUG: defense ${roomName} assigned free guard`);
           continue;
         } else {
           this.spawnGuardForRoom(roomName);
-          console.log(`DEBUG: defense ${roomName} spawn new guard`);
         }
       }
     }

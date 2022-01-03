@@ -18,9 +18,7 @@ export class SpawnQueue {
       return instance;
     } else {
       const room = roomArg instanceof Room ? roomArg : Game.rooms[name];
-      console.log(`DEBUG: spawnqueue new queue - ${String(roomArg)}, ${String(room)}`);
       if (room) {
-        console.log(`DEBUG: valid room`);
         const newInstance = new SpawnQueue();
         MemoryUtils.setCache(`${name}_SpawnQueue`, newInstance);
         return newInstance;

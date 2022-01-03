@@ -73,7 +73,6 @@ export class TargetControl {
     const validAttackRooms = _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_ATTACK)
       .map(flag => flag.pos.roomName)
       .filter(name => TargetControl.isValidAttack(name));
-    console.log(`DEBUG: valid attack rooms ${JSON.stringify(validAttackRooms)}`);
     return validAttackRooms;
   }
 
