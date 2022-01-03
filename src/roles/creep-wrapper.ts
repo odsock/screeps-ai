@@ -537,7 +537,7 @@ export abstract class CreepWrapper extends Creep {
     }
     CreepUtils.consoleLogIfWatched(this, `exit position: ${String(exitPos)}, current pos: ${String(this.pos)}`);
 
-    const path = this.pos.findPathTo(exitPos);
+    const path = this.pos.findPathTo(exitPos, { maxOps: 5000 });
     CreepUtils.consoleLogIfWatched(this, `path found: ${JSON.stringify(path)}`);
     const serializedPath = Room.serializePath(path);
     CreepUtils.consoleLogIfWatched(this, `path serialized: ${serializedPath}`);
