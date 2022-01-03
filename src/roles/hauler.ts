@@ -191,6 +191,7 @@ export class Hauler extends CreepWrapper {
       creepToHaul.memory.haulerName = this.name;
     }
 
+    // TODO check size of creep to haul vs store used before waiting to dump
     if (this.store.getUsedCapacity() > 0) {
       return this.storeLoad();
     }

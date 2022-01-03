@@ -73,7 +73,9 @@ export class Planner {
         }
       }
     }
+
     if (plan) {
+      console.log(`DEBUG: have a plan for ${roomw.name}`);
       // draw plan visual
       roomw.visual.clear();
       PlannerUtils.drawPlan(plan, roomw);
