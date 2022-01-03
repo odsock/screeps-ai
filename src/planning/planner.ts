@@ -72,18 +72,16 @@ export class Planner {
           }
         }
       }
-
+    }
+    if (plan) {
       // draw plan visual
-      if (plan) {
-        roomw.visual.clear();
-        roomw.visual.circle(centerPoint.x, centerPoint.y, { fill: "#FF0000" });
-        PlannerUtils.drawPlan(plan, roomw);
-        roomw.planVisual = roomw.visual.export();
+      roomw.visual.clear();
+      PlannerUtils.drawPlan(plan, roomw);
+      roomw.planVisual = roomw.visual.export();
 
-        // cache plan forever
-        MemoryUtils.setCache(cacheKey, plan, -1);
-        return plan;
-      }
+      // cache plan forever
+      MemoryUtils.setCache(cacheKey, plan, -1);
+      return plan;
     }
     return [];
   }
