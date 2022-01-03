@@ -65,7 +65,9 @@ export class HaulerControl {
   private createSupplyCreepTasks(roomw: RoomWrapper): SupplyCreepTask[] {
     const tasks: SupplyCreepTask[] = [];
     const creeps = roomw.creeps.filter(
-      c => [CreepRole.BUILDER, CreepRole.UPGRADER, CreepRole.WORKER].includes(c.memory.role) && c.store.energy === 0
+      c =>
+        [CreepRole.BUILDER, CreepRole.UPGRADER, CreepRole.WORKER].includes(c.memory.role) &&
+        c.store.getFreeCapacity() > 0
     );
     if (creeps.length > 0) {
       const pos = CreepUtils.averagePos(creeps);
