@@ -11,7 +11,6 @@ export class PlannerUtils {
     ignoreStructures = false // ignore existing structures to avoid blocking self by partially built sites
   ): StructurePlanPosition[] | undefined {
     console.log(`finding pattern site in ${nearPosition.roomName}`);
-    console.log(`DEBUG: cpu ${Game.cpu.getUsed()}`);
     const structurePlan = StructurePlan.parseStructurePlan(pattern, room);
     const patternWidth = structurePlan.getWidth();
     const patternHeight = structurePlan.getHeight();

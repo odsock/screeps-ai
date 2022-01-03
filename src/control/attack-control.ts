@@ -24,10 +24,8 @@ export class AttackControl {
     for (const roomName of TargetControl.attackRooms) {
       const roomMemory = Memory.rooms[roomName];
       if (!roomMemory.defense || !this.roomNeedsAttack(roomName)) {
-        console.log(`DEBUG: no attack ${roomName}`);
         continue;
       }
-      console.log(`DEBUG: attack ${roomName}`);
 
       const attackFlag = _.find(
         Game.flags,

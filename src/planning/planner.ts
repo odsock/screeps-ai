@@ -85,6 +85,7 @@ export class Planner {
       MemoryUtils.setCache(cacheKey, plan, -1);
       return plan;
     }
+    console.log(`DEBUG: no plan for ${roomw.name}`);
     return [];
   }
 
