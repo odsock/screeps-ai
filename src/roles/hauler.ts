@@ -132,7 +132,7 @@ export class Hauler extends CreepWrapper {
     this.startWorkingIfFull();
 
     const creeps = this.roomw.creeps.filter(
-      c => [CreepRole.BUILDER, CreepRole.UPGRADER].includes(c.memory.role) && c.store.energy === 0
+      c => [CreepRole.BUILDER, CreepRole.UPGRADER, CreepRole.WORKER].includes(c.memory.role) && c.store.energy === 0
     );
     if (creeps.length === 0) {
       this.completeTask();
