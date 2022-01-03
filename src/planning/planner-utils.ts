@@ -9,7 +9,7 @@ export class PlannerUtils {
     room: Room,
     nearPosition: RoomPosition,
     ignoreStructures = false // ignore existing structures to avoid blocking self by partially built sites
-  ): StructurePlan | undefined {
+  ): StructurePlanPosition[] | undefined {
     console.log(`finding pattern site in ${nearPosition.roomName}`);
     console.log(`DEBUG: cpu ${Game.cpu.getUsed()}`);
     const structurePlan = StructurePlan.parseStructurePlan(pattern, room);
@@ -39,7 +39,7 @@ export class PlannerUtils {
     if (closestSite) {
       structurePlan.translate(closestSite.x, closestSite.y, ignoreStructures);
       console.log(`closest site: ${closestSite.x},${closestSite.y}`);
-      return structurePlan;
+      return structurePlan.getPlan();
     }
     console.log(`No site for pattern found.`);
     return undefined;
@@ -179,15 +179,14 @@ export class PlannerUtils {
   }
 
   public static placeStructurePlan({
-    plan,
+    planPositions,
     roomw,
     skipRoads = false
   }: {
-    plan: StructurePlan | StructurePlanPosition[];
+    planPositions: StructurePlanPosition[];
     roomw: RoomWrapper;
     skipRoads?: boolean;
   }): ScreepsReturnCode {
-    const planPositions = plan instanceof StructurePlan ? plan.getPlan() : plan;
     if (!planPositions) {
       CreepUtils.consoleLogIfWatched(roomw, `failed to place plan`);
       return ERR_NOT_FOUND;
@@ -232,5 +231,27 @@ export class PlannerUtils {
     }).length;
     const haveRcl = CONTROLLER_STRUCTURES[planPosition.structure][roomw.controller?.level ?? 0] > structureCount;
     return haveRcl;
+  }
+
+  /**
+   * draw circles for incomplete parts of plan
+   */
+  public static drawPlan(plan: StructurePlanPosition[], room: Room): void {
+    if (plan) {
+      plan
+        .filter(
+          planPos =>
+            !planPos.pos
+              .look()
+              .some(
+                item =>
+                  item.structure?.structureType === planPos.structure ||
+                  item.constructionSite?.structureType === planPos.structure
+              )
+        )
+        .forEach(planPos => {
+          room.visual.circle(planPos.pos);
+        });
+    }
   }
 }

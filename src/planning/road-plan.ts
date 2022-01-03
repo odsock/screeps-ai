@@ -1,6 +1,7 @@
 import { RoomWrapper } from "structures/room-wrapper";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { profile } from "../../screeps-typescript-profiler";
+import { StructurePlanPosition } from "./structure-plan";
 
 @profile
 export class RoadPlan {
@@ -9,61 +10,68 @@ export class RoadPlan {
     this.roomw = RoomWrapper.getInstance(room.name);
   }
 
-  public placeRoadSourceContainersToControllerContainers(): ScreepsReturnCode {
-    // console.log(`- container road planning`);
-
+  public placeRoadSourceContainersToControllerContainers(): StructurePlanPosition[] {
     const controllerContainers = this.roomw.controllerContainers;
     if (controllerContainers.length <= 0) {
-      // console.log(` - no controller containers`);
-      return OK;
+      return [];
     }
 
     const sourceContainers = this.roomw.sourceContainers;
     if (sourceContainers.length <= 0) {
-      // console.log(` - no source containers`);
-      return OK;
+      return [];
     }
 
     // get a path and place road for each pair of containers
+    const plan: StructurePlanPosition[] = [];
     for (const sourceContainer of sourceContainers) {
       for (const controllerContainer of controllerContainers) {
         const path: PathFinderPath = this.planRoad(sourceContainer.pos, controllerContainer.pos, 1);
         if (!path.incomplete) {
-          this.placeRoadOnPath(path);
-          // console.log(` - placement result: ${result}`);
+          plan.push(...this.placeRoadOnPath(path));
         }
       }
     }
-    return OK;
+    return plan;
   }
 
-  public placeRoadControllerToSpawn(): ScreepsReturnCode {
-    let result: ScreepsReturnCode = ERR_NOT_FOUND;
+  public placeRoadControllerToSpawn(): StructurePlanPosition[] {
     if (this.room.controller) {
       const spawns = this.room.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
         const path = this.planRoad(spawns[0].pos, this.room.controller.pos, 1);
         if (!path.incomplete) {
-          result = this.placeRoadOnPath(path);
+          return this.placeRoadOnPath(path);
         }
       }
     }
-    // CreepUtils.consoleLogIfWatched(this.room, `spawn road placement result`, result);
-    return result;
+    return [];
   }
 
-  private placeRoadOnPath(path: PathFinderPath): ScreepsReturnCode {
-    for (const pos of path.path) {
-      const hasRoad = this.checkForRoadAtPos(pos);
-      if (!hasRoad) {
-        const result = this.room.createConstructionSite(pos, STRUCTURE_ROAD);
-        if (result !== 0) {
-          // console.log(`road failed: ${result}, pos: ${String(pos)}`);
-          return result;
+  public planRoad(origin: RoomPosition, goal: RoomPosition, range = 0): PathFinderPath {
+    const path = PathFinder.search(
+      origin,
+      { pos: goal, range },
+      { swampCost: 2, plainCost: 2, roomCallback: CostMatrixUtils.roadPlanningRoomCallback }
+    );
+    if (path.incomplete) {
+      console.log(`ERROR: road plan incomplete: ${String(origin)} -> ${String(goal)}`);
+    }
+    return path;
+  }
+
+  public placeRoadSpawnToExtensions(): StructurePlanPosition[] {
+    const extensions = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_EXTENSION });
+    const spawns = this.room.find(FIND_MY_SPAWNS);
+    for (const spawn of spawns) {
+      for (const extension of extensions) {
+        const path = this.planRoad(spawn.pos, extension.pos, 1);
+        if (!path.incomplete) {
+          const roadPlanPositions = this.placeRoadOnPath(path);
+          return roadPlanPositions;
         }
       }
     }
-    return OK;
+    return [];
   }
 
   private checkForRoadAtPos(pos: RoomPosition): boolean {
@@ -76,32 +84,17 @@ export class RoadPlan {
     );
   }
 
-  public planRoad(origin: RoomPosition, goal: RoomPosition, range = 0): PathFinderPath {
-    const path = PathFinder.search(
-      origin,
-      { pos: goal, range },
-      { swampCost: 2, plainCost: 2, roomCallback: CostMatrixUtils.roadPlanningRoomCallback }
-    );
-    if (path.incomplete) {
-      console.log(`road plan incomplete: ${String(origin)} -> ${String(goal)}`);
-    }
-    return path;
-  }
-
-  public placeRoadSpawnToExtensions(): ScreepsReturnCode {
-    const extensions = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_EXTENSION });
-    const spawns = this.room.find(FIND_MY_SPAWNS);
-    for (const spawn of spawns) {
-      for (const extension of extensions) {
-        const path = this.planRoad(spawn.pos, extension.pos, 1);
-        if (!path.incomplete) {
-          const result = this.placeRoadOnPath(path);
-          if (result !== OK) {
-            return result;
-          }
+  private placeRoadOnPath(path: PathFinderPath): StructurePlanPosition[] {
+    const planPositions: StructurePlanPosition[] = [];
+    for (const pos of path.path) {
+      const hasRoad = this.checkForRoadAtPos(pos);
+      if (!hasRoad) {
+        const result = this.room.createConstructionSite(pos, STRUCTURE_ROAD);
+        if (result === OK) {
+          planPositions.push({ pos, structure: STRUCTURE_ROAD });
         }
       }
     }
-    return OK;
+    return planPositions;
   }
 }

@@ -1,6 +1,7 @@
 import { StructurePatterns } from "config/structure-patterns";
 import { RoomWrapper } from "structures/room-wrapper";
 import { PlannerUtils } from "./planner-utils";
+import { StructurePlanPosition } from "./structure-plan";
 
 export class ExtensionPlan {
   private readonly roomw: RoomWrapper;
@@ -9,7 +10,7 @@ export class ExtensionPlan {
     this.roomw = RoomWrapper.getInstance(room.name);
   }
 
-  public planExtensionGroup(): ScreepsReturnCode {
+  public planExtensionGroup(): StructurePlanPosition[] | undefined {
     const numAvailableExtensions = this.getNumAvailableExtensions();
     if (numAvailableExtensions >= 5) {
       const structurePlan = PlannerUtils.findSiteForPattern(
@@ -18,11 +19,13 @@ export class ExtensionPlan {
         this.roomw.spawns[0].pos
       );
       if (structurePlan) {
-        return PlannerUtils.placeStructurePlan({ plan: structurePlan, roomw: this.roomw });
+        const placementResult = PlannerUtils.placeStructurePlan({ planPositions: structurePlan, roomw: this.roomw });
+        if (placementResult === OK) {
+          return structurePlan;
+        }
       }
-      return ERR_NOT_FOUND;
     }
-    return OK;
+    return undefined;
   }
 
   private getNumAvailableExtensions(): number {
