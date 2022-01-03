@@ -70,14 +70,10 @@ export class TargetControl {
    */
 
   public static get attackRooms(): string[] {
-    const validAttackRooms = _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_ATTACK)
-      .map(flag => flag.pos.roomName)
-      .filter(name => TargetControl.isValidAttack(name));
+    const validAttackRooms = _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_ATTACK).map(
+      flag => flag.pos.roomName
+    );
     return validAttackRooms;
-  }
-
-  private static isValidAttack(roomName: string): boolean {
-    return this.isNotOwnedByMe(roomName) && this.isNotReservedByMe(roomName);
   }
 
   /**
