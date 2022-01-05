@@ -55,7 +55,7 @@ export class Sockpuppet {
     this.runCreeps();
 
     // Plan each room on interval, both colony and remotes
-    if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === planningOffset && Game.cpu.bucket > 100) {
+    if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === planningOffset && Game.cpu.bucket > 1000) {
       new Planner().run();
     }
     planningOffset++;
