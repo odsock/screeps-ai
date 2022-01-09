@@ -13,13 +13,18 @@ import { StructurePlanPosition } from "./structure-plan";
 
 @profile
 export class Planner {
+  private readonly targetControl: TargetControl;
+  public constructor() {
+    this.targetControl = TargetControl.getInstance();
+  }
+
   public run(): void {
     // plan each room we can see
     _.forEach(Game.rooms, room => {
       const roomw = RoomWrapper.getInstance(room.name);
       console.log(`${roomw.name}: running planning`);
 
-      if (TargetControl.remoteHarvestRooms.includes(room.name)) {
+      if (this.targetControl.remoteHarvestRooms.includes(room.name)) {
         ContainerPlan.placeSourceContainers(roomw);
       } else if (roomw.controller?.my) {
         this.planColony(roomw);
