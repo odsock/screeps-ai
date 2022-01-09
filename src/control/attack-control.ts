@@ -17,8 +17,10 @@ declare global {
 @profile
 export class AttackControl {
   private readonly targetControl: TargetControl;
+  private readonly travelUtils: TravelUtils;
   public constructor() {
     this.targetControl = TargetControl.getInstance();
+    this.travelUtils = TravelUtils.getInstance();
   }
 
   public run(): void {
@@ -59,7 +61,7 @@ export class AttackControl {
         } else if (raidersStillNeeded > 0) {
           const rallyRoom =
             attackFlag.memory.rallyRoom ??
-            TravelUtils.findClosestRoom(
+            this.travelUtils.findClosestRoom(
               roomName,
               this.targetControl.claimedRooms.concat(this.targetControl.remoteHarvestRooms)
             );

@@ -197,6 +197,6 @@ export class SpawnUtils {
   public static findClosestAvailableSpawnRoom(room: string | Room): string | undefined {
     const roomName = room instanceof Room ? room.name : room;
     const roomsWithAAvailableSpawns = _.filter(Game.spawns, s => !s.spawning).map(s => s.room.name);
-    return TravelUtils.findClosestRoom(roomName, roomsWithAAvailableSpawns);
+    return TravelUtils.getInstance().findClosestRoom(roomName, roomsWithAAvailableSpawns);
   }
 }

@@ -1,5 +1,14 @@
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class TravelUtils {
-  public static calcRoomGridDistance(roomNameA: string, roomNameB: string): number {
+  private static instance: TravelUtils;
+  public static getInstance(): TravelUtils {
+    this.instance = this.instance ?? new TravelUtils();
+    return this.instance;
+  }
+
+  public calcRoomGridDistance(roomNameA: string, roomNameB: string): number {
     const roomNameASplit = /^([EW])(\d+)([NS])(\d+)$/.exec(roomNameA);
     const roomNameBSplit = /^([EW])(\d+)([NS])(\d+)$/.exec(roomNameB);
     if (roomNameASplit && roomNameBSplit) {
@@ -12,7 +21,7 @@ export class TravelUtils {
     return NaN;
   }
 
-  public static findClosestRoom(roomName: string, roomNames: string[]): string | undefined {
+  public findClosestRoom(roomName: string, roomNames: string[]): string | undefined {
     let closestRoomName: string | undefined;
     let distance: number | undefined;
     for (const newRoom of roomNames) {
