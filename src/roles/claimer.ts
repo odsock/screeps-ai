@@ -1,5 +1,4 @@
 import { CreepRole } from "config/creep-types";
-import { TargetControl } from "control/target-control";
 import { CreepUtils } from "creep-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { CreepBodyProfile } from "./creep-wrapper";
@@ -60,7 +59,7 @@ export class Claimer extends RemoteCreepWrapper {
     }
 
     // go to controller and claim or reserve it
-    const claimFlag = TargetControl.targetRooms.includes(this.memory.targetRoom);
+    const claimFlag = this.targetControl.targetRooms.includes(this.memory.targetRoom);
     CreepUtils.consoleLogIfWatched(this, `claim target room? ${String(claimFlag)}`);
     if (claimFlag) {
       const result = this.claimTargetRoom();

@@ -41,7 +41,7 @@ function getWatchable(key: string) {
 
 global.drawCostMatrix = (roomName: string): void => {
   const room = Game.rooms[roomName];
-  const matrix = CostMatrixUtils.roadPlanningRoomCallback(roomName);
+  const matrix = CostMatrixUtils.getInstance().roadPlanningRoomCallback(roomName);
   if (!isBoolean(matrix)) {
     for (let i = 0; i < 50; i++) {
       for (let j = 0; j < 50; j++) {

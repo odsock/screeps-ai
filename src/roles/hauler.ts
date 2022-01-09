@@ -2,7 +2,6 @@ import { CreepRole } from "config/creep-types";
 import { CleanupTask, HaulTask, SupplyTask, TaskType, UnloadTask } from "control/task-management";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
-import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 
@@ -161,7 +160,7 @@ export class Hauler extends CreepWrapper {
       const path = PathFinder.search(this.pos, goals, {
         plainCost: 2,
         swampCost: 10,
-        roomCallback: CostMatrixUtils.creepMovementRoomCallback
+        roomCallback: this.costMatrixUtils.creepMovementRoomCallback
       });
       CreepUtils.consoleLogIfWatched(this, `path: ${String(path.path)}`);
       const moveResult = this.moveByPath(path.path);
@@ -335,7 +334,7 @@ export class Hauler extends CreepWrapper {
     const path = PathFinder.search(this.pos, goals, {
       plainCost: 2,
       swampCost: 10,
-      roomCallback: CostMatrixUtils.creepMovementRoomCallback
+      roomCallback: this.costMatrixUtils.creepMovementRoomCallback
     });
 
     // this.memory.path = path.path
@@ -517,13 +516,13 @@ export class Hauler extends CreepWrapper {
       let path = PathFinder.search(
         this.pos,
         { pos: idleZone, range: 3 },
-        { roomCallback: CostMatrixUtils.creepMovementRoomCallback }
+        { roomCallback: this.costMatrixUtils.creepMovementRoomCallback }
       );
       if (!path.incomplete && path.path.length === 0) {
         path = PathFinder.search(
           this.pos,
           { pos: idleZone, range: 3 },
-          { flee: true, roomCallback: CostMatrixUtils.creepMovementRoomCallback }
+          { flee: true, roomCallback: this.costMatrixUtils.creepMovementRoomCallback }
         );
       }
       if (!path.incomplete && path.path.length > 0) {

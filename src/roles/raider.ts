@@ -1,9 +1,8 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
+import { profile } from "../../screeps-typescript-profiler";
 import { CreepBodyProfile } from "./creep-wrapper";
 import { RemoteCreepWrapper } from "./remote-creep-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
-import { CostMatrixUtils } from "utils/cost-matrix-utils";
 
 declare global {
   interface CreepMemory {
@@ -133,7 +132,7 @@ export class Raider extends RemoteCreepWrapper {
         armedTowers.map(t => {
           return { pos: t.pos, range: TOWER_FALLOFF_RANGE + 1 };
         }),
-        { flee: true, roomCallback: CostMatrixUtils.creepMovementRoomCallback }
+        { flee: true, roomCallback: this.costMatrixUtils.creepMovementRoomCallback }
       ).path;
       const result = this.moveByPath(path);
       CreepUtils.consoleLogIfWatched(this, `tower avoidance`, result);

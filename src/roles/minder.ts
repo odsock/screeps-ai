@@ -1,8 +1,7 @@
 import { CreepUtils } from "creep-utils";
-import { CreepWrapper } from "./creep-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
+import { CreepWrapper } from "./creep-wrapper";
 import { Hauler } from "./hauler";
-import { CostMatrixUtils } from "utils/cost-matrix-utils";
 
 declare global {
   interface CreepMemory {
@@ -116,7 +115,7 @@ export abstract class Minder extends CreepWrapper {
   protected directHauler(
     target: RoomPosition,
     range = 0,
-    costCallback = CostMatrixUtils.creepMovementCostCallback
+    costCallback = this.costMatrixUtils.creepMovementCostCallback
   ): ScreepsReturnCode {
     const hauler = this.getHauler();
     if (!hauler) {

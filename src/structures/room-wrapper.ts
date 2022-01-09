@@ -6,9 +6,12 @@ import { profile } from "../../screeps-typescript-profiler";
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { SpawnUtils } from "control/spawn-utils";
+import { RoomType, TargetControl } from "control/target-control";
 
 @profile
 export class RoomWrapper extends Room {
+  private targetControl: TargetControl;
+
   /**
    * Manages singleton RoomWrappers for all rooms this tick.
    * @param roomArg Name of room, or a Room object
@@ -32,6 +35,7 @@ export class RoomWrapper extends Room {
 
   private constructor(private readonly room: Room) {
     super(room.name);
+    this.targetControl = TargetControl.getInstance();
   }
 
   /** Declare getters for properties that don't seem to get copied in when constructed */
@@ -63,6 +67,10 @@ export class RoomWrapper extends Room {
   }
 
   /** Getters for some cached properties */
+
+  public get roomType(): RoomType {
+    return this.roomType ?? this.targetControl.getRoomType(this.room.name);
+  }
 
   public get hasHostiles(): boolean {
     return this.hostileCreeps.length > 0 || this.hostileStructures.length > 0;

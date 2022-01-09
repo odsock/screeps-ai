@@ -18,7 +18,7 @@ declare global {
     centerPoint?: string;
     remoteHarvest?: { [roomName: string]: RemoteHarvest };
     owner?: string;
-    colonyType?: string;
+    roomType?: string;
   }
 
   interface RemoteHarvest {

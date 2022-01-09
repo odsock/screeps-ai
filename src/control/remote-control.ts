@@ -12,6 +12,11 @@ import { TargetControl } from "./target-control";
 import { HaulTask, TaskManagement, TaskType } from "./task-management";
 
 export class RemoteControl {
+  private readonly targetControl: TargetControl;
+  public constructor() {
+    this.targetControl = TargetControl.getInstance();
+  }
+
   public run(): void {
     for (const roomName in Game.rooms) {
       const roomw = RoomWrapper.getInstance(roomName);
@@ -55,7 +60,7 @@ export class RemoteControl {
     const spawnQueue = SpawnQueue.getInstance(roomw);
 
     // IMPORTER
-    const remoteHarvestRooms = TargetControl.remoteHarvestRooms;
+    const remoteHarvestRooms = this.targetControl.remoteHarvestRooms;
     for (const targetRoom of remoteHarvestRooms) {
       const sources = Memory.rooms[targetRoom].sources;
       for (const sourceId in sources) {
@@ -98,7 +103,7 @@ export class RemoteControl {
       c => c.memory.role === CreepRole.CLAIMER && c.memory.homeRoom === roomw.name
     );
     const claimerCount = claimers.length + spawningClaimers.length;
-    const remoteTargetRooms = TargetControl.targetRooms;
+    const remoteTargetRooms = this.targetControl.targetRooms;
     if (claimerCount < remoteTargetRooms.length + remoteHarvestRooms.length) {
       remoteTargetRooms.forEach(roomName => {
         const claimerOnRoom = claimers.some(c => c.memory.targetRoom === roomName);

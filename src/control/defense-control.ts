@@ -8,6 +8,11 @@ import { TargetControl } from "./target-control";
 
 @profile
 export class DefenseControl {
+  private readonly targetControl: TargetControl;
+  public constructor() {
+    this.targetControl = TargetControl.getInstance();
+  }
+
   public run(): void {
     const guards = _.filter(Game.creeps, c => c.memory.role === CreepRole.GUARD);
     const freeGuards = guards.filter(guard => !this.roomNeedsDefense(guard.memory.targetRoom));
@@ -46,8 +51,8 @@ export class DefenseControl {
   private isDefendedRoom(roomName: string) {
     return (
       Memory.rooms[roomName].owner === Memory.username ||
-      TargetControl.remoteHarvestRooms.includes(roomName) ||
-      TargetControl.targetRooms.includes(roomName)
+      this.targetControl.remoteHarvestRooms.includes(roomName) ||
+      this.targetControl.targetRooms.includes(roomName)
     );
   }
 

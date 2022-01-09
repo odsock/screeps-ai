@@ -9,6 +9,11 @@ import { TargetControl } from "./target-control";
 
 @profile
 export class HarvestControl {
+  private readonly targetControl: TargetControl;
+  public constructor() {
+    this.targetControl = TargetControl.getInstance();
+  }
+
   public run(): void {
     for (const roomName in Game.rooms) {
       const roomw = RoomWrapper.getInstance(roomName);
@@ -112,7 +117,7 @@ export class HarvestControl {
   private requestRemoteHarvesters(roomw: RoomWrapper) {
     const spawnQueue = SpawnQueue.getInstance(roomw);
 
-    const remoteHarvestRooms = TargetControl.remoteHarvestRooms;
+    const remoteHarvestRooms = this.targetControl.remoteHarvestRooms;
     const remoteHarvestRoomsMy =
       remoteHarvestRooms.filter(name => {
         return !Game.rooms[name]?.controller?.my;

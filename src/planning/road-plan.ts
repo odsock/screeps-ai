@@ -6,8 +6,10 @@ import { StructurePlanPosition } from "./structure-plan";
 @profile
 export class RoadPlan {
   private readonly roomw: RoomWrapper;
+  private readonly costMatrixUtils: CostMatrixUtils;
   public constructor(private readonly room: Room) {
     this.roomw = RoomWrapper.getInstance(room.name);
+    this.costMatrixUtils = CostMatrixUtils.getInstance();
   }
 
   public placeRoadSourceContainersToControllerContainers(): StructurePlanPosition[] {
@@ -51,7 +53,7 @@ export class RoadPlan {
     const path = PathFinder.search(
       origin,
       { pos: goal, range },
-      { swampCost: 2, plainCost: 2, roomCallback: CostMatrixUtils.roadPlanningRoomCallback }
+      { swampCost: 2, plainCost: 2, roomCallback: this.costMatrixUtils.roadPlanningRoomCallback }
     );
     if (path.incomplete) {
       console.log(`ERROR: road plan incomplete: ${String(origin)} -> ${String(goal)}`);

@@ -16,12 +16,17 @@ declare global {
 
 @profile
 export class AttackControl {
+  private readonly targetControl: TargetControl;
+  public constructor() {
+    this.targetControl = TargetControl.getInstance();
+  }
+
   public run(): void {
     const raiders = _.filter(Game.creeps, c => c.memory.role === CreepRole.RAIDER);
     const freeRaiders = raiders.filter(raider => !this.roomNeedsAttack(raider.memory.targetRoom));
 
     // assign or spawn a raider for each unclean attack room
-    for (const roomName of TargetControl.attackRooms) {
+    for (const roomName of this.targetControl.attackRooms) {
       const roomMemory = Memory.rooms[roomName];
       if (!roomMemory.defense || !this.roomNeedsAttack(roomName)) {
         continue;
@@ -54,7 +59,10 @@ export class AttackControl {
         } else if (raidersStillNeeded > 0) {
           const rallyRoom =
             attackFlag.memory.rallyRoom ??
-            TravelUtils.findClosestRoom(roomName, TargetControl.claimedRooms.concat(TargetControl.remoteHarvestRooms));
+            TravelUtils.findClosestRoom(
+              roomName,
+              this.targetControl.claimedRooms.concat(this.targetControl.remoteHarvestRooms)
+            );
           attackFlag.memory.rallyRoom = rallyRoom;
           if (!rallyRoom) {
             console.log(`ERROR: no rally room found`);

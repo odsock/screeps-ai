@@ -1,4 +1,5 @@
 import { CreepRole } from "config/creep-types";
+import { TargetControl } from "control/target-control";
 import { Task } from "control/task-management";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
@@ -51,9 +52,13 @@ export abstract class CreepWrapper extends Creep {
   private pickingUp = false;
   private withdrawing = false;
   private pickingUpAmount = 0;
+  protected targetControl: TargetControl;
+  protected costMatrixUtils: CostMatrixUtils;
 
   public constructor(private readonly creep: Creep) {
     super(creep.id);
+    this.targetControl = TargetControl.getInstance();
+    this.costMatrixUtils = CostMatrixUtils.getInstance();
   }
 
   public abstract run(): void;
@@ -75,7 +80,7 @@ export abstract class CreepWrapper extends Creep {
       swampCost: 10,
       reusePath: 10,
       visualizePathStyle,
-      costCallback: CostMatrixUtils.creepMovementCostCallback,
+      costCallback: this.costMatrixUtils.creepMovementCostCallback,
       ...moveOpts
     };
     return this.moveTo(target, moveOpts);
@@ -657,7 +662,7 @@ export abstract class CreepWrapper extends Creep {
     }
     const result = this.moveToW(structure, {
       range: 3,
-      costCallback: CostMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
+      costCallback: this.costMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
     });
     CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
     return result;
@@ -672,7 +677,7 @@ export abstract class CreepWrapper extends Creep {
     if (result === ERR_NOT_IN_RANGE) {
       CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
       result = this.moveToW(structure, {
-        costCallback: CostMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
+        costCallback: this.costMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
       });
     }
     return result;
@@ -690,7 +695,7 @@ export abstract class CreepWrapper extends Creep {
         flee: true,
         plainCost: 0,
         swampCost: 10,
-        roomCallback: CostMatrixUtils.creepMovementRoomCallback
+        roomCallback: this.costMatrixUtils.creepMovementRoomCallback
       }
     );
     const result = this.moveByPath(path.path);
