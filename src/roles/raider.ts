@@ -47,8 +47,8 @@ export class Raider extends RemoteCreepWrapper {
         const result = this.moveToRoom(this.memory.targetRoom);
         CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
       }
+      this.attackAdjacent();
       this.doRangedAttack();
-
       return;
     } else if (this.tactic === "charge") {
       CreepUtils.consoleLogIfWatched(this, `tactic: ${this.tactic}`);
@@ -103,6 +103,26 @@ export class Raider extends RemoteCreepWrapper {
     }
     const healCheck = this.findHealingIfDamaged();
     CreepUtils.consoleLogIfWatched(this, `find healing if damaged`, healCheck);
+  }
+
+  private attackAdjacent(): void {
+    const hostileCreeps = this.roomw
+      .lookForAtArea(LOOK_CREEPS, this.pos.y - 1, this.pos.x - 1, this.pos.y + 1, this.pos.x + 1, true)
+      .filter(l => !l.creep.my)
+      .sort((a, b) => this.calcCreepAttackPriority(a) - this.calcCreepAttackPriority(b))
+      .map(c => c.creep);
+    if (hostileCreeps.length > 0) {
+      const result = this.attack(hostileCreeps[0]);
+      CreepUtils.consoleLogIfWatched(this, `attack adjacent`, result);
+    }
+  }
+
+  private calcCreepAttackPriority(a: LookForAtAreaResultWithPos<Creep, "creep">): number {
+    return (
+      a.creep.getActiveBodyparts(HEAL) * 2 +
+      a.creep.getActiveBodyparts(ATTACK) +
+      a.creep.getActiveBodyparts(RANGED_ATTACK)
+    );
   }
 
   private doRangedAttack(target?: Creep | AnyOwnedStructure | null | undefined) {
