@@ -26,6 +26,11 @@ export class Raider extends RemoteCreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `heal self`, result);
     }
 
+    const fleeResult = this.fleeIfArmedTowers();
+    if (fleeResult !== ERR_NOT_FOUND) {
+      return;
+    }
+
     if (this.roomw.hasHostiles) {
       const creeps = this.roomw.hostileCreeps;
       const attackCreeps = creeps.filter(c => c.body.some(part => part.type === ATTACK || part.type === RANGED_ATTACK));
@@ -69,7 +74,6 @@ export class Raider extends RemoteCreepWrapper {
       if (target) {
         const attackResult = this.moveToAndAttack(target);
         CreepUtils.consoleLogIfWatched(this, `attack`, attackResult);
-        this.fleeIfArmedTowers();
         return;
       }
 
