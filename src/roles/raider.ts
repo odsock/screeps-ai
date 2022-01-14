@@ -8,7 +8,7 @@ declare global {
   interface CreepMemory {
     rallyRoom?: string; // room to wait in until activated by control
     avoidTowers?: boolean;
-    controlFlag?: Id<Flag>; // flag with coordinating memory values
+    controlFlag?: string; // flag with coordinating memory values
   }
 }
 

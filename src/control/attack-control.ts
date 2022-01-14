@@ -71,7 +71,7 @@ export class AttackControl {
               continue;
             }
             if (raidersStillNeeded > 0) {
-              this.queueSpawn(roomName, raidersStillNeeded, rallyRoom);
+              this.queueSpawn(roomName, raidersStillNeeded, attackFlag.name);
             }
           }
         }
@@ -79,7 +79,7 @@ export class AttackControl {
     }
   }
 
-  private queueSpawn(targetRoom: string, raidersNeeded: number, rallyRoom: string): void {
+  private queueSpawn(targetRoom: string, raidersNeeded: number, controlFlag: string): void {
     // TODO use closest spawn
     _.filter(Game.spawns, spawn => !spawn.spawning)
       .slice(0, raidersNeeded)
@@ -91,7 +91,7 @@ export class AttackControl {
           memory: {
             role: Raider.ROLE,
             targetRoom,
-            rallyRoom
+            controlFlag
           },
           sort: true,
           priority: 250
