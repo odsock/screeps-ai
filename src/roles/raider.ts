@@ -26,7 +26,7 @@ export class Raider extends RemoteCreepWrapper {
 
   public run(): void {
     if (this.memory.controlFlag) {
-      this.controlFlag = Game.getObjectById(this.memory.controlFlag) ?? undefined;
+      this.controlFlag = Game.flags[this.memory.controlFlag] ?? undefined;
       if (this.controlFlag) {
         this.rallyRoom = this.controlFlag.memory.rallyRoom;
         this.tactic = this.controlFlag.memory.tactic;
