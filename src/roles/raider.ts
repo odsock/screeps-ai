@@ -38,17 +38,20 @@ export class Raider extends RemoteCreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `heal self`, result);
     }
 
-    if (this.tactic === "feint" && this.memory.rallyRoom) {
+    if (this.tactic === "feint" && this.rallyRoom) {
+      CreepUtils.consoleLogIfWatched(this, `tactic: ${this.tactic}`);
       if (this.room.name === this.memory.targetRoom) {
-        const result = this.moveToRoom(this.memory.rallyRoom);
+        const result = this.moveToRoom(this.rallyRoom);
         CreepUtils.consoleLogIfWatched(this, `returning to rally room`, result);
       } else {
         const result = this.moveToRoom(this.memory.targetRoom);
         CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
       }
       this.doRangedAttack();
+
       return;
     } else if (this.tactic === "charge") {
+      CreepUtils.consoleLogIfWatched(this, `tactic: ${this.tactic}`);
       if (this.room.name !== this.memory.targetRoom) {
         const result = this.moveToRoom(this.memory.targetRoom);
         CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
