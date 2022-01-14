@@ -9,6 +9,7 @@ export const enum RoomType {
   FORBIDDEN,
   UNKNOWN
 }
+
 @profile
 export class TargetControl {
   private static instance: TargetControl | undefined;

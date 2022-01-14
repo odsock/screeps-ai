@@ -69,6 +69,25 @@ export class RemoteCreepWrapper extends CreepWrapper {
     return ERR_INVALID_TARGET;
   }
 
+  protected fleeIfArmedTowers(): ScreepsReturnCode {
+    if (!this.roomw.hasArmedTowers) {
+      return ERR_NOT_FOUND;
+    }
+    CreepUtils.consoleLogIfWatched(this, `room has armed towers!`);
+
+    if (this.memory.rallyRoom) {
+      const result = this.moveToRoom(this.memory.rallyRoom);
+      CreepUtils.consoleLogIfWatched(this, `returning to rally room`, result);
+      return result;
+    } else if (this.memory.homeRoom) {
+      const result = this.moveToRoom(this.memory.homeRoom);
+      CreepUtils.consoleLogIfWatched(this, `returning to home room`, result);
+      return result;
+    }
+
+    return ERR_INVALID_TARGET;
+  }
+
   /**
    * Returns creep to tower in home room if damaged.
    * @returns ScreepsReturnCode

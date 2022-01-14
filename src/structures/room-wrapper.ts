@@ -91,6 +91,13 @@ export class RoomWrapper extends Room {
     return this.room.find(FIND_HOSTILE_STRUCTURES).length > 0;
   }
 
+  public get hasArmedTowers(): boolean {
+    return (
+      this.hostileStructures.filter(s => s.structureType === STRUCTURE_TOWER && s.store.energy >= TOWER_ENERGY_COST)
+        .length > 0
+    );
+  }
+
   public get creeps(): Creep[] {
     return this.room.find(FIND_MY_CREEPS);
   }
