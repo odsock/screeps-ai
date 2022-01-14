@@ -485,13 +485,14 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected moveToRoom(roomName: string): ScreepsReturnCode {
-    if (this.pos.roomName === roomName) {
+    if (this.room.name === roomName) {
       delete this.memory.path;
+      delete this.memory.pathRoom;
       CreepUtils.consoleLogIfWatched(this, `already in room ${roomName}`);
       return OK;
     }
 
-    if (this.memory.path && this.memory.pathRoom !== this.room.name) {
+    if (this.memory.path && this.memory.pathRoom !== roomName) {
       delete this.memory.path;
       delete this.memory.pathRoom;
     }
