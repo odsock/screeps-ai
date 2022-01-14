@@ -11,6 +11,7 @@ declare global {
   interface FlagMemory {
     rallyRoom?: string;
     raidSent?: boolean;
+    tactic?: string;
   }
 }
 
@@ -51,14 +52,7 @@ export class AttackControl {
           info => info.memory.role === CreepRole.RAIDER && info.memory.targetRoom === roomName
         );
         let raidersStillNeeded = raidersRequested - raidersAssigned.length - spawningRaiders.length;
-        // remove rally point if raiding party is ready (triggers attack)
-        if (
-          raidersRequested <= raidersAssigned.length &&
-          raidersAssigned.every(r => r.room.name === attackFlag.memory.rallyRoom)
-        ) {
-          raidersAssigned.forEach(r => delete r.memory.rallyRoom);
-          attackFlag.memory.raidSent = true;
-        } else if (raidersStillNeeded > 0) {
+        if (raidersStillNeeded > 0) {
           const rallyRoom =
             attackFlag.memory.rallyRoom ??
             this.travelUtils.findClosestRoom(

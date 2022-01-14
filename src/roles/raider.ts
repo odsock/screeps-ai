@@ -8,6 +8,7 @@ declare global {
   interface CreepMemory {
     rallyRoom?: string; // room to wait in until activated by control
     avoidTowers?: boolean;
+    controlFlag?: Id<Flag>; // flag with coordinating memory values
   }
 }
 
@@ -19,66 +20,71 @@ export class Raider extends RemoteCreepWrapper {
     seed: [],
     maxBodyParts: MAX_CREEP_SIZE
   };
+  private controlFlag: Flag | undefined;
+  private rallyRoom: string | undefined;
+  private tactic: string | undefined;
 
   public run(): void {
+    if (this.memory.controlFlag) {
+      this.controlFlag = Game.getObjectById(this.memory.controlFlag) ?? undefined;
+      if (this.controlFlag) {
+        this.rallyRoom = this.controlFlag.memory.rallyRoom;
+        this.tactic = this.controlFlag.memory.tactic;
+      }
+    }
+
     if (this.hits < this.hitsMax) {
       const result = this.heal(this);
       CreepUtils.consoleLogIfWatched(this, `heal self`, result);
     }
 
-    const fleeResult = this.fleeIfArmedTowers();
-    if (fleeResult !== ERR_NOT_FOUND) {
-      return;
-    }
-
-    if (this.roomw.hasHostiles) {
-      const creeps = this.roomw.hostileCreeps;
-      const attackCreeps = creeps.filter(c => c.body.some(part => part.type === ATTACK || part.type === RANGED_ATTACK));
-      const structures = this.roomw.hostileStructures;
-      let target: Creep | AnyOwnedStructure | null | undefined;
-      if (attackCreeps.length) {
-        target = this.pos.findClosestByPath(attackCreeps);
-      } else if (structures.length > 0) {
-        const towers = structures.filter(s => s.structureType === STRUCTURE_TOWER);
-        if (towers.length > 0) {
-          target = this.pos.findClosestByPath(towers);
-        }
-      } else if (creeps.length > 0) {
-        target = this.pos.findClosestByPath(creeps);
+    if (this.tactic === "feint" && this.memory.rallyRoom) {
+      if (this.room.name === this.memory.targetRoom) {
+        const result = this.moveToRoom(this.memory.rallyRoom);
+        CreepUtils.consoleLogIfWatched(this, `returning to rally room`, result);
       } else {
-        target = this.pos.findClosestByPath(structures);
+        const result = this.moveToRoom(this.memory.targetRoom);
+        CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
+      }
+      this.doRangedAttack();
+      return;
+    } else if (this.tactic === "charge") {
+      if (this.room.name !== this.memory.targetRoom) {
+        const result = this.moveToRoom(this.memory.targetRoom);
+        CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
       }
 
       // TODO create structure attack priority
-      let rangedTarget: Creep | AnyOwnedStructure | undefined;
-      if (target && this.pos.inRangeTo(target, 3)) {
-        rangedTarget = target;
-      } else {
-        const rangedTargetCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3);
-        if (rangedTargetCreeps.length > 0) {
-          rangedTarget = rangedTargetCreeps[0];
-        } else {
-          const rangedTargetStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, 3);
-          if (rangedTargetStructures.length > 0) {
-            rangedTarget =
-              rangedTargetStructures.find(s => s.structureType === STRUCTURE_TOWER) ?? rangedTargetStructures[0];
+
+      if (this.roomw.hasHostiles) {
+        const creeps = this.roomw.hostileCreeps;
+        const attackCreeps = creeps.filter(c =>
+          c.body.some(part => part.type === ATTACK || part.type === RANGED_ATTACK)
+        );
+        const structures = this.roomw.hostileStructures;
+        let target: Creep | AnyOwnedStructure | null | undefined;
+        if (attackCreeps.length) {
+          target = this.pos.findClosestByPath(attackCreeps);
+        } else if (structures.length > 0) {
+          const towers = structures.filter(s => s.structureType === STRUCTURE_TOWER);
+          if (towers.length > 0) {
+            target = this.pos.findClosestByPath(towers);
           }
+        } else if (creeps.length > 0) {
+          target = this.pos.findClosestByPath(creeps);
+        } else {
+          target = this.pos.findClosestByPath(structures);
+        }
+
+        this.doRangedAttack(target);
+
+        if (target) {
+          const attackResult = this.moveToAndAttack(target);
+          CreepUtils.consoleLogIfWatched(this, `attack`, attackResult);
+          return;
         }
       }
-
-      if (rangedTarget) {
-        const rangedAttackResult = this.rangedAttack(rangedTarget);
-        CreepUtils.consoleLogIfWatched(this, `ranged attack`, rangedAttackResult);
-      }
-
-      if (target) {
-        const attackResult = this.moveToAndAttack(target);
-        CreepUtils.consoleLogIfWatched(this, `attack`, attackResult);
-        return;
-      }
-
-      const result = this.moveOffTheRoad();
-      CreepUtils.consoleLogIfWatched(this, `move off the road`, result);
+      return;
     }
 
     if (this.memory.rallyRoom) {
@@ -89,14 +95,34 @@ export class Raider extends RemoteCreepWrapper {
         const result = this.moveToW(new RoomPosition(25, 25, this.room.name), { range: 10 });
         CreepUtils.consoleLogIfWatched(this, `move to rally point`, result);
       }
-    } else if (this.memory.targetRoom) {
-      const result = this.moveToRoom(this.memory.targetRoom);
-      CreepUtils.consoleLogIfWatched(this, `move to target room`, result);
     } else {
       CreepUtils.consoleLogIfWatched(this, `no room targeted. sitting like a lump.`);
     }
     const healCheck = this.findHealingIfDamaged();
     CreepUtils.consoleLogIfWatched(this, `find healing if damaged`, healCheck);
+  }
+
+  private doRangedAttack(target?: Creep | AnyOwnedStructure | null | undefined) {
+    let rangedTarget: Creep | AnyOwnedStructure | undefined;
+    if (target && this.pos.inRangeTo(target, 3)) {
+      rangedTarget = target;
+    } else {
+      const rangedTargetCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3);
+      if (rangedTargetCreeps.length > 0) {
+        rangedTarget = rangedTargetCreeps[0];
+      } else {
+        const rangedTargetStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, 3);
+        if (rangedTargetStructures.length > 0) {
+          rangedTarget =
+            rangedTargetStructures.find(s => s.structureType === STRUCTURE_TOWER) ?? rangedTargetStructures[0];
+        }
+      }
+    }
+
+    if (rangedTarget) {
+      const rangedAttackResult = this.rangedAttack(rangedTarget);
+      CreepUtils.consoleLogIfWatched(this, `ranged attack`, rangedAttackResult);
+    }
   }
 
   private fleeArmedTowers(): boolean {
