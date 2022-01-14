@@ -1,4 +1,5 @@
 import { CreepRole } from "config/creep-types";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { CreepBodyProfile } from "./creep-wrapper";
@@ -107,7 +108,14 @@ export class Raider extends RemoteCreepWrapper {
 
   private attackAdjacent(): void {
     const hostileCreeps = this.roomw
-      .lookForAtArea(LOOK_CREEPS, this.pos.y - 1, this.pos.x - 1, this.pos.y + 1, this.pos.x + 1, true)
+      .lookForAtArea(
+        LOOK_CREEPS,
+        Math.max(0, this.pos.y - 1),
+        Math.max(0, this.pos.x - 1),
+        Math.min(SockPuppetConstants.ROOM_SIZE, this.pos.y + 1),
+        Math.min(SockPuppetConstants.ROOM_SIZE, this.pos.x + 1),
+        true
+      )
       .filter(l => !l.creep.my)
       .sort((a, b) => this.calcCreepAttackPriority(a) - this.calcCreepAttackPriority(b))
       .map(c => c.creep);
