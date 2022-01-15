@@ -69,15 +69,22 @@ export class Raider extends RemoteCreepWrapper {
         let target: Creep | AnyOwnedStructure | null | undefined;
         if (attackCreeps.length) {
           target = this.pos.findClosestByPath(attackCreeps);
+          CreepUtils.consoleLogIfWatched(this, `target attack creep ${String(target)}`);
         } else if (structures.length > 0) {
           const towers = structures.filter(s => s.structureType === STRUCTURE_TOWER);
           if (towers.length > 0) {
             target = this.pos.findClosestByPath(towers);
+            if (!target) {
+              target = this.pos.findClosestByRange(towers);
+            }
+            CreepUtils.consoleLogIfWatched(this, `target tower ${String(target)}`);
           }
         } else if (creeps.length > 0) {
           target = this.pos.findClosestByPath(creeps);
+          CreepUtils.consoleLogIfWatched(this, `target creep ${String(target)}`);
         } else {
           target = this.pos.findClosestByPath(structures);
+          CreepUtils.consoleLogIfWatched(this, `target structure ${String(target)}`);
         }
 
         this.doRangedAttack(target);
