@@ -112,8 +112,8 @@ export class Raider extends RemoteCreepWrapper {
         LOOK_CREEPS,
         Math.max(0, this.pos.y - 1),
         Math.max(0, this.pos.x - 1),
-        Math.min(SockPuppetConstants.ROOM_SIZE, this.pos.y + 1),
-        Math.min(SockPuppetConstants.ROOM_SIZE, this.pos.x + 1),
+        Math.min(SockPuppetConstants.ROOM_SIZE - 1, this.pos.y + 1),
+        Math.min(SockPuppetConstants.ROOM_SIZE - 1, this.pos.x + 1),
         true
       )
       .filter(l => !l.creep.my)
