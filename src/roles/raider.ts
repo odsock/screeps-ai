@@ -98,12 +98,15 @@ export class Raider extends RemoteCreepWrapper {
         if (!target && structures.length > 0) {
           const structuresByType = _.groupBy(structures, structure => structure.structureType);
           const targetType = SockPuppetConstants.STRUCTURE_ATTACK_PRIORITY.find(type => structuresByType[type]);
+          let closestStructure: AnyOwnedStructure | undefined;
           if (targetType) {
-            const closestStructure = this.pos.findClosestByPath(structuresByType[targetType]);
-            if (closestStructure) {
-              target = closestStructure;
-              CreepUtils.consoleLogIfWatched(this, `target structure ${String(target)}`);
-            }
+            closestStructure = this.pos.findClosestByPath(structuresByType[targetType]) ?? undefined;
+          } else {
+            closestStructure = this.pos.findClosestByPath(structures) ?? undefined;
+          }
+          if (closestStructure) {
+            target = closestStructure;
+            CreepUtils.consoleLogIfWatched(this, `target structure ${String(target)}`);
           }
         }
 
