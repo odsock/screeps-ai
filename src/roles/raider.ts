@@ -66,25 +66,45 @@ export class Raider extends RemoteCreepWrapper {
           c.body.some(part => part.type === ATTACK || part.type === RANGED_ATTACK)
         );
         const structures = this.roomw.hostileStructures;
+
         let target: Creep | AnyOwnedStructure | null | undefined;
         if (attackCreeps.length) {
-          target = this.pos.findClosestByPath(attackCreeps);
-          CreepUtils.consoleLogIfWatched(this, `target attack creep ${String(target)}`);
-        } else if (structures.length > 0) {
+          const closestAttackCreep = this.pos.findClosestByPath(attackCreeps);
+          if (closestAttackCreep && closestAttackCreep.pos.getRangeTo(this.pos) < 5) {
+            target = closestAttackCreep;
+            CreepUtils.consoleLogIfWatched(this, `target attack creep ${String(target)}`);
+          }
+        }
+
+        if (!target && structures.length > 0) {
           const towers = structures.filter(s => s.structureType === STRUCTURE_TOWER);
           if (towers.length > 0) {
-            target = this.pos.findClosestByPath(towers);
-            if (!target) {
-              target = this.pos.findClosestByRange(towers);
+            const closestTower = this.pos.findClosestByPath(towers);
+            if (closestTower) {
+              target = closestTower;
+              CreepUtils.consoleLogIfWatched(this, `target tower ${String(target)}`);
             }
-            CreepUtils.consoleLogIfWatched(this, `target tower ${String(target)}`);
           }
-        } else if (creeps.length > 0) {
-          target = this.pos.findClosestByPath(creeps);
-          CreepUtils.consoleLogIfWatched(this, `target creep ${String(target)}`);
-        } else {
-          target = this.pos.findClosestByPath(structures);
-          CreepUtils.consoleLogIfWatched(this, `target structure ${String(target)}`);
+        }
+
+        if (!target && creeps.length > 0) {
+          const closestCreep = this.pos.findClosestByPath(creeps);
+          if (closestCreep && closestCreep.pos.getRangeTo(this.pos) < 5) {
+            target = closestCreep;
+            CreepUtils.consoleLogIfWatched(this, `target creep ${String(target)}`);
+          }
+        }
+
+        if (!target && structures.length > 0) {
+          const structuresByType = _.groupBy(structures, structure => structure.structureType);
+          const targetType = SockPuppetConstants.STRUCTURE_ATTACK_PRIORITY.find(type => structuresByType[type]);
+          if (targetType) {
+            const closestStructure = this.pos.findClosestByPath(structuresByType[targetType]);
+            if (closestStructure) {
+              target = closestStructure;
+              CreepUtils.consoleLogIfWatched(this, `target structure ${String(target)}`);
+            }
+          }
         }
 
         this.doRangedAttack(target);
