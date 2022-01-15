@@ -34,6 +34,14 @@ export class SockPuppetConstants {
     STRUCTURE_CONTAINER
   ];
 
+  public static readonly STRUCTURE_ATTACK_PRIORITY: StructureConstant[] = [
+    STRUCTURE_TOWER,
+    STRUCTURE_SPAWN,
+    STRUCTURE_TERMINAL,
+    STRUCTURE_LINK,
+    STRUCTURE_EXTENSION
+  ];
+
   public static readonly BANNER_HEADER: string = `################################################################`;
   public static readonly BANNER_BODY: string = `
    ___              _                                       _
