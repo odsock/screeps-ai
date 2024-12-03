@@ -49,7 +49,7 @@ export class SpawnWrapper extends StructureSpawn {
       body = this.sortBody(body);
     }
     const name = this.getName(memory);
-    const directions = request.directions ?? [TOP_LEFT, TOP_RIGHT, TOP];
+    const directions = request.directions;
 
     const extensions = this.getOrderedExtensionList();
     const result = this.spawnCreep(body, name, { memory, energyStructures: extensions, directions });
