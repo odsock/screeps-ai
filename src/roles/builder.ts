@@ -20,20 +20,19 @@ export class Builder extends CreepWrapper {
     }
 
     // repair walls and ramparts to max
-    // TODO probably shouldn't spawn builder for minor rampart repair
-    let repairTarget: Structure | undefined;
-    if (this.memory.lastTargetId) {
-      repairTarget = Game.getObjectById(this.memory.lastTargetId) ?? undefined;
-    }
-    if (!repairTarget || repairTarget.hits === SockPuppetConstants.MAX_HITS_WALL) {
-      if (this.room.controller?.level ?? 0 > SockPuppetConstants.WALL_MAINT_RCL) {
-        repairTarget = this.roomw.findWeakestWall();
+    if ((this.room.controller?.level ?? 0) < SockPuppetConstants.WALL_MAINT_RCL) {
+      let repairTarget: Structure | undefined;
+      if (this.memory.lastTargetId) {
+        repairTarget = Game.getObjectById(this.memory.lastTargetId) ?? undefined;
       }
-      this.memory.lastTargetId = repairTarget?.id;
-    }
-    if (repairTarget) {
-      this.doRepairJob(repairTarget);
-      return;
+      if (!repairTarget || repairTarget.hits >= SockPuppetConstants.MAX_HITS_WALL) {
+        repairTarget = this.roomw.findWeakestWall();
+        this.memory.lastTargetId = repairTarget?.id;
+      }
+      if (repairTarget) {
+        this.doRepairJob(repairTarget);
+        return;
+      }
     }
 
     CreepUtils.consoleLogIfWatched(this, "no work left. this is the end.");
