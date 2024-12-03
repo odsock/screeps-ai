@@ -44,6 +44,11 @@
       "problemMatcher": ["$tsc"],
       "label": "npm: push-sim",
       "detail": "npm version prerelease"
+    },
+    {
+      "type": "eslint",
+      "problemMatcher": ["$eslint-stylish"],
+      "label": "eslint: lint whole folder"
     }
   ]
 }

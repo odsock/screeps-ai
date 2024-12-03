@@ -32,6 +32,7 @@
       "upgrader",
       "upgraders"
     ],
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "task.allowAutomaticTasks": "on"
   }
 }
