@@ -21,13 +21,12 @@ export class Builder extends CreepWrapper {
 
     // repair walls and ramparts to max
     // TODO probably shouldn't spawn builder for minor rampart repair
-    const WALL_MAINT_RCL = 3;
     let repairTarget: Structure | undefined;
     if (this.memory.lastTargetId) {
       repairTarget = Game.getObjectById(this.memory.lastTargetId) ?? undefined;
     }
     if (!repairTarget || repairTarget.hits === SockPuppetConstants.MAX_HITS_WALL) {
-      if (this.room.controller?.level ?? 0 > WALL_MAINT_RCL) {
+      if (this.room.controller?.level ?? 0 > SockPuppetConstants.WALL_MAINT_RCL) {
         repairTarget = this.roomw.findWeakestWall();
       }
       this.memory.lastTargetId = repairTarget?.id;

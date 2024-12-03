@@ -5,6 +5,7 @@ export class SockPuppetConstants {
 
   public static readonly WORK_PER_WORKER_PART = 5000;
 
+  public static readonly WALL_MAINT_RCL = 3;
   public static readonly MAX_HITS_WALL = 7000000;
 
   public static readonly TOWER_MAX_REPAIR_RANGE = TOWER_OPTIMAL_RANGE;

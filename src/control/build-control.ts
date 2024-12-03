@@ -36,15 +36,14 @@ export class BuildControl {
     // make builders if there's something to build, or walls/ramparts to upgrade
     const conSiteCount = roomw.constructionSites.length;
     const rcl = roomw.controller?.level ?? 0;
-    const WALL_MAINT_RCL = 3;
     const wallsBelowMax =
-      rcl < WALL_MAINT_RCL
+      rcl < SockPuppetConstants.WALL_MAINT_RCL
         ? 0
         : roomw.find(FIND_STRUCTURES, {
             filter: s => s.structureType === STRUCTURE_WALL && s.hits < SockPuppetConstants.MAX_HITS_WALL
           }).length;
     const rampartsBelowMax =
-      rcl < WALL_MAINT_RCL
+      rcl < SockPuppetConstants.WALL_MAINT_RCL
         ? 0
         : roomw.find(FIND_MY_STRUCTURES, {
             filter: s => s.structureType === STRUCTURE_RAMPART && s.hits < SockPuppetConstants.MAX_HITS_WALL
