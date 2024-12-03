@@ -191,7 +191,10 @@ export class Hauler extends CreepWrapper {
 
     // TODO check size of creep to haul vs store used before waiting to dump
     if (this.store.getUsedCapacity() > 0) {
-      return this.storeLoad();
+      const storage = this.findRoomStorage();
+      if (storage) {
+        return this.storeLoad(storage);
+      }
     }
 
     // start working when near cargo
@@ -412,9 +415,9 @@ export class Hauler extends CreepWrapper {
   }
 
   /** finds storage and unloads creep there if carrying */
-  private storeLoad(): ScreepsReturnCode {
+  private storeLoad(storageParam?: Creep | StructureWithStorage | undefined): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `storing load`);
-    const storage = this.findRoomStorage();
+    const storage = storageParam || this.findRoomStorage();
     if (storage) {
       const resources = this.getStoreContents();
       if (resources.length > 0) {
