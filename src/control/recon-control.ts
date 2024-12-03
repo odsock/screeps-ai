@@ -4,12 +4,10 @@ import { PlannerUtils } from "planning/planner-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Scout } from "roles/scout";
 import { RoomWrapper } from "structures/room-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
 
 // TODO create recon memory separate from colony memory
-@profile
 export class ReconControl {
   private readonly targetControl: TargetControl;
   public constructor() {

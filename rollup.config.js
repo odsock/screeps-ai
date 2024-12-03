@@ -11,8 +11,7 @@ const Global = `var process = {
     npm_package_name: "${process.env.npm_package_name}",
     npm_package_version: "${process.env.npm_package_version}"
   }
-}
-global.__PROFILER_ENABLED__ = true;`;
+}`;
 
 let cfg;
 const dest = process.env.DEST;

@@ -1,5 +1,5 @@
 import { CreepUtils } from "creep-utils";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { CreepWrapper } from "./creep-wrapper";
 import { Hauler } from "./hauler";
 
@@ -19,7 +19,6 @@ export enum ExitState {
   PULL
 }
 
-@profile
 export abstract class Minder extends CreepWrapper {
   private myHauler: Hauler | undefined;
 

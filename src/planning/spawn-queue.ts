@@ -1,8 +1,7 @@
 import { SpawnRequest } from "structures/spawn-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { MemoryUtils } from "./memory-utils";
 
-@profile
 export class SpawnQueue {
   private readonly queue: SpawnRequest[] = [];
 

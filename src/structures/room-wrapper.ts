@@ -2,13 +2,12 @@ import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { MemoryUtils } from "planning/memory-utils";
 import { SpawnWrapper } from "./spawn-wrapper";
 import { PlannerUtils } from "planning/planner-utils";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { SpawnUtils } from "control/spawn-utils";
 import { RoomType, TargetControl } from "control/target-control";
 
-@profile
 export class RoomWrapper extends Room {
   private targetControl: TargetControl;
 
@@ -44,13 +43,11 @@ export class RoomWrapper extends Room {
     return this.room.controller;
   }
 
-  // NOTE sim room doesn't let these run
-  public get energyAvailable(): number {
+  public getEnergyAvailable(): number {
     return this.room.energyAvailable;
   }
 
-  // NOTE sim room doesn't let these run
-  public get energyCapacityAvailable(): number {
+  public getEnergyCapacityAvailable(): number {
     return this.room.energyCapacityAvailable;
   }
 

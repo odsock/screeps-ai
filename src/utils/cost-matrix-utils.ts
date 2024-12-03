@@ -1,9 +1,7 @@
 import { TargetControl } from "control/target-control";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
 
-@profile
 export class CostMatrixUtils {
   private static instance: CostMatrixUtils;
   private readonly targetControl: TargetControl;

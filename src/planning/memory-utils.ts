@@ -119,7 +119,6 @@ declare global {
       testGetRoomWrapper: (roomArg: string | Room) => void;
       drawCostMatrix: (roomName: string) => void;
       drawRoadPlan: (origin: RoomPosition, goal: RoomPosition, range: number) => void;
-      Profiler: Profiler;
     }
   }
 }

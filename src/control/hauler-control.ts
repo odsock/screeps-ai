@@ -4,7 +4,6 @@ import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Hauler } from "roles/hauler";
 import { RoomWrapper } from "structures/room-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 import {
   CleanupTask,
@@ -17,7 +16,6 @@ import {
   UnloadTask
 } from "./task-management";
 
-@profile
 export class HaulerControl {
   public run(): void {
     for (const roomName in Game.rooms) {
@@ -114,7 +112,7 @@ export class HaulerControl {
   private createSupplySpawnTasks(roomw: RoomWrapper): SupplySpawnTask[] {
     const spawns = roomw.spawns;
     const tasks: SupplySpawnTask[] = [];
-    if (spawns.length > 0 && roomw.energyAvailable < roomw.energyCapacityAvailable) {
+    if (spawns.length > 0 && roomw.getEnergyAvailable() < roomw.getEnergyCapacityAvailable()) {
       tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 240, pos: spawns[0].pos, override: true });
     }
     return tasks;

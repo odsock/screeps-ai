@@ -1,10 +1,9 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { CreepBodyProfile } from "./creep-wrapper";
 import { RemoteCreepWrapper } from "./remote-creep-wrapper";
 
-@profile
 export class Claimer extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.CLAIMER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

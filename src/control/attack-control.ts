@@ -3,7 +3,6 @@ import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Raider } from "roles/raider";
 import { TravelUtils } from "utils/travel-utils";
-import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
 
@@ -15,7 +14,6 @@ declare global {
   }
 }
 
-@profile
 export class AttackControl {
   private readonly targetControl: TargetControl;
   private readonly travelUtils: TravelUtils;

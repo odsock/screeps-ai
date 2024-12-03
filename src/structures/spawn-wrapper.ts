@@ -2,7 +2,7 @@ import { SpawnUtils } from "control/spawn-utils";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { CreepBodyProfile } from "roles/creep-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { names } from "../utils/names-hp";
 import { RoomWrapper } from "./room-wrapper";
 
@@ -20,7 +20,6 @@ interface BodyPartPriorityLookupType {
   [part: string]: number;
 }
 
-@profile
 export class SpawnWrapper extends StructureSpawn {
   private static readonly BODY_PART_ORDER = [TOUGH, CARRY, WORK, MOVE, CLAIM, RANGED_ATTACK, ATTACK, HEAL];
   private static readonly BODY_PART_ORDER_LOOKUP: BodyPartPriorityLookupType =

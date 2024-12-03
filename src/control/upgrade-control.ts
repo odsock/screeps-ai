@@ -4,10 +4,9 @@ import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Upgrader } from "roles/upgrader";
 import { RoomWrapper } from "structures/room-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { SpawnUtils } from "./spawn-utils";
 
-@profile
 export class UpgradeControl {
   public run(): void {
     for (const roomName in Game.rooms) {

@@ -2,10 +2,9 @@ import { CreepRole } from "config/creep-types";
 import { CleanupTask, HaulTask, SupplyTask, TaskType, UnloadTask } from "control/task-management";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 
-@profile
 export class Hauler extends CreepWrapper {
   public static readonly ROLE = CreepRole.HAULER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
@@ -407,7 +406,8 @@ export class Hauler extends CreepWrapper {
     }
 
     this.say("🤔");
-    CreepUtils.consoleLogIfWatched(this, `stumped. Just going to sit here.`);
+    CreepUtils.consoleLogIfWatched(this, `stumped. Abandoning task.`);
+    this.completeTask();
     return ERR_NOT_FOUND;
   }
 

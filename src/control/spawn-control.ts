@@ -3,9 +3,7 @@ import { SpawnQueue } from "planning/spawn-queue";
 import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
 
-@profile
 export class SpawnControl {
   private readonly rcl: number;
   private readonly freeSpawns: SpawnWrapper[];

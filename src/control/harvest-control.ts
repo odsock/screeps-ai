@@ -3,11 +3,9 @@ import { SpawnQueue } from "planning/spawn-queue";
 import { Harvester } from "roles/harvester";
 import { Hauler } from "roles/hauler";
 import { RoomWrapper } from "structures/room-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
 
-@profile
 export class HarvestControl {
   private readonly targetControl: TargetControl;
   public constructor() {

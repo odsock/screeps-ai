@@ -1,5 +1,4 @@
 import { SockPuppetConstants } from "config/sockpuppet-constants";
-import { profile } from "../../screeps-typescript-profiler";
 
 export const enum RoomType {
   TARGET,
@@ -10,7 +9,6 @@ export const enum RoomType {
   UNKNOWN
 }
 
-@profile
 export class TargetControl {
   private static instance: TargetControl | undefined;
   public static getInstance(): TargetControl {

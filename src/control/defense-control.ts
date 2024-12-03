@@ -3,10 +3,8 @@ import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Guard } from "roles/guard";
 import { RoomWrapper } from "structures/room-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
 import { TargetControl } from "./target-control";
 
-@profile
 export class DefenseControl {
   private readonly targetControl: TargetControl;
   public constructor() {

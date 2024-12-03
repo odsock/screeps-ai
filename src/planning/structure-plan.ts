@@ -1,6 +1,5 @@
 import { StructurePatterns } from "config/structure-patterns";
 import { RoomWrapper } from "structures/room-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
 
 interface StructurePatternPosition {
   xOffset: number;
@@ -12,7 +11,6 @@ export interface StructurePlanPosition {
   structure: BuildableStructureConstant;
 }
 
-@profile
 export class StructurePlan {
   private planned = false;
   private readonly pattern: StructurePatternPosition[];

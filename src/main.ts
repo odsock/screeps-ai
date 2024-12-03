@@ -3,11 +3,8 @@ import { ErrorMapper } from "utils/ErrorMapper";
 import { Logger } from "./logger";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import "./utils/console-scripts.js";
-import * as Profiler from "../screeps-typescript-profiler";
 
 global.sockpuppet = new Sockpuppet();
-
-global.Profiler = Profiler.init();
 
 recordUsername();
 

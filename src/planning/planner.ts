@@ -3,7 +3,7 @@ import { StructurePatterns } from "config/structure-patterns";
 import { TargetControl } from "control/target-control";
 import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { ContainerPlan } from "./container-plan";
 import { ExtensionPlan as ExtensionPlanner } from "./extension-plan";
 import { MemoryUtils } from "./memory-utils";
@@ -11,7 +11,6 @@ import { PlannerUtils } from "./planner-utils";
 import { RoadPlan as RoadPlanner } from "./road-plan";
 import { StructurePlanPosition } from "./structure-plan";
 
-@profile
 export class Planner {
   private readonly targetControl: TargetControl;
   public constructor() {

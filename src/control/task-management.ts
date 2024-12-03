@@ -1,6 +1,5 @@
 import { CreepUtils } from "creep-utils";
 import { CreepWrapper } from "roles/creep-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
 
 export enum TaskType {
   HAUL = "HAUL",
@@ -68,7 +67,6 @@ export interface SupplyCreepTask {
   requirements?: (creep: Creep) => boolean;
 }
 
-@profile
 export class TaskManagement {
   /** assign tasks to creeps based on priority */
   public static assignTasks(haulers: CreepWrapper[], tasks: Task[]): void {

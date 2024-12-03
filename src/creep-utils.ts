@@ -1,4 +1,3 @@
-import { profile } from "../screeps-typescript-profiler";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 
 export interface Watchable {
@@ -7,7 +6,6 @@ export interface Watchable {
   memory: { watched?: boolean; profile?: boolean };
 }
 
-@profile
 export class CreepUtils {
   public static averagePos(targets: { pos: RoomPosition }[]): RoomPosition {
     if (targets.length === 1) {

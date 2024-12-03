@@ -1,9 +1,7 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
 
-@profile
 export class Fixer extends CreepWrapper {
   public static readonly ROLE = CreepRole.FIXER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

@@ -1,11 +1,10 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { CreepBodyProfile } from "./creep-wrapper";
 import { Minder } from "./minder";
 
-@profile
 export class Harvester extends Minder {
   public static ROLE: CreepRole = CreepRole.HARVESTER;
   public static BODY_PROFILE: CreepBodyProfile = {

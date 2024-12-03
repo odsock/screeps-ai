@@ -1,6 +1,3 @@
-import { profile } from "../../screeps-typescript-profiler";
-
-@profile
 export class TravelUtils {
   private static instance: TravelUtils;
   public static getInstance(): TravelUtils {

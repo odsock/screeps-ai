@@ -5,7 +5,6 @@ import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
-import { profile } from "../../screeps-typescript-profiler";
 
 declare global {
   interface CreepMemory {
@@ -47,7 +46,6 @@ export interface CreepWrapperProfile {
   BODY_PROFILE: CreepBodyProfile;
 }
 
-@profile
 export abstract class CreepWrapper extends Creep {
   private pickingUp = false;
   private withdrawing = false;

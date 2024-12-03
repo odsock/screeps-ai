@@ -1,7 +1,7 @@
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { CreepBodyProfile } from "./creep-wrapper";
 import { RemoteCreepWrapper } from "./remote-creep-wrapper";
 
@@ -13,7 +13,6 @@ declare global {
   }
 }
 
-@profile
 export class Raider extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.RAIDER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

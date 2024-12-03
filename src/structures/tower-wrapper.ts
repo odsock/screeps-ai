@@ -1,8 +1,6 @@
 import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { RoomWrapper } from "./room-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
 
-@profile
 export class TowerWrapper extends StructureTower {
   public constructor(private readonly tower: StructureTower) {
     super(tower.id);

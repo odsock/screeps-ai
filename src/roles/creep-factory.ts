@@ -1,5 +1,5 @@
 import { CreepRole } from "config/creep-types";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { Builder } from "./builder";
 import { Claimer } from "./claimer";
 import { CreepWrapper } from "./creep-wrapper";
@@ -14,7 +14,6 @@ import { Scout } from "./scout";
 import { Upgrader } from "./upgrader";
 import { Worker } from "./worker";
 
-@profile
 export class CreepFactory {
   /** Instantiate role class for creep based on memory value. */
   public static getCreep(creep: Creep): CreepWrapper {

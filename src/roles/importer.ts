@@ -2,11 +2,10 @@ import { CreepBodyProfile } from "./creep-wrapper";
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { RemoteCreepWrapper } from "./remote-creep-wrapper";
-import { profile } from "../../screeps-typescript-profiler";
+
 import { MemoryUtils } from "planning/memory-utils";
 import { HaulTask, TaskType } from "../control/task-management";
 
-@profile
 export class Importer extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.IMPORTER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
