@@ -20,7 +20,7 @@ export class Builder extends CreepWrapper {
     }
 
     // repair walls and ramparts to max
-    if ((this.room.controller?.level ?? 0) < SockPuppetConstants.WALL_MAINT_RCL) {
+    if ((this.room.controller?.level ?? 0) > SockPuppetConstants.WALL_MAINT_RCL) {
       let repairTarget: Structure | undefined;
       if (this.memory.lastTargetId) {
         repairTarget = Game.getObjectById(this.memory.lastTargetId) ?? undefined;
