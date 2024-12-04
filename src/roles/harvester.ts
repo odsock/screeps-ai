@@ -19,7 +19,6 @@ export class Harvester extends Minder {
     maxBodyParts: 7
   };
 
-  private myContainer: StructureContainer | undefined;
   private mySource: Source | undefined;
 
   public run(): void {
@@ -115,10 +114,9 @@ export class Harvester extends Minder {
       return container.pos;
     }
 
-    const containerId = this.memory.containerId;
     const sourceId = this.memory.source;
     const targetRoom = this.memory.targetRoom;
-    if (containerId && sourceId) {
+    if (sourceId) {
       const posString = Memory.rooms[targetRoom].sources[sourceId].containerPos;
       if (posString) {
         return MemoryUtils.unpackRoomPosition(posString);
@@ -146,16 +144,6 @@ export class Harvester extends Minder {
 
   /** get container from my memory or claim one*/
   protected getMyContainer(): StructureContainer | undefined {
-    if (this.myContainer) {
-      return this.myContainer;
-    }
-
-    const containerFromMemory = this.resolveContainerIdFromMemory();
-    if (containerFromMemory) {
-      this.myContainer = containerFromMemory;
-      return containerFromMemory;
-    }
-
     const source = this.getMySource();
     if (source) {
       const sourceInfo = Memory.rooms[this.memory.targetRoom].sources[source.id];
@@ -164,9 +152,15 @@ export class Harvester extends Minder {
         return undefined;
       }
 
+      if (sourceInfo.minderId === this.id && sourceInfo.containerId) {
+        const container = Game.getObjectById(sourceInfo.containerId);
+        if (container) {
+          return container;
+        }
+      }
+
       const claimedContainer = this.claimContainerAtSource(sourceInfo);
       if (claimedContainer) {
-        this.myContainer = claimedContainer;
         return claimedContainer;
       }
     }
@@ -177,11 +171,15 @@ export class Harvester extends Minder {
 
   /** set id's for minder and container if not already claimed */
   private claimContainerAtSource(sourceInfo: SourceInfo) {
-    if (sourceInfo.containerId && (!sourceInfo.minderId || sourceInfo.minderId === this.id)) {
+    if (
+      sourceInfo.containerId &&
+      (!sourceInfo.minderId ||
+        sourceInfo.minderId === this.id ||
+        MemoryUtils.unpackRoomPosition(sourceInfo.containerPos ?? "0,0").isEqualTo(this.pos.x, this.pos.y))
+    ) {
       const container = Game.getObjectById(sourceInfo.containerId);
       if (container) {
         sourceInfo.minderId = this.id;
-        this.memory.containerId = sourceInfo.containerId;
         CreepUtils.consoleLogIfWatched(this, `claimed source container: ${sourceInfo.containerId}`);
         return container;
       }
