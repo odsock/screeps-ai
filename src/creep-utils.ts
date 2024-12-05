@@ -6,6 +6,13 @@ export interface Watchable {
   memory: { watched?: boolean; profile?: boolean };
 }
 
+export enum LogLevel {
+  DEBUG = "DEBUG",
+  INFO = "INFO",
+  WARN = "WARN",
+  ERROR = "ERROR"
+}
+
 export class CreepUtils {
   public static averagePos(targets: { pos: RoomPosition }[]): RoomPosition {
     if (targets.length === 1) {
@@ -22,6 +29,12 @@ export class CreepUtils {
         roomName = pos.roomName;
       });
     return new RoomPosition(sumX / targets.length, sumY / targets.length, roomName);
+  }
+
+  public static log(logLevel: LogLevel, message: string): void {
+    if (logLevel >= global.LOG_LEVEL) {
+      console.log(`${logLevel.toString()}: ${message}`);
+    }
   }
 
   public static consoleLogIfWatched(
