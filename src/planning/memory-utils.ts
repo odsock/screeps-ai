@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
+import { LogLevel } from "creep-utils";
 import { Sockpuppet } from "sockpuppet";
 
 declare global {
@@ -108,6 +109,7 @@ declare global {
   namespace NodeJS {
     interface Global {
       sockpuppet: Sockpuppet;
+      LOG_LEVEL: LogLevel;
       cache: Map<string, CacheValue>;
       spotCreeps: (...creeps: Creep[]) => void;
       unspotCreeps: (...creeps: Creep[]) => void;

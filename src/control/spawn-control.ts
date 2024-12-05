@@ -1,4 +1,4 @@
-import { CreepUtils } from "creep-utils";
+import { CreepUtils, LogLevel } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
@@ -45,6 +45,7 @@ export class SpawnControl {
       const spawnRequest = this.spawnQueue.pop();
       if (spawnRequest) {
         const result = s.spawn(spawnRequest);
+        CreepUtils.log(LogLevel.DEBUG, `spawn request: ${JSON.stringify(spawnRequest)}`);
         CreepUtils.consoleLogIfWatched(
           this.roomw,
           `spawning: ${spawnRequest.memory.role}, priority: ${spawnRequest.priority}`,

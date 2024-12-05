@@ -123,8 +123,15 @@ export abstract class Minder extends CreepWrapper {
       return ERR_NOT_FOUND;
     }
 
-    // get haulers path to target
+    // get hauler's path to target
     const haulerPathToTarget = hauler.pos.findPathTo(target, { range, costCallback });
+    CreepUtils.consoleLogIfWatched(
+      this,
+      `hauler target: ${target.x},${target.y} - path: ${haulerPathToTarget.reduce(
+        (printString: string, nextStep) => printString + nextStep.direction.toString(),
+        ""
+      )}`
+    );
 
     // path length 1 means near target, or leaving room
     if (!hauler.memory.exitState && haulerPathToTarget.length === 1 && hauler.room.name !== target.roomName) {
