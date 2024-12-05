@@ -334,7 +334,6 @@ export class Hauler extends CreepWrapper {
     const goals = spawnStorage.map(s => {
       return { pos: s.pos, range: 1 };
     });
-    // CreepUtils.consoleLogIfWatched(this, `path goals: ${JSON.stringify(goals)}`);
     const path = PathFinder.search(this.pos, goals, {
       plainCost: 2,
       swampCost: 10,
