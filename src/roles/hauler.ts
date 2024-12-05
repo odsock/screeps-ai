@@ -118,7 +118,9 @@ export class Hauler extends CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `cleanup`, result);
       return result;
     } else {
-      return this.storeLoad();
+      const ret = this.storeLoad();
+      this.completeTask();
+      return ret;
     }
   }
 
@@ -332,7 +334,7 @@ export class Hauler extends CreepWrapper {
     const goals = spawnStorage.map(s => {
       return { pos: s.pos, range: 1 };
     });
-    CreepUtils.consoleLogIfWatched(this, `path goals: ${JSON.stringify(goals)}`);
+    // CreepUtils.consoleLogIfWatched(this, `path goals: ${JSON.stringify(goals)}`);
     const path = PathFinder.search(this.pos, goals, {
       plainCost: 2,
       swampCost: 10,
