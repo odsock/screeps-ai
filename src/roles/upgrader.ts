@@ -15,11 +15,14 @@ export class Upgrader extends Minder {
 
   public run(): void {
     if (this.atDestination()) {
+      CreepUtils.consoleLogIfWatched(this, `at destination`);
       this.cancelHauler();
       this.buildRepairOrUpgrade();
     } else if (this.memory.replacing) {
+      CreepUtils.consoleLogIfWatched(this, `replacing creep`);
       this.replaceCreep(this.memory.replacing);
     } else {
+      CreepUtils.consoleLogIfWatched(this, `moving to destination`);
       this.moveToDestination();
     }
   }
@@ -59,17 +62,10 @@ export class Upgrader extends Minder {
     }
   }
 
-  /** Checks if on container or in range to source */
-  // TODO consider roads and harvest positions in check
+  /** Checks if at a position in list of room's upgrader positions */
   private atDestination(): boolean {
-    const container = this.getMyContainer();
-    if (container && this.pos.isNearTo(container.pos)) {
-      return true;
-    }
-    if (!container && this.room.controller && this.pos.inRangeTo(this.room.controller, 3)) {
-      return true;
-    }
-    return false;
+    const upgraderPositions = this.roomw.getUpgradePositions();
+    return !!_.find(upgraderPositions, upgraderPosition => this.pos.isEqualTo(upgraderPosition));
   }
 
   private getMyContainer(): StructureContainer | undefined {
@@ -91,25 +87,19 @@ export class Upgrader extends Minder {
     if (!this.room.controller) {
       return ERR_NO_PATH;
     }
-
-    // move to claimed container if it exists
-    const container = this.getMyContainer();
-    if (container) {
-      CreepUtils.consoleLogIfWatched(this, `finding path to controller container`);
-      return this.directHauler(
-        container.pos,
-        1,
-        this.costMatrixUtils.avoidHarvestPositionsAndRoadsNearControllerCostCallback
-      );
-    }
-
-    // move to controller
-    CreepUtils.consoleLogIfWatched(this, `finding path to controller`);
-    return this.directHauler(
-      this.room.controller.pos,
-      3,
-      this.costMatrixUtils.avoidHarvestPositionsAndRoadsNearControllerCostCallback
+    const upgraderPositions = this.roomw.getUpgradePositions();
+    const availablePositions = upgraderPositions.filter(
+      pos => _.filter(pos.lookFor(LOOK_CREEPS), c => c.memory.role === CreepRole.UPGRADER).length === 0
     );
+
+    if (availablePositions.length > 0) {
+      CreepUtils.consoleLogIfWatched(
+        this,
+        `finding path to upgrade position: ${availablePositions[0].x},${availablePositions[0].y}`
+      );
+      return this.directHauler(availablePositions[0]);
+    }
+    return ERR_NOT_FOUND;
   }
 
   protected withdrawFromMyContainer(): ScreepsReturnCode {
