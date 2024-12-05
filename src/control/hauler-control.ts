@@ -29,7 +29,7 @@ export class HaulerControl {
           ...this.createHaulTasks(roomw),
           ...this.createTowerSupplyTasks(roomw),
           ...this.createControllerSupplyTasks(roomw),
-          ...this.createSupplySpawnTasks(roomw),
+          ...this.createSupplySpawnTasks(roomw, haulers),
           // ...this.createUnloadTasks(roomw),
           ...this.createSupplyCreepTasks(roomw),
           ...this.createCleanupTasks(roomw),
@@ -109,11 +109,16 @@ export class HaulerControl {
   }
 
   /** supply spawn/extensions if any capacity in room */
-  private createSupplySpawnTasks(roomw: RoomWrapper): SupplySpawnTask[] {
+  private createSupplySpawnTasks(roomw: RoomWrapper, haulers: Hauler[]): SupplySpawnTask[] {
     const spawns = roomw.spawns;
     const tasks: SupplySpawnTask[] = [];
-    if (spawns.length > 0 && roomw.getEnergyAvailable() < roomw.getEnergyCapacityAvailable()) {
-      tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 240, pos: spawns[0].pos, override: true });
+    const energyCapacityRemaining = roomw.getEnergyAvailable() - roomw.getEnergyCapacityAvailable();
+    if (spawns.length > 0 && energyCapacityRemaining > 0) {
+      const averageHaulCapacity = (_.sum(haulers.map(c => c.countParts(CARRY))) * CARRY_CAPACITY) / haulers.length;
+      const haulersNeeded = energyCapacityRemaining / averageHaulCapacity;
+      for (let i = 0; i < haulersNeeded; i++) {
+        tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 240, pos: spawns[0].pos, override: true });
+      }
     }
     return tasks;
   }
