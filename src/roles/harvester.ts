@@ -20,6 +20,7 @@ export class Harvester extends Minder {
   };
 
   private mySource: Source | undefined;
+  private myContainer: StructureContainer | undefined;
 
   public run(): void {
     if (this.atDestination()) {
@@ -111,17 +112,10 @@ export class Harvester extends Minder {
   protected getMyContainerPosition(): RoomPosition | undefined {
     const container = this.getMyContainer();
     if (container) {
+      CreepUtils.consoleLogIfWatched(this, `found container position`);
       return container.pos;
     }
 
-    const sourceId = this.memory.source;
-    const targetRoom = this.memory.targetRoom;
-    if (sourceId) {
-      const posString = Memory.rooms[targetRoom].sources[sourceId].containerPos;
-      if (posString) {
-        return MemoryUtils.unpackRoomPosition(posString);
-      }
-    }
     return undefined;
   }
 
@@ -142,8 +136,12 @@ export class Harvester extends Minder {
     return undefined;
   }
 
-  /** get container from my memory or claim one*/
+  /** get container from my source or claim one*/
   protected getMyContainer(): StructureContainer | undefined {
+    if (this.myContainer) {
+      CreepUtils.consoleLogIfWatched(this, `found cached container reference`);
+      return this.myContainer;
+    }
     const source = this.getMySource();
     if (source) {
       const sourceInfo = Memory.rooms[this.memory.targetRoom].sources[source.id];
@@ -155,12 +153,16 @@ export class Harvester extends Minder {
       if (sourceInfo.minderId === this.id && sourceInfo.containerId) {
         const container = Game.getObjectById(sourceInfo.containerId);
         if (container) {
+          CreepUtils.consoleLogIfWatched(this, `setting cached container reference`);
+          this.myContainer = container;
           return container;
         }
       }
 
       const claimedContainer = this.claimContainerAtSource(sourceInfo);
       if (claimedContainer) {
+        CreepUtils.consoleLogIfWatched(this, `claimed container`);
+        this.myContainer = claimedContainer;
         return claimedContainer;
       }
     }
