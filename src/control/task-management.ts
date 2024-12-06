@@ -56,6 +56,7 @@ export interface SupplySpawnTask {
   priority: number;
   pos: RoomPosition;
   override?: boolean;
+  salt?: number;
   requirements?: (creep: Creep) => boolean;
 }
 
@@ -79,7 +80,7 @@ export class TaskManagement {
         freeHaulers.push(h);
       }
     });
-    const newTasks = tasks.filter(t => !busyHaulers.some(h => this.isDuplicateTask(h.getTask(), t)));
+    const newTasks = tasks.filter(t => !busyHaulers.some(h => this.isSameTask(h.getTask(), t)));
     CreepUtils.consoleLogIfWatched(
       haulers[0].room,
       `${busyHaulers.length}/${freeHaulers.length} busy/free, found ${tasks.length} tasks, ${newTasks.length} new tasks`
@@ -133,7 +134,7 @@ export class TaskManagement {
     });
   }
 
-  private static isDuplicateTask(task: Task | undefined, t: Task): boolean {
+  private static isSameTask(task: Task | undefined, t: Task): boolean {
     // HACK stringify to compare seems dumb
     return JSON.stringify(task) === JSON.stringify(t);
   }

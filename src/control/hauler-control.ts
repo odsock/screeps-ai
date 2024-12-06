@@ -112,12 +112,13 @@ export class HaulerControl {
   private createSupplySpawnTasks(roomw: RoomWrapper, haulers: Hauler[]): SupplySpawnTask[] {
     const spawns = roomw.spawns;
     const tasks: SupplySpawnTask[] = [];
-    const energyCapacityRemaining = roomw.getEnergyAvailable() - roomw.getEnergyCapacityAvailable();
+    const energyCapacityRemaining = roomw.getEnergyCapacityAvailable() - roomw.getEnergyAvailable();
     if (spawns.length > 0 && energyCapacityRemaining > 0) {
       const averageHaulCapacity = (_.sum(haulers.map(c => c.countParts(CARRY))) * CARRY_CAPACITY) / haulers.length;
       const haulersNeeded = energyCapacityRemaining / averageHaulCapacity;
+      CreepUtils.consoleLogIfWatched(roomw, `supply spawn tasks: ${haulersNeeded}`);
       for (let i = 0; i < haulersNeeded; i++) {
-        tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 240, pos: spawns[0].pos, override: true });
+        tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 240, pos: spawns[0].pos, override: true, salt: i });
       }
     }
     return tasks;
