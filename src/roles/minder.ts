@@ -2,6 +2,7 @@ import { CreepUtils } from "creep-utils";
 
 import { CreepWrapper } from "./creep-wrapper";
 import { Hauler } from "./hauler";
+import { Stats, StatType } from "planning/stats";
 
 declare global {
   interface CreepMemory {
@@ -42,6 +43,9 @@ export abstract class Minder extends CreepWrapper {
     const sources = this.pos.findInRange(FIND_SOURCES, 1);
     if (sources.length > 0) {
       result = this.harvest(sources[0]);
+      if (result === OK) {
+        Stats.record(StatType.HARVEST_ENERGY_STAT, CreepUtils.countParts(WORK, this));
+      }
     }
     CreepUtils.consoleLogIfWatched(this, `harvest result`, result);
     return result;
@@ -74,6 +78,9 @@ export abstract class Minder extends CreepWrapper {
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
     if (this.room.controller && this.pos.inRangeTo(this.room.controller.pos, 3)) {
       result = this.upgradeController(this.room.controller);
+      if (result === OK) {
+        Stats.record(StatType.UPGRADE_STAT, CreepUtils.countParts(WORK, this));
+      }
     }
     CreepUtils.consoleLogIfWatched(this, `upgrade result`, result);
     return result;

@@ -79,6 +79,7 @@ export class SockPuppetConstants {
 
   public static COLONY_TYPE_FULL = "full";
   public static COLONY_TYPE_GROUP = "group";
+  public static START_TICK = "START_TICK";
 }
 
 declare global {

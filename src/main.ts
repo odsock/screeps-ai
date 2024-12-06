@@ -4,6 +4,7 @@ import { Logger } from "./logger";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import "./utils/console-scripts.js";
 import { LogLevel } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
 
 global.sockpuppet = new Sockpuppet();
 global.LOG_LEVEL = LogLevel.DEBUG;
@@ -28,6 +29,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   console.log(`<strong>Current game tick is ${Game.time}</strong>`);
+  MemoryUtils.setCache(SockPuppetConstants.START_TICK, Game.time, -1);
   cleanupDeadCreepMemory();
 
   global.sockpuppet.run();

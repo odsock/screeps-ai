@@ -2,6 +2,7 @@
 
 import { LogLevel } from "creep-utils";
 import { Sockpuppet } from "sockpuppet";
+import { Stats } from "./stats";
 
 declare global {
   interface RoomMemory {
@@ -121,6 +122,7 @@ declare global {
       testGetRoomWrapper: (roomArg: string | Room) => void;
       drawCostMatrix: (roomName: string) => void;
       drawRoadPlan: (origin: RoomPosition, goal: RoomPosition, range: number) => void;
+      Stats: Stats;
     }
   }
 }
