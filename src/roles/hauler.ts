@@ -119,7 +119,9 @@ export class Hauler extends CreepWrapper {
       return result;
     } else {
       const ret = this.storeLoad();
-      this.completeTask();
+      if (ret === OK) {
+        this.completeTask();
+      }
       return ret;
     }
   }
