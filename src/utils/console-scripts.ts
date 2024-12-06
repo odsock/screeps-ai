@@ -2,6 +2,7 @@ import { Watchable } from "creep-utils";
 import { isBoolean } from "lodash";
 import { RoadPlan } from "planning/road-plan";
 import { CostMatrixUtils } from "./cost-matrix-utils";
+import { Stats } from "planning/stats";
 
 global.spotCreeps = (...creeps: Creep[]) => {
   creeps.forEach(c => (c.memory.draw = true));
@@ -57,3 +58,5 @@ global.drawRoadPlan = (origin: RoomPosition, goal: RoomPosition, range: number):
   const path = new RoadPlan(room).planRoad(origin, goal, range);
   room.visual.poly(path.path);
 };
+
+global.Stats = Stats;
