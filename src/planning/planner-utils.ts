@@ -108,13 +108,13 @@ export class PlannerUtils {
   }
 
   public static findColonyCenter(room: Room): RoomPosition {
-    const myStructures = room.find(FIND_MY_STRUCTURES, {
+    const myStructures: Structure[] = room.find(FIND_MY_STRUCTURES, {
       filter: s =>
         s.structureType !== STRUCTURE_EXTENSION &&
         s.structureType !== STRUCTURE_SPAWN &&
         s.structureType !== STRUCTURE_CONTROLLER
     });
-    const myRoadsAndContainers = room.find(FIND_STRUCTURES, {
+    const myRoadsAndContainers: Structure[] = room.find(FIND_STRUCTURES, {
       filter: s =>
         s.structureType === STRUCTURE_CONTAINER ||
         s.structureType === STRUCTURE_ROAD ||
