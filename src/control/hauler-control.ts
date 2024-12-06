@@ -10,6 +10,7 @@ import {
   HaulTask,
   SupplyCreepTask,
   SupplySpawnTask,
+  SupplyTask,
   Task,
   TaskManagement,
   TaskType,
@@ -23,13 +24,14 @@ export class HaulerControl {
       const haulers = _.filter(Game.creeps, c => c.memory.role === Hauler.ROLE && c.memory.homeRoom === roomName).map(
         c => new Hauler(c)
       );
+      const averageHaulerCapacity = (_.sum(haulers.map(c => c.countParts(CARRY))) * CARRY_CAPACITY) / haulers.length;
 
       if (haulers.length > 0) {
         TaskManagement.assignTasks(haulers, [
           ...this.createHaulTasks(roomw),
           ...this.createTowerSupplyTasks(roomw),
-          ...this.createControllerSupplyTasks(roomw),
-          ...this.createSupplySpawnTasks(roomw, haulers),
+          ...this.createControllerSupplyTasks(roomw, averageHaulerCapacity),
+          ...this.createSupplySpawnTasks(roomw, averageHaulerCapacity),
           // ...this.createUnloadTasks(roomw),
           ...this.createSupplyCreepTasks(roomw),
           ...this.createCleanupTasks(roomw),
@@ -109,13 +111,12 @@ export class HaulerControl {
   }
 
   /** supply spawn/extensions if any capacity in room */
-  private createSupplySpawnTasks(roomw: RoomWrapper, haulers: Hauler[]): SupplySpawnTask[] {
+  private createSupplySpawnTasks(roomw: RoomWrapper, averageHaulerCapacity: number): SupplySpawnTask[] {
     const spawns = roomw.spawns;
     const tasks: SupplySpawnTask[] = [];
     const energyCapacityRemaining = roomw.getEnergyCapacityAvailable() - roomw.getEnergyAvailable();
     if (spawns.length > 0 && energyCapacityRemaining > 0) {
-      const averageHaulCapacity = (_.sum(haulers.map(c => c.countParts(CARRY))) * CARRY_CAPACITY) / haulers.length;
-      const haulersNeeded = energyCapacityRemaining / averageHaulCapacity;
+      const haulersNeeded = energyCapacityRemaining / averageHaulerCapacity;
       CreepUtils.consoleLogIfWatched(roomw, `supply spawn tasks: ${haulersNeeded}`);
       for (let i = 0; i < haulersNeeded; i++) {
         tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 240, pos: spawns[0].pos, override: true, salt: i });
@@ -138,16 +139,33 @@ export class HaulerControl {
   }
 
   /** supply controller container if have upgraders */
-  private createControllerSupplyTasks(roomw: RoomWrapper): Task[] {
+  private createControllerSupplyTasks(roomw: RoomWrapper, averageHaulerCapacity: number): Task[] {
     const upgraders = roomw.creeps.filter(c => c.memory.role === CreepRole.UPGRADER);
     if (upgraders.length === 0) {
       return [];
     }
-    return roomw.controllerContainers
-      .filter(container => container.store.getUsedCapacity() < container.store.getCapacity() / 4)
-      .map(c => {
-        return { type: TaskType.SUPPLY, targetId: c.id, pos: c.pos, priority: 100, resourceType: RESOURCE_ENERGY };
-      });
+    const containersBelowThreshold = roomw.controllerContainers.filter(
+      container => container.store.getUsedCapacity() < container.store.getCapacity() / 4
+    );
+    CreepUtils.consoleLogIfWatched(
+      roomw,
+      `controller supply: containers below threshold: ${containersBelowThreshold.length}`
+    );
+    const tasks: SupplyTask[] = [];
+    containersBelowThreshold.forEach(c => {
+      const haulersNeeded = c.store.getFreeCapacity() / averageHaulerCapacity;
+      for (let i = 0; i < haulersNeeded; i++) {
+        tasks.push({
+          type: TaskType.SUPPLY,
+          targetId: c.id,
+          pos: c.pos,
+          priority: 100,
+          resourceType: RESOURCE_ENERGY,
+          salt: i
+        });
+      }
+    });
+    return tasks;
   }
 
   private createHaulTasks(roomw: RoomWrapper): HaulTask[] {

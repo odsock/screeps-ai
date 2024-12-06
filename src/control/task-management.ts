@@ -20,6 +20,7 @@ export interface SupplyTask {
   override?: boolean;
   resourceType: ResourceConstant;
   requirements?: (creep: Creep) => boolean;
+  salt?: number;
 }
 
 export interface UnloadTask {
@@ -80,12 +81,24 @@ export class TaskManagement {
         freeHaulers.push(h);
       }
     });
+    CreepUtils.consoleLogIfWatched(
+      haulers[0].room,
+      `raw task list: ${tasks
+        .map(task => task.type + ":" + String(task.priority) + ":" + String(task.pos.x) + "," + String(task.pos.y))
+        .join(", ")}`
+    );
     const newTasks = tasks.filter(t => !busyHaulers.some(h => this.isSameTask(h.getTask(), t)));
     CreepUtils.consoleLogIfWatched(
       haulers[0].room,
       `${busyHaulers.length}/${freeHaulers.length} busy/free, found ${tasks.length} tasks, ${newTasks.length} new tasks`
     );
     const tasksByPriority = newTasks.sort((a, b) => b.priority - a.priority);
+    CreepUtils.consoleLogIfWatched(
+      haulers[0].room,
+      `task list: ${tasksByPriority
+        .map(task => task.type + ":" + String(task.priority) + ":" + String(task.pos.x) + "," + String(task.pos.y))
+        .join(", ")}`
+    );
 
     const unassignedTasks: Task[] = [];
     if (freeHaulers.length > 0) {
