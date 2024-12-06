@@ -73,6 +73,9 @@ export class PlannerUtils {
     return placedPosition;
   }
 
+  /*
+   * Calculates a clockwise spiral from the center position out to a radius of max range. First step is to the right.
+   */
   public static getPositionSpiral(centerPos: RoomPosition, maxRange: number): RoomPosition[] {
     const line: RoomPosition[] = [];
     let x = 0;
