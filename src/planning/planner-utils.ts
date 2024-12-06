@@ -65,6 +65,10 @@ export class PlannerUtils {
     structureConstant: BuildableStructureConstant
   ): RoomPosition | undefined {
     const positions = this.getPositionSpiral(position, 1);
+    CreepUtils.consoleLogIfWatched(
+      RoomWrapper.getInstance(position.roomName),
+      `spiral positions: ${JSON.stringify(positions)}`
+    );
     const placedPosition = positions.find(pos => pos.createConstructionSite(structureConstant) === OK);
     return placedPosition;
   }
