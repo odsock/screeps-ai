@@ -35,19 +35,17 @@ export class BuildControl {
     // BUILDER
     // make builders if there's something to build, or walls/ramparts to upgrade
     const conSiteCount = roomw.constructionSites.length;
-    const rcl = roomw.controller?.level ?? 0;
-    const wallsBelowMax =
-      rcl < SockPuppetConstants.WALL_MAINT_RCL
-        ? 0
-        : roomw.find(FIND_STRUCTURES, {
-            filter: s => s.structureType === STRUCTURE_WALL && s.hits < SockPuppetConstants.MAX_HITS_WALL
-          }).length;
-    const rampartsBelowMax =
-      rcl < SockPuppetConstants.WALL_MAINT_RCL
-        ? 0
-        : roomw.find(FIND_MY_STRUCTURES, {
-            filter: s => s.structureType === STRUCTURE_RAMPART && s.hits < SockPuppetConstants.MAX_HITS_WALL
-          }).length;
+    const buildingWalls = this.buildingWalls(roomw);
+    const wallsBelowMax = !buildingWalls
+      ? 0
+      : roomw.find(FIND_STRUCTURES, {
+          filter: s => s.structureType === STRUCTURE_WALL && s.hits < SockPuppetConstants.MAX_HITS_WALL
+        }).length;
+    const rampartsBelowMax = !buildingWalls
+      ? 0
+      : roomw.find(FIND_MY_STRUCTURES, {
+          filter: s => s.structureType === STRUCTURE_RAMPART && s.hits < SockPuppetConstants.MAX_HITS_WALL
+        }).length;
     if (conSiteCount > 0 || wallsBelowMax > 0 || rampartsBelowMax > 0) {
       const builderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.BUILDER);
       const workPartsNeeded = this.getBuilderWorkPartsNeeded(roomw);
@@ -67,17 +65,23 @@ export class BuildControl {
   }
 
   private getBuilderWorkPartsNeeded(roomw: RoomWrapper): number {
-    const wallWork = roomw
-      .find(FIND_STRUCTURES, {
-        filter: s =>
-          (s.structureType === STRUCTURE_WALL || s.structureType === STRUCTURE_RAMPART) &&
-          s.hits < SockPuppetConstants.MAX_HITS_WALL
-      })
-      .reduce((hits, wall) => (hits += SockPuppetConstants.MAX_HITS_WALL - wall.hits), 0);
+    const wallWork = !this.buildingWalls(roomw)
+      ? 0
+      : roomw
+          .find(FIND_STRUCTURES, {
+            filter: s =>
+              (s.structureType === STRUCTURE_WALL || s.structureType === STRUCTURE_RAMPART) &&
+              s.hits < SockPuppetConstants.MAX_HITS_WALL
+          })
+          .reduce((hits, wall) => (hits += SockPuppetConstants.MAX_HITS_WALL - wall.hits), 0);
     const conWork = roomw.constructionWork;
     const activeWorkParts = roomw.getActiveParts(Builder.ROLE, WORK);
     const workPartsNeeded = Math.ceil((conWork + wallWork) / SockPuppetConstants.WORK_PER_WORKER_PART);
     const workPartsDeficit = workPartsNeeded - activeWorkParts;
     return workPartsDeficit > 0 ? workPartsDeficit : 0;
+  }
+
+  private buildingWalls(room: Room | RoomWrapper): boolean {
+    return (room.controller?.level ?? 0) >= SockPuppetConstants.WALL_MAINT_RCL;
   }
 }
