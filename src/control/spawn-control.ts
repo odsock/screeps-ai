@@ -1,4 +1,4 @@
-import { CreepUtils, LogLevel } from "creep-utils";
+import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";

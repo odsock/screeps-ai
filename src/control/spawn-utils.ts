@@ -12,9 +12,11 @@ export class SpawnUtils {
    */
   // TODO implement maxWorkParts and other part type checks
   public static getMaxBody(creepBodyProfile: CreepBodyProfile, roomw: RoomWrapper): BodyPartConstant[] {
+    CreepUtils.consoleLogIfWatched(roomw, `get max body for ${JSON.stringify(creepBodyProfile)}`);
     let body: BodyPartConstant[] = creepBodyProfile.seed.slice();
     // if no profile return seed
     if (creepBodyProfile.profile.length === 0) {
+      CreepUtils.consoleLogIfWatched(roomw, `seed body: ${JSON.stringify(body)}`);
       return body;
     }
     // if no seed start with one instance of profile
@@ -23,11 +25,12 @@ export class SpawnUtils {
     }
     let finalBody: BodyPartConstant[] = [];
     creepBodyProfile.maxBodyParts = Math.min(creepBodyProfile.maxBodyParts, MAX_CREEP_SIZE);
-    const energyCapacity = roomw.energyCapacityAvailable;
+    const energyCapacity = roomw.getEnergyCapacityAvailable();
     do {
       finalBody = body.slice();
       body = body.concat(creepBodyProfile.profile);
     } while (this.calcBodyCost(body) <= energyCapacity && body.length <= creepBodyProfile.maxBodyParts);
+    CreepUtils.consoleLogIfWatched(roomw, `final body: ${JSON.stringify(finalBody)}, room capacity: ${energyCapacity}`);
     return finalBody;
   }
 
