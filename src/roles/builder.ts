@@ -2,6 +2,7 @@ import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
 import { CreepUtils } from "creep-utils";
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
+import { Stats, StatType } from "planning/stats";
 
 export class Builder extends CreepWrapper {
   public static readonly ROLE = CreepRole.BUILDER;
@@ -64,9 +65,15 @@ export class Builder extends CreepWrapper {
           CreepUtils.consoleLogIfWatched(this, `moving away from source`);
           const path = PathFinder.search(this.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
           this.moveByPath(path.path);
-        } else if (this.build(site) === ERR_NOT_IN_RANGE) {
+          return;
+        }
+        const result = this.build(site);
+        if (result === ERR_NOT_IN_RANGE) {
           CreepUtils.consoleLogIfWatched(this, `moving to site`);
           this.moveToW(site, { visualizePathStyle: { stroke: "#ffffff" } });
+        }
+        if (result === OK) {
+          Stats.record(StatType.BUILD_STAT, CreepUtils.countParts(WORK, this) * BUILD_POWER);
         }
       } else {
         CreepUtils.consoleLogIfWatched(this, `going to harvest`);

@@ -123,6 +123,7 @@ declare global {
       drawCostMatrix: (roomName: string) => void;
       drawRoadPlan: (origin: RoomPosition, goal: RoomPosition, range: number) => void;
       Stats: Stats;
+      MemoryUtils: MemoryUtils;
     }
   }
 }

@@ -44,7 +44,7 @@ export abstract class Minder extends CreepWrapper {
     if (sources.length > 0) {
       result = this.harvest(sources[0]);
       if (result === OK) {
-        Stats.record(StatType.HARVEST_ENERGY_STAT, CreepUtils.countParts(WORK, this));
+        Stats.record(StatType.HARVEST_ENERGY_STAT, CreepUtils.countParts(WORK, this) * HARVEST_POWER);
       }
     }
     CreepUtils.consoleLogIfWatched(this, `harvest result`, result);
@@ -57,6 +57,9 @@ export abstract class Minder extends CreepWrapper {
     const site = this.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES, { filter: { range: 3 } });
     if (site) {
       result = this.build(site);
+      if (result === OK) {
+        Stats.record(StatType.BUILD_STAT, CreepUtils.countParts(WORK, this) * BUILD_POWER);
+      }
     }
     CreepUtils.consoleLogIfWatched(this, `build result`, result);
     return result;

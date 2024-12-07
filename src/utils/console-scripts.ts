@@ -3,6 +3,7 @@ import { isBoolean } from "lodash";
 import { RoadPlan } from "planning/road-plan";
 import { CostMatrixUtils } from "./cost-matrix-utils";
 import { Stats } from "planning/stats";
+import { MemoryUtils } from "planning/memory-utils";
 
 global.spotCreeps = (...creeps: Creep[]) => {
   creeps.forEach(c => (c.memory.draw = true));
@@ -60,3 +61,4 @@ global.drawRoadPlan = (origin: RoomPosition, goal: RoomPosition, range: number):
 };
 
 global.Stats = Stats;
+global.MemoryUtils = MemoryUtils;

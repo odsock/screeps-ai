@@ -5,9 +5,11 @@ import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import "./utils/console-scripts.js";
 import { LogLevel } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
+import { Stats } from "planning/stats";
 
 global.sockpuppet = new Sockpuppet();
 global.LOG_LEVEL = LogLevel.DEBUG;
+MemoryUtils.setCache(SockPuppetConstants.START_TICK, Game.time, -1);
 
 recordUsername();
 
@@ -29,7 +31,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   console.log(`<strong>Current game tick is ${Game.time}</strong>`);
-  MemoryUtils.setCache(SockPuppetConstants.START_TICK, Game.time, -1);
   cleanupDeadCreepMemory();
 
   global.sockpuppet.run();
@@ -40,6 +41,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   if (Game.shard.name === "shard3" && Game.cpu.bucket >= PIXEL_CPU_COST) {
     Game.cpu.generatePixel();
   }
+
+  Stats.showStats();
 });
 
 function recordUsername() {
