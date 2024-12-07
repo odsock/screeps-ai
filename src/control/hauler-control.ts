@@ -32,7 +32,7 @@ export class HaulerControl {
           ...this.createTowerSupplyTasks(roomw),
           ...this.createControllerSupplyTasks(roomw, averageHaulerCapacity),
           ...this.createSupplySpawnTasks(roomw, averageHaulerCapacity),
-          // ...this.createUnloadTasks(roomw),
+          ...this.createUnloadTasks(roomw),
           ...this.createSupplyCreepTasks(roomw),
           ...this.createCleanupTasks(roomw),
           ...this.createControllerCleanupTasks(roomw)
