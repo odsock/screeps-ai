@@ -31,7 +31,8 @@ export class UpgradeControl {
     const upgraderWorkPartsNeeded =
       roomw.controller?.level === 8
         ? CONTROLLER_MAX_UPGRADE_PER_TICK / UPGRADE_CONTROLLER_POWER
-        : roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / UPGRADE_CONTROLLER_POWER;
+        : (roomw.sourcesEnergyCapacity / ENERGY_REGEN_TIME / UPGRADE_CONTROLLER_POWER) *
+          SockPuppetConstants.UPGRADE_EFFICIENCY_RATIO;
 
     // don't spawn more than one upgrader at level 1
     // don't calc required upgraders if we have none

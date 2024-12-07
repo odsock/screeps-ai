@@ -77,9 +77,10 @@ export class SockPuppetConstants {
   public static FLAG_COLOR_SCOUT = COLOR_WHITE;
   public static FLAG_COLOR_FORBIDDEN = COLOR_GREY;
 
-  public static COLONY_TYPE_FULL = "full";
-  public static COLONY_TYPE_GROUP = "group";
-  public static START_TICK = "START_TICK";
+  public static readonly COLONY_TYPE_FULL = "full";
+  public static readonly COLONY_TYPE_GROUP = "group";
+  public static readonly START_TICK = "START_TICK";
+  public static readonly UPGRADE_EFFICIENCY_RATIO = 0.8;
 }
 
 declare global {
