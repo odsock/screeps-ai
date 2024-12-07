@@ -234,7 +234,7 @@ export class Hauler extends CreepWrapper {
       return ERR_INVALID_TARGET;
     }
 
-    if (target.store.getFreeCapacity() === 0) {
+    if (target.store.getFreeCapacity(supplyTask.resourceType) === 0) {
       this.completeTask();
       return ERR_FULL;
     }
