@@ -203,9 +203,9 @@ export class HaulerControl {
 
     // HAULER
     // spawn enough haulers to keep up with hauling needed
-    const sourcesPlusOne = roomw.sources.length + 1;
-    CreepUtils.consoleLogIfWatched(roomw, `haulers: ${haulerCount}/${sourcesPlusOne}`);
-    if (haulerCount < sourcesPlusOne) {
+    const haulersRequired = roomw.sources.length;
+    CreepUtils.consoleLogIfWatched(roomw, `haulers: ${haulerCount}/${haulersRequired}`);
+    if (haulerCount < haulersRequired) {
       spawnQueue.push({
         bodyProfile: Hauler.BODY_PROFILE,
         max: true,
@@ -214,7 +214,7 @@ export class HaulerControl {
       });
     }
 
-    if (haulerCount <= sourcesPlusOne) {
+    if (haulerCount <= haulersRequired) {
       SpawnUtils.requestReplacementCreep(roomw, Hauler);
     }
   }
