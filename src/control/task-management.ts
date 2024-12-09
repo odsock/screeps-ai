@@ -91,7 +91,12 @@ export class TaskManagement {
     // try to assign tasks to free haulers
     let unassignedTasks: Task[] = [];
     if (freeHaulers.length > 0) {
-      unassignedTasks = TaskManagement.assignUnassignedTasks(tasksByPriority, freeHaulers, busyHaulers);
+      unassignedTasks = TaskManagement.assignUnassignedTasks(
+        tasksByPriority,
+        freeHaulers,
+        busyHaulers,
+        haulers[0].room
+      );
     } else {
       CreepUtils.consoleLogIfWatched(haulers[0].room, `no free haulers`);
     }
@@ -104,10 +109,14 @@ export class TaskManagement {
 
   private static bumpTasksForOverrideFlags(busyHaulers: CreepWrapper[], unassignedTasks: Task[]) {
     const busyHaulersSorted = busyHaulers.sort((a, b) => (a.getTask()?.priority ?? 0) - (b.getTask()?.priority ?? 0));
+    busyHaulersSorted.forEach(h =>
+      CreepUtils.consoleLogIfWatched(h.room, `checking for task overrides: ${JSON.stringify(h.memory.task)}`)
+    );
     unassignedTasks
       .filter(task => task.override)
       .forEach(task => {
-        const haulerToBump = busyHaulersSorted.find(h => (h.getTask()?.priority ?? 0) < task.priority);
+        CreepUtils.consoleLogIfWatched(busyHaulers[0].room, `override task: ${JSON.stringify(task)}`);
+        const haulerToBump = busyHaulersSorted.find(h => (h.getTask()?.priority ?? 0) <= task.priority);
         if (haulerToBump) {
           const oldTask = haulerToBump.getTask();
           CreepUtils.consoleLogIfWatched(
@@ -124,7 +133,8 @@ export class TaskManagement {
   private static assignUnassignedTasks(
     tasksByPriority: Task[],
     freeHaulers: CreepWrapper[],
-    busyHaulers: CreepWrapper[]
+    busyHaulers: CreepWrapper[],
+    room: Room
   ) {
     const unassignedTasks: Task[] = [];
     tasksByPriority.forEach(task => {
@@ -141,7 +151,7 @@ export class TaskManagement {
         );
         busyHaulers.push(closestHauler);
       } else {
-        CreepUtils.consoleLogIfWatched(freeHaulers[0].room, `no acceptable haulers for task: ${task.type}`);
+        CreepUtils.consoleLogIfWatched(room, `no acceptable haulers for task: ${task.type}`);
         unassignedTasks.push(task);
       }
     });

@@ -309,11 +309,10 @@ export class Hauler extends CreepWrapper {
         const targetFreeCap = target.store.getFreeCapacity(RESOURCE_ENERGY);
         const creepStoredEnergy = this.store.getUsedCapacity(RESOURCE_ENERGY);
         if (transferResult === OK) {
-          // go find more energy if empty
           if (targetFreeCap >= creepStoredEnergy) {
             CreepUtils.consoleLogIfWatched(this, `empty`);
-            const harvestResult = this.harvestByPriority();
-            return harvestResult;
+            this.completeTask();
+            return OK;
           }
         }
       }
@@ -325,6 +324,7 @@ export class Hauler extends CreepWrapper {
       return moveResult;
     } else {
       const harvestResult = this.harvestByPriority();
+      this.completeTask();
       return harvestResult;
     }
   }

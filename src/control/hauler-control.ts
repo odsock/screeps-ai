@@ -119,7 +119,7 @@ export class HaulerControl {
       const haulersNeeded = energyCapacityRemaining / averageHaulerCapacity;
       CreepUtils.consoleLogIfWatched(roomw, `supply spawn tasks: ${haulersNeeded}`);
       for (let i = 0; i < haulersNeeded; i++) {
-        tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 240, pos: spawns[0].pos, override: true, salt: i });
+        tasks.push({ type: TaskType.SUPPLY_SPAWN, priority: 250, pos: spawns[0].pos, override: true, salt: i });
       }
     }
     return tasks;
