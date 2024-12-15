@@ -85,7 +85,7 @@ export class TaskManagement {
 
     // drop repeated requests already assigned to a hauler in a previous tick and sort by priority
     const tasksByPriority = tasks
-      .filter(t => !busyHaulers.some(h => this.isSameTask(h.getTask(), t)))
+      .filter(t => !busyHaulers.some(h => _.isEqual(h.getTask(), t)))
       .sort((a, b) => b.priority - a.priority);
 
     // try to assign tasks to free haulers
@@ -182,10 +182,5 @@ export class TaskManagement {
       .join(", ");
     CreepUtils.consoleLogIfWatched(haulers[0].room, `tasks assigned: ${tasksBeingWorked}`);
     CreepUtils.consoleLogIfWatched(haulers[0].room, `${busyHaulers.length}/${freeHaulers.length} busy/free`);
-  }
-
-  private static isSameTask(task: Task | undefined, t: Task): boolean {
-    // HACK stringify to compare seems dumb
-    return JSON.stringify(task) === JSON.stringify(t);
   }
 }
