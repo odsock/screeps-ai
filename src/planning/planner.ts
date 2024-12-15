@@ -53,8 +53,9 @@ export class Planner {
 
   private createColonyPlan(roomw: RoomWrapper): StructurePlanPosition[] {
     const cacheKey = `${roomw.name}_plan`;
+    const planRcl = MemoryUtils.getCache<number>(`${cacheKey}_rcl`) ?? 0;
     let plan = MemoryUtils.getCache<StructurePlanPosition[]>(cacheKey);
-    if (!plan && roomw.controller) {
+    if (roomw.controller && (!plan || planRcl < roomw.controller.level)) {
       CreepUtils.consoleLogIfWatched(roomw, `no colony plan found, generating plan`);
       const controllerPos = roomw.controller.pos;
       const sourcePositions = roomw.sources.map(source => source.pos);
@@ -87,6 +88,7 @@ export class Planner {
 
       // cache plan forever
       MemoryUtils.setCache(cacheKey, plan, -1);
+      MemoryUtils.setCache(`${cacheKey}_rcl`, roomw.controller?.level, -1);
       return plan;
     }
     console.log(`DEBUG: no plan for ${roomw.name}`);
