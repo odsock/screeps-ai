@@ -1,4 +1,5 @@
 import { TaskType } from "control/tasks/task-management";
+import { MemoryUtils } from "planning/memory-utils";
 import { CreepWrapper } from "roles/creep-wrapper";
 
 export interface TaskInterface {
@@ -11,8 +12,6 @@ export interface TaskInterface {
   cancel: () => void;
   complete: () => void;
 }
-
-// export type Task = SupplyTask | HaulTask | SupplySpawnTask | UnloadTask | SupplyCreepTask | CleanupTask;
 
 export interface SupplyTask {
   type: TaskType.SUPPLY_STRUCTURE;
@@ -90,5 +89,18 @@ export abstract class Task implements TaskInterface {
   }
   public complete(): void {
     // noop
+  }
+
+  public toString(task?: Task): string {
+    if (!task) {
+      task = this;
+    }
+    return JSON.stringify(task, (key, value) => {
+      if (key === "pos") {
+        return MemoryUtils.packRoomPosition(value);
+      } else {
+        return JSON.stringify(value);
+      }
+    });
   }
 }

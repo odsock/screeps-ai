@@ -51,13 +51,10 @@ export class TaskManagement {
 
   private static bumpTasksForOverrideFlags(busyHaulers: CreepWrapper[], unassignedTasks: Task[]) {
     const busyHaulersSorted = busyHaulers.sort((a, b) => (a.getTask()?.priority ?? 0) - (b.getTask()?.priority ?? 0));
-    busyHaulersSorted.forEach(h =>
-      CreepUtils.consoleLogIfWatched(h.room, `checking for task overrides: ${JSON.stringify(h.memory.task)}`)
-    );
     unassignedTasks
       .filter(task => task.override)
       .forEach(task => {
-        CreepUtils.consoleLogIfWatched(busyHaulers[0].room, `override task: ${JSON.stringify(task)}`);
+        CreepUtils.consoleLogIfWatched(busyHaulers[0].room, `override task: ${task.toString()}`);
         const haulerToBump = busyHaulersSorted.find(h => (h.getTask()?.priority ?? 0) <= task.priority);
         if (haulerToBump) {
           const oldTask = haulerToBump.getTask();
