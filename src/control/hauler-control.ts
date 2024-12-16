@@ -61,10 +61,12 @@ export class HaulerControl {
   // TODO cache id's to avoid double find in Hauler
   private createSupplyCreepTasks(roomw: RoomWrapper): SupplyCreepTask[] {
     const tasks: SupplyCreepTask[] = [];
+    const creepTypesToSupply = [CreepRole.BUILDER, CreepRole.WORKER];
+    if (roomw.controllerContainers.length === 0) {
+      creepTypesToSupply.push(CreepRole.UPGRADER);
+    }
     const creeps = roomw.creeps.filter(
-      c =>
-        [CreepRole.BUILDER, CreepRole.UPGRADER, CreepRole.WORKER].includes(c.memory.role) &&
-        c.store.getFreeCapacity() > 0
+      c => creepTypesToSupply.includes(c.memory.role) && c.store.getFreeCapacity() > 0
     );
     if (creeps.length > 0) {
       const pos = CreepUtils.averagePos(creeps);
