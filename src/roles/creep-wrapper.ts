@@ -827,7 +827,7 @@ export abstract class CreepWrapper extends Creep {
   }
 
   public hasResource(resourceType: ResourceConstant): boolean {
-    return this.store.getUsedCapacity(resourceType) === 0;
+    return this.store.getUsedCapacity(resourceType) !== 0;
   }
 
   /** Task management */

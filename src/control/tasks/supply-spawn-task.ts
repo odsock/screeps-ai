@@ -75,6 +75,7 @@ export class SupplySpawnTask extends Task {
       }
     } else {
       const harvestResult = creep.harvestByPriority();
+      CreepUtils.consoleLogIfWatched(creep, `finding energy`, harvestResult);
       creep.completeTask();
       return harvestResult;
     }
