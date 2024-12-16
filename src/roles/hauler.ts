@@ -23,6 +23,7 @@ export class Hauler extends CreepWrapper {
     if (!task.validate()) {
       CreepUtils.consoleLogIfWatched(this, `canceling invalid task`);
       task.cancel();
+      this.completeTask();
       return;
     }
     CreepUtils.consoleLogIfWatched(this, `${task.type} result`, task.work(this));
@@ -65,7 +66,7 @@ export class Hauler extends CreepWrapper {
       return ERR_FULL;
     }
 
-    const target = this.findClosestSourceContainerFillsMyStore();
+    const target = this.findClosestSourceContainerFillsMyStore() ?? this.findClosestSourceContainerNotEmpty();
     let result = this.moveToAndGet(target);
     if (result === OK) {
       return result;
