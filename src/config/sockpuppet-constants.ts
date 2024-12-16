@@ -10,7 +10,7 @@ export class SockPuppetConstants {
 
   public static readonly TOWER_MAX_REPAIR_RANGE = TOWER_OPTIMAL_RANGE;
   public static readonly TOWER_MAX_ATTACK_RANGE = TOWER_OPTIMAL_RANGE * 3;
-  public static readonly TOWER_MAX_HEAL_RANGE = TOWER_OPTIMAL_RANGE * 2;
+  public static readonly TOWER_MAX_HEAL_RANGE = TOWER_OPTIMAL_RANGE * 3;
 
   public static readonly PLANNING_INTERVAL = 10;
   //   BODYPART_COST: {
