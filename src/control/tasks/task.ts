@@ -1,4 +1,5 @@
 import { TaskType } from "control/tasks/task-management";
+import { CreepWrapper } from "roles/creep-wrapper";
 
 export interface TaskInterface {
   pos: RoomPosition;
@@ -83,6 +84,7 @@ export abstract class Task implements TaskInterface {
   }
 
   public abstract validate(): boolean;
+  public abstract work(creep: CreepWrapper): ScreepsReturnCode;
   public cancel(): void {
     // noop
   }

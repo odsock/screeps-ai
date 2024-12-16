@@ -1,5 +1,7 @@
 import { TaskType } from "control/tasks/task-management";
 import { Task } from "./task";
+import { CreepUtils } from "creep-utils";
+import { CreepWrapper } from "roles/creep-wrapper";
 
 export class UnloadTask extends Task {
   public readonly targetId: Id<StructureContainer>;
@@ -41,5 +43,38 @@ export class UnloadTask extends Task {
       return false;
     }
     return true;
+  }
+
+  public work(creep: CreepWrapper): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(creep, `unload task`);
+    let working = !!creep.memory.working;
+    if (creep.isEmpty()) {
+      working = true;
+    }
+    if (creep.isFull()) {
+      working = false;
+    }
+
+    if (working) {
+      CreepUtils.consoleLogIfWatched(creep, "working");
+      const result = creep.moveToAndGet(this.target, this.resourceType);
+      CreepUtils.consoleLogIfWatched(creep, `unload ${String(this.target)}`, result);
+      if (result === OK) {
+        creep.memory.working = false;
+      }
+      return result;
+    } else {
+      CreepUtils.consoleLogIfWatched(creep, `dumping`);
+      const storage = creep.findRoomStorage();
+      if (storage) {
+        const result = creep.moveToAndTransfer(storage, this.resourceType);
+        CreepUtils.consoleLogIfWatched(creep, `dump at ${String(storage)}`, result);
+        if (result === OK) {
+          creep.completeTask();
+        }
+        return result;
+      }
+      return ERR_FULL;
+    }
   }
 }

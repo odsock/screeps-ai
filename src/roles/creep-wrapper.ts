@@ -328,7 +328,7 @@ export abstract class CreepWrapper extends Creep {
    * dismantle structure
    * move to inactive source
    */
-  protected harvestByPriority(): ScreepsReturnCode {
+  public harvestByPriority(): ScreepsReturnCode {
     if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
       return ERR_FULL;
     }
@@ -435,7 +435,7 @@ export abstract class CreepWrapper extends Creep {
     return ERR_BUSY;
   }
 
-  protected moveToAndGet(
+  public moveToAndGet(
     target: Tombstone | Ruin | StructureContainer | StructureStorage | Resource | Source | null | undefined,
     resourceType: ResourceConstant = RESOURCE_ENERGY
   ): ScreepsReturnCode {
@@ -707,7 +707,7 @@ export abstract class CreepWrapper extends Creep {
    * Storage is found in order of storage, spawn, tower, controller container, or any other role creep with space.
    * @returns somewhere to dump energy
    */
-  protected findRoomStorage(): StructureWithStorage | Creep | undefined {
+  public findRoomStorage(): StructureWithStorage | Creep | undefined {
     CreepUtils.consoleLogIfWatched(
       this,
       `room storage: ${String(this.room.storage)} ${String(this.room.storage?.store.getFreeCapacity())}`
@@ -758,7 +758,7 @@ export abstract class CreepWrapper extends Creep {
    * Moves to target and transfers a resource
    * By default, energy
    */
-  protected moveToAndTransfer(
+  public moveToAndTransfer(
     target: StructureWithStorage | Creep,
     resourceType: ResourceConstant = RESOURCE_ENERGY
   ): ScreepsReturnCode {
@@ -816,6 +816,18 @@ export abstract class CreepWrapper extends Creep {
 
   public getStoreContents(): ResourceConstant[] {
     return CreepUtils.getStoreContents(this);
+  }
+
+  public isEmpty(): boolean {
+    return this.store.getUsedCapacity() === 0;
+  }
+
+  public isFull(): boolean {
+    return this.store.getFreeCapacity() === 0;
+  }
+
+  public hasResource(resourceType: ResourceConstant): boolean {
+    return this.store.getUsedCapacity(resourceType) === 0;
   }
 
   /** Task management */

@@ -1,5 +1,7 @@
 import { TaskType } from "control/tasks/task-management";
 import { Task } from "./task";
+import { CreepUtils } from "creep-utils";
+import { Hauler } from "roles/hauler";
 
 export class SupplyStructureTask extends Task {
   public readonly priority: number;
@@ -46,5 +48,41 @@ export class SupplyStructureTask extends Task {
       return false;
     }
     return true;
+  }
+
+  public work(creep: Hauler): ScreepsReturnCode {
+    CreepUtils.consoleLogIfWatched(creep, `supply structure`);
+
+    const target = Game.getObjectById(this.targetId);
+    if (!target) {
+      return ERR_INVALID_TARGET;
+    }
+
+    let working = true;
+    if (creep.isEmpty()) {
+      working = true;
+    }
+    if (creep.hasResource(this.resourceType)) {
+      working = false;
+    }
+
+    if (working) {
+      CreepUtils.consoleLogIfWatched(creep, "seeking energy");
+      const result = creep.loadEnergy();
+      return result;
+    } else {
+      if (!creep.pos.isNearTo(target)) {
+        const moveResult = creep.moveToW(target, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
+        CreepUtils.consoleLogIfWatched(creep, `moving to ${target.structureType} at ${String(target.pos)}`, moveResult);
+        return moveResult;
+      } else {
+        const transferResult = creep.transfer(target, this.resourceType);
+        CreepUtils.consoleLogIfWatched(creep, `transfer result`, transferResult);
+        if (transferResult === OK) {
+          creep.completeTask();
+        }
+        return transferResult;
+      }
+    }
   }
 }
