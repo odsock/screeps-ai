@@ -1,6 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { TargetControl } from "control/target-control";
-import { Task } from "control/task-management";
+import { Task } from "control/tasks/task";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";

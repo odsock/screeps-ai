@@ -1,72 +1,14 @@
 import { CreepUtils } from "creep-utils";
 import { CreepWrapper } from "roles/creep-wrapper";
+import { Task } from "./task";
 
 export enum TaskType {
   HAUL = "HAUL",
-  SUPPLY = "SUPPLY",
+  SUPPLY_STRUCTURE = "SUPPLY_STRUCTURE",
   SUPPLY_SPAWN = "SUPPLY_SPAWN",
   UNLOAD = "UNLOAD",
   SUPPLY_CREEP = "SUPPLY_CREEP",
   CLEANUP = "CLEANUP"
-}
-
-export type Task = SupplyTask | HaulTask | SupplySpawnTask | UnloadTask | SupplyCreepTask | CleanupTask;
-
-export interface SupplyTask {
-  type: TaskType.SUPPLY;
-  priority: number;
-  pos: RoomPosition;
-  targetId: Id<StructureWithStorage>;
-  override?: boolean;
-  resourceType: ResourceConstant;
-  requirements?: (creep: Creep) => boolean;
-  salt?: number;
-}
-
-export interface UnloadTask {
-  type: TaskType.UNLOAD;
-  priority: number;
-  pos: RoomPosition;
-  targetId: Id<StructureContainer>;
-  override?: boolean;
-  resourceType: ResourceConstant;
-  requirements?: (creep: Creep) => boolean;
-}
-
-export interface CleanupTask {
-  type: TaskType.CLEANUP;
-  priority: number;
-  pos: RoomPosition;
-  targetId: Id<Resource | Tombstone | Ruin>;
-  override?: boolean;
-  requirements?: (creep: Creep) => boolean;
-}
-
-export interface HaulTask {
-  type: TaskType.HAUL;
-  priority: number;
-  pos: RoomPosition;
-  creepName: string;
-  targetId: Id<Creep>;
-  override?: boolean;
-  requirements?: (creep: Creep) => boolean;
-}
-
-export interface SupplySpawnTask {
-  type: TaskType.SUPPLY_SPAWN;
-  priority: number;
-  pos: RoomPosition;
-  override?: boolean;
-  salt?: number;
-  requirements?: (creep: Creep) => boolean;
-}
-
-export interface SupplyCreepTask {
-  type: TaskType.SUPPLY_CREEP;
-  priority: number;
-  pos: RoomPosition;
-  override?: boolean;
-  requirements?: (creep: Creep) => boolean;
 }
 
 export class TaskManagement {

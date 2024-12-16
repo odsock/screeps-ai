@@ -1,9 +1,15 @@
 import { CreepRole } from "config/creep-types";
-import { CleanupTask, HaulTask, SupplyTask, TaskType, UnloadTask } from "control/task-management";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 
 import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
+import { UnloadTask } from "control/tasks/unload-task";
+import { CleanupTask } from "control/tasks/cleanup-task";
+import { SupplyStructureTask } from "control/tasks/supply-structure-task";
+import { HaulTask } from "control/tasks/haul-task";
+import { SupplyCreepTask } from "control/tasks/supply-creep-task";
+import { TaskFactory } from "control/tasks/task-factory";
+import { SupplySpawnTask } from "control/tasks/supply-spawn-task";
 
 export class Hauler extends CreepWrapper {
   public static readonly ROLE = CreepRole.HAULER;
@@ -14,61 +20,49 @@ export class Hauler extends CreepWrapper {
   };
 
   public run(): void {
-    CreepUtils.consoleLogIfWatched(
-      this,
-      `task: ${String(this.memory.task?.type)} pri ${String(this.memory.task?.priority)}`
-    );
-    const task = this.memory.task;
-    switch (task?.type) {
-      case TaskType.HAUL:
-        CreepUtils.consoleLogIfWatched(this, `haul result`, this.workHaulTask(task));
-        return;
-      case TaskType.SUPPLY:
-        CreepUtils.consoleLogIfWatched(this, `supply result`, this.workSupplyStructureTask(task));
-        return;
-      case TaskType.SUPPLY_SPAWN:
-        CreepUtils.consoleLogIfWatched(this, `supply spawn result`, this.workSupplySpawnTask());
-        return;
-      case TaskType.UNLOAD:
-        CreepUtils.consoleLogIfWatched(this, `unload container result`, this.workUnloadContainerJob(task));
-        return;
-      case TaskType.SUPPLY_CREEP:
-        CreepUtils.consoleLogIfWatched(this, `supply creep result`, this.workSupplyCreepTask());
-        return;
-      case TaskType.CLEANUP:
-        CreepUtils.consoleLogIfWatched(this, `cleanup result`, this.workCleanupTask(task));
-        return;
-      case undefined:
-        CreepUtils.consoleLogIfWatched(this, `idle tick`, this.handleIdleTick());
-        return;
-
-      default:
-        assertNever(task);
+    const taskMemory = this.memory.task;
+    if (!taskMemory) {
+      CreepUtils.consoleLogIfWatched(this, `idle tick`, this.handleIdleTick());
+      return;
+    }
+    const task = TaskFactory.create(taskMemory);
+    CreepUtils.consoleLogIfWatched(this, `task: ${String(task.type)} pri ${String(task.priority)}`);
+    if (!task.validate()) {
+      CreepUtils.consoleLogIfWatched(this, `canceling invalid task`);
+      task.cancel();
+      return;
     }
 
-    function assertNever(x: never): never {
-      throw new Error("Missing task handler: " + JSON.stringify(x));
+    if (task instanceof HaulTask) {
+      CreepUtils.consoleLogIfWatched(this, `haul result`, this.workHaulTask(task));
+      return;
+    } else if (task instanceof SupplyStructureTask) {
+      CreepUtils.consoleLogIfWatched(this, `supply result`, this.workSupplyStructureTask(task));
+      return;
+    } else if (task instanceof SupplySpawnTask) {
+      CreepUtils.consoleLogIfWatched(this, `supply spawn result`, this.workSupplySpawnTask());
+      return;
+    } else if (task instanceof UnloadTask) {
+      CreepUtils.consoleLogIfWatched(this, `unload container result`, this.workUnloadContainerJob(task));
+      return;
+    } else if (task instanceof SupplyCreepTask) {
+      CreepUtils.consoleLogIfWatched(this, `supply creep result`, this.workSupplyCreepTask(task));
+      return;
+    } else if (task instanceof CleanupTask) {
+      CreepUtils.consoleLogIfWatched(this, `cleanup result`, this.workCleanupTask(task));
+      return;
     }
   }
 
   private workUnloadContainerJob(task: UnloadTask): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `unload source container`);
-    this.pickupAdjacentDroppedEnergy();
-    this.withdrawAdjacentRuinOrTombEnergy();
     this.startWorkingIfEmpty();
     this.stopWorkingIfFull();
 
-    // validate task
-    const target = Game.getObjectById(task.targetId);
-    if (!target || target.store.getUsedCapacity(task.resourceType) === 0) {
-      this.completeTask();
-      return ERR_INVALID_TARGET;
-    }
-
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");
-      const result = this.moveToAndGet(target, task.resourceType);
-      CreepUtils.consoleLogIfWatched(this, `unload ${String(target)}`, result);
+      const result = this.moveToAndGet(task.target, task.resourceType);
+      CreepUtils.consoleLogIfWatched(this, `unload ${String(task.target)}`, result);
       if (result === OK) {
         this.memory.working = false;
       }
@@ -91,20 +85,16 @@ export class Hauler extends CreepWrapper {
 
   private workCleanupTask(task: CleanupTask): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `cleanup drops/tombs/ruins`);
-    this.pickupAdjacentDroppedEnergy();
-    this.withdrawAdjacentRuinOrTombEnergy();
     this.startWorkingIfEmpty();
     this.stopWorkingIfFull();
-
-    const target = Game.getObjectById(task.targetId);
-    if (!target || (!(target instanceof Resource) && target.store.getUsedCapacity() === 0)) {
-      this.completeTask();
-      return ERR_INVALID_TARGET;
-    }
 
     if (this.memory.working) {
       CreepUtils.consoleLogIfWatched(this, "working");
       let resourceType: ResourceConstant;
+      const target = Game.getObjectById(task.targetId);
+      if (!target) {
+        return ERR_INVALID_TARGET;
+      }
       if (!(target instanceof Resource)) {
         const resources = CreepUtils.getStoreContents(target);
         resourceType = resources[0];
@@ -126,7 +116,8 @@ export class Hauler extends CreepWrapper {
     }
   }
 
-  private workSupplyCreepTask(): ScreepsReturnCode {
+  // TODO add target info to supply creep task
+  private workSupplyCreepTask(task: SupplyCreepTask): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `supply creeps`);
     this.pickupAdjacentDroppedEnergy();
     this.withdrawAdjacentRuinOrTombEnergy();
@@ -226,7 +217,7 @@ export class Hauler extends CreepWrapper {
     return OK;
   }
 
-  private workSupplyStructureTask(supplyTask: SupplyTask): ScreepsReturnCode {
+  private workSupplyStructureTask(supplyTask: SupplyStructureTask): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `supply structure`);
 
     const target = Game.getObjectById(supplyTask.targetId);

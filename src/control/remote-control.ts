@@ -9,7 +9,8 @@ import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
-import { HaulTask, TaskManagement, TaskType } from "./task-management";
+import { TaskManagement, TaskType } from "./tasks/task-management";
+import { HaulTask } from "./tasks/haul-task";
 
 export class RemoteControl {
   private readonly targetControl: TargetControl;
@@ -45,14 +46,13 @@ export class RemoteControl {
         creep.memory.targetRoom === targetRoom &&
         creep.memory.role === CreepRole.HARVESTER
     ).map(c => {
-      return {
-        type: TaskType.HAUL,
+      return new HaulTask({
         creepName: c.name,
         targetId: c.id,
         pos: c.pos,
         priority: 200,
         requirements: (hauler: Creep) => hauler.store.getUsedCapacity() === 0
-      };
+      });
     });
   }
 

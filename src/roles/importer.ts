@@ -4,7 +4,8 @@ import { CreepUtils } from "creep-utils";
 import { RemoteCreepWrapper } from "./remote-creep-wrapper";
 
 import { MemoryUtils } from "planning/memory-utils";
-import { HaulTask, TaskType } from "../control/task-management";
+import { TaskType } from "../control/tasks/task-management";
+import { HaulTask } from "control/tasks/haul-task";
 
 export class Importer extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.IMPORTER;
@@ -27,7 +28,11 @@ export class Importer extends RemoteCreepWrapper {
     if (this.memory.task) {
       switch (this.memory.task.type) {
         case TaskType.HAUL:
-          CreepUtils.consoleLogIfWatched(this, `haul harvester`, this.workHaulTask(this.memory.task));
+          CreepUtils.consoleLogIfWatched(
+            this,
+            `haul harvester`,
+            this.workHaulTask(new HaulTask(this.memory.task as HaulTask))
+          );
           return;
 
         default:
