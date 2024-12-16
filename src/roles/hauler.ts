@@ -60,28 +60,39 @@ export class Hauler extends CreepWrapper {
    * drop large enough to fill
    * tomb
    * ruin
+   * source container partial fill
    */
   public loadEnergy(): ScreepsReturnCode {
     if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
       return ERR_FULL;
     }
 
-    const target = this.findClosestSourceContainerFillsMyStore() ?? this.findClosestSourceContainerNotEmpty();
-    let result = this.moveToAndGet(target);
-    if (result === OK) {
-      return result;
-    }
-
-    if (this.room.storage && this.room.storage.store.energy > 0) {
-      result = this.moveToAndGet(this.room.storage);
+    const fullScoopContainers = this.findClosestSourceContainerFillsMyStore();
+    if (fullScoopContainers) {
+      const result = this.moveToAndGet(fullScoopContainers);
       if (result === OK) {
         return result;
       }
     }
 
-    result = this.cleanupDropsTombsRuins();
-    if (result === OK) {
-      return result;
+    if (this.room.storage && this.room.storage.store.energy > 0) {
+      const result = this.moveToAndGet(this.room.storage);
+      if (result === OK) {
+        return result;
+      }
+    }
+
+    const cleanupResult = this.cleanupDropsTombsRuins();
+    if (cleanupResult === OK) {
+      return cleanupResult;
+    }
+
+    const partialScoopContainers = this.findClosestSourceContainerNotEmpty();
+    if (partialScoopContainers) {
+      const result = this.moveToAndGet(partialScoopContainers);
+      if (result === OK) {
+        return result;
+      }
     }
 
     this.say("🤔");
