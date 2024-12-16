@@ -1,6 +1,7 @@
 import { CreepRole } from "config/creep-types";
 import { TargetControl } from "control/target-control";
 import { Task } from "control/tasks/task";
+import { TaskFactory } from "control/tasks/task-factory";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
@@ -843,7 +844,11 @@ export abstract class CreepWrapper extends Creep {
   }
 
   public getTask(): Task | undefined {
-    return this.memory.task;
+    const task = this.memory.task;
+    if (task) {
+      return TaskFactory.create(task);
+    }
+    return undefined;
   }
 
   public completeTask(): void {
