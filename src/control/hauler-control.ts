@@ -29,7 +29,7 @@ export class HaulerControl {
           ...this.createTowerSupplyTasks(roomw),
           ...this.createControllerSupplyTasks(roomw, averageHaulerCapacity),
           ...this.createSupplySpawnTasks(roomw, averageHaulerCapacity),
-          ...this.createUnloadTasks(roomw),
+          ...this.createUnloadSourceContainerTasks(roomw),
           ...this.createSupplyCreepTasks(roomw),
           ...this.createCleanupTasks(roomw),
           ...this.createControllerCleanupTasks(roomw)
@@ -74,7 +74,7 @@ export class HaulerControl {
   }
 
   /** unload source containers over threshold */
-  private createUnloadTasks(roomw: RoomWrapper): UnloadTask[] {
+  private createUnloadSourceContainerTasks(roomw: RoomWrapper): UnloadTask[] {
     return roomw.sourceContainers
       .filter(c => c.store.getFreeCapacity() < c.store.getCapacity() / 4)
       .map(c => {
@@ -87,7 +87,7 @@ export class HaulerControl {
       });
   }
 
-  /** unload source containers over threshold */
+  /** get non-energy resources out of controller containers */
   private createControllerCleanupTasks(roomw: RoomWrapper): UnloadTask[] {
     const tasks: UnloadTask[] = [];
     roomw.controllerContainers
@@ -153,6 +153,7 @@ export class HaulerControl {
       roomw,
       `controller supply: containers below threshold: ${containersBelowThreshold.length}`
     );
+    const priority = roomw.controller?.ticksToDowngrade ?? 9999 < 1000 ? 150 : 80;
     const tasks: SupplyStructureTask[] = [];
     containersBelowThreshold.forEach(c => {
       const haulersNeeded = c.store.getFreeCapacity() / averageHaulerCapacity;
@@ -161,7 +162,7 @@ export class HaulerControl {
           new SupplyStructureTask({
             targetId: c.id,
             pos: c.pos,
-            priority: 100,
+            priority,
             resourceType: RESOURCE_ENERGY,
             salt: i
           })
