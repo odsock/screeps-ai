@@ -2,9 +2,8 @@ import { SpawnUtils } from "control/spawn-utils";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { CreepBodyProfile } from "roles/creep-wrapper";
-
-import { names } from "../utils/names-hp";
 import { RoomWrapper } from "./room-wrapper";
+import { names } from "utils/names-hobbit";
 
 export interface SpawnRequest {
   priority: number;
