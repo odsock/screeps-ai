@@ -42,6 +42,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     Game.cpu.generatePixel();
   }
 
+  // must be last thing in loop to keep cpu calc accurate
   Stats.showStats();
 });
 
