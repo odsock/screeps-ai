@@ -54,7 +54,7 @@ export abstract class Task implements TaskInterface {
     let equals = true;
     equals = equals && this.type === task.type;
     equals = equals && this.priority === task.priority;
-    equals = equals && this.pos.isEqualTo(task.pos);
+    equals = equals && task.pos.isEqualTo(this.pos);
     equals = equals && this.override === task.override;
     equals = equals && this.salt === task.salt;
     equals = equals && this.requirements === task.requirements;
