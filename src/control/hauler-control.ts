@@ -58,21 +58,14 @@ export class HaulerControl {
   }
 
   /** supply builders, upgraders */
-  // TODO cache id's to avoid double find in Hauler
   private createSupplyCreepTasks(roomw: RoomWrapper): SupplyCreepTask[] {
-    const tasks: SupplyCreepTask[] = [];
     const creepTypesToSupply = [CreepRole.BUILDER, CreepRole.WORKER];
     if (roomw.controllerContainers.length === 0) {
       creepTypesToSupply.push(CreepRole.UPGRADER);
     }
-    const creeps = roomw.creeps.filter(
-      c => creepTypesToSupply.includes(c.memory.role) && c.store.getFreeCapacity() > 0
-    );
-    if (creeps.length > 0) {
-      const pos = CreepUtils.averagePos(creeps);
-      tasks.push(new SupplyCreepTask({ priority: 90, pos }));
-    }
-    return tasks;
+    return roomw.creeps
+      .filter(c => creepTypesToSupply.includes(c.memory.role) && c.store.getFreeCapacity() > 0)
+      .map(c => new SupplyCreepTask({ targetId: c.id, creepName: c.name, priority: 90, pos: c.pos }));
   }
 
   /** unload source containers over threshold */
