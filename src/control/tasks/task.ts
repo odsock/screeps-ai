@@ -3,71 +3,16 @@ import { MemoryUtils } from "planning/memory-utils";
 import { CreepWrapper } from "roles/creep-wrapper";
 
 export interface TaskInterface {
-  pos: RoomPosition;
-  requirements?: (creep: Creep) => boolean;
-  override?: boolean;
   type: TaskType;
   priority: number;
+  pos: RoomPosition;
+  override?: boolean;
+  salt?: number;
+  requirements?: (creep: Creep) => boolean;
   validate: () => boolean;
   cancel: () => void;
   complete: () => void;
-}
-
-export interface SupplyTask {
-  type: TaskType.SUPPLY_STRUCTURE;
-  priority: number;
-  pos: RoomPosition;
-  targetId: Id<StructureWithStorage>;
-  override?: boolean;
-  resourceType: ResourceConstant;
-  requirements?: (creep: Creep) => boolean;
-  salt?: number;
-}
-
-export interface UnloadTask {
-  type: TaskType.UNLOAD;
-  priority: number;
-  pos: RoomPosition;
-  targetId: Id<StructureContainer>;
-  override?: boolean;
-  resourceType: ResourceConstant;
-  requirements?: (creep: Creep) => boolean;
-}
-
-export interface CleanupTask {
-  type: TaskType.CLEANUP;
-  priority: number;
-  pos: RoomPosition;
-  targetId: Id<Resource | Tombstone | Ruin>;
-  override?: boolean;
-  requirements?: (creep: Creep) => boolean;
-}
-
-export interface HaulTask {
-  type: TaskType.HAUL;
-  priority: number;
-  pos: RoomPosition;
-  creepName: string;
-  targetId: Id<Creep>;
-  override?: boolean;
-  requirements?: (creep: Creep) => boolean;
-}
-
-export interface SupplySpawnTask {
-  type: TaskType.SUPPLY_SPAWN;
-  priority: number;
-  pos: RoomPosition;
-  override?: boolean;
-  salt?: number;
-  requirements?: (creep: Creep) => boolean;
-}
-
-export interface SupplyCreepTask {
-  type: TaskType.SUPPLY_CREEP;
-  priority: number;
-  pos: RoomPosition;
-  override?: boolean;
-  requirements?: (creep: Creep) => boolean;
+  equals: (task: Task) => boolean;
 }
 
 export abstract class Task implements TaskInterface {
@@ -76,6 +21,7 @@ export abstract class Task implements TaskInterface {
   public readonly pos: RoomPosition;
   public readonly requirements?: ((creep: Creep) => boolean) | undefined;
   public readonly override?: boolean | undefined;
+  public readonly salt?: number;
 
   public constructor(pos: RoomPosition, type: TaskType) {
     this.pos = pos;
@@ -102,5 +48,16 @@ export abstract class Task implements TaskInterface {
         return JSON.stringify(value);
       }
     });
+  }
+
+  public equals(task: Task): boolean {
+    let equals = true;
+    equals = equals && this.type === task.type;
+    equals = equals && this.priority === task.priority;
+    equals = equals && this.pos.isEqualTo(task.pos);
+    equals = equals && this.override === task.override;
+    equals = equals && this.salt === task.salt;
+    equals = equals && this.requirements === task.requirements;
+    return equals;
   }
 }

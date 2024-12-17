@@ -106,4 +106,18 @@ export class HaulTask extends Task {
     }
     return OK;
   }
+
+  public equals(baseTask: Task): boolean {
+    const task = baseTask as HaulTask;
+    let equals = true;
+    equals = equals && this.type === task.type;
+    equals = equals && this.priority === task.priority;
+    equals = equals && this.pos.isEqualTo(task.pos);
+    equals = equals && this.override === task.override;
+    equals = equals && this.salt === task.salt;
+    equals = equals && this.requirements === task.requirements;
+    equals = equals && this.creepName === task.creepName;
+    equals = equals && this.targetId === task.targetId;
+    return equals;
+  }
 }

@@ -27,7 +27,7 @@ export class TaskManagement {
 
     // drop repeated requests already assigned to a hauler in a previous tick and sort by priority
     const tasksByPriority = tasks
-      .filter(t => !busyHaulers.some(h => _.isEqual(h.getTask(), t)))
+      .filter(t => !busyHaulers.some(h => h.getTask()?.equals(t)))
       .sort((a, b) => b.priority - a.priority);
 
     // try to assign tasks to free haulers
