@@ -85,17 +85,4 @@ export class CleanupTask extends Task {
       return ret;
     }
   }
-
-  public equals(baseTask: Task): boolean {
-    const task = baseTask as CleanupTask;
-    let equals = true;
-    equals = equals && this.type === task.type;
-    equals = equals && this.priority === task.priority;
-    equals = equals && task.pos.isEqualTo(this.pos);
-    equals = equals && this.override === task.override;
-    equals = equals && this.salt === task.salt;
-    equals = equals && this.requirements === task.requirements;
-    equals = equals && this.targetId === task.targetId;
-    return equals;
-  }
 }
