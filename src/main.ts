@@ -30,6 +30,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     console.log(error);
   }
 
+  console.log();
   console.log(`<strong>Current game tick is ${Game.time}</strong>`);
   cleanupDeadCreepMemory();
 
