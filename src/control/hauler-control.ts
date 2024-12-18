@@ -18,9 +18,10 @@ export class HaulerControl {
   public run(): void {
     for (const roomName in Game.rooms) {
       const roomw = RoomWrapper.getInstance(roomName);
-      const haulers = _.filter(Game.creeps, c => c.memory.role === Hauler.ROLE && c.memory.homeRoom === roomName).map(
-        c => new Hauler(c)
-      );
+      const haulers = _.filter(
+        Game.creeps,
+        c => !c.spawning && c.memory.role === Hauler.ROLE && c.memory.homeRoom === roomName
+      ).map(c => new Hauler(c));
       const averageHaulerCapacity = (_.sum(haulers.map(c => c.countParts(CARRY))) * CARRY_CAPACITY) / haulers.length;
 
       if (haulers.length > 0) {
