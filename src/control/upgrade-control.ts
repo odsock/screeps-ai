@@ -23,9 +23,10 @@ export class UpgradeControl {
       CreepUtils.consoleLogIfWatched(roomw, `skipping upgraders during construction`);
       return;
     }
-    const spawnQueue = SpawnQueue.getInstance(roomw);
 
-    const upgraderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.UPGRADER);
+    const upgraders = roomw.getUpgraders();
+    const upgradersSpawningCount = SpawnUtils.getSpawningCountForRole(roomw, CreepRole.UPGRADER);
+    const upgraderCount = upgraders.length + upgradersSpawningCount;
     let upgradePositionCount = 1;
     let upgraderWorkPartsActive = 0;
     const upgraderWorkPartsNeeded =
@@ -45,6 +46,7 @@ export class UpgradeControl {
       );
     }
 
+    const spawnQueue = SpawnQueue.getInstance(roomw);
     if (
       upgraderCount === 0 ||
       (upgraderWorkPartsActive < upgraderWorkPartsNeeded && upgraderCount < upgradePositionCount)
@@ -59,6 +61,24 @@ export class UpgradeControl {
         memory: { role: Upgrader.ROLE, containerId: roomw.memory.controller.containerId },
         priority: 80
       });
+    }
+
+    // replace upgrader older than ticks to spawn replacement if at or below needed level
+    if (upgraderCount <= upgradePositionCount && upgraderWorkPartsActive <= upgraderWorkPartsNeeded) {
+      const oldestCreep = CreepUtils.findOldestCreep(upgraders.filter(creep => !creep.memory.retiring));
+      const ticksToSpawn = SpawnUtils.calcSpawnTime(Upgrader.BODY_PROFILE, roomw);
+      if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToSpawn + 50) {
+        CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${Upgrader.ROLE}`);
+        spawnQueue.push({
+          bodyProfile: Upgrader.BODY_PROFILE,
+          max: true,
+          memory: {
+            role: Upgrader.ROLE,
+            replacing: oldestCreep.name
+          },
+          priority: 90
+        });
+      }
     }
   }
 }

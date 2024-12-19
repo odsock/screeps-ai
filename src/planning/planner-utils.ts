@@ -2,6 +2,7 @@ import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { StructurePlan, StructurePlanPosition } from "planning/structure-plan";
 import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
+import { MemoryUtils } from "./memory-utils";
 
 export class PlannerUtils {
   public static findSiteForPattern(
@@ -65,10 +66,6 @@ export class PlannerUtils {
     structureConstant: BuildableStructureConstant
   ): RoomPosition | undefined {
     const positions = this.getPositionSpiral(position, 1);
-    CreepUtils.consoleLogIfWatched(
-      RoomWrapper.getInstance(position.roomName),
-      `spiral positions: ${JSON.stringify(positions)}`
-    );
     const placedPosition = positions.find(pos => pos.createConstructionSite(structureConstant) === OK);
     return placedPosition;
   }
@@ -259,5 +256,59 @@ export class PlannerUtils {
           room.visual.circle(planPos.pos);
         });
     }
+  }
+
+  public static validateContainerInfo(info: ControllerInfo | SourceInfo): ScreepsReturnCode {
+    // check for valid container id
+    if (info.containerId && Game.getObjectById(info.containerId)) {
+      // CreepUtils.consoleLogIfWatched(roomw, `container already exists`);
+      return OK;
+    } else {
+      info.containerId = undefined;
+    }
+
+    // check for valid construction site id
+    if (info.containerConstructionSiteId && Game.getObjectById(info.containerConstructionSiteId)) {
+      // CreepUtils.consoleLogIfWatched(roomw, `container in construction: ${info.containerConstructionSiteId}`);
+      return OK;
+    } else {
+      info.containerConstructionSiteId = undefined;
+    }
+
+    // check for container at pos
+    if (info.containerPos) {
+      const containerMemPos = MemoryUtils.unpackRoomPosition(info.containerPos);
+      const lookResult = containerMemPos
+        .lookFor(LOOK_STRUCTURES)
+        .find(structure => structure.structureType === STRUCTURE_CONTAINER);
+      if (lookResult) {
+        info.containerId = lookResult.id as Id<StructureContainer>;
+        // CreepUtils.consoleLogIfWatched(roomw, `container found at ${String(containerMemPos)}`);
+        return OK;
+      }
+      // check for construction site at pos
+      const containerConstructionSite = containerMemPos
+        .lookFor(LOOK_CONSTRUCTION_SITES)
+        .find(structure => structure.structureType === STRUCTURE_CONTAINER);
+      if (containerConstructionSite) {
+        info.containerConstructionSiteId = containerConstructionSite.id;
+        // CreepUtils.consoleLogIfWatched(roomw, `container in construction at ${String(containerMemPos)}`);
+        return OK;
+      }
+    }
+    return ERR_NOT_FOUND;
+  }
+
+  public static findAdjacentContainerId(pos: RoomPosition): Id<StructureContainer> | undefined {
+    const room = Game.rooms[pos.roomName];
+    if (room) {
+      const lookResult = room
+        .lookForAtArea(LOOK_STRUCTURES, pos.y - 1, pos.x - 1, pos.y + 1, pos.x + 1, true)
+        .find(structure => structure.structure.structureType === STRUCTURE_CONTAINER);
+      if (lookResult?.structure) {
+        return lookResult.structure.id as Id<StructureContainer>;
+      }
+    }
+    return undefined;
   }
 }

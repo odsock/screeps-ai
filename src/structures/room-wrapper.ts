@@ -99,6 +99,38 @@ export class RoomWrapper extends Room {
     return this.room.find(FIND_MY_CREEPS);
   }
 
+  public getCreepsForRole(role: CreepRole): Creep[] {
+    return this.room.find(FIND_MY_CREEPS, { filter: c => c.memory.role === role });
+  }
+
+  public getHarvesters(): Creep[] {
+    return this.getCreepsForRole(CreepRole.HARVESTER);
+  }
+
+  public getUpgraders(): Creep[] {
+    return this.getCreepsForRole(CreepRole.UPGRADER);
+  }
+
+  public getHaulers(): Creep[] {
+    return this.getCreepsForRole(CreepRole.HAULER);
+  }
+
+  public getBuilders(): Creep[] {
+    return this.getCreepsForRole(CreepRole.BUILDER);
+  }
+
+  public getWorkers(): Creep[] {
+    return this.getCreepsForRole(CreepRole.WORKER);
+  }
+
+  public getFixers(): Creep[] {
+    return this.getCreepsForRole(CreepRole.FIXER);
+  }
+
+  public getGuards(): Creep[] {
+    return this.getCreepsForRole(CreepRole.GUARD);
+  }
+
   public get deposits(): Deposit[] {
     return this.room.find(FIND_DEPOSITS);
   }

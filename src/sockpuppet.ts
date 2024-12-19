@@ -1,17 +1,17 @@
-import { Planner } from "planning/planner";
-import { SpawnControl } from "control/spawn-control";
-import { CreepFactory } from "roles/creep-factory";
-import { TowerWrapper } from "structures/tower-wrapper";
-import { RoomWrapper } from "structures/room-wrapper";
-import { DefenseControl } from "control/defense-control";
-import { ReconControl } from "control/recon-control";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
-import { HaulerControl } from "control/hauler-control";
-import { HarvestControl } from "control/harvest-control";
-import { UpgradeControl } from "control/upgrade-control";
-import { BuildControl } from "control/build-control";
-import { RemoteControl } from "control/remote-control";
 import { AttackControl } from "control/attack-control";
+import { BuildControl } from "control/build-control";
+import { DefenseControl } from "control/defense-control";
+import { HarvestControl } from "control/harvest-control";
+import { HaulerControl } from "control/hauler-control";
+import { ReconControl } from "control/recon-control";
+import { RemoteControl } from "control/remote-control";
+import { SpawnControl } from "control/spawn-control";
+import { UpgradeControl } from "control/upgrade-control";
+import { Planner } from "planning/planner";
+import { CreepFactory } from "roles/creep-factory";
+import { RoomWrapper } from "structures/room-wrapper";
+import { TowerWrapper } from "structures/tower-wrapper";
 
 export class Sockpuppet {
   public name = "sockpuppet";

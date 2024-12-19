@@ -122,4 +122,13 @@ export class CreepUtils {
   public static reverseDirection(dir: DirectionConstant): DirectionConstant {
     return ((dir + 4) % 8) as DirectionConstant;
   }
+
+  public static findOldestCreep(creeps: Creep[]): Creep | undefined {
+    return creeps.reduce((oldest: Creep | undefined, c) => {
+      if (!oldest || (c.ticksToLive && oldest.ticksToLive && c.ticksToLive < oldest.ticksToLive)) {
+        return c;
+      }
+      return oldest;
+    }, undefined);
+  }
 }

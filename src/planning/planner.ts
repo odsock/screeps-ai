@@ -4,12 +4,13 @@ import { TargetControl } from "control/target-control";
 import { CreepUtils, LogLevel } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 
-import { ContainerPlan } from "./container-plan";
+import { ControllerPlan } from "./controller-plan";
 import { ExtensionPlan as ExtensionPlanner } from "./extension-plan";
 import { MemoryUtils } from "./memory-utils";
 import { PlannerUtils } from "./planner-utils";
 import { RoadPlan as RoadPlanner } from "./road-plan";
 import { StructurePlanPosition } from "./structure-plan";
+import { SourcePlan } from "./source-plan";
 
 export class Planner {
   private readonly targetControl: TargetControl;
@@ -24,7 +25,7 @@ export class Planner {
       console.log(`${roomw.name}: running planning`);
 
       if (this.targetControl.remoteHarvestRooms.includes(room.name)) {
-        ContainerPlan.placeSourceContainers(roomw);
+        SourcePlan.run(roomw);
       } else if (roomw.controller?.my) {
         this.planColony(roomw);
       }
@@ -40,12 +41,14 @@ export class Planner {
       } else if (roomw.controller?.level === 2) {
         this.createColonyPlan(roomw);
         this.updateColonyStructures(roomw, IGNORE_ROADS);
-        this.planContainers(roomw);
+        SourcePlan.run(roomw);
+        ControllerPlan.run(roomw);
         this.planRoads(roomw);
       } else if (roomw.controller?.level >= 3) {
         this.createColonyPlan(roomw);
         this.updateColonyStructures(roomw);
-        this.planContainers(roomw);
+        SourcePlan.run(roomw);
+        ControllerPlan.run(roomw);
         this.planRoads(roomw);
       }
     }
@@ -140,18 +143,6 @@ export class Planner {
       roomw.visual.circle(structure.pos, { fill: "#FF0000" });
     });
     roomw.dismantleVisual = roomw.visual.export();
-  }
-
-  private planContainers(roomw: RoomWrapper): ScreepsReturnCode {
-    // place source containers
-    const sourceContainerResult = ContainerPlan.placeSourceContainers(roomw);
-    if (sourceContainerResult !== OK) {
-      return sourceContainerResult;
-    }
-
-    // place controller containers
-    const controllerContainerResult = ContainerPlan.placeControllerContainer(roomw);
-    return controllerContainerResult;
   }
 
   private planRoads(roomw: RoomWrapper): StructurePlanPosition[] {

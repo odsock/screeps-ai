@@ -114,8 +114,12 @@ export class SpawnUtils {
     const count = roomw
       .find(FIND_MY_CREEPS)
       .filter(creep => creep.memory.role === role && creep.memory.homeRoom === roomw.name).length;
-    const numSpawning = roomw.spawns.filter(spawn => spawn.spawning?.name.startsWith(role)).length;
+    const numSpawning = SpawnUtils.getSpawningCountForRole(roomw, role);
     return count + numSpawning;
+  }
+
+  public static getSpawningCountForRole(roomw: RoomWrapper, role: CreepRole): number {
+    return roomw.spawns.filter(spawn => spawn.spawning?.name.startsWith(role)).length;
   }
 
   /** Request spawn of replacement for oldest creep of type, if ticks to live less than replacement time */
@@ -168,6 +172,7 @@ export class SpawnUtils {
     }, 0);
   }
 
+  /** count spawning creeps in roomw of type targetting targetRoom */
   public static getSpawningCountForTarget(roomw: RoomWrapper, type: CreepRole, targetRoom: string): number {
     return roomw.spawns.filter(
       s => s.spawning && s.memory.spawning?.memory.role === type && s.memory.spawning.memory.targetRoom === targetRoom
