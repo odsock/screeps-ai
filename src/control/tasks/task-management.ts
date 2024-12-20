@@ -74,7 +74,10 @@ export class TaskManagement {
     freeHaulers: CreepWrapper[],
     busyHaulers: CreepWrapper[],
     room: Room
-  ) {
+  ): Task[] {
+    if (freeHaulers.length === 0) {
+      return tasksByPriority;
+    }
     const unassignedTasks: Task[] = [];
     tasksByPriority.forEach(task => {
       const acceptableHaulers = freeHaulers.filter(hauler => !task.requirements || task.requirements(hauler));
