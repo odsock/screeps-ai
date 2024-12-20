@@ -3,8 +3,14 @@ import { MemoryUtils } from "./memory-utils";
 import { PlannerUtils } from "./planner-utils";
 
 export class ControllerPlan {
-  public static run(roomw: RoomWrapper) {
-    throw new Error("Method not implemented.");
+  public static run(roomw: RoomWrapper): void {
+    const rcl = roomw.controller?.level ?? 0;
+    if (rcl >= 2) {
+      this.placeControllerContainer(roomw);
+    }
+    // if (rcl >= 5) {
+    //   this.placeSourceLinks(roomw);
+    // }
   }
   public static placeControllerContainer(roomw: RoomWrapper): ScreepsReturnCode {
     if (roomw.controller) {
