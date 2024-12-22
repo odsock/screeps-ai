@@ -50,7 +50,6 @@ declare global {
     containerPos?: string;
     containerId?: Id<StructureContainer>;
     minderId?: Id<Creep>;
-    haulerId?: Id<Creep>;
     linkId?: Id<StructureLink>;
   }
 

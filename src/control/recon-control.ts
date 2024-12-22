@@ -116,9 +116,6 @@ export class ReconControl {
       if (sourceInfo.minderId && !Game.getObjectById(sourceInfo.minderId)) {
         sourceInfo.minderId = undefined;
       }
-      if (sourceInfo.haulerId && !Game.getObjectById(sourceInfo.haulerId)) {
-        sourceInfo.haulerId = undefined;
-      }
     }
   }
 
