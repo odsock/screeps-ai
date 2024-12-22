@@ -11,19 +11,6 @@ global.sockpuppet = new Sockpuppet();
 global.LOG_LEVEL = LogLevel.DEBUG;
 MemoryUtils.setCache(SockPuppetConstants.START_TICK, Game.time, -1);
 
-// one time migration code
-_.forEach(Game.rooms, room => {
-  _.forEach(room.memory.sources, sourceInfo => {
-    if (sourceInfo.containerPos) {
-      sourceInfo.container = {
-        id: sourceInfo.containerId,
-        constructionSiteId: sourceInfo.containerConstructionSiteId,
-        pos: sourceInfo.containerPos
-      };
-    }
-  });
-});
-
 recordUsername();
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
