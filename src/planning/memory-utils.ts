@@ -46,10 +46,12 @@ declare global {
     harvestPositions: string[];
     id: Id<Source>;
     pos: string;
+    container?: StructureInfo<StructureContainer>;
     containerConstructionSiteId?: Id<ConstructionSite>;
     containerPos?: string;
     containerId?: Id<StructureContainer>;
     minderId?: Id<Creep>;
+    link?: StructureInfo<StructureLink>;
     linkId?: Id<StructureLink>;
   }
 
@@ -57,14 +59,22 @@ declare global {
     [id: string]: SourceInfo;
   }
 
+  interface StructureInfo<T> {
+    id?: Id<T>;
+    constructionSiteId?: Id<ConstructionSite>;
+    pos: string;
+  }
+
   interface ControllerInfo {
     pos: string;
     owner?: Owner;
     reservation?: ReservationDefinition;
+    container?: StructureInfo<StructureContainer>;
     containerConstructionSiteId?: Id<ConstructionSite>;
     containerPos?: string;
     containerId?: Id<StructureContainer>;
     haulerId?: Id<Creep>;
+    link?: StructureInfo<StructureLink>;
     linkId?: Id<StructureLink>;
     ticksToDowngrade: number;
     upgradeBlocked: number;
