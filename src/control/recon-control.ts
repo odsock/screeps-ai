@@ -107,8 +107,8 @@ export class ReconControl {
     // validate id's
     for (const sourceId in room.memory.sources) {
       const sourceInfo = room.memory.sources[sourceId];
-      if (sourceInfo.containerId && !Game.getObjectById(sourceInfo.containerId)) {
-        sourceInfo.containerId = undefined;
+      if (sourceInfo.container?.id && !Game.getObjectById(sourceInfo.container.id)) {
+        sourceInfo.container.id = undefined;
       }
       if (sourceInfo.linkId && !Game.getObjectById(sourceInfo.linkId)) {
         sourceInfo.linkId = undefined;

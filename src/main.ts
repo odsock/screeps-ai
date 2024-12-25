@@ -13,6 +13,31 @@ MemoryUtils.setCache(SockPuppetConstants.START_TICK, Game.time, -1);
 
 recordUsername();
 
+// one time migration code
+_.forEach(Game.rooms, room => {
+  _.forEach(room.memory.sources, sourceInfo => {
+    if (sourceInfo.containerPos) {
+      sourceInfo.container = {
+        type: STRUCTURE_CONTAINER,
+        id: sourceInfo.containerId,
+        constructionSiteId: sourceInfo.containerConstructionSiteId,
+        pos: sourceInfo.containerPos
+      };
+    }
+  });
+});
+
+_.forEach(Game.rooms, room => {
+  if (room.memory.controller.containerPos) {
+    room.memory.controller.container = {
+      type: STRUCTURE_CONTAINER,
+      id: room.memory.controller.containerId,
+      constructionSiteId: room.memory.controller.containerConstructionSiteId,
+      pos: room.memory.controller.containerPos
+    };
+  }
+});
+
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {

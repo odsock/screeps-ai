@@ -59,7 +59,8 @@ declare global {
     [id: string]: SourceInfo;
   }
 
-  interface StructureInfo<T> {
+  interface StructureInfo<T extends Structure> {
+    type: StructureConstant;
     id?: Id<T>;
     constructionSiteId?: Id<ConstructionSite>;
     pos: string;

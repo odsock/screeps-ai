@@ -30,21 +30,30 @@ export class SourcePlan {
 
   private static placeSourceContainers(roomw: RoomWrapper): ScreepsReturnCode {
     for (const source of roomw.sources) {
-      if (PlannerUtils.validateContainerInfo(roomw.memory.sources[source.id]) === OK) {
+      const containerInfo = roomw.memory.sources[source.id].container;
+      if (containerInfo && PlannerUtils.validateStructureInfo(containerInfo) === OK) {
         continue;
       }
 
       // search for unknown existing container
-      const adjacentContainerId = PlannerUtils.findAdjacentContainerId(source.pos);
-      if (adjacentContainerId) {
-        roomw.memory.sources[source.id].containerId = adjacentContainerId;
-        continue;
+      const id = PlannerUtils.findAdjacentContainerId(source.pos);
+      if (id) {
+        const container = Game.getObjectById(id);
+        if (container) {
+          const pos = MemoryUtils.packRoomPosition(container.pos);
+          roomw.memory.sources[source.id].container = { type: STRUCTURE_CONTAINER, id, pos };
+          continue;
+        }
       }
 
       // place container at this source
       const pos = PlannerUtils.placeStructureAdjacent(source.pos, STRUCTURE_CONTAINER);
       if (pos) {
-        roomw.memory.sources[source.id].containerPos = MemoryUtils.packRoomPosition(pos);
+        roomw.memory.sources[source.id].container = {
+          type: STRUCTURE_CONTAINER,
+          id,
+          pos: MemoryUtils.packRoomPosition(pos)
+        };
         continue;
       }
 

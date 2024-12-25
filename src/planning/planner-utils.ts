@@ -258,41 +258,40 @@ export class PlannerUtils {
     }
   }
 
-  public static validateContainerInfo(info: ControllerInfo | SourceInfo): ScreepsReturnCode {
+  public static validateStructureInfo<T extends Structure>(info: StructureInfo<T>): ScreepsReturnCode {
     // check for valid container id
-    if (info.containerId && Game.getObjectById(info.containerId)) {
-      // CreepUtils.consoleLogIfWatched(roomw, `container already exists`);
+    if (info.id && Game.getObjectById(info.id)) {
       return OK;
     } else {
-      info.containerId = undefined;
+      info.id = undefined;
     }
 
     // check for valid construction site id
-    if (info.containerConstructionSiteId && Game.getObjectById(info.containerConstructionSiteId)) {
-      // CreepUtils.consoleLogIfWatched(roomw, `container in construction: ${info.containerConstructionSiteId}`);
-      return OK;
-    } else {
-      info.containerConstructionSiteId = undefined;
+    if (info.constructionSiteId) {
+      const constructionSite = Game.getObjectById(info.constructionSiteId);
+      if (constructionSite?.structureType === info.type) {
+        return OK;
+      } else {
+        info.constructionSiteId = undefined;
+      }
     }
 
-    // check for container at pos
-    if (info.containerPos) {
-      const containerMemPos = MemoryUtils.unpackRoomPosition(info.containerPos);
+    // check for structure at pos
+    if (info.pos) {
+      const containerMemPos = MemoryUtils.unpackRoomPosition(info.pos);
       const lookResult = containerMemPos
         .lookFor(LOOK_STRUCTURES)
-        .find(structure => structure.structureType === STRUCTURE_CONTAINER);
+        .find(structure => structure.structureType === info.type);
       if (lookResult) {
-        info.containerId = lookResult.id as Id<StructureContainer>;
-        // CreepUtils.consoleLogIfWatched(roomw, `container found at ${String(containerMemPos)}`);
+        info.id = lookResult.id as Id<T>;
         return OK;
       }
       // check for construction site at pos
-      const containerConstructionSite = containerMemPos
+      const constructionSite = containerMemPos
         .lookFor(LOOK_CONSTRUCTION_SITES)
-        .find(structure => structure.structureType === STRUCTURE_CONTAINER);
-      if (containerConstructionSite) {
-        info.containerConstructionSiteId = containerConstructionSite.id;
-        // CreepUtils.consoleLogIfWatched(roomw, `container in construction at ${String(containerMemPos)}`);
+        .find(structure => structure.structureType === info.type);
+      if (constructionSite) {
+        info.constructionSiteId = constructionSite.id;
         return OK;
       }
     }

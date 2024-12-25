@@ -296,8 +296,8 @@ export class RoomWrapper extends Room {
     const list: StructureContainer[] = [];
     for (const sourceId in this.room.memory.sources) {
       const sourceInfo = this.room.memory.sources[sourceId];
-      if (sourceInfo.containerId) {
-        const container = Game.getObjectById(sourceInfo.containerId);
+      if (sourceInfo.container?.id) {
+        const container = Game.getObjectById(sourceInfo.container.id);
         if (container) {
           list.push(container);
         }

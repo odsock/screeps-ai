@@ -119,7 +119,7 @@ export class Hauler extends CreepWrapper {
   private findClosestSourceContainerFillsMyStore() {
     const sourceContainers: StructureContainer[] = [];
     _.forEach(this.roomw.memory.sources, s => {
-      const container = s.containerId ? Game.getObjectById(s.containerId) : undefined;
+      const container = s.container?.id ? Game.getObjectById(s.container.id) : undefined;
       if (container && container.store.energy >= this.store.getCapacity()) {
         sourceContainers.push(container);
       }

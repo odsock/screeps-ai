@@ -150,8 +150,8 @@ export class Harvester extends Minder {
         return undefined;
       }
 
-      if (sourceInfo.minderId === this.id && sourceInfo.containerId) {
-        const container = Game.getObjectById(sourceInfo.containerId);
+      if (sourceInfo.minderId === this.id && sourceInfo.container?.id) {
+        const container = Game.getObjectById(sourceInfo.container?.id);
         if (container) {
           CreepUtils.consoleLogIfWatched(this, `setting cached container reference`);
           this.myContainer = container;
@@ -174,15 +174,15 @@ export class Harvester extends Minder {
   /** set id's for minder and container if not already claimed */
   private claimContainerAtSource(sourceInfo: SourceInfo) {
     if (
-      sourceInfo.containerId &&
+      sourceInfo.container?.id &&
       (!sourceInfo.minderId ||
         sourceInfo.minderId === this.id ||
         MemoryUtils.unpackRoomPosition(sourceInfo.containerPos ?? "0,0").isEqualTo(this.pos.x, this.pos.y))
     ) {
-      const container = Game.getObjectById(sourceInfo.containerId);
+      const container = Game.getObjectById(sourceInfo.container.id);
       if (container) {
         sourceInfo.minderId = this.id;
-        CreepUtils.consoleLogIfWatched(this, `claimed source container: ${sourceInfo.containerId}`);
+        CreepUtils.consoleLogIfWatched(this, `claimed source container: ${sourceInfo.container.id}`);
         return container;
       }
       CreepUtils.consoleLogIfWatched(this, `container id invalid`);

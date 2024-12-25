@@ -16,7 +16,10 @@ export class ControllerPlan {
     if (roomw.controller) {
       // CreepUtils.consoleLogIfWatched(roomw, `place controller container`);
       // check memory for known container
-      if (PlannerUtils.validateContainerInfo(roomw.memory.controller) === OK) {
+      if (
+        roomw.memory.controller.container &&
+        PlannerUtils.validateStructureInfo(roomw.memory.controller.container) === OK
+      ) {
         return OK;
       }
 
