@@ -33,7 +33,7 @@ export class HaulerControl {
           ...this.createUnloadSourceContainerTasks(roomw),
           ...this.createSupplyCreepTasks(roomw),
           ...this.createCleanupTasks(roomw),
-          ...this.createControllerCleanupTasks(roomw)
+          ...this.createContainerCleanupTasks(roomw)
         ]);
       }
 
@@ -83,13 +83,14 @@ export class HaulerControl {
       });
   }
 
-  /** get non-energy resources out of controller containers */
-  private createControllerCleanupTasks(roomw: RoomWrapper): UnloadTask[] {
+  /** get non-energy resources out of containers */
+  private createContainerCleanupTasks(roomw: RoomWrapper): UnloadTask[] {
     const tasks: UnloadTask[] = [];
     roomw.controllerContainers
+      .concat(roomw.sourceContainers)
       .filter(c => c.store.energy < c.store.getUsedCapacity())
       .forEach(c => {
-        CreepUtils.getStoreContents(c).map(resource => {
+        CreepUtils.getStoreContents(c).forEach(resource => {
           tasks.push(
             new UnloadTask({
               priority: 50,
