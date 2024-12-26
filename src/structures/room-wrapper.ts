@@ -237,8 +237,8 @@ export class RoomWrapper extends Room {
     let target = this.controller.pos;
     let range = 3;
     // prefer container if one exists
-    if (this.memory.controller.containerId) {
-      const container = Game.getObjectById(this.memory.controller.containerId);
+    if (this.memory.controller.container?.id) {
+      const container = Game.getObjectById(this.memory.controller.container.id);
       if (container) {
         range = 1;
         target = container.pos;
@@ -307,8 +307,8 @@ export class RoomWrapper extends Room {
   }
 
   public get controllerContainers(): StructureContainer[] {
-    if (this.memory.controller.containerId) {
-      const container = Game.getObjectById(this.memory.controller.containerId);
+    if (this.memory.controller.container?.id) {
+      const container = Game.getObjectById(this.memory.controller.container.id);
       if (container) {
         return [container];
       }

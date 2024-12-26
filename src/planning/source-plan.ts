@@ -51,7 +51,6 @@ export class SourcePlan {
       if (pos) {
         roomw.memory.sources[source.id].container = {
           type: STRUCTURE_CONTAINER,
-          id,
           pos: MemoryUtils.packRoomPosition(pos)
         };
         continue;

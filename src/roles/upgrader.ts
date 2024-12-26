@@ -105,13 +105,13 @@ export class Upgrader extends Minder {
   protected withdrawFromMyContainer(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `withdrawing`);
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
-    if (this.room.memory.controller.containerId) {
-      const container = Game.getObjectById(this.room.memory.controller.containerId);
+    if (this.room.memory.controller.container?.id) {
+      const container = Game.getObjectById(this.room.memory.controller.container.id);
       if (container) {
         result = this.withdraw(container, RESOURCE_ENERGY);
       } else {
         CreepUtils.consoleLogIfWatched(this, `controller container id invalid`);
-        this.room.memory.controller.containerId = undefined;
+        this.room.memory.controller.container.id = undefined;
       }
     }
     CreepUtils.consoleLogIfWatched(this, `withdraw result`, result);

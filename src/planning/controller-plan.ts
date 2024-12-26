@@ -12,9 +12,9 @@ export class ControllerPlan {
     //   this.placeSourceLinks(roomw);
     // }
   }
+
   public static placeControllerContainer(roomw: RoomWrapper): ScreepsReturnCode {
     if (roomw.controller) {
-      // CreepUtils.consoleLogIfWatched(roomw, `place controller container`);
       // check memory for known container
       if (
         roomw.memory.controller.container &&
@@ -24,22 +24,25 @@ export class ControllerPlan {
       }
 
       // search for unknown existing container
-      const adjacentContainerId = PlannerUtils.findAdjacentContainerId(roomw.controller.pos);
-      if (adjacentContainerId) {
-        // CreepUtils.consoleLogIfWatched(roomw, `controller container found: ${adjacentContainerId}`);
-        roomw.memory.controller.containerId = adjacentContainerId;
-        return OK;
+      const id = PlannerUtils.findAdjacentContainerId(roomw.controller.pos);
+      if (id) {
+        const container = Game.getObjectById(id);
+        if (container) {
+          const pos = MemoryUtils.packRoomPosition(container.pos);
+          roomw.memory.controller.container = { type: STRUCTURE_CONTAINER, id, pos };
+          return OK;
+        }
       }
 
       // place the container
-      // CreepUtils.consoleLogIfWatched(roomw, `controller has no container in memory`);
       const containerPos = PlannerUtils.placeStructureAdjacent(roomw.controller.pos, STRUCTURE_CONTAINER);
       if (containerPos) {
-        // CreepUtils.consoleLogIfWatched(roomw, `placing controller container`);
-        roomw.memory.controller.containerPos = MemoryUtils.packRoomPosition(containerPos);
+        roomw.memory.controller.container = {
+          type: STRUCTURE_CONTAINER,
+          pos: MemoryUtils.packRoomPosition(containerPos)
+        };
         return OK;
       }
-      // CreepUtils.consoleLogIfWatched(roomw, `ERROR: failed to place controller container`);
       return ERR_INVALID_TARGET;
     }
     return OK;
