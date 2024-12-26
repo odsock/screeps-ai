@@ -36,14 +36,11 @@ export class SourcePlan {
       }
 
       // search for unknown existing container
-      const id = PlannerUtils.findAdjacentContainerId(source.pos);
-      if (id) {
-        const container = Game.getObjectById(id);
-        if (container) {
-          const pos = MemoryUtils.packRoomPosition(container.pos);
-          roomw.memory.sources[source.id].container = { type: STRUCTURE_CONTAINER, id, pos };
-          continue;
-        }
+      const container = PlannerUtils.findAdjacentContainer(source.pos);
+      if (container) {
+        const pos = MemoryUtils.packRoomPosition(container.pos);
+        roomw.memory.sources[source.id].container = { type: STRUCTURE_CONTAINER, id: container.id, pos };
+        continue;
       }
 
       // place container at this source

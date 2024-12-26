@@ -214,7 +214,7 @@ export class PlannerUtils {
   /**
    * calling lookAt is cheaper than failing when already placed
    */
-  private static placed(roomw: RoomWrapper, planPosition: StructurePlanPosition) {
+  private static placed(roomw: RoomWrapper, planPosition: StructurePlanPosition): boolean {
     const placed = roomw
       .lookAt(planPosition.pos)
       .some(
@@ -228,7 +228,7 @@ export class PlannerUtils {
   /**
    *  check RCL yourself before attempting create construction site
    */
-  private static haveRcl(roomw: RoomWrapper, planPosition: StructurePlanPosition) {
+  private static haveRcl(roomw: RoomWrapper, planPosition: StructurePlanPosition): boolean {
     const structureCount = roomw.find(FIND_STRUCTURES, {
       filter: s => s.structureType === planPosition.structure
     }).length;
@@ -298,14 +298,14 @@ export class PlannerUtils {
     return ERR_NOT_FOUND;
   }
 
-  public static findAdjacentContainerId(pos: RoomPosition): Id<StructureContainer> | undefined {
+  public static findAdjacentContainer(pos: RoomPosition): StructureContainer | undefined {
     const room = Game.rooms[pos.roomName];
     if (room) {
       const lookResult = room
         .lookForAtArea(LOOK_STRUCTURES, pos.y - 1, pos.x - 1, pos.y + 1, pos.x + 1, true)
         .find(structure => structure.structure.structureType === STRUCTURE_CONTAINER);
       if (lookResult?.structure) {
-        return lookResult.structure.id as Id<StructureContainer>;
+        return lookResult.structure as StructureContainer;
       }
     }
     return undefined;

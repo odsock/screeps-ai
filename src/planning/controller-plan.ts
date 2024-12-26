@@ -24,14 +24,11 @@ export class ControllerPlan {
       }
 
       // search for unknown existing container
-      const id = PlannerUtils.findAdjacentContainerId(roomw.controller.pos);
-      if (id) {
-        const container = Game.getObjectById(id);
-        if (container) {
-          const pos = MemoryUtils.packRoomPosition(container.pos);
-          roomw.memory.controller.container = { type: STRUCTURE_CONTAINER, id, pos };
-          return OK;
-        }
+      const container = PlannerUtils.findAdjacentContainer(roomw.controller.pos);
+      if (container) {
+        const pos = MemoryUtils.packRoomPosition(container.pos);
+        roomw.memory.controller.container = { type: STRUCTURE_CONTAINER, id: container.id, pos };
+        return OK;
       }
 
       // place the container
