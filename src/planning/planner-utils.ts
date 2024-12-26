@@ -59,15 +59,14 @@ export class PlannerUtils {
 
   /**
    * Creates construction site next to position.
-   * Returns ID of construction site, or null if failed to create it.
+   * Returns position of construction site, or undefined if failed to create it.
    */
   public static placeStructureAdjacent(
     position: RoomPosition,
     structureConstant: BuildableStructureConstant
   ): RoomPosition | undefined {
     const positions = this.getPositionSpiral(position, 1);
-    const placedPosition = positions.find(pos => pos.createConstructionSite(structureConstant) === OK);
-    return placedPosition;
+    return positions.find(pos => pos.createConstructionSite(structureConstant) === OK);
   }
 
   /*
@@ -307,6 +306,25 @@ export class PlannerUtils {
       if (lookResult?.structure) {
         return lookResult.structure as StructureContainer;
       }
+    }
+    return undefined;
+  }
+
+  public static placeAdjacentContainer(
+    roomw: RoomWrapper,
+    pos: RoomPosition,
+    containerInfo?: StructureInfo<StructureContainer>
+  ): StructureInfo<StructureContainer> | undefined {
+    if (containerInfo && PlannerUtils.validateStructureInfo(containerInfo) === OK) {
+      return containerInfo;
+    }
+
+    const containerPos = PlannerUtils.placeStructureAdjacent(pos, STRUCTURE_CONTAINER);
+    if (containerPos) {
+      return {
+        type: STRUCTURE_CONTAINER,
+        pos: MemoryUtils.packRoomPosition(containerPos)
+      };
     }
     return undefined;
   }
