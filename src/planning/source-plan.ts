@@ -19,9 +19,9 @@ export class SourcePlan {
     const rcl = roomw.controller?.level ?? 0;
     if (rcl >= 2) {
       for (const source of roomw.sources) {
-        const containerInfo = PlannerUtils.placeAdjacentContainer(
-          roomw,
+        const containerInfo = PlannerUtils.placeAdjacentStructure<StructureContainer>(
           source.pos,
+          STRUCTURE_CONTAINER,
           roomw.memory.sources[source.id].container
         );
         roomw.memory.sources[source.id].container = containerInfo;

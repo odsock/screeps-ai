@@ -8,9 +8,9 @@ export class ControllerPlan {
     }
     const rcl = roomw.controller?.level ?? 0;
     if (rcl >= 2) {
-      const containerInfo = PlannerUtils.placeAdjacentContainer(
-        roomw,
+      const containerInfo = PlannerUtils.placeAdjacentStructure(
         roomw.controller.pos,
+        STRUCTURE_CONTAINER,
         roomw.memory.controller.container
       );
       roomw.memory.controller.container = containerInfo;

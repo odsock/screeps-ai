@@ -57,18 +57,6 @@ export class PlannerUtils {
     return new RoomPosition(pointSum.x / positions.length, pointSum.y / positions.length, positions[0].roomName);
   }
 
-  /**
-   * Creates construction site next to position.
-   * Returns position of construction site, or undefined if failed to create it.
-   */
-  public static placeStructureAdjacent(
-    position: RoomPosition,
-    structureConstant: BuildableStructureConstant
-  ): RoomPosition | undefined {
-    const positions = this.getPositionSpiral(position, 1);
-    return positions.find(pos => pos.createConstructionSite(structureConstant) === OK);
-  }
-
   /*
    * Calculates a clockwise spiral from the center position out to a radius of max range. First step is to the right.
    */
@@ -310,20 +298,22 @@ export class PlannerUtils {
     return undefined;
   }
 
-  public static placeAdjacentContainer(
-    roomw: RoomWrapper,
-    pos: RoomPosition,
-    containerInfo?: StructureInfo<StructureContainer>
-  ): StructureInfo<StructureContainer> | undefined {
-    if (containerInfo && PlannerUtils.validateStructureInfo(containerInfo) === OK) {
-      return containerInfo;
+  public static placeAdjacentStructure<T extends Structure<StructureConstant>>(
+    centerPos: RoomPosition,
+    type: BuildableStructureConstant,
+    info?: StructureInfo<T>
+  ): StructureInfo<T> | undefined {
+    if (info && PlannerUtils.validateStructureInfo(info) === OK) {
+      return info;
     }
 
-    const containerPos = PlannerUtils.placeStructureAdjacent(pos, STRUCTURE_CONTAINER);
-    if (containerPos) {
+    const positions = this.getPositionSpiral(centerPos, 1);
+    const structurePos = positions.find(pos => pos.createConstructionSite(type) === OK);
+
+    if (structurePos) {
       return {
-        type: STRUCTURE_CONTAINER,
-        pos: MemoryUtils.packRoomPosition(containerPos)
+        type,
+        pos: MemoryUtils.packRoomPosition(structurePos)
       };
     }
     return undefined;
