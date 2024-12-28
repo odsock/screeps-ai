@@ -47,12 +47,8 @@ declare global {
     id: Id<Source>;
     pos: string;
     container?: StructureInfo<StructureContainer>;
-    containerConstructionSiteId?: Id<ConstructionSite>;
-    containerPos?: string;
-    containerId?: Id<StructureContainer>;
     minderId?: Id<Creep>;
     link?: StructureInfo<StructureLink>;
-    linkId?: Id<StructureLink>;
   }
 
   interface RoomSources {
@@ -71,12 +67,8 @@ declare global {
     owner?: Owner;
     reservation?: ReservationDefinition;
     container?: StructureInfo<StructureContainer>;
-    containerConstructionSiteId?: Id<ConstructionSite>;
-    containerPos?: string;
-    containerId?: Id<StructureContainer>;
     haulerId?: Id<Creep>;
     link?: StructureInfo<StructureLink>;
-    linkId?: Id<StructureLink>;
     ticksToDowngrade: number;
     upgradeBlocked: number;
     level: number;

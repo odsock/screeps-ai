@@ -50,7 +50,7 @@ export class Harvester extends Minder {
       CreepUtils.consoleLogIfWatched(this, `repair container`, result);
       return result;
     } else if (source) {
-      const constructionSiteId = Memory.rooms[source.room.name]?.sources[source.id]?.containerConstructionSiteId;
+      const constructionSiteId = Memory.rooms[source.room.name]?.sources[source.id]?.container?.constructionSiteId;
       if (constructionSiteId) {
         const site = Game.getObjectById<ConstructionSite<BuildableStructureConstant>>(constructionSiteId);
         if (site) {
@@ -177,7 +177,7 @@ export class Harvester extends Minder {
       sourceInfo.container?.id &&
       (!sourceInfo.minderId ||
         sourceInfo.minderId === this.id ||
-        MemoryUtils.unpackRoomPosition(sourceInfo.containerPos ?? "0,0").isEqualTo(this.pos.x, this.pos.y))
+        MemoryUtils.unpackRoomPosition(sourceInfo.container?.pos ?? "0,0").isEqualTo(this.pos.x, this.pos.y))
     ) {
       const container = Game.getObjectById(sourceInfo.container.id);
       if (container) {

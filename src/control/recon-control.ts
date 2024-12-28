@@ -86,11 +86,11 @@ export class ReconControl {
     room.memory.controller.level = room.controller.level;
 
     // validate id's
-    if (controllerInfo.containerId && !Game.getObjectById(controllerInfo.containerId)) {
-      controllerInfo.containerId = undefined;
+    if (controllerInfo.container?.id && !Game.getObjectById(controllerInfo.container.id)) {
+      controllerInfo.container.id = undefined;
     }
-    if (controllerInfo.linkId && !Game.getObjectById(controllerInfo.linkId)) {
-      controllerInfo.linkId = undefined;
+    if (controllerInfo.link?.id && !Game.getObjectById(controllerInfo.link.id)) {
+      controllerInfo.link.id = undefined;
     }
     if (controllerInfo.haulerId && !Game.getObjectById(controllerInfo.haulerId)) {
       controllerInfo.haulerId = undefined;
@@ -110,8 +110,8 @@ export class ReconControl {
       if (sourceInfo.container?.id && !Game.getObjectById(sourceInfo.container.id)) {
         sourceInfo.container.id = undefined;
       }
-      if (sourceInfo.linkId && !Game.getObjectById(sourceInfo.linkId)) {
-        sourceInfo.linkId = undefined;
+      if (sourceInfo.link?.id && !Game.getObjectById(sourceInfo.link.id)) {
+        sourceInfo.link.id = undefined;
       }
       if (sourceInfo.minderId && !Game.getObjectById(sourceInfo.minderId)) {
         sourceInfo.minderId = undefined;
