@@ -48,11 +48,11 @@ export class Harvester extends Minder {
   }
 
   protected transferToLink(): ScreepsReturnCode {
+    let result: ScreepsReturnCode = ERR_INVALID_TARGET;
     const link = this.getMyLink();
-    if (!link) {
-      return ERR_INVALID_TARGET;
+    if (link) {
+      result = this.transferW(link, RESOURCE_ENERGY);
     }
-    const result = this.transferW(link, RESOURCE_ENERGY);
     CreepUtils.consoleLogIfWatched(this, "transfer to link: ", result);
     return result;
   }
