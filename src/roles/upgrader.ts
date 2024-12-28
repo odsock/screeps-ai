@@ -52,16 +52,6 @@ export class Upgrader extends Minder {
     CreepUtils.consoleLogIfWatched(this, `stumped. sitting like a lump`);
   }
 
-  private replaceCreep(creepName: string) {
-    const retiree = Game.creeps[creepName];
-    if (retiree) {
-      this.directHauler(retiree.pos, 1);
-      this.retireCreep(retiree);
-    } else {
-      this.memory.replacing = undefined;
-    }
-  }
-
   /** Checks if at a position in list of room's upgrader positions */
   private atDestination(): boolean {
     const upgraderPositions = this.roomw.getUpgradePositions();

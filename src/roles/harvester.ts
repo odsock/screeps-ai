@@ -66,16 +66,6 @@ export class Harvester extends Minder {
     return ERR_INVALID_TARGET;
   }
 
-  protected replaceCreep(creepName: string): void {
-    const retiree = Game.creeps[creepName];
-    if (retiree) {
-      this.directHauler(retiree.pos, 1);
-      this.retireCreep(retiree);
-    } else {
-      this.memory.replacing = undefined;
-    }
-  }
-
   /** Checks if on container or in range to source */
   protected atDestination(): boolean {
     const container = this.getMyContainer();

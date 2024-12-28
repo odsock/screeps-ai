@@ -23,6 +23,16 @@ export enum ExitState {
 export abstract class Minder extends CreepWrapper {
   private myHauler: Hauler | undefined;
 
+  protected replaceCreep(creepName: string): void {
+    const retiree = Game.creeps[creepName];
+    if (retiree) {
+      this.directHauler(retiree.pos, 1);
+      this.retireCreep(retiree);
+    } else {
+      this.memory.replacing = undefined;
+    }
+  }
+
   protected retireCreep(retiree: Creep): ScreepsReturnCode {
     // request suicide if next to retiree
     if (retiree.pos.inRangeTo(this.pos, 2)) {
