@@ -9,7 +9,7 @@ export class Builder extends CreepWrapper {
   public static readonly BODY_PROFILE: CreepBodyProfile = {
     profile: [WORK, CARRY, CARRY, MOVE, MOVE],
     seed: [],
-    maxBodyParts: MAX_CREEP_SIZE
+    maxBodyParts: 20
   };
 
   public run(): void {

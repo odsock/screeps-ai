@@ -56,7 +56,6 @@ export class BuildControl {
       if (workPartsNeeded > 0 && builderCount < SockPuppetConstants.MAX_BUILDER_CREEPS) {
         spawnQueue.push({
           bodyProfile: Builder.BODY_PROFILE,
-          max: true,
           memory: { role: Builder.ROLE },
           priority: 30
         });
@@ -65,18 +64,21 @@ export class BuildControl {
   }
 
   private getBuilderWorkPartsNeeded(roomw: RoomWrapper): number {
-    const wallWork = !this.buildingWalls(roomw)
-      ? 0
-      : roomw
-          .find(FIND_STRUCTURES, {
-            filter: s =>
-              (s.structureType === STRUCTURE_WALL || s.structureType === STRUCTURE_RAMPART) &&
-              s.hits < SockPuppetConstants.MAX_HITS_WALL
-          })
-          .reduce((hits, wall) => (hits += SockPuppetConstants.MAX_HITS_WALL - wall.hits), 0);
-    const conWork = roomw.constructionWork;
+    const energyHarvestPerTick = roomw.sources.length * 10;
+    const workPartsNeeded = energyHarvestPerTick / BUILD_POWER;
     const activeWorkParts = roomw.getActiveParts(Builder.ROLE, WORK);
-    const workPartsNeeded = Math.ceil((conWork + wallWork) / SockPuppetConstants.WORK_PER_WORKER_PART);
+
+    // const wallWork = !this.buildingWalls(roomw)
+    //   ? 0
+    //   : roomw
+    //       .find(FIND_STRUCTURES, {
+    //         filter: s =>
+    //           (s.structureType === STRUCTURE_WALL || s.structureType === STRUCTURE_RAMPART) &&
+    //           s.hits < SockPuppetConstants.MAX_HITS_WALL
+    //       })
+    //       .reduce((hits, wall) => (hits += SockPuppetConstants.MAX_HITS_WALL - wall.hits), 0);
+    // const conWork = roomw.constructionWork;
+    // const workPartsNeeded = Math.ceil((conWork + wallWork) / SockPuppetConstants.WORK_PER_WORKER_PART);
     const workPartsDeficit = workPartsNeeded - activeWorkParts;
     return workPartsDeficit > 0 ? workPartsDeficit : 0;
   }
