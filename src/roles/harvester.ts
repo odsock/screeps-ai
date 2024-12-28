@@ -52,7 +52,9 @@ export class Harvester extends Minder {
     if (!link) {
       return ERR_INVALID_TARGET;
     }
-    return this.transferW(link, RESOURCE_ENERGY);
+    const result = this.transferW(link, RESOURCE_ENERGY);
+    CreepUtils.consoleLogIfWatched(this, "transfer to link: ", result);
+    return result;
   }
 
   protected getMyLink(): StructureLink | undefined {
