@@ -1,5 +1,6 @@
 import { RoomWrapper } from "structures/room-wrapper";
 import { PlannerUtils } from "./planner-utils";
+import { MemoryUtils } from "./memory-utils";
 
 /*
 StructureLink
@@ -38,8 +39,13 @@ export class SourcePlan {
 
   private static placeLinks(roomw: RoomWrapper) {
     for (const source of roomw.sources) {
+      const containerPosPacked = roomw.memory.sources[source.id].container?.pos;
+      if (!containerPosPacked) {
+        continue;
+      }
+      const containerPos = MemoryUtils.unpackRoomPosition(containerPosPacked);
       const linkInfo = PlannerUtils.placeAdjacentStructure<StructureLink>(
-        source.pos,
+        containerPos,
         STRUCTURE_LINK,
         roomw.memory.sources[source.id].link
       );
