@@ -18,19 +18,32 @@ export class SourcePlan {
   public static run(roomw: RoomWrapper): void {
     const rcl = roomw.controller?.level ?? 0;
     if (rcl >= 2) {
-      for (const source of roomw.sources) {
-        const containerInfo = PlannerUtils.placeAdjacentStructure<StructureContainer>(
-          source.pos,
-          STRUCTURE_CONTAINER,
-          roomw.memory.sources[source.id].container
-        );
-        roomw.memory.sources[source.id].container = containerInfo;
-      }
+      SourcePlan.placeContainers(roomw);
     }
     if (rcl >= 5) {
-      this.placeSourceLinks(roomw);
+      this.placeLinks(roomw);
     }
   }
 
-  private static placeSourceLinks(roomw: RoomWrapper) {}
+  private static placeContainers(roomw: RoomWrapper) {
+    for (const source of roomw.sources) {
+      const containerInfo = PlannerUtils.placeAdjacentStructure<StructureContainer>(
+        source.pos,
+        STRUCTURE_CONTAINER,
+        roomw.memory.sources[source.id].container
+      );
+      roomw.memory.sources[source.id].container = containerInfo;
+    }
+  }
+
+  private static placeLinks(roomw: RoomWrapper) {
+    for (const source of roomw.sources) {
+      const linkInfo = PlannerUtils.placeAdjacentStructure<StructureLink>(
+        source.pos,
+        STRUCTURE_LINK,
+        roomw.memory.sources[source.id].link
+      );
+      roomw.memory.sources[source.id].link = linkInfo;
+    }
+  }
 }
