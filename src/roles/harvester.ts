@@ -27,13 +27,23 @@ export class Harvester extends Minder {
       this.cancelHauler();
       const result = this.buildOrRepairMyContainer();
       if (result === ERR_NO_BODYPART || result === ERR_NOT_ENOUGH_ENERGY || result === ERR_INVALID_TARGET) {
-        this.harvestFromNearbySource();
+        this.harvestFromMySource();
       }
     } else if (this.memory.replacing) {
       this.replaceCreep(this.memory.replacing);
     } else {
       this.moveToDestination();
     }
+  }
+
+  protected harvestFromMySource(): ScreepsReturnCode {
+    const source = this.getMySource();
+    if (source) {
+      const result = this.harvestW(source);
+      CreepUtils.consoleLogIfWatched(this, `harvest result`, result);
+      return result;
+    }
+    return ERR_NOT_IN_RANGE;
   }
 
   private buildOrRepairMyContainer(): ScreepsReturnCode {

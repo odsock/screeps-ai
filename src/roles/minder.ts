@@ -52,10 +52,7 @@ export abstract class Minder extends CreepWrapper {
     let result: ScreepsReturnCode = ERR_NOT_IN_RANGE;
     const sources = this.pos.findInRange(FIND_SOURCES, 1);
     if (sources.length > 0) {
-      result = this.harvest(sources[0]);
-      if (result === OK) {
-        Stats.record(StatType.HARVEST_ENERGY_STAT, CreepUtils.countParts(WORK, this) * HARVEST_POWER);
-      }
+      result = this.harvestW(sources[0]);
     }
     CreepUtils.consoleLogIfWatched(this, `harvest result`, result);
     return result;

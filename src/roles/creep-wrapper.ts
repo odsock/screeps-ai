@@ -4,6 +4,7 @@ import { Task } from "control/tasks/task";
 import { TaskFactory } from "control/tasks/task-factory";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
+import { Stats, StatType } from "planning/stats";
 import { RoomWrapper } from "structures/room-wrapper";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
 
@@ -436,6 +437,14 @@ export abstract class CreepWrapper extends Creep {
     return ERR_BUSY;
   }
 
+  protected harvestW(target: Source): ScreepsReturnCode {
+    const result = this.harvest(target);
+    if (result === OK) {
+      Stats.record(StatType.HARVEST_ENERGY_STAT, CreepUtils.countParts(WORK, this) * HARVEST_POWER);
+    }
+    return result;
+  }
+
   public moveToAndGet(
     target: Tombstone | Ruin | StructureContainer | StructureStorage | Resource | Source | null | undefined,
     resourceType: ResourceConstant = RESOURCE_ENERGY
@@ -449,7 +458,7 @@ export abstract class CreepWrapper extends Creep {
       if (target instanceof Resource) {
         result = this.pickupW(target);
       } else if (target instanceof Source) {
-        result = this.harvest(target);
+        result = this.harvestW(target);
       } else {
         result = this.withdrawW(target, resourceType);
       }
