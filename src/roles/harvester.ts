@@ -64,6 +64,7 @@ export class Harvester extends Minder {
     if (linkId) {
       return Game.getObjectById<StructureLink>(linkId) ?? undefined;
     }
+    return undefined;
   }
 
   protected harvestFromMySource(): ScreepsReturnCode {
