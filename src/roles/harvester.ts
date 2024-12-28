@@ -53,20 +53,21 @@ export class Harvester extends Minder {
     if (link) {
       result = this.transferW(link, RESOURCE_ENERGY);
     }
-    CreepUtils.consoleLogIfWatched(this, "transfer to link: ", result);
+    CreepUtils.consoleLogIfWatched(this, "transfer to link", result);
     return result;
   }
 
   protected getMyLink(): StructureLink | undefined {
+    let link: StructureLink | undefined;
     const source = this.getMySource();
-    if (!source) {
-      return undefined;
+    if (source) {
+      const linkId: Id<StructureLink> | undefined = this.roomw.memory.sources[source.id].link?.id;
+      if (linkId) {
+        link = Game.getObjectById<StructureLink>(linkId) ?? undefined;
+      }
     }
-    const linkId: Id<StructureLink> | undefined = this.roomw.memory.sources[source.id].link?.id;
-    if (linkId) {
-      return Game.getObjectById<StructureLink>(linkId) ?? undefined;
-    }
-    return undefined;
+    CreepUtils.consoleLogIfWatched(this, `getting link: \${link}`);
+    return link;
   }
 
   protected harvestFromMySource(): ScreepsReturnCode {
