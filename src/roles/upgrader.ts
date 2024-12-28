@@ -58,21 +58,6 @@ export class Upgrader extends Minder {
     return !!_.find(upgraderPositions, upgraderPosition => this.pos.isEqualTo(upgraderPosition));
   }
 
-  private getMyContainer(): StructureContainer | undefined {
-    if (this.myContainer) {
-      CreepUtils.consoleLogIfWatched(this, `found cached container`);
-      return this.myContainer;
-    }
-    const containerFromMemory = this.resolveContainerIdFromMemory();
-    if (containerFromMemory) {
-      this.myContainer = containerFromMemory;
-      CreepUtils.consoleLogIfWatched(this, `resolved container from memory`);
-      return containerFromMemory;
-    }
-    CreepUtils.consoleLogIfWatched(this, `no controller container`);
-    return undefined;
-  }
-
   public moveToDestination(): ScreepsReturnCode {
     if (!this.room.controller) {
       return ERR_NO_PATH;
