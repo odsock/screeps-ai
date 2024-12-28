@@ -407,6 +407,14 @@ export abstract class CreepWrapper extends Creep {
     return this.pos.findClosestByPath(containersNotFull) ?? undefined;
   }
 
+  protected transferW(
+    target: AnyCreep | Structure,
+    resourceType: ResourceConstant = RESOURCE_ENERGY,
+    amount?: number
+  ): ScreepsReturnCode {
+    return this.transfer(target, resourceType, amount);
+  }
+
   protected pickupW(target: Resource<ResourceConstant>, force = false): ScreepsReturnCode {
     if (!this.pickingUp || force) {
       const result = this.pickup(target);

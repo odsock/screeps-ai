@@ -19,20 +19,50 @@ export class Harvester extends Minder {
     maxBodyParts: 7
   };
 
+  public static BODY_PROFILE_LINK: CreepBodyProfile = {
+    profile: [WORK],
+    seed: [CARRY],
+    maxBodyParts: 6
+  };
+
   private mySource: Source | undefined;
   private myContainer: StructureContainer | undefined;
 
   public run(): void {
     if (this.atDestination()) {
       this.cancelHauler();
-      const result = this.buildOrRepairMyContainer();
-      if (result === ERR_NO_BODYPART || result === ERR_NOT_ENOUGH_ENERGY || result === ERR_INVALID_TARGET) {
+      const buildResult = this.buildOrRepairMyContainer();
+      if (
+        buildResult === ERR_NO_BODYPART ||
+        buildResult === ERR_NOT_ENOUGH_ENERGY ||
+        buildResult === ERR_INVALID_TARGET
+      ) {
         this.harvestFromMySource();
       }
+      this.transferToLink();
     } else if (this.memory.replacing) {
       this.replaceCreep(this.memory.replacing);
     } else {
       this.moveToDestination();
+    }
+  }
+
+  protected transferToLink(): ScreepsReturnCode {
+    const link = this.getMyLink();
+    if (!link) {
+      return ERR_INVALID_TARGET;
+    }
+    return this.transferW(link, RESOURCE_ENERGY);
+  }
+
+  protected getMyLink(): StructureLink | undefined {
+    const source = this.getMySource();
+    if (!source) {
+      return undefined;
+    }
+    const linkId: Id<StructureLink> | undefined = this.roomw.memory.sources[source.id].link?.id;
+    if (linkId) {
+      return Game.getObjectById<StructureLink>(linkId) ?? undefined;
     }
   }
 
