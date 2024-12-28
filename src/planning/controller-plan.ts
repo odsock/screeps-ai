@@ -1,5 +1,6 @@
 import { RoomWrapper } from "structures/room-wrapper";
 import { PlannerUtils } from "./planner-utils";
+import { MemoryUtils } from "./memory-utils";
 
 export class ControllerPlan {
   public static run(roomw: RoomWrapper): void {
@@ -25,8 +26,13 @@ export class ControllerPlan {
   }
 
   private static placeLink(controller: StructureController) {
+    const containerPosPacked = controller.room.memory.controller.container?.pos;
+    if (!containerPosPacked) {
+      return;
+    }
+    const containerPos = MemoryUtils.unpackRoomPosition(containerPosPacked);
     const linkInfo = PlannerUtils.placeAdjacentStructure(
-      controller.pos,
+      containerPos,
       STRUCTURE_LINK,
       controller.room.memory.controller.link
     );
