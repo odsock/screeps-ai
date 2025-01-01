@@ -28,6 +28,19 @@ export class SourcePlan {
 
   private static placeContainers(roomw: RoomWrapper) {
     for (const source of roomw.sources) {
+      const info = roomw.memory.sources[source.id].container;
+      if (info && PlannerUtils.validateStructureInfo(info) === OK) {
+        continue;
+      }
+      const findResult = PlannerUtils.findAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
+      if (findResult) {
+        roomw.memory.sources[source.id].container = {
+          id: findResult.id,
+          pos: MemoryUtils.packRoomPosition(findResult.pos),
+          type: STRUCTURE_CONTAINER
+        };
+        continue;
+      }
       const containerInfo = PlannerUtils.placeAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
       roomw.memory.sources[source.id].container = containerInfo;
     }
@@ -35,11 +48,24 @@ export class SourcePlan {
 
   private static placeLinks(roomw: RoomWrapper) {
     for (const source of roomw.sources) {
+      const info = roomw.memory.sources[source.id].link;
+      if (info && PlannerUtils.validateStructureInfo(info) === OK) {
+        continue;
+      }
       const containerPosPacked = roomw.memory.sources[source.id].container?.pos;
       if (!containerPosPacked) {
         continue;
       }
       const containerPos = MemoryUtils.unpackRoomPosition(containerPosPacked);
+      const findResult = PlannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+      if (findResult) {
+        roomw.memory.sources[source.id].link = {
+          id: findResult.id,
+          pos: MemoryUtils.packRoomPosition(findResult.pos),
+          type: STRUCTURE_LINK
+        };
+        continue;
+      }
       const linkInfo = PlannerUtils.placeAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
       roomw.memory.sources[source.id].link = linkInfo;
     }
