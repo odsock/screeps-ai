@@ -285,14 +285,17 @@ export class PlannerUtils {
     return ERR_NOT_FOUND;
   }
 
-  public static findAdjacentContainer(pos: RoomPosition): StructureContainer | undefined {
+  public static findAdjacentStructure<T extends Structure<StructureConstant>>(
+    pos: RoomPosition,
+    type: StructureConstant
+  ): T | undefined {
     const room = Game.rooms[pos.roomName];
     if (room) {
       const lookResult = room
         .lookForAtArea(LOOK_STRUCTURES, pos.y - 1, pos.x - 1, pos.y + 1, pos.x + 1, true)
-        .find(structure => structure.structure.structureType === STRUCTURE_CONTAINER);
+        .find(result => result.structure.structureType === type);
       if (lookResult?.structure) {
-        return lookResult.structure as StructureContainer;
+        return lookResult.structure as T;
       }
     }
     return undefined;
@@ -300,13 +303,8 @@ export class PlannerUtils {
 
   public static placeAdjacentStructure<T extends Structure<StructureConstant>>(
     centerPos: RoomPosition,
-    type: BuildableStructureConstant,
-    info?: StructureInfo<T>
+    type: BuildableStructureConstant
   ): StructureInfo<T> | undefined {
-    if (info && PlannerUtils.validateStructureInfo(info) === OK) {
-      return info;
-    }
-
     const positions = this.getPositionSpiral(centerPos, 1);
     const structurePos = positions.find(pos => pos.createConstructionSite(type) === OK);
 

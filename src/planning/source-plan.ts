@@ -28,11 +28,7 @@ export class SourcePlan {
 
   private static placeContainers(roomw: RoomWrapper) {
     for (const source of roomw.sources) {
-      const containerInfo = PlannerUtils.placeAdjacentStructure<StructureContainer>(
-        source.pos,
-        STRUCTURE_CONTAINER,
-        roomw.memory.sources[source.id].container
-      );
+      const containerInfo = PlannerUtils.placeAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
       roomw.memory.sources[source.id].container = containerInfo;
     }
   }
@@ -44,11 +40,7 @@ export class SourcePlan {
         continue;
       }
       const containerPos = MemoryUtils.unpackRoomPosition(containerPosPacked);
-      const linkInfo = PlannerUtils.placeAdjacentStructure<StructureLink>(
-        containerPos,
-        STRUCTURE_LINK,
-        roomw.memory.sources[source.id].link
-      );
+      const linkInfo = PlannerUtils.placeAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
       roomw.memory.sources[source.id].link = linkInfo;
     }
   }
