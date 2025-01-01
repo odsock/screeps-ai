@@ -78,17 +78,19 @@ export class HarvestControl {
         roomw,
         `harvesters: ${creepCount}/${positionsForSource} positions, ${partCount}/${partsNeeded} parts`
       );
+      const bodyProfile = roomw.memory.sources[sourceId].link ? Harvester.BODY_PROFILE_LINK : Harvester.BODY_PROFILE;
       if (creepCount < positionsForSource && partCount < partsNeeded) {
         CreepUtils.consoleLogIfWatched(roomw, `spawning ${Harvester.ROLE}`);
-        spawnQueue.push({
-          bodyProfile: Harvester.BODY_PROFILE,
+        const spawnRequest = {
+          bodyProfile,
           max: true,
           memory: {
             role: Harvester.ROLE,
             source: sourceId as Id<Source>
           },
           priority: 90
-        });
+        };
+        spawnQueue.push(spawnRequest);
       }
 
       // replace harvester older than ticks to spawn replacement if at or below needed level
@@ -100,7 +102,7 @@ export class HarvestControl {
         if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToSpawn + 50) {
           CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${Harvester.ROLE}`);
           spawnQueue.push({
-            bodyProfile: Harvester.BODY_PROFILE,
+            bodyProfile,
             max: true,
             memory: {
               role: Harvester.ROLE,
