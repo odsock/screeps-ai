@@ -66,7 +66,7 @@ export class Harvester extends Minder {
         link = Game.getObjectById<StructureLink>(linkId) ?? undefined;
       }
     }
-    CreepUtils.consoleLogIfWatched(this, `getting link: \${link}`);
+    CreepUtils.consoleLogIfWatched(this, `getting link: ${String(link?.id)}`);
     return link;
   }
 
