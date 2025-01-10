@@ -30,21 +30,27 @@ export class Upgrader extends Minder {
   private buildRepairOrUpgrade(): void {
     if (this.buildNearbySite() !== ERR_NOT_FOUND) {
       if (this.store.energy < this.buildAmount * 2) {
-        this.withdrawFromMyContainer();
+        if (this.withdrawFromControllerContainer() !== OK) {
+          this.withdrawFromControllerLink();
+        }
       }
       return;
     }
 
     if (this.repairNearbySite() !== ERR_NOT_FOUND) {
       if (this.store.energy < this.repairCost * 2) {
-        this.withdrawFromMyContainer();
+        if (this.withdrawFromControllerContainer() !== OK) {
+          this.withdrawFromControllerLink();
+        }
       }
       return;
     }
 
     if (this.upgrade() !== ERR_NOT_FOUND) {
       if (this.store.energy < this.upgradeAmount) {
-        this.withdrawFromMyContainer();
+        if (this.withdrawFromControllerContainer() !== OK) {
+          this.withdrawFromControllerLink();
+        }
       }
       return;
     }
@@ -77,8 +83,7 @@ export class Upgrader extends Minder {
     return ERR_NOT_FOUND;
   }
 
-  protected withdrawFromMyContainer(): ScreepsReturnCode {
-    CreepUtils.consoleLogIfWatched(this, `withdrawing`);
+  protected withdrawFromControllerContainer(): ScreepsReturnCode {
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
     if (this.room.memory.controller.container?.id) {
       const container = Game.getObjectById(this.room.memory.controller.container.id);
@@ -89,7 +94,22 @@ export class Upgrader extends Minder {
         this.room.memory.controller.container.id = undefined;
       }
     }
-    CreepUtils.consoleLogIfWatched(this, `withdraw result`, result);
+    CreepUtils.consoleLogIfWatched(this, `withdraw from container result`, result);
+    return result;
+  }
+
+  protected withdrawFromControllerLink(): ScreepsReturnCode {
+    let result: ScreepsReturnCode = ERR_NOT_FOUND;
+    if (this.room.memory.controller.link?.id) {
+      const link = Game.getObjectById(this.room.memory.controller.link.id);
+      if (link) {
+        result = this.withdraw(link, RESOURCE_ENERGY);
+      } else {
+        CreepUtils.consoleLogIfWatched(this, `controller link id invalid`);
+        this.room.memory.controller.link.id = undefined;
+      }
+    }
+    CreepUtils.consoleLogIfWatched(this, `withdraw from link result`, result);
     return result;
   }
 }
