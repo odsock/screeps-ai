@@ -1,7 +1,6 @@
 import { RoomWrapper } from "structures/room-wrapper";
 import { PlannerUtils } from "./planner-utils";
 import { MemoryUtils } from "./memory-utils";
-import { Planner } from "./planner";
 
 export class ControllerPlan {
   public static run(roomw: RoomWrapper): void {
