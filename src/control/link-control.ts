@@ -10,7 +10,9 @@ export class LinkControl {
       const storageLink = this.getStorageLink(roomw);
       CreepUtils.consoleLogIfWatched(
         roomw,
-        `links: source: ${sourceLinks.length}, controller: ${controllerLink?.id}, storage: ${storageLink?.id}`
+        `links: source: ${sourceLinks.length}, controller: ${String(controllerLink?.id)}, storage: ${String(
+          storageLink?.id
+        )}`
       );
 
       // move energy out of source links if they are full
