@@ -29,6 +29,7 @@ declare global {
   }
   interface StorageInfo {
     haulerId?: Id<Creep>;
+    link?: StructureInfo<StructureLink>;
   }
 
   interface RoomDefense {

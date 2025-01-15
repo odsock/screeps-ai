@@ -4,6 +4,7 @@ import { BuildControl } from "control/build-control";
 import { DefenseControl } from "control/defense-control";
 import { HarvestControl } from "control/harvest-control";
 import { HaulerControl } from "control/hauler-control";
+import { LinkControl } from "control/link-control";
 import { ReconControl } from "control/recon-control";
 import { RemoteControl } from "control/remote-control";
 import { SpawnControl } from "control/spawn-control";
@@ -18,6 +19,7 @@ export class Sockpuppet {
   public memory = {};
 
   public run(): void {
+    new LinkControl().run();
     new ReconControl().run();
     new DefenseControl().run();
     new AttackControl().run();
