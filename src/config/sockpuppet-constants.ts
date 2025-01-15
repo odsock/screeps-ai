@@ -26,7 +26,6 @@ export class SockPuppetConstants {
 
   public static readonly ROOM_SIZE = 50;
   public static readonly MAX_DISTANCE = 99999;
-  public static readonly TOWER_RESUPPLY_THRESHOLD = 0.1;
 
   public static readonly CONSTRUCTION_PRIORITY: StructureConstant[] = [
     STRUCTURE_SPAWN,
@@ -82,6 +81,24 @@ export class SockPuppetConstants {
   public static readonly START_TICK = "START_TICK";
   public static readonly UPGRADE_EFFICIENCY_RATIO = 0.8;
   public static readonly CPU_TOTAL = "CPU_TOTAL";
+
+  public static readonly TASK_CLEANUP_PRIORITY = 100;
+  public static readonly TASK_CLEANUP_THRESHOLD = 0;
+  public static readonly TASK_SUPPLY_CREEP_PRIORITY = 90;
+  public static readonly TASK_SUPPLY_CREEP_THRESHOLD = 0;
+  public static readonly TASK_UNLOAD_SOURCE_CONTAINER_PRIORITY = 200;
+  public static readonly TASK_UNLOAD_SOURCE_CONTAINER_THRESHOLD = 0.75;
+  public static readonly TASK_CONTAINER_CLEANUP_PRIORITY = 50;
+  public static readonly TASK_SUPPLY_SPAWN_PRIORITY = 250;
+  public static readonly TASK_SUPPLY_SPAWN_THRESHOLD = 1.0;
+  public static readonly TASK_SUPPLY_TOWER_PRIORITY = 250;
+  public static readonly TASK_SUPPLY_TOWER_THRESHOLD = 0.9;
+  public static readonly TASK_SUPPLY_CONTROLLER_PRIORITY = 80;
+  public static readonly TASK_SUPPLY_CONTROLLER_DOWNGRADE_PRIORITY = 150;
+  public static readonly TASK_SUPPLY_CONTROLLER_THRESHOLD = 0.25;
+  public static readonly TASK_HAUL_UPGRADER_PRIORITY = 150;
+  public static readonly TASK_HAUL_HARVESTER_PRIORITY = 150;
+  public static readonly TASK_HAUL_HARVESTER_NO_ENERGY_PRIORITY = 300;
 }
 
 declare global {

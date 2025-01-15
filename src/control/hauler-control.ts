@@ -47,14 +47,20 @@ export class HaulerControl {
   private createCleanupTasks(roomw: RoomWrapper): CleanupTask[] {
     const tasks: CleanupTask[] = [];
     roomw
-      .find(FIND_DROPPED_RESOURCES)
-      .forEach(d => tasks.push(new CleanupTask({ pos: d.pos, targetId: d.id, priority: 100 })));
+      .find(FIND_DROPPED_RESOURCES, { filter: d => d.amount > SockPuppetConstants.TASK_CLEANUP_THRESHOLD })
+      .forEach(d =>
+        tasks.push(new CleanupTask({ pos: d.pos, targetId: d.id, priority: SockPuppetConstants.TASK_CLEANUP_PRIORITY }))
+      );
     roomw
-      .find(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity() > 0 })
-      .forEach(t => tasks.push(new CleanupTask({ pos: t.pos, targetId: t.id, priority: 100 })));
+      .find(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity() > SockPuppetConstants.TASK_CLEANUP_THRESHOLD })
+      .forEach(t =>
+        tasks.push(new CleanupTask({ pos: t.pos, targetId: t.id, priority: SockPuppetConstants.TASK_CLEANUP_PRIORITY }))
+      );
     roomw
-      .find(FIND_RUINS, { filter: r => r.store.getUsedCapacity() > 0 })
-      .forEach(r => tasks.push(new CleanupTask({ pos: r.pos, targetId: r.id, priority: 100 })));
+      .find(FIND_RUINS, { filter: r => r.store.getUsedCapacity() > SockPuppetConstants.TASK_CLEANUP_THRESHOLD })
+      .forEach(r =>
+        tasks.push(new CleanupTask({ pos: r.pos, targetId: r.id, priority: SockPuppetConstants.TASK_CLEANUP_PRIORITY }))
+      );
     return tasks;
   }
 
@@ -65,17 +71,32 @@ export class HaulerControl {
       creepTypesToSupply.push(CreepRole.UPGRADER);
     }
     return roomw.creeps
-      .filter(c => creepTypesToSupply.includes(c.memory.role) && c.store.getFreeCapacity() > 0)
-      .map(c => new SupplyCreepTask({ targetId: c.id, creepName: c.name, priority: 90, pos: c.pos }));
+      .filter(
+        c =>
+          creepTypesToSupply.includes(c.memory.role) &&
+          c.store.getFreeCapacity() > SockPuppetConstants.TASK_SUPPLY_CREEP_THRESHOLD
+      )
+      .map(
+        c =>
+          new SupplyCreepTask({
+            targetId: c.id,
+            creepName: c.name,
+            priority: SockPuppetConstants.TASK_SUPPLY_CREEP_PRIORITY,
+            pos: c.pos
+          })
+      );
   }
 
   /** unload source containers over threshold */
   private createUnloadSourceContainerTasks(roomw: RoomWrapper): UnloadTask[] {
     return roomw.sourceContainers
-      .filter(c => c.store.getFreeCapacity() < c.store.getCapacity() / 4)
+      .filter(
+        c =>
+          c.store.getUsedCapacity() > c.store.getCapacity() * SockPuppetConstants.TASK_UNLOAD_SOURCE_CONTAINER_THRESHOLD
+      )
       .map(c => {
         return new UnloadTask({
-          priority: 200,
+          priority: SockPuppetConstants.TASK_UNLOAD_SOURCE_CONTAINER_PRIORITY,
           targetId: c.id,
           pos: c.pos,
           resourceType: RESOURCE_ENERGY
@@ -93,7 +114,7 @@ export class HaulerControl {
         CreepUtils.getStoreContents(c).forEach(resource => {
           tasks.push(
             new UnloadTask({
-              priority: 50,
+              priority: SockPuppetConstants.TASK_CONTAINER_CLEANUP_PRIORITY,
               targetId: c.id,
               pos: c.pos,
               resourceType: resource
@@ -108,12 +129,19 @@ export class HaulerControl {
   private createSupplySpawnTasks(roomw: RoomWrapper, averageHaulerCapacity: number): SupplySpawnTask[] {
     const spawns = roomw.spawns;
     const tasks: SupplySpawnTask[] = [];
-    const energyCapacityRemaining = roomw.getEnergyCapacityAvailable() - roomw.getEnergyAvailable();
-    if (spawns.length > 0 && energyCapacityRemaining > 0) {
-      const haulersNeeded = energyCapacityRemaining / averageHaulerCapacity;
+    const capacityUsedRatio = roomw.getEnergyAvailable() / roomw.getEnergyCapacityAvailable();
+    if (spawns.length > 0 && capacityUsedRatio < SockPuppetConstants.TASK_SUPPLY_SPAWN_THRESHOLD) {
+      const haulersNeeded = capacityUsedRatio / averageHaulerCapacity;
       CreepUtils.consoleLogIfWatched(roomw, `supply spawn tasks: ${haulersNeeded}`);
       for (let i = 0; i < haulersNeeded; i++) {
-        tasks.push(new SupplySpawnTask({ priority: 250, pos: spawns[0].pos, override: true, salt: i }));
+        tasks.push(
+          new SupplySpawnTask({
+            priority: SockPuppetConstants.TASK_SUPPLY_SPAWN_PRIORITY,
+            pos: spawns[0].pos,
+            override: true,
+            salt: i
+          })
+        );
       }
     }
     return tasks;
@@ -124,14 +152,14 @@ export class HaulerControl {
     return roomw.towers
       .filter(
         tower =>
-          tower.store.getFreeCapacity(RESOURCE_ENERGY) > 0 &&
-          CreepUtils.getEnergyStoreRatioFree(tower) > SockPuppetConstants.TOWER_RESUPPLY_THRESHOLD
+          tower.store.getUsedCapacity(RESOURCE_ENERGY) / tower.store.getCapacity(RESOURCE_ENERGY) <
+          SockPuppetConstants.TASK_SUPPLY_TOWER_THRESHOLD
       )
       .map(t => {
         return new SupplyStructureTask({
           targetId: t.id,
           pos: t.pos,
-          priority: 250,
+          priority: SockPuppetConstants.TASK_SUPPLY_TOWER_PRIORITY,
           resourceType: RESOURCE_ENERGY
         });
       });
@@ -144,13 +172,18 @@ export class HaulerControl {
       return [];
     }
     const containersBelowThreshold = roomw.controllerContainers.filter(
-      container => container.store.getUsedCapacity() < container.store.getCapacity() / 4
+      container =>
+        container.store.getUsedCapacity() <
+        container.store.getCapacity() * SockPuppetConstants.TASK_SUPPLY_CONTROLLER_THRESHOLD
     );
     CreepUtils.consoleLogIfWatched(
       roomw,
       `controller supply: containers below threshold: ${containersBelowThreshold.length}`
     );
-    const priority = roomw.controller?.ticksToDowngrade ?? 9999 < 1000 ? 150 : 80;
+    const priority =
+      roomw.controller?.ticksToDowngrade ?? 9999 < 1000
+        ? SockPuppetConstants.TASK_SUPPLY_CONTROLLER_DOWNGRADE_PRIORITY
+        : SockPuppetConstants.TASK_SUPPLY_CONTROLLER_PRIORITY;
     const tasks: SupplyStructureTask[] = [];
     containersBelowThreshold.forEach(c => {
       const haulersNeeded = c.store.getFreeCapacity() / averageHaulerCapacity;
@@ -176,9 +209,17 @@ export class HaulerControl {
     const upgraderTasks: HaulTask[] = creeps
       .filter(c => c.memory.role === CreepRole.UPGRADER)
       .map(c => {
-        return new HaulTask({ creepName: c.name, targetId: c.id, pos: c.pos, priority: 150 });
+        return new HaulTask({
+          creepName: c.name,
+          targetId: c.id,
+          pos: c.pos,
+          priority: SockPuppetConstants.TASK_HAUL_UPGRADER_PRIORITY
+        });
       });
-    const priority = roomw.storage?.store.energy ?? -1 > 0 ? 150 : 300;
+    const priority =
+      roomw.storage?.store.energy ?? -1 > 0
+        ? SockPuppetConstants.TASK_HAUL_HARVESTER_PRIORITY
+        : SockPuppetConstants.TASK_HAUL_HARVESTER_NO_ENERGY_PRIORITY;
     const harvesterTasks: HaulTask[] = creeps
       .filter(c => c.memory.role === CreepRole.HARVESTER)
       .map(c => {
