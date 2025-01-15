@@ -10,6 +10,7 @@ export class SupplyStructureTask extends Task {
   public readonly requirements?: (creep: Creep) => boolean;
   public readonly salt?: number;
   public readonly override?: boolean;
+  public readonly tag?: string;
 
   public constructor({
     type,
@@ -19,7 +20,8 @@ export class SupplyStructureTask extends Task {
     resourceType,
     requirements,
     salt,
-    override
+    override,
+    tag
   }: {
     type?: TaskType;
     priority: number;
@@ -29,6 +31,7 @@ export class SupplyStructureTask extends Task {
     requirements?: (creep: Creep) => boolean;
     salt?: number;
     override?: boolean;
+    tag?: string;
   }) {
     super(pos, TaskType.SUPPLY_STRUCTURE);
     this.priority = priority;
@@ -37,6 +40,7 @@ export class SupplyStructureTask extends Task {
     this.requirements = requirements;
     this.salt = salt;
     this.override = override;
+    this.tag = tag;
   }
 
   public validate(): boolean {

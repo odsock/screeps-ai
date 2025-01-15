@@ -8,6 +8,7 @@ export interface TaskInterface {
   pos: RoomPosition;
   override?: boolean;
   salt?: number;
+  tag?: string;
   requirements?: (creep: Creep) => boolean;
   validate: () => boolean;
   cancel: () => void;
@@ -22,6 +23,7 @@ export abstract class Task implements TaskInterface {
   public readonly requirements?: ((creep: Creep) => boolean) | undefined;
   public readonly override?: boolean | undefined;
   public readonly salt?: number;
+  public readonly tag?: string;
 
   public constructor(pos: RoomPosition, type: TaskType) {
     this.pos = pos;

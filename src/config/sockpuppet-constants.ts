@@ -89,7 +89,7 @@ export class SockPuppetConstants {
   public static readonly TASK_UNLOAD_SOURCE_CONTAINER_PRIORITY = 200;
   public static readonly TASK_UNLOAD_SOURCE_CONTAINER_THRESHOLD = 0.75;
   public static readonly TASK_CONTAINER_CLEANUP_PRIORITY = 50;
-  public static readonly TASK_SUPPLY_SPAWN_PRIORITY = 250;
+  public static readonly TASK_SUPPLY_SPAWN_PRIORITY = 250; // override: true
   public static readonly TASK_SUPPLY_SPAWN_THRESHOLD = 1.0;
   public static readonly TASK_SUPPLY_TOWER_PRIORITY = 250;
   public static readonly TASK_SUPPLY_TOWER_THRESHOLD = 0.9;
@@ -97,7 +97,7 @@ export class SockPuppetConstants {
   public static readonly TASK_SUPPLY_CONTROLLER_DOWNGRADE_PRIORITY = 150;
   public static readonly TASK_SUPPLY_CONTROLLER_THRESHOLD = 0.25;
   public static readonly TASK_HAUL_UPGRADER_PRIORITY = 150;
-  public static readonly TASK_HAUL_HARVESTER_PRIORITY = 150;
+  public static readonly TASK_HAUL_HARVESTER_PRIORITY = 150; // override: true
   public static readonly TASK_HAUL_HARVESTER_NO_ENERGY_PRIORITY = 300;
 }
 

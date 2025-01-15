@@ -165,10 +165,10 @@ export class HaulerControl {
       });
   }
 
-  /** supply controller container if have upgraders */
+  /** supply controller container if have upgraders and no links*/
   private createControllerSupplyTasks(roomw: RoomWrapper, averageHaulerCapacity: number): Task[] {
     const upgraders = roomw.creeps.filter(c => c.memory.role === CreepRole.UPGRADER);
-    if (upgraders.length === 0) {
+    if (upgraders.length === 0 || roomw.hasLinks()) {
       return [];
     }
     const containersBelowThreshold = roomw.controllerContainers.filter(
@@ -190,6 +190,7 @@ export class HaulerControl {
       for (let i = 0; i < haulersNeeded; i++) {
         tasks.push(
           new SupplyStructureTask({
+            tag: "supply controller container",
             targetId: c.id,
             pos: c.pos,
             priority,
