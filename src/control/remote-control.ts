@@ -9,8 +9,9 @@ import { Worker } from "roles/worker";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
-import { TaskManagement, TaskType } from "./tasks/task-management";
+import { TaskManagement } from "./tasks/task-management";
 import { HaulTask } from "./tasks/haul-task";
+import { CreepBodyUtils } from "roles/creep-body-utils";
 
 export class RemoteControl {
   private readonly targetControl: TargetControl;
@@ -83,7 +84,7 @@ export class RemoteControl {
         );
         if (carryParts < carryPartsNeeded) {
           spawnQueue.push({
-            bodyProfile: SpawnUtils.buildBodyProfile(Importer.BODY_PROFILE, carryPartsNeeded, CARRY),
+            bodyProfile: CreepBodyUtils.buildBodyProfile(Importer.BODY_PROFILE, carryPartsNeeded, CARRY),
             max: true,
             memory: {
               role: Importer.ROLE,

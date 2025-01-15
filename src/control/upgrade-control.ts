@@ -6,6 +6,7 @@ import { Upgrader } from "roles/upgrader";
 import { RoomWrapper } from "structures/room-wrapper";
 
 import { SpawnUtils } from "./spawn-utils";
+import { CreepBodyUtils } from "roles/creep-body-utils";
 
 export class UpgradeControl {
   public run(): void {
@@ -52,7 +53,7 @@ export class UpgradeControl {
       (upgraderWorkPartsActive < upgraderWorkPartsNeeded && upgraderCount < upgradePositionCount)
     ) {
       spawnQueue.push({
-        bodyProfile: SpawnUtils.buildBodyProfile(
+        bodyProfile: CreepBodyUtils.buildBodyProfile(
           Upgrader.BODY_PROFILE,
           upgraderWorkPartsNeeded - upgraderWorkPartsActive,
           WORK
@@ -63,7 +64,7 @@ export class UpgradeControl {
       });
     }
 
-    // replace upgrader older than ticks to spawn replacement if at or below needed level
+    // replace upgrader older than ticks-to-spawn-replacement if at or below needed level
     if (upgraderCount <= upgradePositionCount && upgraderWorkPartsActive <= upgraderWorkPartsNeeded) {
       const oldestCreep = CreepUtils.findOldestCreep(upgraders.filter(creep => !creep.memory.retiring));
       const ticksToSpawn = SpawnUtils.calcSpawnTime(Upgrader.BODY_PROFILE, roomw);

@@ -2,24 +2,24 @@ import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 
-import { CreepBodyProfile } from "./creep-body-profile";
+import { CreepBodyProfile } from "./creep-body-utils";
 import { Minder } from "./minder";
 
 export class Harvester extends Minder {
-  public static ROLE: CreepRole = CreepRole.HARVESTER;
-  public static BODY_PROFILE: CreepBodyProfile = {
+  public static readonly ROLE: CreepRole = CreepRole.HARVESTER;
+  public static readonly BODY_PROFILE: CreepBodyProfile = {
     profile: [WORK],
     seed: [],
     maxBodyParts: 5
   };
 
-  public static BODY_PROFILE_REMOTE: CreepBodyProfile = {
+  public static readonly BODY_PROFILE_REMOTE: CreepBodyProfile = {
     profile: [WORK],
     seed: [CARRY],
     maxBodyParts: 7
   };
 
-  public static BODY_PROFILE_LINK: CreepBodyProfile = {
+  public static readonly BODY_PROFILE_LINK: CreepBodyProfile = {
     profile: [WORK],
     seed: [CARRY],
     maxBodyParts: 6

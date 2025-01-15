@@ -7,7 +7,7 @@ import { MemoryUtils } from "planning/memory-utils";
 import { Stats, StatType } from "planning/stats";
 import { RoomWrapper } from "structures/room-wrapper";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
-import { CreepBodyProfile } from "./creep-body-profile";
+import { CreepBodyProfile } from "./creep-body-utils";
 
 declare global {
   interface CreepMemory {
@@ -207,7 +207,7 @@ export abstract class CreepWrapper extends Creep {
           filter: s => s.structureType === STRUCTURE_CONTAINER
         });
         if (container.length > 0) {
-          containers.push(container[0] as StructureContainer);
+          containers.push(container[0]);
         }
       }
     }

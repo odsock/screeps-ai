@@ -2,7 +2,7 @@ import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { CreepWrapperProfile } from "roles/creep-wrapper";
-import { CreepBodyProfile } from "roles/creep-body-profile";
+import { CreepBodyProfile } from "roles/creep-body-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 import { TravelUtils } from "utils/travel-utils";
@@ -94,20 +94,6 @@ export class SpawnUtils {
   public static calcSpawnTime(creepBodyProfile: CreepBodyProfile, roomw: RoomWrapper): number {
     const body = SpawnUtils.getMaxBody(creepBodyProfile, roomw);
     return body.length * CREEP_SPAWN_TIME;
-  }
-
-  /**
-   * Updates a creep body profile with a max size based on number of parts needed for a part type
-   */
-  public static buildBodyProfile(
-    bodyProfile: CreepBodyProfile,
-    partsNeeded: number,
-    type: BodyPartConstant
-  ): CreepBodyProfile {
-    const partsOfTypeInProfile = bodyProfile.profile.filter(part => part === type).length;
-    bodyProfile.maxBodyParts =
-      (partsNeeded / partsOfTypeInProfile) * bodyProfile.profile.length + bodyProfile.seed.length;
-    return bodyProfile;
   }
 
   /** Gets count of creeps with role in room, including spawning creeps */

@@ -2,7 +2,7 @@ import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 
 import { CreepWrapper } from "./creep-wrapper";
-import { CreepBodyProfile } from "./creep-body-profile";
+import { CreepBodyProfile } from "./creep-body-utils";
 import { TaskFactory } from "control/tasks/task-factory";
 
 export class Hauler extends CreepWrapper {

@@ -1,7 +1,7 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 
-import { CreepBodyProfile } from "./creep-body-profile";
+import { CreepBodyProfile } from "./creep-body-utils";
 import { RemoteCreepWrapper } from "./remote-creep-wrapper";
 
 export class Claimer extends RemoteCreepWrapper {
