@@ -3,6 +3,7 @@
 import { LogLevel } from "creep-utils";
 import { Sockpuppet } from "sockpuppet";
 import { Stats } from "./stats";
+import { SpawnUtils } from "control/spawn-utils";
 
 declare global {
   interface RoomMemory {
@@ -127,6 +128,7 @@ declare global {
       drawRoadPlan: (origin: RoomPosition, goal: RoomPosition, range: number) => void;
       Stats: Stats;
       MemoryUtils: MemoryUtils;
+      SpawnUtils: SpawnUtils;
     }
   }
 }
