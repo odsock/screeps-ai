@@ -573,7 +573,7 @@ export abstract class CreepWrapper {
   }
 
   public say(message: string): ScreepsReturnCode {
-    return this.say(message);
+    return this.creep.say(message);
   }
 
   public moveToAndGet(
