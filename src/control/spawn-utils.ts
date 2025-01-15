@@ -1,7 +1,8 @@
 import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
-import { CreepBodyProfile, CreepWrapperProfile } from "roles/creep-wrapper";
+import { CreepWrapperProfile } from "roles/creep-wrapper";
+import { CreepBodyProfile } from "roles/creep-body-profile";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 import { TravelUtils } from "utils/travel-utils";

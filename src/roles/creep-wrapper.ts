@@ -7,6 +7,7 @@ import { MemoryUtils } from "planning/memory-utils";
 import { Stats, StatType } from "planning/stats";
 import { RoomWrapper } from "structures/room-wrapper";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
+import { CreepBodyProfile } from "./creep-body-profile";
 
 declare global {
   interface CreepMemory {
@@ -34,13 +35,6 @@ declare global {
     draw?: boolean;
     lastTargetId?: Id<Structure>;
   }
-}
-
-export interface CreepBodyProfile {
-  profile: BodyPartConstant[];
-  seed: BodyPartConstant[];
-  maxBodyParts: number;
-  maxWorkParts?: number;
 }
 
 export interface CreepWrapperProfile {

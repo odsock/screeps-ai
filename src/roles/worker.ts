@@ -2,7 +2,8 @@ import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { CreepUtils } from "creep-utils";
 
-import { CreepBodyProfile, CreepWrapper } from "./creep-wrapper";
+import { CreepWrapper } from "./creep-wrapper";
+import { CreepBodyProfile } from "./creep-body-profile";
 
 export class Worker extends CreepWrapper {
   public static readonly ROLE = CreepRole.WORKER;

@@ -1,7 +1,7 @@
 import { SpawnUtils } from "control/spawn-utils";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
-import { CreepBodyProfile } from "roles/creep-wrapper";
+import { CreepBodyProfile } from "roles/creep-body-profile";
 import { RoomWrapper } from "./room-wrapper";
 import { names } from "utils/names-hobbit";
 
