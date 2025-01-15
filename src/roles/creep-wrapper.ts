@@ -42,26 +42,71 @@ export interface CreepWrapperProfile {
   BODY_PROFILE: CreepBodyProfile;
 }
 
-export abstract class CreepWrapper extends Creep {
+export abstract class CreepWrapper {
   private pickingUp = false;
   private withdrawing = false;
   private pickingUpAmount = 0;
   protected targetControl: TargetControl;
   protected costMatrixUtils: CostMatrixUtils;
+  public readonly store: StoreDefinition;
 
   public constructor(private readonly creep: Creep) {
-    super(creep.id);
     this.targetControl = TargetControl.getInstance();
     this.costMatrixUtils = CostMatrixUtils.getInstance();
+    this.store = creep.store;
+  }
+
+  private getCreep(): Creep {
+    return this.creep;
+  }
+
+  public get name(): string {
+    return this.creep.name;
+  }
+
+  public get memory(): CreepMemory {
+    return this.creep.memory;
+  }
+
+  public get pos(): RoomPosition {
+    return this.creep.pos;
+  }
+
+  public get body(): BodyPartDefinition[] {
+    return this.creep.body;
+  }
+
+  public get id(): Id<Creep> {
+    return this.creep.id;
+  }
+
+  public get room(): RoomWrapper {
+    return this.roomw;
+  }
+
+  public get roomw(): RoomWrapper {
+    return RoomWrapper.getInstance(this.creep.room.name);
+  }
+
+  public get owner(): Owner {
+    return this.creep.owner;
+  }
+
+  public get hits(): number {
+    return this.creep.hits;
+  }
+
+  public get hitsMax(): number {
+    return this.creep.hitsMax;
+  }
+
+  public getActiveBodyparts(type: BodyPartConstant): number {
+    return this.creep.getActiveBodyparts(type);
   }
 
   public abstract run(): void;
 
-  public get roomw(): RoomWrapper {
-    return RoomWrapper.getInstance(this.room.name);
-  }
-
-  public moveToW(target: RoomObject | RoomPosition, moveOpts?: MoveToOpts): ScreepsReturnCode {
+  public moveTo(target: RoomObject | RoomPosition | CreepWrapper, moveOpts?: MoveToOpts): ScreepsReturnCode {
     const stuckFlag = this.clearPathIfStuck();
     const visualizePathStyle: PolyStyle = { stroke: "#00FF00" };
     if (stuckFlag) {
@@ -77,13 +122,17 @@ export abstract class CreepWrapper extends Creep {
       costCallback: this.costMatrixUtils.creepMovementCostCallback,
       ...moveOpts
     };
-    return this.moveTo(target, moveOpts);
+    return this.creep.moveTo(target, moveOpts);
   }
 
-  public moveW(direction: DirectionConstant): ScreepsReturnCode {
+  public move(direction: DirectionConstant | CreepWrapper): ScreepsReturnCode {
     // check if stuck, even though we don't handle it with directional moves
     this.isStuck();
-    return this.move(direction);
+    if (direction instanceof CreepWrapper) {
+      return this.creep.move(direction.getCreep());
+    } else {
+      return this.creep.move(direction);
+    }
   }
 
   protected clearPathIfStuck(): boolean {
@@ -100,9 +149,9 @@ export abstract class CreepWrapper extends Creep {
   protected isStuck(): boolean {
     if (this.memory.lastPos) {
       const lastPos = MemoryUtils.unpackRoomPosition(this.memory.lastPos);
-      if (this.pos.isEqualTo(lastPos)) {
+      if (this.creep.pos.isEqualTo(lastPos)) {
         this.memory.stuckCount = (this.memory.stuckCount ?? 0) + 1;
-        this.room.visual.circle(this.pos.x, this.pos.y, { fill: "#000000" });
+        this.roomw.visual.circle(this.pos.x, this.pos.y, { fill: "#000000" });
       } else {
         this.memory.stuckCount = 0;
       }
@@ -207,7 +256,7 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected findClosestSourceContainer(): StructureContainer | null {
-    const sources = this.room.find(FIND_SOURCES);
+    const sources = this.roomw.find(FIND_SOURCES);
     const containers: StructureContainer[] = [];
     if (sources.length > 0) {
       for (const source of sources) {
@@ -223,7 +272,7 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected findClosestSourceContainerNotEmpty(): StructureContainer | null {
-    const sources = this.room.find(FIND_SOURCES);
+    const sources = this.roomw.find(FIND_SOURCES);
     const containers: StructureContainer[] = [];
     if (sources.length > 0) {
       for (const source of sources) {
@@ -299,11 +348,11 @@ export abstract class CreepWrapper extends Creep {
       filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0
     });
     if (tombs.length > 0) {
-      withdrawResult = this.withdrawW(tombs[0], RESOURCE_ENERGY);
+      withdrawResult = this.withdraw(tombs[0], RESOURCE_ENERGY);
     } else {
       const ruins = this.pos.findInRange(FIND_RUINS, 1, { filter: r => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
       if (ruins.length > 0) {
-        withdrawResult = this.withdrawW(ruins[0], RESOURCE_ENERGY);
+        withdrawResult = this.withdraw(ruins[0], RESOURCE_ENERGY);
       }
     }
     return withdrawResult;
@@ -315,7 +364,7 @@ export abstract class CreepWrapper extends Creep {
       filter: r => r.resourceType === RESOURCE_ENERGY
     });
     if (resources.length > 0) {
-      pickupResult = this.pickupW(resources[0]);
+      pickupResult = this.pickup(resources[0]);
     }
     return pickupResult;
   }
@@ -334,7 +383,7 @@ export abstract class CreepWrapper extends Creep {
    * move to inactive source
    */
   public harvestByPriority(): ScreepsReturnCode {
-    if (this.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
+    if (this.creep.getActiveBodyparts(CARRY) === 0 || this.store.getFreeCapacity() === 0) {
       return ERR_FULL;
     }
 
@@ -351,8 +400,8 @@ export abstract class CreepWrapper extends Creep {
       return result;
     }
 
-    if (this.room.storage && this.room.storage.store.energy > 0) {
-      result = this.moveToAndGet(this.room.storage);
+    if (this.roomw.storage && this.roomw.storage.store.energy > 0) {
+      result = this.moveToAndGet(this.roomw.storage);
       if (result === OK) {
         return result;
       }
@@ -388,7 +437,7 @@ export abstract class CreepWrapper extends Creep {
       return result;
     }
 
-    if (this.getActiveBodyparts(WORK) > 0) {
+    if (this.creep.getActiveBodyparts(WORK) > 0) {
       result = this.moveToAndGet(this.findClosestActiveEnergySource());
       if (result === OK) {
         return result;
@@ -401,7 +450,7 @@ export abstract class CreepWrapper extends Creep {
 
       const inactiveSource = this.findClosestEnergySource();
       if (inactiveSource && !this.pos.isNearTo(inactiveSource)) {
-        result = this.moveToW(inactiveSource, { range: 1, visualizePathStyle: { stroke: "#ffaa00" } });
+        result = this.moveTo(inactiveSource, { range: 1, visualizePathStyle: { stroke: "#ffaa00" } });
         CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
         return result;
       }
@@ -420,17 +469,22 @@ export abstract class CreepWrapper extends Creep {
     return this.pos.findClosestByPath(containersNotFull) ?? undefined;
   }
 
-  public transferW(
+  /**
+   * Wrappers of Creep methods
+   * These allow CreepWrapper to be used as a Creep, with hooks into the Creep actions, without extending Creep (which breaks stuff sometimes)
+   */
+
+  public transfer(
     target: AnyCreep | Structure,
     resourceType: ResourceConstant = RESOURCE_ENERGY,
     amount?: number
   ): ScreepsReturnCode {
-    return this.transfer(target, resourceType, amount);
+    return this.creep.transfer(target, resourceType, amount);
   }
 
-  public pickupW(target: Resource<ResourceConstant>, force = false): ScreepsReturnCode {
+  public pickup(target: Resource<ResourceConstant>, force = false): ScreepsReturnCode {
     if (!this.pickingUp || force) {
-      const result = this.pickup(target);
+      const result = this.creep.pickup(target);
       if (result === OK) {
         this.pickingUpAmount = Math.min(target.amount, this.store.getFreeCapacity());
         this.pickingUp = true;
@@ -440,7 +494,7 @@ export abstract class CreepWrapper extends Creep {
     return ERR_BUSY;
   }
 
-  public withdrawW(
+  public withdraw(
     target: StructureContainer | Tombstone | Ruin | StructureStorage | StructureLink,
     type: ResourceConstant,
     force = false
@@ -449,7 +503,7 @@ export abstract class CreepWrapper extends Creep {
       // only withdraw remaining capacity if also picking up drop this tick
       const targetAmount = target.store.getUsedCapacity(type) ?? 0;
       const withdrawAmount = Math.min(targetAmount, this.store.getFreeCapacity() - this.pickingUpAmount);
-      const result = this.withdraw(target, type, withdrawAmount);
+      const result = this.creep.withdraw(target, type, withdrawAmount);
       if (result === OK) {
         this.withdrawing = true;
       }
@@ -458,12 +512,68 @@ export abstract class CreepWrapper extends Creep {
     return ERR_BUSY;
   }
 
-  public harvestW(target: Source): ScreepsReturnCode {
-    const result = this.harvest(target);
+  public harvest(target: Source): ScreepsReturnCode {
+    const result = this.creep.harvest(target);
     if (result === OK) {
       Stats.record(StatType.HARVEST_ENERGY_STAT, CreepUtils.countParts(WORK, this) * HARVEST_POWER);
     }
     return result;
+  }
+
+  public repair(target: Structure): ScreepsReturnCode {
+    return this.creep.repair(target);
+  }
+
+  public dismantle(target: Structure): ScreepsReturnCode {
+    return this.creep.dismantle(target);
+  }
+
+  public moveByPath(path: PathStep[] | RoomPosition[] | string): ScreepsReturnCode {
+    return this.creep.moveByPath(path);
+  }
+
+  public suicide(): ScreepsReturnCode {
+    return this.creep.suicide();
+  }
+
+  public build(site: ConstructionSite<BuildableStructureConstant>): ScreepsReturnCode {
+    return this.creep.build(site);
+  }
+
+  public signController(controller: StructureController, message: string): ScreepsReturnCode {
+    return this.creep.signController(controller, message);
+  }
+
+  public attackController(controller: StructureController): ScreepsReturnCode {
+    return this.creep.attackController(controller);
+  }
+
+  public upgradeController(controller: StructureController): ScreepsReturnCode {
+    return this.creep.upgradeController(controller);
+  }
+
+  public reserveController(controller: StructureController): ScreepsReturnCode {
+    return this.creep.reserveController(controller);
+  }
+
+  public heal(target: CreepWrapper): ScreepsReturnCode {
+    return this.creep.heal(target.getCreep());
+  }
+
+  public pull(creep: CreepWrapper): ScreepsReturnCode {
+    return this.creep.pull(creep.getCreep());
+  }
+
+  public attack(target: Structure<StructureConstant> | AnyCreep): CreepActionReturnCode {
+    return this.creep.attack(target);
+  }
+
+  public rangedAttack(target: Structure<StructureConstant> | AnyCreep): CreepActionReturnCode {
+    return this.creep.rangedAttack(target);
+  }
+
+  public say(message: string): ScreepsReturnCode {
+    return this.say(message);
   }
 
   public moveToAndGet(
@@ -486,15 +596,15 @@ export abstract class CreepWrapper extends Creep {
     if (target.pos.isNearTo(this.pos)) {
       CreepUtils.consoleLogIfWatched(this, `getting: ${String(target)}`);
       if (target instanceof Resource) {
-        result = this.pickupW(target);
+        result = this.pickup(target);
       } else if (target instanceof Source) {
-        result = this.harvestW(target);
+        result = this.harvest(target);
       } else {
-        result = this.withdrawW(target, resourceType);
+        result = this.withdraw(target, resourceType);
       }
       CreepUtils.consoleLogIfWatched(this, `get result`, result);
     } else {
-      result = this.moveToW(target, {
+      result = this.moveTo(target, {
         range: 1,
         visualizePathStyle: { stroke: "#ffaa00" }
       });
@@ -506,14 +616,14 @@ export abstract class CreepWrapper extends Creep {
   protected moveToAndAttack(target: Creep | Structure): ScreepsReturnCode {
     let result: ScreepsReturnCode;
     if (target.pos.isNearTo(this.pos)) {
-      result = this.attack(target);
+      result = this.creep.attack(target);
       CreepUtils.consoleLogIfWatched(this, `attack ${typeof target}`, result);
       if (result === OK) {
         // don't heal when attacking, heal overrides the attack
-        this.cancelOrder(HEAL);
+        this.creep.cancelOrder(HEAL);
       }
     } else {
-      result = this.moveToW(target, {
+      result = this.moveTo(target, {
         range: 1,
         visualizePathStyle: { stroke: "#ff0000" }
       });
@@ -523,7 +633,7 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected moveToRoom(roomName: string): ScreepsReturnCode {
-    if (this.room.name === roomName) {
+    if (this.roomw.name === roomName) {
       delete this.memory.path;
       delete this.memory.pathRoom;
       CreepUtils.consoleLogIfWatched(this, `already in room ${roomName}`);
@@ -557,7 +667,7 @@ export abstract class CreepWrapper extends Creep {
 
     if (this.memory.path) {
       const path = Room.deserializePath(this.memory.path);
-      const ret = this.moveByPath(path);
+      const ret = this.creep.moveByPath(path);
       CreepUtils.consoleLogIfWatched(this, `moving to exit by path`, ret);
       return ret;
     }
@@ -586,12 +696,12 @@ export abstract class CreepWrapper extends Creep {
     const serializedPath = Room.serializePath(path);
     CreepUtils.consoleLogIfWatched(this, `path serialized: ${serializedPath}`);
     this.memory.path = serializedPath;
-    this.memory.pathRoom = this.room.name;
+    this.memory.pathRoom = this.roomw.name;
     return OK;
   }
 
   protected claimTargetRoom(): ScreepsReturnCode {
-    if (this.room.name !== this.memory.targetRoom) {
+    if (this.roomw.name !== this.memory.targetRoom) {
       return ERR_NOT_IN_RANGE;
     }
 
@@ -604,20 +714,20 @@ export abstract class CreepWrapper extends Creep {
       (this.roomw.controller.reservation && this.roomw.controller.reservation.username !== Memory.username)
     ) {
       // go to controller and attack it
-      let result: ScreepsReturnCode = this.attackController(this.roomw.controller);
+      let result: ScreepsReturnCode = this.creep.attackController(this.roomw.controller);
       CreepUtils.consoleLogIfWatched(this, `attacking controller: ${String(this.roomw.controller.pos)}`, result);
       if (result === ERR_NOT_IN_RANGE) {
-        result = this.moveToW(this.roomw.controller);
+        result = this.moveTo(this.roomw.controller);
         CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, result);
       }
       return result;
     }
 
     // go to controller and claim it
-    let result: ScreepsReturnCode = this.claimController(this.roomw.controller);
+    let result: ScreepsReturnCode = this.creep.claimController(this.roomw.controller);
     CreepUtils.consoleLogIfWatched(this, `claiming controller: ${String(this.roomw.controller.pos)}`, result);
     if (result === ERR_NOT_IN_RANGE) {
-      result = this.moveToW(this.roomw.controller);
+      result = this.moveTo(this.roomw.controller);
       CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, result);
     }
     return result;
@@ -662,7 +772,7 @@ export abstract class CreepWrapper extends Creep {
         CreepUtils.consoleLogIfWatched(this, `requesting retirement of ${retiree.name}`);
         retiree.suicide();
       }
-      return this.moveToW(retiree.pos, { visualizePathStyle: { stroke: "#ffaa00" } });
+      return this.moveTo(retiree.pos, { visualizePathStyle: { stroke: "#ffaa00" } });
     } else {
       this.memory.replacing = undefined;
       return ERR_NOT_FOUND;
@@ -699,7 +809,7 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `repairing ${structure.structureType}`, result);
       return result;
     }
-    const result = this.moveToW(structure, {
+    const result = this.moveTo(structure, {
       range: 3,
       costCallback: this.costMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
     });
@@ -715,7 +825,7 @@ export abstract class CreepWrapper extends Creep {
     CreepUtils.consoleLogIfWatched(this, `dismantling ${structure.structureType}`, result);
     if (result === ERR_NOT_IN_RANGE) {
       CreepUtils.consoleLogIfWatched(this, `moving to ${String(structure.pos)}`, result);
-      result = this.moveToW(structure, {
+      result = this.moveTo(structure, {
         costCallback: this.costMatrixUtils.avoidHarvestPositionsAndCreepsCostCallback
       });
     }
@@ -737,7 +847,7 @@ export abstract class CreepWrapper extends Creep {
         roomCallback: this.costMatrixUtils.creepMovementRoomCallback
       }
     );
-    const result = this.moveByPath(path.path);
+    const result = this.creep.moveByPath(path.path);
     CreepUtils.consoleLogIfWatched(this, `moving off the road`, result);
     return result;
   }
@@ -750,11 +860,11 @@ export abstract class CreepWrapper extends Creep {
   public findRoomStorage(): StructureWithStorage | Creep | undefined {
     CreepUtils.consoleLogIfWatched(
       this,
-      `room storage: ${String(this.room.storage)} ${String(this.room.storage?.store.getFreeCapacity())}`
+      `room storage: ${String(this.roomw.storage)} ${String(this.roomw.storage?.store.getFreeCapacity())}`
     );
-    if (this.room.storage && this.room.storage.store.getFreeCapacity() > 0) {
-      CreepUtils.consoleLogIfWatched(this, `room storage: ${String(this.room.storage.store.getFreeCapacity())}`);
-      return this.room.storage;
+    if (this.roomw.storage && this.roomw.storage.store.getFreeCapacity() > 0) {
+      CreepUtils.consoleLogIfWatched(this, `room storage: ${String(this.roomw.storage.store.getFreeCapacity())}`);
+      return this.roomw.storage;
     }
 
     const spawnStorage = this.findSpawnStorageNotFull();
@@ -807,7 +917,7 @@ export abstract class CreepWrapper extends Creep {
       CreepUtils.consoleLogIfWatched(this, `transfer to ${String(target)}`, transferResult);
       return transferResult;
     } else {
-      const moveResult = this.moveToW(target);
+      const moveResult = this.moveTo(target);
       CreepUtils.consoleLogIfWatched(this, `moving to ${String(target)} at ${String(target.pos)}`, moveResult);
       if (moveResult === OK) {
         return ERR_NOT_IN_RANGE;
@@ -819,43 +929,43 @@ export abstract class CreepWrapper extends Creep {
   /* Ability calculations */
 
   public get repairCost(): number {
-    return REPAIR_POWER * REPAIR_COST * this.getActiveBodyparts(WORK);
+    return REPAIR_POWER * REPAIR_COST * this.creep.getActiveBodyparts(WORK);
   }
 
   public get repairAmount(): number {
-    return REPAIR_POWER * this.getActiveBodyparts(WORK);
+    return REPAIR_POWER * this.creep.getActiveBodyparts(WORK);
   }
 
   public get buildAmount(): number {
-    return BUILD_POWER * this.getActiveBodyparts(WORK);
+    return BUILD_POWER * this.creep.getActiveBodyparts(WORK);
   }
 
   public get healAmount(): number {
-    return HEAL_POWER * this.getActiveBodyparts(HEAL);
+    return HEAL_POWER * this.creep.getActiveBodyparts(HEAL);
   }
 
   public get rangedHealAmount(): number {
-    return RANGED_HEAL_POWER * this.getActiveBodyparts(HEAL);
+    return RANGED_HEAL_POWER * this.creep.getActiveBodyparts(HEAL);
   }
 
   public get harvestAmount(): number {
-    return HARVEST_POWER * this.getActiveBodyparts(WORK);
+    return HARVEST_POWER * this.creep.getActiveBodyparts(WORK);
   }
 
   public get rangedAttackAmount(): number {
-    return RANGED_ATTACK_POWER * this.getActiveBodyparts(RANGED_ATTACK);
+    return RANGED_ATTACK_POWER * this.creep.getActiveBodyparts(RANGED_ATTACK);
   }
 
   public get attackAmount(): number {
-    return ATTACK_POWER * this.getActiveBodyparts(ATTACK);
+    return ATTACK_POWER * this.creep.getActiveBodyparts(ATTACK);
   }
 
   public get upgradeAmount(): number {
-    return UPGRADE_CONTROLLER_POWER * this.getActiveBodyparts(WORK);
+    return UPGRADE_CONTROLLER_POWER * this.creep.getActiveBodyparts(WORK);
   }
 
   public getStoreContents(): ResourceConstant[] {
-    return CreepUtils.getStoreContents(this);
+    return CreepUtils.getStoreContents(this.store);
   }
 
   public isEmpty(): boolean {

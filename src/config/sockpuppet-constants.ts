@@ -124,8 +124,4 @@ declare global {
   interface StructureWithStorage extends Structure {
     store: StoreDefinition;
   }
-
-  interface RoomObjectWithStorage extends RoomObject {
-    store: StoreDefinition;
-  }
 }

@@ -111,7 +111,7 @@ export class HaulerControl {
       .concat(roomw.sourceContainers)
       .filter(c => c.store.energy < c.store.getUsedCapacity())
       .forEach(c => {
-        CreepUtils.getStoreContents(c).forEach(resource => {
+        CreepUtils.getStoreContents(c.store).forEach(resource => {
           tasks.push(
             new UnloadTask({
               priority: SockPuppetConstants.TASK_CONTAINER_CLEANUP_PRIORITY,

@@ -8,7 +8,7 @@ export class UnloadTask extends Task {
   public readonly resourceType: ResourceConstant;
   public readonly priority: number;
   public readonly override?: boolean = false;
-  public readonly requirements?: (creep: Creep) => boolean;
+  public readonly requirements?: (creep: CreepWrapper) => boolean;
 
   public readonly target?: StructureContainer | null;
 
@@ -27,7 +27,7 @@ export class UnloadTask extends Task {
     pos: RoomPosition;
     priority: number;
     override?: boolean;
-    requirements?: (creep: Creep) => boolean;
+    requirements?: (creep: CreepWrapper) => boolean;
   }) {
     super(pos, TaskType.UNLOAD);
     this.targetId = targetId;

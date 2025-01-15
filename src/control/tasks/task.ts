@@ -9,7 +9,7 @@ export interface TaskInterface {
   override?: boolean;
   salt?: number;
   tag?: string;
-  requirements?: (creep: Creep) => boolean;
+  requirements?: (creep: CreepWrapper) => boolean;
   validate: () => boolean;
   cancel: () => void;
   complete: () => void;
@@ -20,7 +20,7 @@ export abstract class Task implements TaskInterface {
   public readonly type: TaskType;
   public readonly priority: number = 0;
   public readonly pos: RoomPosition;
-  public readonly requirements?: ((creep: Creep) => boolean) | undefined;
+  public readonly requirements?: ((creep: CreepWrapper) => boolean) | undefined;
   public readonly override?: boolean | undefined;
   public readonly salt?: number;
   public readonly tag?: string;

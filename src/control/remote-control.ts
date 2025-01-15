@@ -12,6 +12,7 @@ import { TargetControl } from "./target-control";
 import { TaskManagement } from "./tasks/task-management";
 import { HaulTask } from "./tasks/haul-task";
 import { CreepBodyUtils } from "roles/creep-body-utils";
+import { CreepWrapper } from "roles/creep-wrapper";
 
 export class RemoteControl {
   private readonly targetControl: TargetControl;
@@ -52,7 +53,7 @@ export class RemoteControl {
         targetId: c.id,
         pos: c.pos,
         priority: 200,
-        requirements: (hauler: Creep) => hauler.store.getUsedCapacity() === 0
+        requirements: (hauler: CreepWrapper) => hauler.store.getUsedCapacity() === 0
       });
     });
   }

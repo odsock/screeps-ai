@@ -3,11 +3,12 @@ import { CreepUtils } from "creep-utils";
 import { Hauler } from "roles/hauler";
 import { RoomWrapper } from "structures/room-wrapper";
 import { Task } from "./task";
+import { CreepWrapper } from "roles/creep-wrapper";
 
 export class SupplyCreepTask extends Task {
   public readonly priority: number;
   public readonly override?: boolean;
-  public readonly requirements?: (creep: Creep) => boolean;
+  public readonly requirements?: (creep: CreepWrapper) => boolean;
 
   public readonly roomw: RoomWrapper;
   public readonly resourcetype: ResourceConstant = RESOURCE_ENERGY;
@@ -32,7 +33,7 @@ export class SupplyCreepTask extends Task {
     targetId: Id<Creep>;
     resourceType?: ResourceConstant;
     override?: boolean;
-    requirements?: (creep: Creep) => boolean;
+    requirements?: (creep: CreepWrapper) => boolean;
   }) {
     super(pos, TaskType.SUPPLY_CREEP);
     this.priority = priority;

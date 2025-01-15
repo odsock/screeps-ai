@@ -2,12 +2,13 @@ import { TaskType } from "control/tasks/task-management";
 import { Task } from "./task";
 import { CreepUtils } from "creep-utils";
 import { Hauler } from "roles/hauler";
+import { CreepWrapper } from "roles/creep-wrapper";
 
 export class SupplyStructureTask extends Task {
   public readonly priority: number;
   public readonly targetId: Id<StructureWithStorage>;
   public readonly resourceType: ResourceConstant;
-  public readonly requirements?: (creep: Creep) => boolean;
+  public readonly requirements?: (creep: CreepWrapper) => boolean;
   public readonly salt?: number;
   public readonly override?: boolean;
   public readonly tag?: string;
@@ -28,7 +29,7 @@ export class SupplyStructureTask extends Task {
     pos: RoomPosition;
     targetId: Id<StructureWithStorage>;
     resourceType: ResourceConstant;
-    requirements?: (creep: Creep) => boolean;
+    requirements?: (creep: CreepWrapper) => boolean;
     salt?: number;
     override?: boolean;
     tag?: string;
@@ -76,7 +77,7 @@ export class SupplyStructureTask extends Task {
       return result;
     } else {
       if (!creep.pos.isNearTo(target)) {
-        const moveResult = creep.moveToW(target, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
+        const moveResult = creep.moveTo(target, { range: 1, visualizePathStyle: { stroke: "#ffffff" } });
         CreepUtils.consoleLogIfWatched(creep, `moving to ${target.structureType} at ${String(target.pos)}`, moveResult);
         return moveResult;
       } else {

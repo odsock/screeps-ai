@@ -4,12 +4,13 @@ import { Task } from "./task";
 import { CreepUtils } from "creep-utils";
 import { Hauler } from "roles/hauler";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
+import { CreepWrapper } from "roles/creep-wrapper";
 
 export class SupplySpawnTask extends Task {
   public readonly priority: number;
   public readonly override?: boolean;
   public readonly salt?: number;
-  public readonly requirements?: (creep: Creep) => boolean;
+  public readonly requirements?: (creep: CreepWrapper) => boolean;
 
   public readonly roomw: RoomWrapper;
 
@@ -26,7 +27,7 @@ export class SupplySpawnTask extends Task {
     pos: RoomPosition;
     override?: boolean;
     salt?: number;
-    requirements?: (creep: Creep) => boolean;
+    requirements?: (creep: CreepWrapper) => boolean;
   }) {
     super(pos, TaskType.SUPPLY_SPAWN);
     this.priority = priority;
@@ -58,7 +59,7 @@ export class SupplySpawnTask extends Task {
       const targetIndex = spawnStorage.findIndex(s => s.pos.isNearTo(creep.pos));
       if (targetIndex !== -1) {
         const target = spawnStorage[targetIndex];
-        const transferResult = creep.transferW(target, RESOURCE_ENERGY);
+        const transferResult = creep.transfer(target, RESOURCE_ENERGY);
         CreepUtils.consoleLogIfWatched(creep, `supply ${target.structureType} result`, transferResult);
         // stores do NOT reflect transfer above until next tick
         if (transferResult === OK) {

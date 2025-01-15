@@ -125,7 +125,7 @@ export class Raider extends RemoteCreepWrapper {
         const result = this.moveToRoom(this.memory.rallyRoom);
         CreepUtils.consoleLogIfWatched(this, `move to rally room`, result);
       } else {
-        const result = this.moveToW(new RoomPosition(25, 25, this.room.name), { range: 10 });
+        const result = this.moveTo(new RoomPosition(25, 25, this.room.name), { range: 10 });
         CreepUtils.consoleLogIfWatched(this, `move to rally point`, result);
       }
     } else {

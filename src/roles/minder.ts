@@ -52,7 +52,7 @@ export abstract class Minder extends CreepWrapper {
     let result: ScreepsReturnCode = ERR_NOT_IN_RANGE;
     const sources = this.pos.findInRange(FIND_SOURCES, 1);
     if (sources.length > 0) {
-      result = this.harvestW(sources[0]);
+      result = this.harvest(sources[0]);
     }
     CreepUtils.consoleLogIfWatched(this, `harvest result`, result);
     return result;
@@ -174,7 +174,7 @@ export abstract class Minder extends CreepWrapper {
 
     // if path is 0 steps, hauler is at target or exit of a room, so swap positions
     if (haulerPathToTarget.length === 0) {
-      const result = hauler.moveToW(this);
+      const result = hauler.moveTo(this);
       CreepUtils.consoleLogIfWatched(this, `swap with hauler`, result);
       return result;
     }

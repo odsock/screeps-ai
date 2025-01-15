@@ -23,7 +23,7 @@ export class RemoteCreepWrapper extends CreepWrapper {
       let result: ScreepsReturnCode = this.attackController(this.roomw.controller);
       CreepUtils.consoleLogIfWatched(this, `attacking controller: ${String(this.roomw.controller.pos)}`, result);
       if (result === ERR_NOT_IN_RANGE) {
-        result = this.moveToW(this.roomw.controller);
+        result = this.moveTo(this.roomw.controller);
         CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, result);
       }
       return result;
@@ -33,7 +33,7 @@ export class RemoteCreepWrapper extends CreepWrapper {
     let result: ScreepsReturnCode = this.reserveController(this.roomw.controller);
     CreepUtils.consoleLogIfWatched(this, `reserving controller: ${String(this.roomw.controller.pos)}`, result);
     if (result === ERR_NOT_IN_RANGE) {
-      result = this.moveToW(this.roomw.controller);
+      result = this.moveTo(this.roomw.controller);
       CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, result);
     }
     return result;
@@ -59,7 +59,7 @@ export class RemoteCreepWrapper extends CreepWrapper {
       filter: structure => structure.structureType === STRUCTURE_TOWER
     });
     if (tower) {
-      const result = this.moveToW(tower, { range: 2 });
+      const result = this.moveTo(tower, { range: 2 });
       CreepUtils.consoleLogIfWatched(this, `moving to tower`, result);
       return result;
     }
@@ -105,7 +105,7 @@ export class RemoteCreepWrapper extends CreepWrapper {
       filter: structure => structure.structureType === STRUCTURE_TOWER
     });
     if (tower) {
-      const result = this.moveToW(tower, { range: 5 });
+      const result = this.moveTo(tower, { range: 5 });
       CreepUtils.consoleLogIfWatched(this, `moving to tower`, result);
       return result;
     }

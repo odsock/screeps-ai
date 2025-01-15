@@ -27,7 +27,7 @@ export class Claimer extends RemoteCreepWrapper {
 
     // unsign controllers we didn't sign
     if (this.room.controller?.sign?.username && this.room.controller.sign.username !== this.owner.username) {
-      this.moveToW(this.room.controller);
+      this.moveTo(this.room.controller);
       this.signController(this.room.controller, "");
     }
 
@@ -77,7 +77,7 @@ export class Claimer extends RemoteCreepWrapper {
     }
 
     if (!this.pos.isNearTo(this.roomw.controller)) {
-      const moveResult = this.moveToW(this.roomw.controller);
+      const moveResult = this.moveTo(this.roomw.controller);
       CreepUtils.consoleLogIfWatched(this, `move to controller: ${String(this.roomw.controller)}`, moveResult);
       return moveResult;
     } else {

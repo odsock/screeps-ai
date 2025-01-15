@@ -2,12 +2,13 @@ import { TaskType } from "control/tasks/task-management";
 import { CreepUtils } from "creep-utils";
 import { Hauler } from "roles/hauler";
 import { Task } from "./task";
+import { CreepWrapper } from "roles/creep-wrapper";
 
 export class CleanupTask extends Task {
   public readonly priority: number;
   public readonly targetId: Id<Resource | Tombstone | Ruin>;
   public readonly override?: boolean;
-  public readonly requirements?: (creep: Creep) => boolean;
+  public readonly requirements?: (creep: CreepWrapper) => boolean;
   public readonly target: Resource<ResourceConstant> | Tombstone | Ruin | null;
 
   public constructor({
@@ -23,7 +24,7 @@ export class CleanupTask extends Task {
     pos: RoomPosition;
     targetId: Id<Resource | Tombstone | Ruin>;
     override?: boolean;
-    requirements?: (creep: Creep) => boolean;
+    requirements?: (creep: CreepWrapper) => boolean;
   }) {
     super(pos, TaskType.CLEANUP);
     this.priority = priority;
@@ -66,7 +67,7 @@ export class CleanupTask extends Task {
         return ERR_INVALID_TARGET;
       }
       if (!(this.target instanceof Resource)) {
-        const resources = CreepUtils.getStoreContents(this.target);
+        const resources = CreepUtils.getStoreContents(this.target.store);
         resourceType = resources[0];
       } else {
         resourceType = this.target.resourceType;

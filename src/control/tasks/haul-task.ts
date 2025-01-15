@@ -3,13 +3,14 @@ import { Task } from "./task";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { Hauler } from "roles/hauler";
+import { CreepWrapper } from "roles/creep-wrapper";
 
 export class HaulTask extends Task {
   public readonly priority: number;
   public readonly creepName: string;
   public readonly targetId: Id<Creep>;
   public readonly override?: boolean;
-  public readonly requirements?: (creep: Creep) => boolean;
+  public readonly requirements?: (creep: CreepWrapper) => boolean;
 
   private creepToHaul: Creep;
 
@@ -28,7 +29,7 @@ export class HaulTask extends Task {
     creepName: string;
     targetId: Id<Creep>;
     override?: boolean;
-    requirements?: (creep: Creep) => boolean;
+    requirements?: (creep: CreepWrapper) => boolean;
   }) {
     super(pos, TaskType.HAUL);
     this.priority = priority;
@@ -96,12 +97,12 @@ export class HaulTask extends Task {
         const exitDir = CreepUtils.getClosestExitDirection(creep.pos);
         if (exitDir) {
           const reverseExitDir = CreepUtils.reverseDirection(exitDir);
-          const result = creep.moveW(reverseExitDir);
+          const result = creep.move(reverseExitDir);
           CreepUtils.consoleLogIfWatched(creep, `move away from exit`, result);
           return result;
         }
       }
-      const result = creep.moveToW(creepToHaul);
+      const result = creep.moveTo(creepToHaul);
       CreepUtils.consoleLogIfWatched(creep, `move to creep`, result);
     }
     return OK;

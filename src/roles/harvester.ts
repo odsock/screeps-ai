@@ -51,7 +51,7 @@ export class Harvester extends Minder {
     let result: ScreepsReturnCode = ERR_INVALID_TARGET;
     const link = this.getMyLink();
     if (link) {
-      result = this.transferW(link, RESOURCE_ENERGY);
+      result = this.transfer(link, RESOURCE_ENERGY);
     }
     CreepUtils.consoleLogIfWatched(this, "transfer to link", result);
     return result;
@@ -63,7 +63,7 @@ export class Harvester extends Minder {
     if (source) {
       const linkId: Id<StructureLink> | undefined = this.roomw.memory.sources[source.id].link?.id;
       if (linkId) {
-        link = Game.getObjectById<StructureLink>(linkId) ?? undefined;
+        link = Game.getObjectById(linkId) ?? undefined;
       }
     }
     CreepUtils.consoleLogIfWatched(this, `getting link: ${String(link?.id)}`);
@@ -73,7 +73,7 @@ export class Harvester extends Minder {
   protected harvestFromMySource(): ScreepsReturnCode {
     const source = this.getMySource();
     if (source) {
-      const result = this.harvestW(source);
+      const result = this.harvest(source);
       CreepUtils.consoleLogIfWatched(this, `harvest result`, result);
       return result;
     }

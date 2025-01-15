@@ -49,7 +49,7 @@ export class Importer extends RemoteCreepWrapper {
     ) {
       let result: ScreepsReturnCode;
       if (!this.pos.isNearTo(this.room.controller)) {
-        result = this.moveToW(this.room.controller, { range: 1, reusePath: 20 });
+        result = this.moveTo(this.room.controller, { range: 1, reusePath: 20 });
         CreepUtils.consoleLogIfWatched(this, `move result`, result);
       } else {
         result = this.signController(this.room.controller, "");
@@ -84,7 +84,7 @@ export class Importer extends RemoteCreepWrapper {
         if (result === ERR_NOT_FOUND) {
           const closestSource = this.pos.findClosestByRange(this.roomw.sources);
           if (closestSource) {
-            result = this.moveToW(closestSource, { range: 3 });
+            result = this.moveTo(closestSource, { range: 3 });
           }
         }
       }
@@ -150,12 +150,12 @@ export class Importer extends RemoteCreepWrapper {
         const exitDir = CreepUtils.getClosestExitDirection(this.pos);
         if (exitDir) {
           const reverseExitDir = CreepUtils.reverseDirection(exitDir);
-          const result = this.moveW(reverseExitDir);
+          const result = this.move(reverseExitDir);
           CreepUtils.consoleLogIfWatched(this, `move away from exit`, result);
           return result;
         }
       }
-      const result = this.moveToW(creepToHaul);
+      const result = this.moveTo(creepToHaul);
       CreepUtils.consoleLogIfWatched(this, `move to creep`, result);
     }
     return OK;

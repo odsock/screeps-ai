@@ -1,3 +1,4 @@
+import { CreepWrapper } from "roles/creep-wrapper";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 
 export interface Watchable {
@@ -72,7 +73,7 @@ export class CreepUtils {
   }
 
   /** counts creep body parts matching specified type */
-  public static countParts(type: BodyPartConstant, ...creeps: Creep[]): number {
+  public static countParts(type: BodyPartConstant, ...creeps: Creep[] | CreepWrapper[]): number {
     return creeps.reduce<number>((count, creep) => {
       return count + creep.body.filter(part => part.type === type).length;
     }, 0);
@@ -92,15 +93,15 @@ export class CreepUtils {
   /**
    * Get list of store contents sorted by amount
    */
-  public static getStoreContents(target: RoomObjectWithStorage): ResourceConstant[] {
+  public static getStoreContents(store: StoreDefinition): ResourceConstant[] {
     const resources: ResourceConstant[] = [];
-    for (const resourceName in target.store) {
+    for (const resourceName in store) {
       const type = resourceName as ResourceConstant;
-      if (target.store[type] > 0) {
+      if (store[type] > 0) {
         resources.push(type);
       }
     }
-    return resources.sort((a, b) => target.store[a] - target.store[b]);
+    return resources.sort((a, b) => store[a] - store[b]);
   }
 
   public static getClosestExitDirection(pos: RoomPosition): DirectionConstant | undefined {

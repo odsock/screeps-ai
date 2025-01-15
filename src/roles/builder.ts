@@ -39,7 +39,7 @@ export class Builder extends CreepWrapper {
 
     CreepUtils.consoleLogIfWatched(this, "no work left. this is the end.");
     const target = this.roomw.storage ?? this.roomw.spawns[0];
-    const result = this.moveToW(target.pos, { range: 1 });
+    const result = this.moveTo(target.pos, { range: 1 });
     CreepUtils.consoleLogIfWatched(this, `move to end pos result`, result);
     if (this.pos.isNearTo(target)) {
       const suicideResult = this.suicide();
@@ -71,7 +71,7 @@ export class Builder extends CreepWrapper {
         const result = this.build(site);
         if (result === ERR_NOT_IN_RANGE) {
           CreepUtils.consoleLogIfWatched(this, `moving to site`);
-          this.moveToW(site, { visualizePathStyle: { stroke: "#ffffff" } });
+          this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
         if (result === OK) {
           Stats.record(StatType.BUILD_STAT, CreepUtils.countParts(WORK, this) * BUILD_POWER);
