@@ -19,7 +19,6 @@ export class Sockpuppet {
   public memory = {};
 
   public run(): void {
-    new LinkControl().run();
     new ReconControl().run();
     new DefenseControl().run();
     new AttackControl().run();
@@ -28,6 +27,7 @@ export class Sockpuppet {
     new HaulerControl().run();
     new RemoteControl().run();
     new UpgradeControl().run();
+    new LinkControl().run();
 
     // Run each colony
     let planningOffset = 0;
