@@ -241,8 +241,16 @@ export class RoomWrapper extends Room {
     // default upgrade center is controller
     let target = this.controller.pos;
     let range = 3;
-    // prefer container if one exists
-    if (this.memory.controller.container?.id) {
+
+    // prefer link if one exists
+    if (this.memory.controller.link?.id) {
+      const link = Game.getObjectById(this.memory.controller.link.id);
+      if (link) {
+        range = 1;
+        target = link.pos;
+      }
+    } else if (this.memory.controller.container?.id) {
+      // prefer container if one exists
       const container = Game.getObjectById(this.memory.controller.container.id);
       if (container) {
         range = 1;
