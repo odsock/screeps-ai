@@ -198,6 +198,14 @@ export abstract class CreepWrapper extends Creep {
     return container as StructureContainer;
   }
 
+  /** find closest link with at least a minimum amount of energy */
+  protected findClosestLinkWithEnergy(min = 0): StructureLink | null {
+    const container = this.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_LINK && s.store.getUsedCapacity(RESOURCE_ENERGY) > min
+    });
+    return container as StructureLink;
+  }
+
   protected findClosestSourceContainer(): StructureContainer | null {
     const sources = this.room.find(FIND_SOURCES);
     const containers: StructureContainer[] = [];
@@ -320,6 +328,7 @@ export abstract class CreepWrapper extends Creep {
    * tomb
    * ruin
    * container with energy
+   * link with energy
    * active source
    * dismantle structure
    * move to inactive source
@@ -368,6 +377,8 @@ export abstract class CreepWrapper extends Creep {
     if (result === OK) {
       return result;
     }
+
+    result = this.moveToAndGet(this.findClosestLinkWithEnergy());
 
     if (this.getActiveBodyparts(WORK) > 0) {
       result = this.moveToAndGet(this.findClosestActiveEnergySource());
@@ -422,13 +433,13 @@ export abstract class CreepWrapper extends Creep {
   }
 
   protected withdrawW(
-    target: StructureContainer | Tombstone | Ruin | StructureStorage,
+    target: StructureContainer | Tombstone | Ruin | StructureStorage | StructureLink,
     type: ResourceConstant,
     force = false
   ): ScreepsReturnCode {
     if (!this.withdrawing || force) {
       // only withdraw remaining capacity if also picking up drop this tick
-      const targetAmount = target.store.getUsedCapacity(type);
+      const targetAmount = target.store.getUsedCapacity(type) ?? 0;
       const withdrawAmount = Math.min(targetAmount, this.store.getFreeCapacity() - this.pickingUpAmount);
       const result = this.withdraw(target, type, withdrawAmount);
       if (result === OK) {
@@ -448,7 +459,16 @@ export abstract class CreepWrapper extends Creep {
   }
 
   public moveToAndGet(
-    target: Tombstone | Ruin | StructureContainer | StructureStorage | Resource | Source | null | undefined,
+    target:
+      | Tombstone
+      | Ruin
+      | StructureContainer
+      | StructureLink
+      | StructureStorage
+      | Resource
+      | Source
+      | null
+      | undefined,
     resourceType: ResourceConstant = RESOURCE_ENERGY
   ): ScreepsReturnCode {
     if (!target) {
