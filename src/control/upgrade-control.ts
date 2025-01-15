@@ -71,7 +71,7 @@ export class UpgradeControl {
       if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToSpawn + 50) {
         CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${Upgrader.ROLE}`);
         spawnQueue.push({
-          bodyProfile: Upgrader.BODY_PROFILE,
+          bodyProfile: CreepBodyUtils.buildBodyProfile(Upgrader.BODY_PROFILE, upgraderWorkPartsNeeded, WORK),
           max: true,
           memory: {
             role: Upgrader.ROLE,
