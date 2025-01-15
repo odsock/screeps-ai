@@ -1,3 +1,4 @@
+import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 
 export class LinkControl {
@@ -7,14 +8,20 @@ export class LinkControl {
       const sourceLinks = this.getSourceLinks(roomw);
       const controllerLink = this.getControllerLink(roomw);
       const storageLink = this.getStorageLink(roomw);
+      CreepUtils.consoleLogIfWatched(
+        roomw,
+        `links: source: ${sourceLinks.length}, controller: ${controllerLink?.id}, storage: ${storageLink?.id}`
+      );
 
       // move energy out of source links if they are full
       sourceLinks.forEach(sourceLink => {
-        if (sourceLink.store.getFreeCapacity() === 0) {
-          if (controllerLink) {
-            sourceLink.transferEnergy(controllerLink);
+        if (sourceLink.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+          if (controllerLink && controllerLink.store.getFreeCapacity(RESOURCE_ENERGY) > LINK_CAPACITY / 2) {
+            const result = sourceLink.transferEnergy(controllerLink);
+            CreepUtils.consoleLogIfWatched(roomw, `links: transferring to controller`, result);
           } else if (storageLink) {
-            sourceLink.transferEnergy(storageLink);
+            const result = sourceLink.transferEnergy(storageLink);
+            CreepUtils.consoleLogIfWatched(roomw, `links: transferring to storage`, result);
           }
         }
       });

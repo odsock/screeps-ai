@@ -30,8 +30,8 @@ export class Upgrader extends Minder {
   private buildRepairOrUpgrade(): void {
     if (this.buildNearbySite() !== ERR_NOT_FOUND) {
       if (this.store.energy < this.buildAmount * 2) {
-        if (this.withdrawFromControllerContainer() !== OK) {
-          this.withdrawFromControllerLink();
+        if (this.withdrawFromControllerLink() !== OK) {
+          this.withdrawFromControllerContainer();
         }
       }
       return;
@@ -39,8 +39,8 @@ export class Upgrader extends Minder {
 
     if (this.repairNearbySite() !== ERR_NOT_FOUND) {
       if (this.store.energy < this.repairCost * 2) {
-        if (this.withdrawFromControllerContainer() !== OK) {
-          this.withdrawFromControllerLink();
+        if (this.withdrawFromControllerLink() !== OK) {
+          this.withdrawFromControllerContainer();
         }
       }
       return;
@@ -48,8 +48,8 @@ export class Upgrader extends Minder {
 
     if (this.upgrade() !== ERR_NOT_FOUND) {
       if (this.store.energy < this.upgradeAmount) {
-        if (this.withdrawFromControllerContainer() !== OK) {
-          this.withdrawFromControllerLink();
+        if (this.withdrawFromControllerLink() !== OK) {
+          this.withdrawFromControllerContainer();
         }
       }
       return;
