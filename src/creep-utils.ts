@@ -91,7 +91,6 @@ export class CreepUtils {
 
   /**
    * Get list of store contents sorted by amount
-   * Default to getting contents of this creep
    */
   public static getStoreContents(target: RoomObjectWithStorage): ResourceConstant[] {
     const resources: ResourceConstant[] = [];

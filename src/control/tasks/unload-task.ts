@@ -67,7 +67,8 @@ export class UnloadTask extends Task {
       CreepUtils.consoleLogIfWatched(creep, `dumping`);
       const storage = creep.findRoomStorage();
       if (storage) {
-        const result = creep.moveToAndTransfer(storage, this.resourceType);
+        const resourcesHeld = creep.getStoreContents();
+        const result = creep.moveToAndTransfer(storage, resourcesHeld[0]);
         CreepUtils.consoleLogIfWatched(creep, `dump at ${String(storage)}`, result);
         if (result === OK) {
           creep.completeTask();
