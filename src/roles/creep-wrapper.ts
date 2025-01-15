@@ -420,7 +420,7 @@ export abstract class CreepWrapper extends Creep {
     return this.pos.findClosestByPath(containersNotFull) ?? undefined;
   }
 
-  protected transferW(
+  public transferW(
     target: AnyCreep | Structure,
     resourceType: ResourceConstant = RESOURCE_ENERGY,
     amount?: number
@@ -428,7 +428,7 @@ export abstract class CreepWrapper extends Creep {
     return this.transfer(target, resourceType, amount);
   }
 
-  protected pickupW(target: Resource<ResourceConstant>, force = false): ScreepsReturnCode {
+  public pickupW(target: Resource<ResourceConstant>, force = false): ScreepsReturnCode {
     if (!this.pickingUp || force) {
       const result = this.pickup(target);
       if (result === OK) {
@@ -440,7 +440,7 @@ export abstract class CreepWrapper extends Creep {
     return ERR_BUSY;
   }
 
-  protected withdrawW(
+  public withdrawW(
     target: StructureContainer | Tombstone | Ruin | StructureStorage | StructureLink,
     type: ResourceConstant,
     force = false
@@ -458,7 +458,7 @@ export abstract class CreepWrapper extends Creep {
     return ERR_BUSY;
   }
 
-  protected harvestW(target: Source): ScreepsReturnCode {
+  public harvestW(target: Source): ScreepsReturnCode {
     const result = this.harvest(target);
     if (result === OK) {
       Stats.record(StatType.HARVEST_ENERGY_STAT, CreepUtils.countParts(WORK, this) * HARVEST_POWER);

@@ -58,7 +58,7 @@ export class SupplySpawnTask extends Task {
       const targetIndex = spawnStorage.findIndex(s => s.pos.isNearTo(creep.pos));
       if (targetIndex !== -1) {
         const target = spawnStorage[targetIndex];
-        const transferResult = creep.transfer(target, RESOURCE_ENERGY);
+        const transferResult = creep.transferW(target, RESOURCE_ENERGY);
         CreepUtils.consoleLogIfWatched(creep, `supply ${target.structureType} result`, transferResult);
         // stores do NOT reflect transfer above until next tick
         if (transferResult === OK) {
@@ -76,7 +76,6 @@ export class SupplySpawnTask extends Task {
     } else {
       const harvestResult = creep.harvestByPriority();
       CreepUtils.consoleLogIfWatched(creep, `finding energy`, harvestResult);
-      creep.completeTask();
       return harvestResult;
     }
   }
