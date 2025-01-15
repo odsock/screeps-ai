@@ -80,7 +80,7 @@ export class SockPuppetConstants {
   public static readonly COLONY_TYPE_FULL = "full";
   public static readonly COLONY_TYPE_GROUP = "group";
   public static readonly START_TICK = "START_TICK";
-  public static readonly UPGRADE_EFFICIENCY_RATIO = 0.9;
+  public static readonly UPGRADE_EFFICIENCY_RATIO = 0.8;
   public static readonly CPU_TOTAL = "CPU_TOTAL";
 }
 
