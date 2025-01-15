@@ -378,7 +378,15 @@ export abstract class CreepWrapper extends Creep {
       return result;
     }
 
+    result = this.moveToAndGet(this.findClosestLinkWithEnergy(this.store.getFreeCapacity() / 2));
+    if (result === OK) {
+      return result;
+    }
+
     result = this.moveToAndGet(this.findClosestLinkWithEnergy());
+    if (result === OK) {
+      return result;
+    }
 
     if (this.getActiveBodyparts(WORK) > 0) {
       result = this.moveToAndGet(this.findClosestActiveEnergySource());
