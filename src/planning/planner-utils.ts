@@ -285,6 +285,9 @@ export class PlannerUtils {
     return ERR_NOT_FOUND;
   }
 
+  /**
+   * Finds one adjacent structure of the specified type
+   */
   public static findAdjacentStructure<T extends Structure<StructureConstant>>(
     pos: RoomPosition,
     type: StructureConstant

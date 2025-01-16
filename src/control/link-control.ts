@@ -1,4 +1,6 @@
 import { CreepUtils } from "creep-utils";
+import { MemoryUtils } from "planning/memory-utils";
+import { PlannerUtils } from "planning/planner-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 
 export class LinkControl {
@@ -30,10 +32,22 @@ export class LinkControl {
     }
   }
 
+  /**
+   * Get the link adjacent to storage using id from memory, or by searching adjacent structures
+   */
   private getStorageLink(roomw: RoomWrapper): StructureLink | undefined {
     const linkId = roomw.memory.storage?.link?.id;
     if (linkId) {
       return Game.getObjectById(linkId) ?? undefined;
+    } else if (roomw.storage) {
+      const link = PlannerUtils.findAdjacentStructure<StructureLink>(roomw.storage.pos, STRUCTURE_LINK);
+      if (link) {
+        roomw.memory.storage = {
+          ...roomw.memory.storage,
+          link: { id: link.id, pos: MemoryUtils.packRoomPosition(link.pos), type: STRUCTURE_LINK }
+        };
+        return link;
+      }
     }
     return undefined;
   }

@@ -29,7 +29,6 @@ declare global {
     spawnCapacity: number;
   }
   interface StorageInfo {
-    haulerId?: Id<Creep>;
     link?: StructureInfo<StructureLink>;
   }
 
