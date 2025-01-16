@@ -86,7 +86,7 @@ export class SockPuppetConstants {
   public static readonly TASK_CLEANUP_THRESHOLD = 0;
   public static readonly TASK_SUPPLY_CREEP_PRIORITY = 90;
   public static readonly TASK_SUPPLY_CREEP_THRESHOLD = 0;
-  public static readonly TASK_UNLOAD_SOURCE_CONTAINER_PRIORITY = 200;
+  public static readonly TASK_UNLOAD_SOURCE_CONTAINER_PRIORITY = 145;
   public static readonly TASK_UNLOAD_SOURCE_CONTAINER_THRESHOLD = 0.75;
   public static readonly TASK_CONTAINER_CLEANUP_PRIORITY = 50;
   public static readonly TASK_SUPPLY_SPAWN_PRIORITY = 250; // override: true
