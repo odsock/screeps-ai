@@ -401,4 +401,8 @@ export class RoomWrapper extends Room {
     const spawningCount = SpawnUtils.getSpawningPartsForType(this, type, part);
     return CreepUtils.countParts(part, ...creeps) + spawningCount;
   }
+
+  public getInactiveStructures(): Structure[] {
+    return this.find(FIND_MY_STRUCTURES, { filter: s => !s.isActive() });
+  }
 }

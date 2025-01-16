@@ -23,7 +23,8 @@ export class UpgradeControl {
     if (
       roomw.find(FIND_MY_CONSTRUCTION_SITES).length > 0 &&
       roomw.controller &&
-      roomw.controller?.ticksToDowngrade > 1000
+      roomw.controller?.ticksToDowngrade > 1000 &&
+      roomw.getInactiveStructures().length === 0
     ) {
       CreepUtils.consoleLogIfWatched(roomw, `skipping upgraders during construction`);
       return;
