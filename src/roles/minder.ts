@@ -2,7 +2,6 @@ import { CreepUtils } from "creep-utils";
 
 import { CreepWrapper } from "./creep-wrapper";
 import { Hauler } from "./hauler";
-import { Stats, StatType } from "planning/stats";
 
 declare global {
   interface CreepMemory {
