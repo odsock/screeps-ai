@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-import { LogLevel } from "creep-utils";
 import { Sockpuppet } from "sockpuppet";
 import { Stats } from "./stats";
 import { SpawnUtils } from "control/spawn-utils";
@@ -128,6 +127,10 @@ declare global {
       Stats: Stats;
       MemoryUtils: MemoryUtils;
       SpawnUtils: SpawnUtils;
+      DEBUG: LogLevel;
+      INFO: LogLevel;
+      WARN: LogLevel;
+      ERROR: LogLevel;
     }
   }
 }

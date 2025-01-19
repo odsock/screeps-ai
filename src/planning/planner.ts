@@ -1,7 +1,7 @@
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { StructurePatterns } from "config/structure-patterns";
 import { TargetControl } from "control/target-control";
-import { CreepUtils, LogLevel } from "creep-utils";
+import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 
 import { ControllerPlan } from "./controller-plan";
@@ -150,13 +150,13 @@ export class Planner {
     const roadPlan = new RoadPlanner(roomw);
     const containerRoadPlan = roadPlan.placeRoadSourceContainersToControllerContainers();
     if (containerRoadPlan.length === 0) {
-      CreepUtils.log(LogLevel.DEBUG, `container road plan empty`);
+      CreepUtils.log(DEBUG, `container road plan empty`);
     }
 
     // place road from controller to spawn
     const controllerRoadPlan = roadPlan.placeRoadControllerToSpawn();
     if (controllerRoadPlan.length === 0) {
-      CreepUtils.log(LogLevel.DEBUG, `controller road plan empty`);
+      CreepUtils.log(DEBUG, `controller road plan empty`);
     }
 
     return [...containerRoadPlan, ...controllerRoadPlan];

@@ -7,13 +7,6 @@ export interface Watchable {
   memory: { watched?: boolean; profile?: boolean };
 }
 
-export enum LogLevel {
-  DEBUG = "DEBUG",
-  INFO = "INFO",
-  WARN = "WARN",
-  ERROR = "ERROR"
-}
-
 export class CreepUtils {
   public static averagePos(targets: { pos: RoomPosition }[]): RoomPosition {
     if (targets.length === 1) {
@@ -41,9 +34,10 @@ export class CreepUtils {
   public static consoleLogIfWatched(
     watchable: Watchable,
     message: string,
-    result: ScreepsReturnCode | undefined = undefined
+    result: ScreepsReturnCode | undefined = undefined,
+    logLevel: LogLevel = INFO
   ): void {
-    if (watchable.memory.watched === true) {
+    if (logLevel >= global.LOG_LEVEL && watchable.memory.watched === true) {
       if (result !== undefined) {
         const resultString = String(SockPuppetConstants.ERROR_CODE_LOOKUP.get(result));
         console.log(`${watchable.name}: ${message}: ${result} ${resultString}`);

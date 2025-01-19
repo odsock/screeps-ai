@@ -2,7 +2,7 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
 
 import { StructurePlanPosition } from "./structure-plan";
-import { CreepUtils, LogLevel } from "creep-utils";
+import { CreepUtils } from "creep-utils";
 
 export class RoadPlan {
   private readonly roomw: RoomWrapper;
@@ -13,16 +13,16 @@ export class RoadPlan {
   }
 
   public placeRoadSourceContainersToControllerContainers(): StructurePlanPosition[] {
-    CreepUtils.log(LogLevel.DEBUG, "road planning: placeRoadSourceContainersToControllerContainers");
+    CreepUtils.log(DEBUG, "road planning: placeRoadSourceContainersToControllerContainers");
     const controllerContainers = this.roomw.controllerContainers;
     if (controllerContainers.length <= 0) {
-      CreepUtils.log(LogLevel.DEBUG, "road planning: no controller containers");
+      CreepUtils.log(DEBUG, "road planning: no controller containers");
       return [];
     }
 
     const sourceContainers = this.roomw.sourceContainers;
     if (sourceContainers.length <= 0) {
-      CreepUtils.log(LogLevel.DEBUG, "road planning: no source containers");
+      CreepUtils.log(DEBUG, "road planning: no source containers");
       return [];
     }
 
@@ -36,7 +36,7 @@ export class RoadPlan {
         }
       }
     }
-    CreepUtils.log(LogLevel.DEBUG, `road planning: roads to build: ${plan.join(",")}`);
+    CreepUtils.log(DEBUG, `road planning: roads to build: ${plan.join(",")}`);
     return plan;
   }
 
@@ -60,7 +60,7 @@ export class RoadPlan {
       { swampCost: 2, plainCost: 2, roomCallback: this.costMatrixUtils.roadPlanningRoomCallback }
     );
     if (path.incomplete) {
-      CreepUtils.log(LogLevel.DEBUG, `road planing: incomplete: ${String(origin)} -> ${String(goal)}`);
+      CreepUtils.log(DEBUG, `road planing: incomplete: ${String(origin)} -> ${String(goal)}`);
     }
     return path;
   }

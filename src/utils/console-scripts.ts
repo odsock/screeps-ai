@@ -64,3 +64,8 @@ global.drawRoadPlan = (origin: RoomPosition, goal: RoomPosition, range: number):
 global.Stats = Stats;
 global.MemoryUtils = MemoryUtils;
 global.SpawnUtils = SpawnUtils;
+
+global.DEBUG = 0;
+global.INFO = 1;
+global.WARN = 2;
+global.ERROR = 3;
