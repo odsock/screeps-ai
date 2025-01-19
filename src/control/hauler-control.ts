@@ -22,7 +22,8 @@ export class HaulerControl {
         Game.creeps,
         c => !c.spawning && c.memory.role === Hauler.ROLE && c.memory.homeRoom === roomName
       ).map(c => new Hauler(c));
-      const averageHaulerCapacity = (_.sum(haulers.map(c => c.countParts(CARRY))) * CARRY_CAPACITY) / haulers.length;
+      const averageHaulerCapacity =
+        (_.sum(haulers.map(c => c.getActiveBodyparts(CARRY))) * CARRY_CAPACITY) / haulers.length;
 
       if (haulers.length > 0) {
         TaskManagement.assignTasks(haulers, [

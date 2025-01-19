@@ -1,10 +1,10 @@
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 import { MemoryUtils } from "./memory-utils";
-import { stat } from "fs";
 
 export enum StatType {
   HARVEST_ENERGY_STAT = "HARVEST_ENERGY_STAT",
   UPGRADE_STAT = "UPGRADE_STAT",
+  REPAIR_STAT = "REPAIR_STAT",
   BUILD_STAT = "BUILD_STAT"
 }
 

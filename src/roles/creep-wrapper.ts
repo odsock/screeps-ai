@@ -515,13 +515,17 @@ export abstract class CreepWrapper {
   public harvest(target: Source): ScreepsReturnCode {
     const result = this.creep.harvest(target);
     if (result === OK) {
-      Stats.record(StatType.HARVEST_ENERGY_STAT, CreepUtils.countParts(WORK, this) * HARVEST_POWER);
+      Stats.record(StatType.HARVEST_ENERGY_STAT, this.harvestAmount);
     }
     return result;
   }
 
   public repair(target: Structure): ScreepsReturnCode {
-    return this.creep.repair(target);
+    const result = this.creep.repair(target);
+    if (result === OK) {
+      Stats.record(StatType.REPAIR_STAT, this.repairAmount);
+    }
+    return result;
   }
 
   public dismantle(target: Structure): ScreepsReturnCode {
@@ -537,7 +541,11 @@ export abstract class CreepWrapper {
   }
 
   public build(site: ConstructionSite<BuildableStructureConstant>): ScreepsReturnCode {
-    return this.creep.build(site);
+    const result = this.creep.build(site);
+    if (result === OK) {
+      Stats.record(StatType.BUILD_STAT, this.buildCost);
+    }
+    return result;
   }
 
   public signController(controller: StructureController, message: string): ScreepsReturnCode {
@@ -549,7 +557,11 @@ export abstract class CreepWrapper {
   }
 
   public upgradeController(controller: StructureController): ScreepsReturnCode {
-    return this.creep.upgradeController(controller);
+    const result = this.creep.upgradeController(controller);
+    if (result === OK) {
+      Stats.record(StatType.UPGRADE_STAT, this.getActiveBodyparts(WORK));
+    }
+    return result;
   }
 
   public reserveController(controller: StructureController): ScreepsReturnCode {
@@ -759,10 +771,6 @@ export abstract class CreepWrapper {
     return roadCost + plainCost + swampCost + 1;
   }
 
-  public countParts(type: BodyPartConstant): number {
-    return this.body.filter(part => part.type === type).length;
-  }
-
   protected moveToRetiree(): ScreepsReturnCode {
     CreepUtils.consoleLogIfWatched(this, `moving to retiree`);
     const retireeName = this.memory.replacing as string;
@@ -938,6 +946,10 @@ export abstract class CreepWrapper {
 
   public get buildAmount(): number {
     return BUILD_POWER * this.creep.getActiveBodyparts(WORK);
+  }
+
+  public get buildCost(): number {
+    return this.buildAmount;
   }
 
   public get healAmount(): number {

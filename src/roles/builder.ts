@@ -73,9 +73,6 @@ export class Builder extends CreepWrapper {
           CreepUtils.consoleLogIfWatched(this, `moving to site`);
           this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
-        if (result === OK) {
-          Stats.record(StatType.BUILD_STAT, CreepUtils.countParts(WORK, this) * BUILD_POWER);
-        }
       } else {
         CreepUtils.consoleLogIfWatched(this, `going to harvest`);
         this.harvestByPriority();

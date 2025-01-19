@@ -64,9 +64,6 @@ export abstract class Minder extends CreepWrapper {
     const site = this.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES, { filter: { range: 3 } });
     if (site) {
       result = this.build(site);
-      if (result === OK) {
-        Stats.record(StatType.BUILD_STAT, CreepUtils.countParts(WORK, this) * BUILD_POWER);
-      }
     }
     CreepUtils.consoleLogIfWatched(this, `build result`, result);
     return result;
@@ -88,9 +85,6 @@ export abstract class Minder extends CreepWrapper {
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
     if (this.room.controller && this.pos.inRangeTo(this.room.controller.pos, 3)) {
       result = this.upgradeController(this.room.controller);
-      if (result === OK) {
-        Stats.record(StatType.UPGRADE_STAT, CreepUtils.countParts(WORK, this));
-      }
     }
     CreepUtils.consoleLogIfWatched(this, `upgrade result`, result);
     return result;
