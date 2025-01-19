@@ -523,7 +523,7 @@ export abstract class CreepWrapper {
   public repair(target: Structure): ScreepsReturnCode {
     const result = this.creep.repair(target);
     if (result === OK) {
-      Stats.record(StatType.REPAIR_STAT, this.repairAmount);
+      Stats.record(StatType.REPAIR_STAT, this.repairCost);
     }
     return result;
   }
