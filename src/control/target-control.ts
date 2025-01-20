@@ -150,6 +150,6 @@ export class TargetControl {
 
   private isNotOwnedByMe(roomName: string): boolean {
     const roomMemory = Memory.rooms[roomName];
-    return roomMemory.controller.owner?.username !== Memory.username;
+    return roomMemory.controller?.owner?.username !== Memory.username;
   }
 }

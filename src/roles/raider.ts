@@ -29,7 +29,7 @@ export class Raider extends RemoteCreepWrapper {
       this.controlFlag = Game.flags[this.memory.controlFlag] ?? undefined;
       if (this.controlFlag) {
         this.rallyRoom = this.controlFlag.memory.rallyRoom;
-        this.tactic = this.controlFlag.memory.tactic;
+        this.tactic = this.controlFlag.memory.tactic ?? "charge";
       }
     }
 
@@ -86,6 +86,7 @@ export class Raider extends RemoteCreepWrapper {
           }
         }
 
+        // target closet creep within 5 steps
         if (!target && creeps.length > 0) {
           const closestCreep = this.pos.findClosestByPath(creeps);
           if (closestCreep && closestCreep.pos.getRangeTo(this.pos) < 5) {
@@ -108,6 +109,14 @@ export class Raider extends RemoteCreepWrapper {
             CreepUtils.consoleLogIfWatched(this, `target structure ${String(target)}`);
           }
         }
+
+        // target closest creep
+        if (!target && creeps.length > 0) {
+          const closestCreep = this.pos.findClosestByPath(creeps);
+            target = closestCreep;
+            CreepUtils.consoleLogIfWatched(this, `target creep ${String(target)}`);
+        }
+
 
         this.doRangedAttack(target);
 

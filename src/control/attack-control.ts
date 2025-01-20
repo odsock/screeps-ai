@@ -5,6 +5,9 @@ import { Raider } from "roles/raider";
 import { TravelUtils } from "utils/travel-utils";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
+import { CreepUtils } from "creep-utils";
+import { RoomWrapper } from "structures/room-wrapper";
+import { MemoryUtils } from "planning/memory-utils";
 
 declare global {
   interface FlagMemory {
@@ -29,7 +32,8 @@ export class AttackControl {
     // assign or spawn a raider for each unclean attack room
     for (const roomName of this.targetControl.attackRooms) {
       const roomMemory = Memory.rooms[roomName];
-      if (!roomMemory.defense || !this.roomNeedsAttack(roomName)) {
+      if (!roomMemory?.defense || !this.roomNeedsAttack(roomName)) {
+        CreepUtils.log(DEBUG, `${roomName}: attack: not needed`);
         continue;
       }
 
@@ -50,6 +54,7 @@ export class AttackControl {
           info => info.memory.role === CreepRole.RAIDER && info.memory.targetRoom === roomName
         );
         let raidersStillNeeded = raidersRequested - raidersAssigned.length - spawningRaiders.length;
+        CreepUtils.log(DEBUG, `${roomName}: attack: raiders still needed: ${raidersStillNeeded}`);
         if (raidersStillNeeded > 0) {
           const rallyRoom =
             attackFlag.memory.rallyRoom ??

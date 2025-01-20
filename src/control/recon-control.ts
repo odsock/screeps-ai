@@ -27,10 +27,10 @@ export class ReconControl {
 
     const scouts = _.filter(Game.creeps, c => c.memory.role === CreepRole.SCOUT);
     const spawningScouts = SpawnUtils.getSpawnInfo(s => s.memory.role === CreepRole.SCOUT);
-    const freeScouts = scouts.filter(s => Game.time - Memory.rooms[s.memory.targetRoom].reconTick < 1000);
+    const freeScouts = scouts.filter(s => Game.time - (Memory.rooms[s.memory.targetRoom]?.reconTick ?? 0) < 1000);
     for (const roomName of this.targetControl.scoutRooms) {
       const scoutOnRoom = [...scouts, ...spawningScouts].some(s => s.memory.targetRoom === roomName);
-      if (!scoutOnRoom && Game.time - Memory.rooms[roomName].reconTick >= 1000) {
+      if (!scoutOnRoom && Game.time - (Memory.rooms[roomName]?.reconTick ?? 0) >= 1000) {
         if (freeScouts.length > 0) {
           freeScouts[0].memory.targetRoom = roomName;
         } else {

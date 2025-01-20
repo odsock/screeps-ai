@@ -59,6 +59,7 @@ export class RemoteControl {
   }
 
   private requestSpawns(roomw: RoomWrapper) {
+    CreepUtils.log(DEBUG, "remote control: request spawns")
     const spawnQueue = SpawnQueue.getInstance(roomw);
 
     // IMPORTER
@@ -100,22 +101,26 @@ export class RemoteControl {
 
     // CLAIMER
     const spawningClaimers = SpawnUtils.getSpawnInfoForRoom(roomw, info => info.memory.role === CreepRole.CLAIMER);
+    console.log(JSON.stringify(spawningClaimers));
     const claimers = _.filter(
       Game.creeps,
       c => c.memory.role === CreepRole.CLAIMER && c.memory.homeRoom === roomw.name
     );
     const claimerCount = claimers.length + spawningClaimers.length;
     const remoteTargetRooms = this.targetControl.targetRooms;
+    CreepUtils.consoleLogIfWatched(roomw, `claimers: ${claimers.length}, spawning claimers: ${spawningClaimers.length}`);
+    CreepUtils.consoleLogIfWatched(roomw, `remote target rooms: ${remoteTargetRooms.length}, remote harvest rooms: ${remoteHarvestRooms.length}, claimers: ${claimerCount}`);
     if (claimerCount < remoteTargetRooms.length + remoteHarvestRooms.length) {
       remoteTargetRooms.forEach(roomName => {
         const claimerOnRoom = claimers.some(c => c.memory.targetRoom === roomName);
         CreepUtils.consoleLogIfWatched(roomw, `claimer on ${roomName}: ${String(claimerOnRoom)}`);
         const roomMemory = Memory.rooms[roomName];
-        if (!claimerOnRoom && (roomMemory.controller.upgradeBlocked ?? 0) - (Game.time - roomMemory.reconTick) < 300) {
+        if (!claimerOnRoom && (roomMemory.controller?.upgradeBlocked ?? 0) - (Game.time - roomMemory.reconTick) < 300) {
           const bodyProfile = { ...Claimer.BODY_PROFILE };
-          if (roomMemory.controller.owner) {
+          if (roomMemory.controller?.owner) {
             bodyProfile.maxBodyParts = 50;
           }
+        CreepUtils.consoleLogIfWatched(roomw, `pushing claimer to spawn in ${roomw.name} for ${roomName}`);
           spawnQueue.push({
             bodyProfile,
             max: true,
@@ -134,7 +139,7 @@ export class RemoteControl {
         const roomMemory = Memory.rooms[roomName];
         if (
           !claimerOnRoom &&
-          (!roomMemory.controller.reservation || roomMemory.controller.reservation?.ticksToEnd < 1000)
+          (!roomMemory.controller?.reservation || roomMemory.controller.reservation?.ticksToEnd < 1000)
         ) {
           spawnQueue.push({
             bodyProfile: Claimer.BODY_PROFILE,

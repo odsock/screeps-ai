@@ -14,7 +14,7 @@ declare global {
     logCounts?: LogCounts;
     construction: { [id: string]: ConstructionLog };
     watched?: boolean;
-    controller: ControllerInfo;
+    controller?: ControllerInfo;
     storage?: StorageInfo;
     reconTick: number;
     centerPoint?: string;

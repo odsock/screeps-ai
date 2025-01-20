@@ -53,7 +53,7 @@ export class LinkControl {
   }
 
   private getControllerLink(roomw: RoomWrapper): StructureLink | undefined {
-    const linkId = roomw.memory.controller.link?.id;
+    const linkId = roomw.memory.controller?.link?.id;
     if (linkId) {
       return Game.getObjectById(linkId) ?? undefined;
     }
