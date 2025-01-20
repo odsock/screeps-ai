@@ -243,13 +243,13 @@ export class RoomWrapper extends Room {
     let range = 3;
 
     // prefer link if one exists
-    if (this.memory.controller.link?.id) {
+    if (this.memory.controller?.link?.id) {
       const link = Game.getObjectById(this.memory.controller.link.id);
       if (link) {
         range = 1;
         target = link.pos;
       }
-    } else if (this.memory.controller.container?.id) {
+    } else if (this.memory.controller?.container?.id) {
       // prefer container if one exists
       const container = Game.getObjectById(this.memory.controller.container.id);
       if (container) {
