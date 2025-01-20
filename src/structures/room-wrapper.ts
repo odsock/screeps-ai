@@ -320,7 +320,7 @@ export class RoomWrapper extends Room {
   }
 
   public get controllerContainers(): StructureContainer[] {
-    if (this.memory.controller.container?.id) {
+    if (this.memory.controller?.container?.id) {
       const container = Game.getObjectById(this.memory.controller.container.id);
       if (container) {
         return [container];

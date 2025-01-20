@@ -85,7 +85,7 @@ export class Upgrader extends Minder {
 
   protected withdrawFromControllerContainer(): ScreepsReturnCode {
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
-    if (this.room.memory.controller.container?.id) {
+    if (this.room.memory.controller?.container?.id) {
       const container = Game.getObjectById(this.room.memory.controller.container.id);
       if (container) {
         result = this.withdraw(container, RESOURCE_ENERGY);
@@ -100,7 +100,7 @@ export class Upgrader extends Minder {
 
   protected withdrawFromControllerLink(): ScreepsReturnCode {
     let result: ScreepsReturnCode = ERR_NOT_FOUND;
-    if (this.room.memory.controller.link?.id) {
+    if (this.room.memory.controller?.link?.id) {
       const link = Game.getObjectById(this.room.memory.controller.link.id);
       if (link) {
         result = this.withdraw(link, RESOURCE_ENERGY);

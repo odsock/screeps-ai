@@ -17,21 +17,25 @@ export class ControllerPlan {
   }
 
   private static placeContainer(controller: StructureController) {
-    const info = controller.room.memory.controller.container;
+    const info = controller.room.memory.controller?.container;
     if (info && PlannerUtils.validateStructureInfo(info) === OK) {
       return;
     }
     const findResult = PlannerUtils.findAdjacentStructure<StructureContainer>(controller.pos, STRUCTURE_CONTAINER);
-    if (findResult) {
+    if (findResult && controller.room.memory.controller) {
       controller.room.memory.controller.container = {
         id: findResult.id,
         pos: MemoryUtils.packRoomPosition(findResult.pos),
         type: STRUCTURE_CONTAINER
+        }
       };
       return;
     }
     const containerInfo = PlannerUtils.placeAdjacentStructure<StructureContainer>(controller.pos, STRUCTURE_CONTAINER);
-    controller.room.memory.controller.container = containerInfo;
+    controller.room.memory.controller = {
+      ...controller.room.memory.controller,
+      container: containerInfo
+    }
   }
 
   private static placeLink(controller: StructureController) {
