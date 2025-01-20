@@ -5,7 +5,8 @@ export enum StatType {
   HARVEST_ENERGY_STAT = "HARVEST_ENERGY_STAT",
   UPGRADE_STAT = "UPGRADE_STAT",
   REPAIR_STAT = "REPAIR_STAT",
-  BUILD_STAT = "BUILD_STAT"
+  BUILD_STAT = "BUILD_STAT",
+  SPAWN_STAT = "SPAWN_STAT"
 }
 
 export class Stats {
@@ -37,7 +38,7 @@ export class Stats {
         .map(([key, value]) => `${key}: ${value}`)
         .join(", ")
     );
-    const energySpent = stats[StatType.BUILD_STAT] + stats[StatType.UPGRADE_STAT];
+    const energySpent = stats[StatType.BUILD_STAT] + stats[StatType.UPGRADE_STAT] + stats[StatType.REPAIR_STAT];
     const efficiency = energySpent / stats[StatType.HARVEST_ENERGY_STAT];
     return efficiency;
   }

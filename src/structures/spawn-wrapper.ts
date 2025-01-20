@@ -4,6 +4,7 @@ import { MemoryUtils } from "planning/memory-utils";
 import { CreepBodyProfile } from "roles/creep-body-utils";
 import { RoomWrapper } from "./room-wrapper";
 import { names } from "utils/names-hobbit";
+import { Stats, StatType } from "planning/stats";
 
 export interface SpawnRequest {
   priority: number;
@@ -57,6 +58,7 @@ export class SpawnWrapper extends StructureSpawn {
       console.log(`Invalid spawn: ${memory.role} ${CreepUtils.creepBodyToString(body)}`);
     } else if (result === OK) {
       Memory.spawns[this.name].spawning = { name, body, memory };
+      Stats.record(StatType.SPAWN_STAT, SpawnUtils.calcBodyCost(body));
       if (memory.replacing) {
         Game.creeps[memory.replacing].memory.retiring = true;
       }
