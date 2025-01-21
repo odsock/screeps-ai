@@ -18,6 +18,7 @@ export class SpawnControl {
 
   public run(): void {
     this.printSpawningVisual();
+    this.cleanupSpawningMemory();
 
     if (this.freeSpawns.length === 0) {
       return;
@@ -37,6 +38,14 @@ export class SpawnControl {
     }
 
     this.workSpawnQueue();
+  }
+
+  private cleanupSpawningMemory() {
+    _.forEach(Game.spawns, spawn => {
+      if (spawn.spawning?.name != spawn.memory.spawning?.name) {
+        delete spawn.memory.spawning;
+      }
+    });
   }
 
   private workSpawnQueue(): void {
