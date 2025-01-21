@@ -6,8 +6,6 @@ import { TravelUtils } from "utils/travel-utils";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
 import { CreepUtils } from "creep-utils";
-import { RoomWrapper } from "structures/room-wrapper";
-import { MemoryUtils } from "planning/memory-utils";
 
 declare global {
   interface FlagMemory {
