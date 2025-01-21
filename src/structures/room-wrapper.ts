@@ -405,4 +405,13 @@ export class RoomWrapper extends Room {
   public getInactiveStructures(): Structure[] {
     return this.find(FIND_MY_STRUCTURES, { filter: s => !s.isActive() });
   }
+
+  public findCommonAdjacentPositions(pos: RoomPosition, pos1: RoomPosition) {
+    const adjacentPositions = PlannerUtils.getPositionSpiral(pos, 1);
+    const commonAdjacentPositions = adjacentPositions.filter(
+      p => !p.isEqualTo(pos) && !p.isEqualTo(pos1) && p.isNearTo(pos1)
+    );
+    CreepUtils.log(DEBUG, `pos: ${pos}, pos1: ${pos1}, common: ${commonAdjacentPositions}`);
+    return commonAdjacentPositions;
+  }
 }

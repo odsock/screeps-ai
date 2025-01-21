@@ -99,6 +99,7 @@ export class SockPuppetConstants {
   public static readonly TASK_HAUL_UPGRADER_PRIORITY = 150;
   public static readonly TASK_HAUL_HARVESTER_PRIORITY = 150; // override: true
   public static readonly TASK_HAUL_HARVESTER_NO_ENERGY_PRIORITY = 300;
+  public static readonly TASK_HAUL_STORE_MINDER_PRIORITY = 140;
 }
 
 declare global {

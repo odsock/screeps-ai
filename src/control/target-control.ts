@@ -126,7 +126,8 @@ export class TargetControl {
 
   private isNotOwned(roomName: string): boolean {
     const roomMemory = Memory.rooms[roomName];
-    return !roomMemory?.controller?.owner;
+    const owned = !!roomMemory?.controller?.owner;
+    return !owned;
   }
 
   private isNotReservedByMe(roomName: string): boolean {
@@ -137,7 +138,7 @@ export class TargetControl {
   private isNotReservedByOthers(roomName: string): boolean {
     const roomMemory = Memory.rooms[roomName];
     return (
-      !roomMemory.controller?.reservation ||
+      !roomMemory?.controller?.reservation ||
       roomMemory.controller.reservation.username === Memory.username ||
       roomMemory.controller.reservation.username === "Invader"
     );

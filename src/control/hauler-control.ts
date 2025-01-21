@@ -218,6 +218,16 @@ export class HaulerControl {
           priority: SockPuppetConstants.TASK_HAUL_UPGRADER_PRIORITY
         });
       });
+    const storeMinderTasks: HaulTask[] = creeps
+      .filter(c => c.memory.role === CreepRole.STORE_MINDER)
+      .map(c => {
+        return new HaulTask({
+          creepName: c.name,
+          targetId: c.id,
+          pos: c.pos,
+          priority: SockPuppetConstants.TASK_HAUL_STORE_MINDER_PRIORITY
+        });
+      });
     const priority =
       roomw.storage?.store.energy ?? -1 > 0
         ? SockPuppetConstants.TASK_HAUL_HARVESTER_PRIORITY
@@ -227,7 +237,7 @@ export class HaulerControl {
       .map(c => {
         return new HaulTask({ creepName: c.name, targetId: c.id, pos: c.pos, priority, override: true });
       });
-    return [...upgraderTasks, ...harvesterTasks];
+    return [...upgraderTasks, ...harvesterTasks, ...storeMinderTasks];
   }
 
   private requestSpawns(roomw: RoomWrapper): void {

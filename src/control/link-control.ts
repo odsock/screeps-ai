@@ -1,7 +1,11 @@
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { PlannerUtils } from "planning/planner-utils";
+import { SpawnQueue } from "planning/spawn-queue";
+import { Hauler } from "roles/hauler";
+import { StoreMinder } from "roles/store-minder";
 import { RoomWrapper } from "structures/room-wrapper";
+import { SpawnUtils } from "./spawn-utils";
 
 export class LinkControl {
   public run(): void {
@@ -29,6 +33,8 @@ export class LinkControl {
           }
         }
       });
+
+      this.requestSpawns(roomw);
     }
   }
 
@@ -72,5 +78,34 @@ export class LinkControl {
       }
     }
     return sourceLinks;
+  }
+
+  private requestSpawns(roomw: RoomWrapper) {
+    const storage = roomw.storage;
+    const storageLinkId = roomw.memory.storage?.link?.id;
+    let storageLink;
+    if (storageLinkId) {
+      storageLink = Game.getObjectById(storageLinkId);
+    }
+    if (!storage || !storageLink) {
+      return;
+    }
+
+    const storeMinders = roomw.find(FIND_MY_CREEPS, { filter: c => c.memory.role === StoreMinder.ROLE });
+    const storeMindersSpawning = SpawnUtils.getSpawningCountForRole(roomw, StoreMinder.ROLE);
+    if (
+      storeMinders.length + storeMindersSpawning === 0 &&
+      roomw.find(FIND_MY_CREEPS, { filter: c => c.memory.role === Hauler.ROLE }).length > 0
+    ) {
+      const spawnQueue = SpawnQueue.getInstance(roomw);
+      CreepUtils.consoleLogIfWatched(roomw, `spawning ${StoreMinder.ROLE}`);
+      spawnQueue.push({
+        bodyProfile: StoreMinder.BODY_PROFILE,
+        memory: {
+          role: StoreMinder.ROLE
+        },
+        priority: 150
+      });
+    }
   }
 }

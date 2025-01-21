@@ -131,7 +131,7 @@ export class HarvestControl {
       );
       const spawningHarvesters = this.getSpawningHarvestersForTarget(roomw, targetRoom);
 
-      for (const sourceId in Memory.rooms[targetRoom].sources) {
+      for (const sourceId in Memory.rooms[targetRoom]?.sources) {
         const hasMinder = [...spawningHarvesters, ...harvesters].some(h => h.memory.source === sourceId);
         if (!hasMinder) {
           CreepUtils.consoleLogIfWatched(roomw, `spawning remote harvester ${Harvester.ROLE}`);

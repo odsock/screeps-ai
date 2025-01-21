@@ -13,6 +13,7 @@ import { Raider } from "./raider";
 import { Scout } from "./scout";
 import { Upgrader } from "./upgrader";
 import { Worker } from "./worker";
+import { StoreMinder } from "./store-minder";
 
 export class CreepFactory {
   /** Instantiate role class for creep based on memory value. */
@@ -40,6 +41,8 @@ export class CreepFactory {
         return new Raider(creep);
       case CreepRole.SCOUT:
         return new Scout(creep);
+      case CreepRole.STORE_MINDER:
+        return new StoreMinder(creep);
 
       default:
         assertNever(creep.memory.role);
