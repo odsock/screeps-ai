@@ -17,8 +17,8 @@ export class SpawnControl {
   }
 
   public run(): void {
-    this.printSpawningVisual();
     this.cleanupSpawningMemory();
+    this.printSpawningVisual();
 
     if (this.freeSpawns.length === 0) {
       return;
