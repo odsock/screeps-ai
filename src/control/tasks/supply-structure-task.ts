@@ -14,6 +14,7 @@ export class SupplyStructureTask extends Task {
   public readonly tag?: string;
 
   public constructor({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type,
     priority,
     pos,

@@ -15,6 +15,7 @@ export class SupplySpawnTask extends Task {
   public readonly roomw: RoomWrapper;
 
   public constructor({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type,
     priority,
     pos,

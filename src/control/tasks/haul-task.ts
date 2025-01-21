@@ -15,6 +15,7 @@ export class HaulTask extends Task {
   private creepToHaul: Creep;
 
   public constructor({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type,
     priority,
     pos,

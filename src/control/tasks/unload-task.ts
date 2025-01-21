@@ -13,6 +13,7 @@ export class UnloadTask extends Task {
   public readonly target?: StructureContainer | null;
 
   public constructor({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type,
     targetId,
     resourceType,

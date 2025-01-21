@@ -39,11 +39,8 @@ export abstract class Task implements TaskInterface {
     // noop
   }
 
-  public toString(task?: Task): string {
-    if (!task) {
-      task = this;
-    }
-    return JSON.stringify(task, (key, value) => {
+  public toString(): string {
+    return JSON.stringify(this, (key, value) => {
       if (key === "pos") {
         return MemoryUtils.packRoomPosition(value);
       } else {

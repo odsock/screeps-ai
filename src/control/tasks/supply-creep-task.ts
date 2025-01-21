@@ -17,6 +17,7 @@ export class SupplyCreepTask extends Task {
   public readonly creepToSupply: Creep;
 
   public constructor({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type,
     priority,
     pos,

@@ -3,7 +3,6 @@ import { SockPuppetConstants } from "./config/sockpuppet-constants";
 
 export interface Watchable {
   name: string;
-  [key: string]: any;
   memory: { watched?: boolean; profile?: boolean };
 }
 

@@ -12,6 +12,7 @@ export class CleanupTask extends Task {
   public readonly target: Resource<ResourceConstant> | Tombstone | Ruin | null;
 
   public constructor({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type,
     priority,
     pos,
