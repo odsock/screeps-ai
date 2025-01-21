@@ -28,56 +28,67 @@ export class AttackControl {
     const freeRaiders = raiders.filter(raider => !this.roomNeedsAttack(raider.memory.targetRoom));
 
     // assign or spawn a raider for each unclean attack room
-    for (const roomName of this.targetControl.attackRooms) {
-      const roomMemory = Memory.rooms[roomName];
-      if (!roomMemory?.defense || !this.roomNeedsAttack(roomName)) {
+    for (const attackFlag of this.targetControl.attackFlags) {
+      const roomName = attackFlag.pos.roomName;
+      if (!this.roomNeedsAttack(roomName)) {
         CreepUtils.log(DEBUG, `${roomName}: attack: not needed`);
         continue;
       }
 
-      const attackFlag = _.find(
-        Game.flags,
-        flag => flag.pos.roomName === roomName && flag.color === SockPuppetConstants.FLAG_COLOR_ATTACK
-      );
-      if (attackFlag) {
-        const raidersAssigned = raiders.filter(raider => raider.memory.targetRoom === roomName);
-        // increase raiding party size if previous raid failed
-        if (attackFlag.memory.raidSent && raidersAssigned.length === 0 && attackFlag.secondaryColor < 10) {
-          attackFlag.secondaryColor += 1;
-          attackFlag.memory.raidSent = false;
-        }
-        // secondary flag color constant is proxy for raiding party size
-        const raidersRequested = attackFlag.secondaryColor.valueOf() ?? 0;
-        const spawningRaiders = SpawnUtils.getSpawnInfo(
-          info => info.memory.role === CreepRole.RAIDER && info.memory.targetRoom === roomName
-        );
-        let raidersStillNeeded = raidersRequested - raidersAssigned.length - spawningRaiders.length;
-        CreepUtils.log(DEBUG, `${roomName}: attack: raiders still needed: ${raidersStillNeeded}`);
+      // increase raiding party size if previous raid failed
+      // secondary flag color constant is proxy for raiding party size
+      const raidersAssignedCount = this.getRaidersAssignedCount(raiders, roomName);
+      if (attackFlag.memory.raidSent && raidersAssignedCount === 0) {
+        this.increaseRaidSize(attackFlag);
+      }
+      const raidSize = this.getRaidSize(attackFlag);
+      this.setRallyRoom(attackFlag);
+      const spawningRaidersCount = this.getSpawningRaidersCount(roomName);
+      let raidersStillNeeded = raidSize - raidersAssignedCount - spawningRaidersCount;
+      CreepUtils.log(DEBUG, `${roomName}: attack: raiders still needed: ${raidersStillNeeded}`);
+      if (raidersStillNeeded > 0 && freeRaiders.length > 0) {
+        // TODO assign closest raider
+        const reassignSlice = freeRaiders.splice(0, raidersStillNeeded);
+        reassignSlice.forEach(creep => (creep.memory.targetRoom = roomName));
+        raidersStillNeeded -= reassignSlice.length;
         if (raidersStillNeeded > 0) {
-          const rallyRoom =
-            attackFlag.memory.rallyRoom ??
-            this.travelUtils.findClosestRoom(
-              roomName,
-              this.targetControl.claimedRooms.concat(this.targetControl.remoteHarvestRooms)
-            );
-          attackFlag.memory.rallyRoom = rallyRoom;
-          if (!rallyRoom) {
-            console.log(`ERROR: no rally room found`);
-          } else {
-            if (freeRaiders.length > 0) {
-              // TODO assign closest raider
-              const reassignSlice = freeRaiders.splice(0, raidersStillNeeded);
-              reassignSlice.forEach(creep => (creep.memory.targetRoom = roomName));
-              raidersStillNeeded -= reassignSlice.length;
-              continue;
-            }
-            if (raidersStillNeeded > 0) {
-              this.queueSpawn(roomName, raidersStillNeeded, attackFlag.name);
-            }
-          }
+          this.queueSpawn(roomName, raidersStillNeeded, attackFlag.name);
         }
       }
     }
+  }
+
+  private setRallyRoom(attackFlag: Flag) {
+    const rallyRoom =
+      attackFlag.memory.rallyRoom ??
+      this.travelUtils.findClosestRoom(
+        attackFlag.pos.roomName,
+        this.targetControl.claimedRooms.concat(this.targetControl.remoteHarvestRooms)
+      );
+    attackFlag.memory.rallyRoom = rallyRoom;
+    if (!rallyRoom) {
+      CreepUtils.log(ERROR, `ERROR: no rally room found for ${attackFlag.pos.roomName}`);
+    }
+  }
+
+  private getSpawningRaidersCount(roomName: string) {
+    return SpawnUtils.getSpawnInfo(info => info.memory.role === CreepRole.RAIDER && info.memory.targetRoom === roomName)
+      .length;
+  }
+
+  private getRaidSize(attackFlag: Flag) {
+    return attackFlag.secondaryColor.valueOf() ?? 0;
+  }
+
+  private getRaidersAssignedCount(raiders: Creep[], roomName: string) {
+    return raiders.filter(raider => raider.memory.targetRoom === roomName).length;
+  }
+
+  private increaseRaidSize(attackFlag: Flag) {
+    if (attackFlag.secondaryColor < 10) {
+      attackFlag.secondaryColor += 1;
+    }
+    attackFlag.memory.raidSent = false;
   }
 
   private queueSpawn(targetRoom: string, raidersNeeded: number, controlFlag: string): void {
@@ -100,6 +111,7 @@ export class AttackControl {
       });
   }
 
+  /** Room needs attack if recon shows creeps or structures */
   private roomNeedsAttack(roomName: string) {
     const roomDefense = Memory.rooms[roomName].defense;
     return roomDefense && (roomDefense.creeps.length > 0 || roomDefense.structures.length > 0);

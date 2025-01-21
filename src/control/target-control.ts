@@ -45,9 +45,7 @@ export class TargetControl {
     ];
   }
 
-  /**
-   * Forbidden rooms
-   */
+  /** List rooms with grey flags */
   public get forbiddenRooms(): string[] {
     return _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_FORBIDDEN).map(
       flag => flag.pos.roomName
@@ -59,9 +57,7 @@ export class TargetControl {
     return this.forbiddenRooms.includes(roomName);
   }
 
-  /**
-   * Claimed rooms
-   */
+  /**  List room names with my controllers */
   public get claimedRooms(): string[] {
     return _.filter(Game.rooms, room => room.controller?.my).map(room => room.name);
   }
@@ -71,16 +67,14 @@ export class TargetControl {
     return room?.controller?.my ?? false;
   }
 
-  /**
-   * Remote harvest rooms
-   */
-
+  /** List room names with green flags that are valid remotes */
   public get remoteHarvestRooms(): string[] {
     return _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_REMOTE)
       .map(flag => flag.pos.roomName)
       .filter(name => this.isValidRemote(name));
   }
 
+  /** Valid for remote if not owned and not reserved by others */
   private isValidRemote(roomName: string): boolean {
     return this.isNotOwned(roomName) && this.isNotReservedByOthers(roomName);
   }
@@ -90,10 +84,7 @@ export class TargetControl {
     return this.remoteHarvestRooms.includes(roomName);
   }
 
-  /**
-   * Target rooms
-   */
-
+  /** List room names with yellow flags */
   public get targetRooms(): string[] {
     return _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_TARGET)
       .map(flag => flag.pos.roomName)
@@ -104,15 +95,13 @@ export class TargetControl {
     return this.isNotOwnedByMe(roomName);
   }
 
+  /** Checks if room has a yellow flag */
   public isTargetRoom(room: Room | string): boolean {
     const roomName = room instanceof Room ? room.name : room;
     return this.targetRooms.includes(roomName);
   }
 
-  /**
-   * Attack rooms
-   */
-
+  /** List room names with red flags */
   public get attackRooms(): string[] {
     const validAttackRooms = _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_ATTACK).map(
       flag => flag.pos.roomName
@@ -120,6 +109,12 @@ export class TargetControl {
     return validAttackRooms;
   }
 
+  /** Get red flags */
+  public get attackFlags(): Flag[] {
+    return _.filter(Game.flags, flag => flag.color === SockPuppetConstants.FLAG_COLOR_ATTACK);
+  }
+
+  /** Checks if room has a red flag */
   public isAttackRoom(room: Room | string): boolean {
     const roomName = room instanceof Room ? room.name : room;
     return this.attackRooms.includes(roomName);
