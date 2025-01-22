@@ -16,7 +16,7 @@ export class Stats {
   private readonly STATS_ROOMS_KEY = "STATS_ROOMS";
 
   public record(roomName: string, type: StatType, value: number): void {
-    const key = `StatType[type]_${roomName}`;
+    const key = `${StatType[type]}_${roomName}`;
     const previousValue: number = MemoryUtils.getCache(key) ?? 0;
     MemoryUtils.setCache(key, previousValue + value, -1);
     this.updateStatsRooms(roomName);
