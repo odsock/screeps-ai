@@ -44,10 +44,9 @@ export class StoreMinder extends Minder {
     if (this.link.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
       const withdrawResult = this.withdraw(this.link, RESOURCE_ENERGY);
       CreepUtils.consoleLogIfWatched(this, `withdraw from link`, withdrawResult);
-      if (withdrawResult === OK) {
-        const transferResult = this.transfer(this.storage, RESOURCE_ENERGY);
-        CreepUtils.consoleLogIfWatched(this, `transfer to storage`, transferResult);
-      }
+    } else if (this.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+      const transferResult = this.transfer(this.storage, RESOURCE_ENERGY);
+      CreepUtils.consoleLogIfWatched(this, `transfer to storage`, transferResult);
     }
   }
 
