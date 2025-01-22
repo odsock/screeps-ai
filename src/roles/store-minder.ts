@@ -3,7 +3,6 @@ import { CreepBodyProfile } from "./creep-body-utils";
 import { Minder } from "./minder";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
-import { PlannerUtils } from "planning/planner-utils";
 
 import { profile } from "../../screeps-typescript-profiler";
 
@@ -65,7 +64,7 @@ export class StoreMinder extends Minder {
     }
     const destinations = this.roomw
       .findCommonAdjacentPositions(this.link?.pos, this.storage?.pos)
-      .filter(pos => PlannerUtils.isEnterable(pos))
+      .filter(pos => this.roomw.isEnterable(pos))
       .sort((a, b) => this.pos.getRangeTo(a) - this.pos.getRangeTo(b));
     if (destinations.length > 0) {
       const result = this.directHauler(destinations[0]);

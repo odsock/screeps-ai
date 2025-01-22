@@ -49,7 +49,8 @@ export class LinkControl {
     if (linkId) {
       return Game.getObjectById(linkId) ?? undefined;
     } else if (roomw.storage) {
-      const link = PlannerUtils.findAdjacentStructure<StructureLink>(roomw.storage.pos, STRUCTURE_LINK);
+      const plannerUtils = new PlannerUtils(roomw);
+      const link = plannerUtils.findAdjacentStructure<StructureLink>(roomw.storage.pos, STRUCTURE_LINK);
       if (link) {
         roomw.memory.storage = {
           ...roomw.memory.storage,

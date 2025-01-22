@@ -19,6 +19,7 @@ import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class SourcePlan {
+  private readonly plannerUtils = new PlannerUtils(this.roomw);
   public constructor(private readonly roomw: RoomWrapper) {}
   public run(): void {
     const rcl = this.roomw.controller?.level ?? 0;
@@ -33,10 +34,10 @@ export class SourcePlan {
   private placeContainers() {
     for (const source of this.roomw.sources) {
       const info = this.roomw.memory.sources[source.id].container;
-      if (info && PlannerUtils.validateStructureInfo(info) === OK) {
+      if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
         continue;
       }
-      const findResult = PlannerUtils.findAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
+      const findResult = this.plannerUtils.findAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
       if (findResult) {
         this.roomw.memory.sources[source.id].container = {
           id: findResult.id,
@@ -45,7 +46,10 @@ export class SourcePlan {
         };
         continue;
       }
-      const containerInfo = PlannerUtils.placeAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
+      const containerInfo = this.plannerUtils.placeAdjacentStructure<StructureContainer>(
+        source.pos,
+        STRUCTURE_CONTAINER
+      );
       this.roomw.memory.sources[source.id].container = containerInfo;
     }
   }
@@ -53,7 +57,7 @@ export class SourcePlan {
   private placeLinks() {
     for (const source of this.roomw.sources) {
       const info = this.roomw.memory.sources[source.id].link;
-      if (info && PlannerUtils.validateStructureInfo(info) === OK) {
+      if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
         continue;
       }
       const containerPosPacked = this.roomw.memory.sources[source.id].container?.pos;
@@ -61,7 +65,7 @@ export class SourcePlan {
         continue;
       }
       const containerPos = MemoryUtils.unpackRoomPosition(containerPosPacked);
-      const findResult = PlannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+      const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
       if (findResult) {
         this.roomw.memory.sources[source.id].link = {
           id: findResult.id,
@@ -70,7 +74,7 @@ export class SourcePlan {
         };
         continue;
       }
-      const linkInfo = PlannerUtils.placeAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+      const linkInfo = this.plannerUtils.placeAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
       this.roomw.memory.sources[source.id].link = linkInfo;
     }
   }

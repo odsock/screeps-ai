@@ -13,6 +13,7 @@ import { profile } from "../../screeps-typescript-profiler";
 @profile
 export class RoomWrapper extends Room {
   private targetControl: TargetControl;
+  private readonly plannerUtils = new PlannerUtils(this.room);
 
   /**
    * Manages singleton RoomWrappers for all rooms this tick.
@@ -269,9 +270,9 @@ export class RoomWrapper extends Room {
       .filter(s => s.structure.structureType === STRUCTURE_ROAD)
       .map(s => new RoomPosition(s.x, s.y, this.name));
 
-    const upgradePositions = PlannerUtils.getPositionSpiral(target, range).filter(
-      pos => !avoidPositions.find(avoidPos => avoidPos.isEqualTo(pos)) && PlannerUtils.isEnterable(pos)
-    );
+    const upgradePositions = this.plannerUtils
+      .getPositionSpiral(target, range)
+      .filter(pos => !avoidPositions.find(avoidPos => avoidPos.isEqualTo(pos)) && this.isEnterable(pos));
 
     MemoryUtils.setCache(cacheKey, upgradePositions, 100);
     return upgradePositions;
@@ -410,11 +411,16 @@ export class RoomWrapper extends Room {
   }
 
   public findCommonAdjacentPositions(pos: RoomPosition, pos1: RoomPosition) {
-    const adjacentPositions = PlannerUtils.getPositionSpiral(pos, 1);
+    const adjacentPositions = this.plannerUtils.getPositionSpiral(pos, 1);
     const commonAdjacentPositions = adjacentPositions.filter(
       p => !p.isEqualTo(pos) && !p.isEqualTo(pos1) && p.isNearTo(pos1)
     );
-    CreepUtils.log(DEBUG, `pos: ${pos}, pos1: ${pos1}, common: ${commonAdjacentPositions}`);
+    CreepUtils.log(
+      DEBUG,
+      `pos: ${MemoryUtils.packRoomPosition(pos)}, pos1: ${MemoryUtils.packRoomPosition(
+        pos1
+      )}, common: ${commonAdjacentPositions}`
+    );
     return commonAdjacentPositions;
   }
 
@@ -432,5 +438,18 @@ export class RoomWrapper extends Room {
     }
     console.log(`${this.room.name}: ${structureConstant}s available: ${available}`);
     return available;
+  }
+
+  public isEnterable(pos: RoomPosition): boolean {
+    return !pos
+      .look()
+      .some(
+        item =>
+          (item.type === LOOK_TERRAIN && item.terrain === "wall") ||
+          (item.type === LOOK_STRUCTURES &&
+            OBSTACLE_OBJECT_TYPES.some(type => type === item.structure?.structureType)) ||
+          (item.type === LOOK_CONSTRUCTION_SITES &&
+            OBSTACLE_OBJECT_TYPES.some(type => type === item.constructionSite?.structureType))
+      );
   }
 }

@@ -22,14 +22,19 @@ export class ControllerPlan {
     }
   }
 
+  private readonly plannerUtils = new PlannerUtils(this.roomw);
+
   private placeContainer(controller: StructureController) {
     const roomName = controller.room.name;
     const info = Memory.rooms[roomName].controller?.container;
-    if (info && PlannerUtils.validateStructureInfo(info) === OK) {
+    if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
       return;
     }
     if (Memory.rooms[roomName].controller) {
-      const findResult = PlannerUtils.findAdjacentStructure<StructureContainer>(controller.pos, STRUCTURE_CONTAINER);
+      const findResult = this.plannerUtils.findAdjacentStructure<StructureContainer>(
+        controller.pos,
+        STRUCTURE_CONTAINER
+      );
       if (findResult) {
         Memory.rooms[roomName].controller.container = {
           id: findResult.id,
@@ -38,7 +43,7 @@ export class ControllerPlan {
         };
         return;
       }
-      const containerInfo = PlannerUtils.placeAdjacentStructure<StructureContainer>(
+      const containerInfo = this.plannerUtils.placeAdjacentStructure<StructureContainer>(
         controller.pos,
         STRUCTURE_CONTAINER
       );
@@ -51,7 +56,7 @@ export class ControllerPlan {
       return;
     }
     const info = controller.room.memory.controller?.link;
-    if (info && PlannerUtils.validateStructureInfo(info) === OK) {
+    if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
       return;
     }
     const containerPosPacked = controller.room.memory.controller?.container?.pos;
@@ -59,7 +64,7 @@ export class ControllerPlan {
       return;
     }
     const containerPos = MemoryUtils.unpackRoomPosition(containerPosPacked);
-    const findResult = PlannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+    const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
     if (findResult && controller.room.memory.controller) {
       controller.room.memory.controller.link = {
         id: findResult.id,
@@ -67,7 +72,7 @@ export class ControllerPlan {
         type: STRUCTURE_LINK
       };
     }
-    const linkInfo = PlannerUtils.placeAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+    const linkInfo = this.plannerUtils.placeAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
     controller.room.memory.controller.link = linkInfo;
   }
 }

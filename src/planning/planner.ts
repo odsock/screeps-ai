@@ -58,6 +58,7 @@ export class Planner {
   }
 
   private createColonyPlan(roomw: RoomWrapper): StructurePlanPosition[] {
+    const plannerUtils = new PlannerUtils(roomw);
     const cacheKey = `${roomw.name}_plan`;
     const planRcl = MemoryUtils.getCache<number>(`${cacheKey}_rcl`) ?? 0;
     let plan = MemoryUtils.getCache<StructurePlanPosition[]>(cacheKey);
@@ -67,15 +68,15 @@ export class Planner {
       const controllerPos = roomw.controller.pos;
       const sourcePositions = roomw.sources.map(source => source.pos);
       const depositPositions = roomw.deposits.map(deposit => deposit.pos);
-      const centerPoint = PlannerUtils.findMidpoint([controllerPos, ...sourcePositions, ...depositPositions]);
+      const centerPoint = plannerUtils.findMidpoint([controllerPos, ...sourcePositions, ...depositPositions]);
       roomw.memory.centerPoint = MemoryUtils.packRoomPosition(centerPoint);
 
       // find the best full colony placement
-      plan = PlannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, roomw, centerPoint, true);
+      plan = plannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, centerPoint, true);
       if (plan) {
         roomw.memory.colonyType = SockPuppetConstants.COLONY_TYPE_FULL;
       } else {
-        plan = PlannerUtils.findSiteForPattern(StructurePatterns.SPAWN_GROUP, roomw, centerPoint, true);
+        plan = plannerUtils.findSiteForPattern(StructurePatterns.SPAWN_GROUP, centerPoint, true);
         if (plan) {
           roomw.memory.colonyType = SockPuppetConstants.COLONY_TYPE_GROUP;
           const extensionPlan = this.planAvailableExtensionsByGroup(roomw);
@@ -90,7 +91,7 @@ export class Planner {
       console.log(`DEBUG: have a plan for ${roomw.name}`);
       // draw plan visual
       roomw.visual.clear();
-      PlannerUtils.drawPlan(plan, roomw);
+      plannerUtils.drawPlan(plan);
       roomw.planVisual = roomw.visual.export();
 
       // cache plan forever
@@ -112,9 +113,9 @@ export class Planner {
     this.createDismantleQueue(roomw, planPositions, skipRoads);
 
     // try to construct any missing structures
-    const result = PlannerUtils.placeStructurePlan({
+    const plannerUtils = new PlannerUtils(roomw);
+    const result = plannerUtils.placeStructurePlan({
       planPositions,
-      roomw,
       skipRoads
     });
     console.log(`place colony result ${result}`);
@@ -184,7 +185,8 @@ export class Planner {
   private planTowers(roomw: RoomWrapper): ScreepsReturnCode {
     // place towers
     if (roomw.getAvailableStructureCount(STRUCTURE_TOWER) > 0) {
-      const towerResult = PlannerUtils.placeTowerAtCenterOfColony(roomw);
+      const plannerUtils = new PlannerUtils(roomw);
+      const towerResult = plannerUtils.placeTowerAtCenterOfColony();
       return towerResult;
     }
     return OK;

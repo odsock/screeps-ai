@@ -1,21 +1,21 @@
 import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { StructurePlan, StructurePlanPosition } from "planning/structure-plan";
 import { CreepUtils } from "creep-utils";
-import { RoomWrapper } from "structures/room-wrapper";
 import { MemoryUtils } from "./memory-utils";
 
 import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class PlannerUtils {
-  public static findSiteForPattern(
+  public constructor(private readonly room: Room) {}
+
+  public findSiteForPattern(
     pattern: string[],
-    room: Room,
     nearPosition: RoomPosition,
     ignoreStructures = false // ignore existing structures to avoid blocking self by partially built sites
   ): StructurePlanPosition[] | undefined {
     console.log(`finding pattern site in ${nearPosition.roomName}`);
-    const structurePlan = StructurePlan.parseStructurePlan(pattern, room);
+    const structurePlan = StructurePlan.parseStructurePlan(pattern, this.room);
     const patternWidth = structurePlan.getWidth();
     const patternHeight = structurePlan.getHeight();
     const searchWidth = SockPuppetConstants.ROOM_SIZE - 1 - patternWidth;
@@ -48,7 +48,7 @@ export class PlannerUtils {
     return undefined;
   }
 
-  public static findMidpoint(positions: RoomPosition[]): RoomPosition {
+  public findMidpoint(positions: RoomPosition[]): RoomPosition {
     const pointSum = positions.reduce(
       (midpoint: { x: number; y: number }, pos) => {
         midpoint.x += pos.x;
@@ -63,7 +63,7 @@ export class PlannerUtils {
   /*
    * Calculates a clockwise spiral from the center position out to a radius of max range. First step is to the right.
    */
-  public static getPositionSpiral(centerPos: RoomPosition, maxRange: number): RoomPosition[] {
+  public getPositionSpiral(centerPos: RoomPosition, maxRange: number): RoomPosition[] {
     const line: RoomPosition[] = [];
     let x = 0;
     let y = 0;
@@ -94,14 +94,14 @@ export class PlannerUtils {
     return line;
   }
 
-  public static findColonyCenter(room: Room): RoomPosition {
-    const myStructures: Structure[] = room.find(FIND_MY_STRUCTURES, {
+  public findColonyCenter(): RoomPosition {
+    const myStructures: Structure[] = this.room.find(FIND_MY_STRUCTURES, {
       filter: s =>
         s.structureType !== STRUCTURE_EXTENSION &&
         s.structureType !== STRUCTURE_SPAWN &&
         s.structureType !== STRUCTURE_CONTROLLER
     });
-    const myRoadsAndContainers: Structure[] = room.find(FIND_STRUCTURES, {
+    const myRoadsAndContainers: Structure[] = this.room.find(FIND_STRUCTURES, {
       filter: s =>
         s.structureType === STRUCTURE_CONTAINER ||
         s.structureType === STRUCTURE_ROAD ||
@@ -117,38 +117,17 @@ export class PlannerUtils {
       y += structure.pos.y;
       count++;
     }
-    const centerPos = new RoomPosition(x / count, y / count, room.name);
+    const centerPos = new RoomPosition(x / count, y / count, this.room.name);
     return centerPos;
   }
 
-  private static readonly isObstacleLookup = new Map<StructureConstant, boolean>(
-    OBSTACLE_OBJECT_TYPES.map(typeName => [typeName as StructureConstant, true])
-  );
-
-  public static isEnterable(pos: RoomPosition): boolean {
-    return pos.look().every(item => {
-      switch (item.type) {
-        case "terrain": {
-          return item.terrain !== "wall";
-        }
-
-        case "structure": {
-          return item.structure && !PlannerUtils.isObstacleLookup.get(item.structure.structureType);
-        }
-
-        default:
-          return true;
-      }
-    });
-  }
-
-  public static placeTowerAtCenterOfColony(room: Room): ScreepsReturnCode {
-    const centerPos = PlannerUtils.findColonyCenter(room);
-    const line = PlannerUtils.getPositionSpiral(centerPos, 10);
+  public placeTowerAtCenterOfColony(): ScreepsReturnCode {
+    const centerPos = this.findColonyCenter();
+    const line = this.getPositionSpiral(centerPos, 10);
 
     let ret: ScreepsReturnCode = ERR_NOT_FOUND;
     for (const pos of line) {
-      ret = room.createConstructionSite(pos, STRUCTURE_TOWER);
+      ret = this.room.createConstructionSite(pos, STRUCTURE_TOWER);
       if (ret === OK) {
         break;
       }
@@ -156,17 +135,15 @@ export class PlannerUtils {
     return ret;
   }
 
-  public static placeStructurePlan({
+  public placeStructurePlan({
     planPositions,
-    roomw,
     skipRoads = false
   }: {
     planPositions: StructurePlanPosition[];
-    roomw: RoomWrapper;
     skipRoads?: boolean;
   }): ScreepsReturnCode {
     if (!planPositions) {
-      CreepUtils.consoleLogIfWatched(roomw, `failed to place plan`);
+      CreepUtils.consoleLogIfWatched(this.room, `failed to place plan`);
       return ERR_NOT_FOUND;
     } else {
       for (const planPosition of planPositions) {
@@ -174,9 +151,9 @@ export class PlannerUtils {
           continue;
         }
 
-        if (!PlannerUtils.placed(roomw, planPosition) && PlannerUtils.haveRcl(roomw, planPosition)) {
-          const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
-          CreepUtils.consoleLogIfWatched(roomw, `place construction ${JSON.stringify(planPosition)}`, result);
+        if (!this.placed(planPosition) && this.haveRclForStructure(planPosition)) {
+          const result = this.room.createConstructionSite(planPosition.pos, planPosition.structure);
+          CreepUtils.consoleLogIfWatched(this.room, `place construction ${JSON.stringify(planPosition)}`, result);
           if (result !== OK) {
             return result;
           }
@@ -189,8 +166,8 @@ export class PlannerUtils {
   /**
    * calling lookAt is cheaper than failing when already placed
    */
-  private static placed(roomw: RoomWrapper, planPosition: StructurePlanPosition): boolean {
-    const placed = roomw
+  private placed(planPosition: StructurePlanPosition): boolean {
+    const placed = this.room
       .lookAt(planPosition.pos)
       .some(
         item =>
@@ -203,18 +180,18 @@ export class PlannerUtils {
   /**
    *  check RCL yourself before attempting create construction site
    */
-  private static haveRcl(roomw: RoomWrapper, planPosition: StructurePlanPosition): boolean {
-    const structureCount = roomw.find(FIND_STRUCTURES, {
+  private haveRclForStructure(planPosition: StructurePlanPosition): boolean {
+    const structureCount = this.room.find(FIND_STRUCTURES, {
       filter: s => s.structureType === planPosition.structure
     }).length;
-    const haveRcl = CONTROLLER_STRUCTURES[planPosition.structure][roomw.controller?.level ?? 0] > structureCount;
+    const haveRcl = CONTROLLER_STRUCTURES[planPosition.structure][this.room.controller?.level ?? 0] > structureCount;
     return haveRcl;
   }
 
   /**
    * draw circles for incomplete parts of plan
    */
-  public static drawPlan(plan: StructurePlanPosition[], room: Room): void {
+  public drawPlan(plan: StructurePlanPosition[]): void {
     if (plan) {
       plan
         .filter(
@@ -228,12 +205,12 @@ export class PlannerUtils {
               )
         )
         .forEach(planPos => {
-          room.visual.circle(planPos.pos);
+          this.room.visual.circle(planPos.pos);
         });
     }
   }
 
-  public static validateStructureInfo<T extends Structure>(info: StructureInfo<T>): ScreepsReturnCode {
+  public validateStructureInfo<T extends Structure>(info: StructureInfo<T>): ScreepsReturnCode {
     // check for valid container id
     if (info.id && Game.getObjectById(info.id)) {
       return OK;
@@ -276,7 +253,7 @@ export class PlannerUtils {
   /**
    * Finds one adjacent structure of the specified type
    */
-  public static findAdjacentStructure<T extends Structure<StructureConstant>>(
+  public findAdjacentStructure<T extends Structure<StructureConstant>>(
     pos: RoomPosition,
     type: StructureConstant
   ): T | undefined {
@@ -292,7 +269,7 @@ export class PlannerUtils {
     return undefined;
   }
 
-  public static placeAdjacentStructure<T extends Structure<StructureConstant>>(
+  public placeAdjacentStructure<T extends Structure<StructureConstant>>(
     centerPos: RoomPosition,
     type: BuildableStructureConstant
   ): StructureInfo<T> | undefined {

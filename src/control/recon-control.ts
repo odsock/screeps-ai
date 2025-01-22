@@ -128,15 +128,17 @@ export class ReconControl {
       roomSources[source.id] = {
         id: source.id,
         pos: MemoryUtils.packRoomPosition(source.pos),
-        harvestPositions: this.findHarvestPositions(source)
+        harvestPositions: this.findHarvestPositions(source, room)
       };
     });
     return roomSources;
   }
 
-  private findHarvestPositions(source: Source) {
-    return PlannerUtils.getPositionSpiral(source.pos, 1)
-      .filter(pos => PlannerUtils.isEnterable(pos))
+  private findHarvestPositions(source: Source, room: RoomWrapper) {
+    const plannerUtils = new PlannerUtils(source.room);
+    return plannerUtils
+      .getPositionSpiral(source.pos, 1)
+      .filter(pos => room.isEnterable(pos))
       .map(pos => MemoryUtils.packRoomPosition(pos));
   }
 }
