@@ -4,7 +4,7 @@ import { Raider } from "roles/raider";
 import { TravelUtils } from "utils/travel-utils";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
-import { CreepUtils } from "creep-utils";
+import { CreepUtils, LogLevel } from "creep-utils";
 
 declare global {
   interface FlagMemory {
@@ -33,7 +33,7 @@ export class AttackControl {
     for (const attackFlag of this.targetControl.attackFlags) {
       const roomName = attackFlag.pos.roomName;
       if (!this.roomNeedsAttack(roomName)) {
-        CreepUtils.log(DEBUG, `${roomName}: attack: not needed`);
+        CreepUtils.log(LogLevel.DEBUG, `${roomName}: attack: not needed`);
         continue;
       }
 
@@ -47,7 +47,7 @@ export class AttackControl {
       this.setRallyRoom(attackFlag);
       const spawningRaidersCount = this.getSpawningRaidersCount(roomName);
       let raidersStillNeeded = raidSize - raidersAssignedCount - spawningRaidersCount;
-      CreepUtils.log(DEBUG, `${roomName}: attack: raiders still needed: ${raidersStillNeeded}`);
+      CreepUtils.log(LogLevel.DEBUG, `${roomName}: attack: raiders still needed: ${raidersStillNeeded}`);
       if (raidersStillNeeded > 0 && freeRaiders.length > 0) {
         // TODO assign closest raider
         const reassignSlice = freeRaiders.splice(0, raidersStillNeeded);
@@ -69,7 +69,7 @@ export class AttackControl {
       );
     attackFlag.memory.rallyRoom = rallyRoom;
     if (!rallyRoom) {
-      CreepUtils.log(ERROR, `ERROR: no rally room found for ${attackFlag.pos.roomName}`);
+      CreepUtils.log(LogLevel.ERROR, `ERROR: no rally room found for ${attackFlag.pos.roomName}`);
     }
   }
 

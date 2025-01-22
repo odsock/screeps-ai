@@ -62,7 +62,7 @@ export class RemoteControl {
   }
 
   private requestSpawns(roomw: RoomWrapper) {
-    CreepUtils.log(DEBUG, "remote control: request spawns");
+    CreepUtils.log(LogLevel.DEBUG, "remote control: request spawns");
     const spawnQueue = SpawnQueue.getInstance(roomw);
 
     // IMPORTER

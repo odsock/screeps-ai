@@ -14,7 +14,7 @@ import { CreepFactory } from "roles/creep-factory";
 import { RoomWrapper } from "structures/room-wrapper";
 import { TowerWrapper } from "structures/tower-wrapper";
 import { profile } from "../screeps-typescript-profiler";
-import { CreepUtils } from "creep-utils";
+import { CreepUtils, LogLevel } from "creep-utils";
 
 @profile
 export class Sockpuppet {
@@ -30,7 +30,7 @@ export class Sockpuppet {
       if ((Game.cpu.bucket ?? 9999) > 1000) {
         new Planner().run();
       } else {
-        CreepUtils.log(INFO, `skipping planning due to CPU`);
+        CreepUtils.log(LogLevel.INFO, `skipping planning due to CPU`);
       }
     }
   }
