@@ -19,25 +19,26 @@ import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class SourcePlan {
-  public static run(roomw: RoomWrapper): void {
-    const rcl = roomw.controller?.level ?? 0;
+  public constructor(private readonly roomw: RoomWrapper) {}
+  public run(): void {
+    const rcl = this.roomw.controller?.level ?? 0;
     if (rcl >= 2) {
-      SourcePlan.placeContainers(roomw);
+      this.placeContainers();
     }
     if (rcl >= 5) {
-      this.placeLinks(roomw);
+      this.placeLinks();
     }
   }
 
-  private static placeContainers(roomw: RoomWrapper) {
-    for (const source of roomw.sources) {
-      const info = roomw.memory.sources[source.id].container;
+  private placeContainers() {
+    for (const source of this.roomw.sources) {
+      const info = this.roomw.memory.sources[source.id].container;
       if (info && PlannerUtils.validateStructureInfo(info) === OK) {
         continue;
       }
       const findResult = PlannerUtils.findAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
       if (findResult) {
-        roomw.memory.sources[source.id].container = {
+        this.roomw.memory.sources[source.id].container = {
           id: findResult.id,
           pos: MemoryUtils.packRoomPosition(findResult.pos),
           type: STRUCTURE_CONTAINER
@@ -45,24 +46,24 @@ export class SourcePlan {
         continue;
       }
       const containerInfo = PlannerUtils.placeAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
-      roomw.memory.sources[source.id].container = containerInfo;
+      this.roomw.memory.sources[source.id].container = containerInfo;
     }
   }
 
-  private static placeLinks(roomw: RoomWrapper) {
-    for (const source of roomw.sources) {
-      const info = roomw.memory.sources[source.id].link;
+  private placeLinks() {
+    for (const source of this.roomw.sources) {
+      const info = this.roomw.memory.sources[source.id].link;
       if (info && PlannerUtils.validateStructureInfo(info) === OK) {
         continue;
       }
-      const containerPosPacked = roomw.memory.sources[source.id].container?.pos;
+      const containerPosPacked = this.roomw.memory.sources[source.id].container?.pos;
       if (!containerPosPacked) {
         continue;
       }
       const containerPos = MemoryUtils.unpackRoomPosition(containerPosPacked);
       const findResult = PlannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
       if (findResult) {
-        roomw.memory.sources[source.id].link = {
+        this.roomw.memory.sources[source.id].link = {
           id: findResult.id,
           pos: MemoryUtils.packRoomPosition(findResult.pos),
           type: STRUCTURE_LINK
@@ -70,7 +71,7 @@ export class SourcePlan {
         continue;
       }
       const linkInfo = PlannerUtils.placeAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
-      roomw.memory.sources[source.id].link = linkInfo;
+      this.roomw.memory.sources[source.id].link = linkInfo;
     }
   }
 }

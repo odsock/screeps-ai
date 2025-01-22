@@ -6,21 +6,23 @@ import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class ControllerPlan {
-  public static run(roomw: RoomWrapper): void {
-    const controller = roomw.controller;
+  public constructor(private readonly roomw: RoomWrapper) {}
+
+  public run(): void {
+    const controller = this.roomw.controller;
     if (!controller) {
       return;
     }
     const rcl = controller.level ?? 0;
     if (rcl >= 2) {
-      ControllerPlan.placeContainer(controller);
+      this.placeContainer(controller);
     }
     if (rcl >= 5) {
       this.placeLink(controller);
     }
   }
 
-  private static placeContainer(controller: StructureController) {
+  private placeContainer(controller: StructureController) {
     const roomName = controller.room.name;
     const info = Memory.rooms[roomName].controller?.container;
     if (info && PlannerUtils.validateStructureInfo(info) === OK) {
@@ -44,7 +46,7 @@ export class ControllerPlan {
     }
   }
 
-  private static placeLink(controller: StructureController) {
+  private placeLink(controller: StructureController) {
     if (!controller.room.memory.controller) {
       return;
     }

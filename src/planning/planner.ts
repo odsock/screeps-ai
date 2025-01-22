@@ -28,7 +28,7 @@ export class Planner {
       console.log(`${roomw.name}: running planning`);
 
       if (this.targetControl.remoteHarvestRooms.includes(room.name)) {
-        SourcePlan.run(roomw);
+        new SourcePlan(roomw).run();
       } else if (roomw.controller?.my) {
         this.planColony(roomw);
       }
@@ -44,14 +44,14 @@ export class Planner {
       } else if (roomw.controller?.level === 2) {
         this.createColonyPlan(roomw);
         this.updateColonyStructures(roomw, IGNORE_ROADS);
-        SourcePlan.run(roomw);
-        ControllerPlan.run(roomw);
+        new SourcePlan(roomw).run();
+        new ControllerPlan(roomw).run();
         this.planRoads(roomw);
       } else if (roomw.controller?.level >= 3) {
         this.createColonyPlan(roomw);
         this.updateColonyStructures(roomw);
-        SourcePlan.run(roomw);
-        ControllerPlan.run(roomw);
+        new SourcePlan(roomw).run();
+        new ControllerPlan(roomw).run();
         this.planRoads(roomw);
       }
     }
