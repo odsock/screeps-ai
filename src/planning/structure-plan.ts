@@ -87,33 +87,36 @@ export class StructurePlan {
     pos: RoomPosition,
     ignoreStructures = false
   ): boolean {
+    const lookAtResult = this.roomw.lookAt(pos.x, pos.y);
     // can be blocked by wall, deposit, source
-    if (this.roomw.getTerrain().get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
+    if (lookAtResult.some(o => [LOOK_DEPOSITS, LOOK_SOURCES].some(lookConstant => lookConstant === o.type))) {
       return false;
     }
-    if (this.roomw.lookForAt(LOOK_DEPOSITS, pos).length > 0) {
-      return false;
-    }
-    if (this.roomw.lookForAt(LOOK_SOURCES, pos).length > 0) {
+    if (lookAtResult.some(o => o.type === LOOK_TERRAIN && o.terrain === "wall")) {
       return false;
     }
 
     // can be blocked by non-road structure or construction site
     if (!ignoreStructures) {
-      const posStructures = this.roomw.lookForAt(LOOK_STRUCTURES, pos);
-      if (posStructures.some(s => s.structureType !== STRUCTURE_ROAD)) {
+      if (lookAtResult.some(o => o.type === LOOK_STRUCTURES && o.structure?.structureType !== STRUCTURE_ROAD)) {
         return false;
       }
-      const posConstSites = this.roomw.lookForAt(LOOK_CONSTRUCTION_SITES, pos);
-      if (posConstSites.some(s => s.structureType !== STRUCTURE_ROAD)) {
+      if (
+        lookAtResult.some(
+          o => o.type === LOOK_CONSTRUCTION_SITES && o.constructionSite?.structureType !== STRUCTURE_ROAD
+        )
+      ) {
         return false;
       }
 
       // road overlap is ok, but don't place new construction site
       if (
         planPosition.structure === STRUCTURE_ROAD &&
-        (posStructures.some(s => s.structureType === STRUCTURE_ROAD) ||
-          posConstSites.some(s => s.structureType === STRUCTURE_ROAD))
+        lookAtResult.some(
+          o =>
+            (o.type === LOOK_STRUCTURES && o.structure?.structureType === STRUCTURE_ROAD) ||
+            (o.type === LOOK_CONSTRUCTION_SITES && o.constructionSite?.structureType === STRUCTURE_ROAD)
+        )
       ) {
         return true;
       }
