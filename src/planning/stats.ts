@@ -39,7 +39,9 @@ export class Stats {
       const efficiency = this.calcEnergyEfficiency(roomName);
       const cpuAverage = Stats.calcCpuAverage(statsPeriod);
       console.log(
-        `efficiency ${(efficiency * 100).toFixed(2)}% CPU ${cpuAverage.toFixed(4)} over last ${statsPeriod} ticks`
+        `${roomName}: efficiency ${(efficiency * 100).toFixed(2)}% CPU ${cpuAverage.toFixed(
+          4
+        )} over last ${statsPeriod} ticks`
       );
     });
 
@@ -54,9 +56,10 @@ export class Stats {
     }
 
     console.log(
-      Object.entries(stats)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join(", ")
+      `${roomName}: ` +
+        Object.entries(stats)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(", ")
     );
     const energySpent = stats[StatType.BUILD_STAT] + stats[StatType.UPGRADE_STAT] + stats[StatType.REPAIR_STAT];
     const efficiency = energySpent / stats[StatType.HARVEST_ENERGY_STAT];
