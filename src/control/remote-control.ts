@@ -1,5 +1,5 @@
 import { CreepRole } from "config/creep-types";
-import { CreepUtils } from "creep-utils";
+import { CreepUtils, LogLevel } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Claimer } from "roles/claimer";
@@ -104,7 +104,6 @@ export class RemoteControl {
 
     // CLAIMER
     const spawningClaimers = SpawnUtils.getSpawnInfoForRoom(roomw, info => info.memory.role === CreepRole.CLAIMER);
-    console.log(JSON.stringify(spawningClaimers));
     const claimers = _.filter(
       Game.creeps,
       c => c.memory.role === CreepRole.CLAIMER && c.memory.homeRoom === roomw.name
@@ -113,23 +112,37 @@ export class RemoteControl {
     const remoteTargetRooms = this.targetControl.targetRooms;
     CreepUtils.consoleLogIfWatched(
       roomw,
-      `claimers: ${claimers.length}, spawning claimers: ${spawningClaimers.length}`
+      `claimers: ${claimers.length}, spawning claimers: ${spawningClaimers.length}`,
+      undefined,
+      LogLevel.DEBUG
     );
     CreepUtils.consoleLogIfWatched(
       roomw,
-      `remote target rooms: ${remoteTargetRooms.length}, remote harvest rooms: ${remoteHarvestRooms.length}, claimers: ${claimerCount}`
+      `remote target rooms: ${remoteTargetRooms.length}, remote harvest rooms: ${remoteHarvestRooms.length}, claimers: ${claimerCount}`,
+      undefined,
+      LogLevel.DEBUG
     );
     if (claimerCount < remoteTargetRooms.length + remoteHarvestRooms.length) {
       remoteTargetRooms.forEach(roomName => {
         const claimerOnRoom = claimers.some(c => c.memory.targetRoom === roomName);
-        CreepUtils.consoleLogIfWatched(roomw, `claimer on ${roomName}: ${String(claimerOnRoom)}`);
+        CreepUtils.consoleLogIfWatched(
+          roomw,
+          `claimer on ${roomName}: ${String(claimerOnRoom)}`,
+          undefined,
+          LogLevel.DEBUG
+        );
         const roomMemory = Memory.rooms[roomName];
         if (!claimerOnRoom && (roomMemory.controller?.upgradeBlocked ?? 0) - (Game.time - roomMemory.reconTick) < 300) {
           const bodyProfile = { ...Claimer.BODY_PROFILE };
           if (roomMemory.controller?.owner) {
             bodyProfile.maxBodyParts = 50;
           }
-          CreepUtils.consoleLogIfWatched(roomw, `pushing claimer to spawn in ${roomw.name} for ${roomName}`);
+          CreepUtils.consoleLogIfWatched(
+            roomw,
+            `pushing claimer to spawn in ${roomw.name} for ${roomName}`,
+            undefined,
+            LogLevel.DEBUG
+          );
           spawnQueue.push({
             bodyProfile,
             max: true,
@@ -144,7 +157,12 @@ export class RemoteControl {
 
       remoteHarvestRooms.forEach(roomName => {
         const claimerOnRoom = claimers.some(c => c.memory.targetRoom === roomName);
-        CreepUtils.consoleLogIfWatched(roomw, `claimer on ${roomName}: ${String(claimerOnRoom)}`);
+        CreepUtils.consoleLogIfWatched(
+          roomw,
+          `claimer on ${roomName}: ${String(claimerOnRoom)}`,
+          undefined,
+          LogLevel.DEBUG
+        );
         const roomMemory = Memory.rooms[roomName];
         if (
           !claimerOnRoom &&
@@ -203,7 +221,9 @@ export class RemoteControl {
 
     CreepUtils.consoleLogIfWatched(
       homeRoom,
-      `importer calc: roundtrip: ${path.path.length * 2}, parts: ${carryPartsNeeded}, harvest/tick: ${harvestPerTick}`
+      `importer calc: roundtrip: ${path.path.length * 2}, parts: ${carryPartsNeeded}, harvest/tick: ${harvestPerTick}`,
+      undefined,
+      LogLevel.DEBUG
     );
     return carryPartsNeeded;
   }

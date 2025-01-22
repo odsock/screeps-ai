@@ -1,4 +1,4 @@
-import { Watchable } from "creep-utils";
+import { LogLevel, Watchable } from "creep-utils";
 import { isBoolean } from "lodash";
 import { RoadPlan } from "planning/road-plan";
 import { CostMatrixUtils } from "./cost-matrix-utils";
@@ -61,7 +61,7 @@ global.drawRoadPlan = (origin: RoomPosition, goal: RoomPosition, range: number):
 
 global.MemoryUtils = MemoryUtils;
 
-global.DEBUG = 0;
-global.INFO = 1;
-global.WARN = 2;
-global.ERROR = 3;
+global.DEBUG = LogLevel.DEBUG;
+global.INFO = LogLevel.INFO;
+global.WARN = LogLevel.WARN;
+global.ERROR = LogLevel.ERROR;

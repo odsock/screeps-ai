@@ -1,15 +1,23 @@
 import { CreepWrapper } from "roles/creep-wrapper";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
+import { profile } from "../screeps-typescript-profiler";
 
 export interface Watchable {
   name: string;
   memory: { watched?: boolean; profile?: boolean };
 }
 
-import { profile } from "../screeps-typescript-profiler";
+export enum LogLevel {
+  DEBUG = "DEBUG",
+  INFO = "INFO",
+  WARN = "WARN",
+  ERROR = "ERROR"
+}
 
 @profile
 export class CreepUtils {
+  private static readonly LOG_LEVEL_ORDER = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3 };
+
   public static averagePos(targets: { pos: RoomPosition }[]): RoomPosition {
     if (targets.length === 1) {
       return targets[0].pos;
@@ -28,7 +36,7 @@ export class CreepUtils {
   }
 
   public static log(logLevel: LogLevel, message: string): void {
-    if (logLevel >= global.LOG_LEVEL) {
+    if (this.LOG_LEVEL_ORDER[logLevel] >= this.LOG_LEVEL_ORDER[global.LOG_LEVEL]) {
       console.log(`${logLevel.toString()}: ${message}`);
     }
   }
@@ -37,7 +45,7 @@ export class CreepUtils {
     watchable: Watchable,
     message: string,
     result: ScreepsReturnCode | undefined = undefined,
-    logLevel: LogLevel = INFO
+    logLevel: LogLevel = LogLevel.INFO
   ): void {
     if (logLevel >= global.LOG_LEVEL && watchable.memory.watched === true) {
       if (result !== undefined) {

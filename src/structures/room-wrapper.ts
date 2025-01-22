@@ -4,7 +4,7 @@ import { SpawnWrapper } from "./spawn-wrapper";
 import { PlannerUtils } from "planning/planner-utils";
 
 import { CreepRole } from "config/creep-types";
-import { CreepUtils } from "creep-utils";
+import { CreepUtils, LogLevel } from "creep-utils";
 import { SpawnUtils } from "control/spawn-utils";
 import { RoomType, TargetControl } from "control/target-control";
 
@@ -416,7 +416,7 @@ export class RoomWrapper extends Room {
       p => !p.isEqualTo(pos) && !p.isEqualTo(pos1) && p.isNearTo(pos1)
     );
     CreepUtils.log(
-      DEBUG,
+      LogLevel.DEBUG,
       `pos: ${MemoryUtils.packRoomPosition(pos)}, pos1: ${MemoryUtils.packRoomPosition(
         pos1
       )}, common: ${commonAdjacentPositions}`

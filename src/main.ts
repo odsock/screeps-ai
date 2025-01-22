@@ -6,11 +6,12 @@ import "./utils/console-scripts.js";
 import { MemoryUtils } from "planning/memory-utils";
 import { Stats } from "planning/stats";
 import * as Profiler from "../screeps-typescript-profiler";
+import { LogLevel } from "creep-utils";
 
 global.sockpuppet = new Sockpuppet();
 
 global.Profiler = Profiler.init();
-global.LOG_LEVEL = INFO;
+global.LOG_LEVEL = LogLevel.INFO;
 MemoryUtils.setCache(SockPuppetConstants.START_TICK, Game.time, -1);
 
 recordUsername();

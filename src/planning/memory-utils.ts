@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-
 import { Sockpuppet } from "sockpuppet";
 import { Stats } from "./stats";
 import { SpawnUtils } from "control/spawn-utils";
+import { profile } from "../../screeps-typescript-profiler";
+import { LogLevel } from "creep-utils";
 
 declare global {
   interface RoomMemory {
@@ -140,8 +141,6 @@ interface CacheValue {
   item: unknown;
   expires: number;
 }
-
-import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class MemoryUtils {

@@ -1,4 +1,4 @@
-import { CreepUtils } from "creep-utils";
+import { CreepUtils, LogLevel } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Harvester } from "roles/harvester";
 import { Hauler } from "roles/hauler";
@@ -79,11 +79,13 @@ export class HarvestControl {
       const partsNeeded = source.energyCapacity / ENERGY_REGEN_TIME / HARVEST_POWER;
       CreepUtils.consoleLogIfWatched(
         roomw,
-        `harvesters: ${creepCount}/${positionsForSource} positions, ${partCount}/${partsNeeded} parts`
+        `harvesters: ${creepCount}/${positionsForSource} positions, ${partCount}/${partsNeeded} parts`,
+        undefined,
+        LogLevel.DEBUG
       );
       const bodyProfile = roomw.memory.sources[sourceId].link ? Harvester.BODY_PROFILE_LINK : Harvester.BODY_PROFILE;
       if (creepCount < positionsForSource && partCount < partsNeeded) {
-        CreepUtils.consoleLogIfWatched(roomw, `spawning ${Harvester.ROLE}`);
+        CreepUtils.consoleLogIfWatched(roomw, `spawning ${Harvester.ROLE}`, undefined, LogLevel.DEBUG);
         const spawnRequest = {
           bodyProfile,
           max: true,
@@ -103,7 +105,7 @@ export class HarvestControl {
           activeHarvestersOnSource.filter(creep => !creep.memory.retiring)
         );
         if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToSpawn + 50) {
-          CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${Harvester.ROLE}`);
+          CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${Harvester.ROLE}`, undefined, LogLevel.DEBUG);
           spawnQueue.push({
             bodyProfile,
             max: true,
@@ -137,7 +139,12 @@ export class HarvestControl {
       for (const sourceId in Memory.rooms[targetRoom]?.sources) {
         const hasMinder = [...spawningHarvesters, ...harvesters].some(h => h.memory.source === sourceId);
         if (!hasMinder) {
-          CreepUtils.consoleLogIfWatched(roomw, `spawning remote harvester ${Harvester.ROLE}`);
+          CreepUtils.consoleLogIfWatched(
+            roomw,
+            `spawning remote harvester ${Harvester.ROLE}`,
+            undefined,
+            LogLevel.DEBUG
+          );
           spawnQueue.push({
             bodyProfile: Harvester.BODY_PROFILE_REMOTE,
             max: true,
