@@ -142,21 +142,6 @@ export class PlannerUtils {
     });
   }
 
-  public static getAvailableStructureCount(structureConstant: BuildableStructureConstant, room: Room): number {
-    let available = 0;
-    const rcl = room.controller?.level;
-    if (rcl) {
-      const max = CONTROLLER_STRUCTURES[structureConstant][rcl];
-      const built = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === structureConstant }).length;
-      const placed = room.find(FIND_MY_CONSTRUCTION_SITES, {
-        filter: s => s.structureType === structureConstant
-      }).length;
-      available = max - built - placed;
-    }
-    console.log(`${room.name}: ${structureConstant}s available: ${available}`);
-    return available;
-  }
-
   public static placeTowerAtCenterOfColony(room: Room): ScreepsReturnCode {
     const centerPos = PlannerUtils.findColonyCenter(room);
     const line = PlannerUtils.getPositionSpiral(centerPos, 10);

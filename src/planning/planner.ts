@@ -183,7 +183,7 @@ export class Planner {
 
   private planTowers(roomw: RoomWrapper): ScreepsReturnCode {
     // place towers
-    if (PlannerUtils.getAvailableStructureCount(STRUCTURE_TOWER, roomw) > 0) {
+    if (roomw.getAvailableStructureCount(STRUCTURE_TOWER) > 0) {
       const towerResult = PlannerUtils.placeTowerAtCenterOfColony(roomw);
       return towerResult;
     }

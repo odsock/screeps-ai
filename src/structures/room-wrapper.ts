@@ -417,4 +417,20 @@ export class RoomWrapper extends Room {
     CreepUtils.log(DEBUG, `pos: ${pos}, pos1: ${pos1}, common: ${commonAdjacentPositions}`);
     return commonAdjacentPositions;
   }
+
+  /** Calculates count of available structures of type using CONTROLLER_STRUCTURES constant */
+  public getAvailableStructureCount(structureConstant: BuildableStructureConstant): number {
+    let available = 0;
+    const rcl = this.room.controller?.level;
+    if (rcl) {
+      const max = CONTROLLER_STRUCTURES[structureConstant][rcl];
+      const built = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === structureConstant }).length;
+      const placed = this.room.find(FIND_MY_CONSTRUCTION_SITES, {
+        filter: s => s.structureType === structureConstant
+      }).length;
+      available = max - built - placed;
+    }
+    console.log(`${this.room.name}: ${structureConstant}s available: ${available}`);
+    return available;
+  }
 }
