@@ -6,6 +6,7 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { TargetControl } from "./target-control";
 
 import { profile } from "../../screeps-typescript-profiler";
+import { SpawnUtils } from "./spawn-utils";
 
 @profile
 export class DefenseControl {
@@ -77,8 +78,15 @@ export class DefenseControl {
     // request max size if hostile structure only (probably an invader core, so we can wait)
     const hostileCreepsInRoom = spawn.room.memory.defense?.creeps.length === 0;
 
+    const spawnCapacity = spawn.room.energyCapacityAvailable;
+    const guardSeedCost = SpawnUtils.calcBodyCost(Guard.BODY_PROFILE.seed);
+    let bodyProfile = Guard.BODY_PROFILE;
+    if (guardSeedCost > spawnCapacity) {
+      bodyProfile = Guard.BODY_PROFILE_SMALL;
+    }
+
     spawnQueue.push({
-      bodyProfile: Guard.BODY_PROFILE,
+      bodyProfile,
       max: hostileCreepsInRoom,
       memory: {
         role: Guard.ROLE,

@@ -12,6 +12,11 @@ export class Guard extends RemoteCreepWrapper {
     seed: [MOVE, MOVE, MOVE, MOVE, ATTACK, HEAL, HEAL, HEAL],
     maxBodyParts: MAX_CREEP_SIZE
   };
+  public static readonly BODY_PROFILE_SMALL: CreepBodyProfile = {
+    profile: [MOVE, ATTACK],
+    seed: [MOVE, MOVE, ATTACK, HEAL],
+    maxBodyParts: MAX_CREEP_SIZE
+  };
 
   public run(): void {
     if (this.hits < this.hitsMax) {
