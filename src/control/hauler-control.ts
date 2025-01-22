@@ -245,8 +245,8 @@ export class HaulerControl {
 
   private requestSpawns(roomw: RoomWrapper): void {
     const spawnQueue = SpawnQueue.getInstance(roomw);
-
-    const haulerCount = SpawnUtils.getCreepCountForRole(roomw, Hauler.ROLE);
+    const spawnUtils = new SpawnUtils();
+    const haulerCount = spawnUtils.getCreepCountForRole(roomw, Hauler.ROLE);
 
     // FIRST HAULER
     // always need at least one hauler to fill spawns and move harvesters
@@ -272,7 +272,7 @@ export class HaulerControl {
     }
 
     if (haulerCount <= haulersRequired) {
-      SpawnUtils.requestReplacementCreep(roomw, Hauler);
+      spawnUtils.requestReplacementCreep(roomw, Hauler);
     }
   }
 }

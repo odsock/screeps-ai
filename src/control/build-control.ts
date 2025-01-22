@@ -23,9 +23,10 @@ export class BuildControl {
 
   private requestSpawns(roomw: RoomWrapper) {
     const spawnQueue = SpawnQueue.getInstance(roomw);
+    const spawnUtils = new SpawnUtils();
 
     // FIXER
-    const fixerCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.FIXER);
+    const fixerCount = spawnUtils.getCreepCountForRole(roomw, CreepRole.FIXER);
     if (roomw.repairSites.length > 0 && fixerCount < SockPuppetConstants.MAX_FIXER_CREEPS) {
       spawnQueue.push({
         bodyProfile: Fixer.BODY_PROFILE,
@@ -50,7 +51,7 @@ export class BuildControl {
           filter: s => s.structureType === STRUCTURE_RAMPART && s.hits < SockPuppetConstants.MAX_HITS_WALL
         }).length;
     if (conSiteCount > 0 || wallsBelowMax > 0 || rampartsBelowMax > 0) {
-      const builderCount = SpawnUtils.getCreepCountForRole(roomw, CreepRole.BUILDER);
+      const builderCount = spawnUtils.getCreepCountForRole(roomw, CreepRole.BUILDER);
       const workPartsNeeded = this.getBuilderWorkPartsNeeded(roomw);
       CreepUtils.consoleLogIfWatched(
         roomw,

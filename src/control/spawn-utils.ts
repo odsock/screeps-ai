@@ -100,7 +100,7 @@ export class SpawnUtils {
   }
 
   /** Gets count of creeps with role in room, including spawning creeps */
-  public static getCreepCountForRole(roomw: RoomWrapper, role: CreepRole): number {
+  public getCreepCountForRole(roomw: RoomWrapper, role: CreepRole): number {
     const count = roomw
       .find(FIND_MY_CREEPS)
       .filter(creep => creep.memory.role === role && creep.memory.homeRoom === roomw.name).length;
@@ -113,7 +113,8 @@ export class SpawnUtils {
   }
 
   /** Request spawn of replacement for oldest creep of type, if ticks to live less than replacement time */
-  public static requestReplacementCreep(roomw: RoomWrapper, type: CreepWrapperProfile): void {
+  // TODO dry up this with harvest and upgrade control code
+  public requestReplacementCreep(roomw: RoomWrapper, type: CreepWrapperProfile): void {
     const oldestCreep = SpawnUtils.findOldestCreepForRole(roomw, type);
     const ticksToReplace = SpawnUtils.calcSpawnTime(type.BODY_PROFILE, roomw);
     CreepUtils.consoleLogIfWatched(
