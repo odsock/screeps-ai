@@ -37,12 +37,7 @@ export class Stats {
     const statsRooms: string[] = MemoryUtils.getCache(this.STATS_ROOMS_KEY) ?? [];
     statsRooms.forEach(roomName => {
       const efficiency = this.calcEnergyEfficiency(roomName);
-      const cpuAverage = Stats.calcCpuAverage(statsPeriod);
-      console.log(
-        `${roomName}: efficiency ${(efficiency * 100).toFixed(2)}% CPU ${cpuAverage.toFixed(
-          4
-        )} over last ${statsPeriod} ticks`
-      );
+      console.log(`${roomName}: efficiency ${(efficiency * 100).toFixed(2)}% over last ${statsPeriod} ticks`);
     });
 
     const cpuAverage = Stats.calcCpuAverage(statsPeriod);
