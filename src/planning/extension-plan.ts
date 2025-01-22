@@ -3,6 +3,9 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { PlannerUtils } from "./planner-utils";
 import { StructurePlanPosition } from "./structure-plan";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class ExtensionPlan {
   private readonly roomw: RoomWrapper;
 

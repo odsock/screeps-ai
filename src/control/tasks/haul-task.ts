@@ -5,6 +5,9 @@ import { MemoryUtils } from "planning/memory-utils";
 import { Hauler } from "roles/hauler";
 import { CreepWrapper } from "roles/creep-wrapper";
 
+import { profile } from "../../../screeps-typescript-profiler";
+
+@profile
 export class HaulTask extends Task {
   public readonly priority: number;
   public readonly creepName: string;

@@ -3,6 +3,9 @@ import { Task } from "./task";
 import { CreepUtils } from "creep-utils";
 import { CreepWrapper } from "roles/creep-wrapper";
 
+import { profile } from "../../../screeps-typescript-profiler";
+
+@profile
 export class UnloadTask extends Task {
   public readonly targetId: Id<StructureContainer>;
   public readonly resourceType: ResourceConstant;

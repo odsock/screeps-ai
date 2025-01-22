@@ -6,6 +6,9 @@ interface Ticket<T> {
   priority: number;
 }
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class Queue<T> {
   private store: Ticket<T>[] = [];
 

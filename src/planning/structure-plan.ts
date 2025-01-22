@@ -11,6 +11,9 @@ export interface StructurePlanPosition {
   structure: BuildableStructureConstant;
 }
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class StructurePlan {
   private planned = false;
   private readonly pattern: StructurePatternPosition[];

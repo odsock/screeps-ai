@@ -7,6 +7,9 @@ import { MemoryUtils } from "planning/memory-utils";
 import { TaskType } from "../control/tasks/task-management";
 import { HaulTask } from "control/tasks/haul-task";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class Importer extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.IMPORTER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

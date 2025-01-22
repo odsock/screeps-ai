@@ -2,6 +2,9 @@ import { SpawnRequest } from "structures/spawn-wrapper";
 
 import { MemoryUtils } from "./memory-utils";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class SpawnQueue {
   private readonly queue: SpawnRequest[] = [];
 

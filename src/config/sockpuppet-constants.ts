@@ -1,3 +1,6 @@
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class SockPuppetConstants {
   public static readonly MAX_UPGRADERS = 5;
   public static readonly MAX_FIXER_CREEPS = 1;

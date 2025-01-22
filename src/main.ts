@@ -5,8 +5,11 @@ import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import "./utils/console-scripts.js";
 import { MemoryUtils } from "planning/memory-utils";
 import { Stats } from "planning/stats";
+import * as Profiler from "../screeps-typescript-profiler";
 
 global.sockpuppet = new Sockpuppet();
+
+global.Profiler = Profiler.init();
 global.LOG_LEVEL = INFO;
 MemoryUtils.setCache(SockPuppetConstants.START_TICK, Game.time, -1);
 

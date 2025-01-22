@@ -7,6 +7,9 @@ import { StoreMinder } from "roles/store-minder";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnUtils } from "./spawn-utils";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class LinkControl {
   public run(): void {
     for (const roomName in Game.rooms) {

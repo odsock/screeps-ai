@@ -7,6 +7,9 @@ import { SupplySpawnTask } from "./supply-spawn-task";
 import { UnloadTask } from "./unload-task";
 import { SupplyCreepTask } from "./supply-creep-task";
 
+import { profile } from "../../../screeps-typescript-profiler";
+
+@profile
 export class TaskFactory {
   public static create(task: Task): Task {
     switch (task.type) {

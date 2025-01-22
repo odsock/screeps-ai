@@ -9,6 +9,9 @@ export enum StatType {
   SPAWN_STAT = "SPAWN_STAT"
 }
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class Stats {
   public static record(type: StatType, value: number): void {
     const key = StatType[type];

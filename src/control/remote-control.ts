@@ -14,6 +14,9 @@ import { HaulTask } from "./tasks/haul-task";
 import { CreepBodyUtils } from "roles/creep-body-utils";
 import { CreepWrapper } from "roles/creep-wrapper";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class RemoteControl {
   private readonly targetControl: TargetControl;
   public constructor() {

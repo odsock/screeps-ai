@@ -7,6 +7,9 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnWrapper } from "structures/spawn-wrapper";
 import { TravelUtils } from "utils/travel-utils";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class SpawnUtils {
   /**
    * Creates creep body that could spawn with full capacity in room, based on profile.

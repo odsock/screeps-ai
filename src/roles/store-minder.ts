@@ -5,6 +5,9 @@ import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { PlannerUtils } from "planning/planner-utils";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class StoreMinder extends Minder {
   public static readonly ROLE = CreepRole.STORE_MINDER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

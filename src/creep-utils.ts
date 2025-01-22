@@ -6,6 +6,9 @@ export interface Watchable {
   memory: { watched?: boolean; profile?: boolean };
 }
 
+import { profile } from "../screeps-typescript-profiler";
+
+@profile
 export class CreepUtils {
   public static averagePos(targets: { pos: RoomPosition }[]): RoomPosition {
     if (targets.length === 1) {

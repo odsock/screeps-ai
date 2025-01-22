@@ -5,6 +5,9 @@ import { CreepWrapper } from "./creep-wrapper";
 import { CreepBodyProfile } from "./creep-body-utils";
 import { TaskFactory } from "control/tasks/task-factory";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class Hauler extends CreepWrapper {
   public static readonly ROLE = CreepRole.HAULER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

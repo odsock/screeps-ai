@@ -13,24 +13,24 @@ import { Planner } from "planning/planner";
 import { CreepFactory } from "roles/creep-factory";
 import { RoomWrapper } from "structures/room-wrapper";
 import { TowerWrapper } from "structures/tower-wrapper";
+import { profile } from "../screeps-typescript-profiler";
 
+@profile
 export class Sockpuppet {
   public name = "sockpuppet";
   public memory = {};
 
   public run(): void {
-    new ReconControl().run();
-    new DefenseControl().run();
-    new AttackControl().run();
-    new BuildControl().run();
-    new HarvestControl().run();
-    new HaulerControl().run();
-    new RemoteControl().run();
-    new UpgradeControl().run();
-    new LinkControl().run();
+    this.runControl();
+    this.runRooms();
+    this.runCreeps();
 
-    // Run each colony
-    let planningOffset = 0;
+    if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0 && (Game.cpu.bucket ?? 9999) > 1000) {
+      new Planner().run();
+    }
+  }
+
+  private runRooms() {
     _.filter(Game.rooms, room => room.controller?.my).forEach(room => {
       const roomw = RoomWrapper.getInstance(room);
 
@@ -51,14 +51,18 @@ export class Sockpuppet {
       // spawn new creeps
       new SpawnControl(roomw).run();
     });
+  }
 
-    this.runCreeps();
-
-    // Plan each room on interval, both colony and remotes
-    if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === planningOffset && (Game.cpu.bucket ?? 9999) > 1000) {
-      new Planner().run();
-    }
-    planningOffset++;
+  private runControl() {
+    new ReconControl().run();
+    new DefenseControl().run();
+    new AttackControl().run();
+    new BuildControl().run();
+    new HarvestControl().run();
+    new HaulerControl().run();
+    new RemoteControl().run();
+    new UpgradeControl().run();
+    new LinkControl().run();
   }
 
   public runCreeps(): void {

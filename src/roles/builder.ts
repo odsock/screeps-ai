@@ -4,6 +4,9 @@ import { CreepUtils } from "creep-utils";
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class Builder extends CreepWrapper {
   public static readonly ROLE = CreepRole.BUILDER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

@@ -2,6 +2,9 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { PlannerUtils } from "./planner-utils";
 import { MemoryUtils } from "./memory-utils";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class ControllerPlan {
   public static run(roomw: RoomWrapper): void {
     const controller = roomw.controller;

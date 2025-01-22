@@ -13,6 +13,9 @@ declare global {
   }
 }
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class Raider extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.RAIDER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {
@@ -113,10 +116,9 @@ export class Raider extends RemoteCreepWrapper {
         // target closest creep
         if (!target && creeps.length > 0) {
           const closestCreep = this.pos.findClosestByPath(creeps);
-            target = closestCreep;
-            CreepUtils.consoleLogIfWatched(this, `target creep ${String(target)}`);
+          target = closestCreep;
+          CreepUtils.consoleLogIfWatched(this, `target creep ${String(target)}`);
         }
-
 
         this.doRangedAttack(target);
 

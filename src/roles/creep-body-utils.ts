@@ -5,6 +5,9 @@ export interface CreepBodyProfile {
   maxWorkParts?: number;
 }
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class CreepBodyUtils {
   /**
    * Creates a creep body profile with the max size based on number of parts needed for a part type

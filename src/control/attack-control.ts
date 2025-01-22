@@ -14,6 +14,9 @@ declare global {
   }
 }
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class AttackControl {
   private readonly targetControl: TargetControl;
   private readonly travelUtils: TravelUtils;

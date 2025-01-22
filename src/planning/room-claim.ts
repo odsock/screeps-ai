@@ -1,3 +1,6 @@
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class RoomClaim {
   private claims: Id<Creep>[];
 

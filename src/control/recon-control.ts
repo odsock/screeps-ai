@@ -8,6 +8,9 @@ import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
 
 // TODO create recon memory separate from colony memory
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class ReconControl {
   private readonly targetControl: TargetControl;
   public constructor() {

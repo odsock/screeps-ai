@@ -3,6 +3,9 @@ import { CreepRole } from "config/creep-types";
 import { CreepUtils } from "creep-utils";
 import { Minder } from "./minder";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class Upgrader extends Minder {
   public static readonly ROLE = CreepRole.UPGRADER;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

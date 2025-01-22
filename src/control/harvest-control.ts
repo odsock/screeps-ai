@@ -6,6 +6,9 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class HarvestControl {
   private readonly targetControl: TargetControl;
   public constructor() {

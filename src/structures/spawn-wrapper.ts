@@ -5,6 +5,7 @@ import { CreepBodyProfile } from "roles/creep-body-utils";
 import { RoomWrapper } from "./room-wrapper";
 import { names } from "utils/names-hobbit";
 import { Stats, StatType } from "planning/stats";
+import { profile } from "../../screeps-typescript-profiler";
 
 export interface SpawnRequest {
   priority: number;
@@ -20,6 +21,7 @@ interface BodyPartPriorityLookupType {
   [part: string]: number;
 }
 
+@profile
 export class SpawnWrapper extends StructureSpawn {
   private static readonly BODY_PART_ORDER = [TOUGH, CARRY, WORK, MOVE, CLAIM, RANGED_ATTACK, ATTACK, HEAL];
   private static readonly BODY_PART_ORDER_LOOKUP: BodyPartPriorityLookupType =

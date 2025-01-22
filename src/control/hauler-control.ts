@@ -14,6 +14,9 @@ import { Task } from "./tasks/task";
 import { UnloadTask } from "./tasks/unload-task";
 import { SupplyStructureTask } from "./tasks/supply-structure-task";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class HaulerControl {
   public run(): void {
     for (const roomName in Game.rooms) {

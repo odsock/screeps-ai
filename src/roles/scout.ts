@@ -3,6 +3,9 @@ import { CreepUtils } from "creep-utils";
 import { CreepBodyProfile } from "./creep-body-utils";
 import { RemoteCreepWrapper } from "./remote-creep-wrapper";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class Scout extends RemoteCreepWrapper {
   public static readonly ROLE = CreepRole.SCOUT;
   public static readonly BODY_PROFILE: CreepBodyProfile = {

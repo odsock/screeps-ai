@@ -9,6 +9,9 @@ export const enum RoomType {
   UNKNOWN
 }
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class TargetControl {
   private static instance: TargetControl | undefined;
   public static getInstance(): TargetControl {

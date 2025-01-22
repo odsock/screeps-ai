@@ -1,4 +1,7 @@
 // prettier-ignore
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class StructurePatterns {
   public static readonly FULL_COLONY: string[] = [
     "        r",
@@ -20,13 +23,7 @@ export class StructurePatterns {
     "        r"
   ];
 
-  public static readonly EXTENSION_GROUP: string[] = [
-    "  r",
-    " rer",
-    "reeer",
-    " rer",
-    "  r"
-  ];
+  public static readonly EXTENSION_GROUP: string[] = ["  r", " rer", "reeer", " rer", "  r"];
 
   public static readonly CONTROL_GROUP: string[] = [
     "    r",
@@ -40,23 +37,11 @@ export class StructurePatterns {
     "    r"
   ];
 
-  public static readonly SPAWN_GROUP: string[] = [
-    "  rrr",
-    " rsssr",
-    "rtPrltr",
-    " rTSFr",
-    "  rrr"
-  ];
+  public static readonly SPAWN_GROUP: string[] = ["  rrr", " rsssr", "rtPrltr", " rTSFr", "  rrr"];
 
-  public static readonly LAB_GROUP: string[] = [
-    "  r",
-    " rLr",
-    "rLLLr",
-    " rLr",
-    "  r"
-  ];
+  public static readonly LAB_GROUP: string[] = ["  r", " rLr", "rLLLr", " rLr", "  r"];
 
-  public static readonly CHARACTERS: {[x: string]: BuildableStructureConstant | undefined} = {
+  public static readonly CHARACTERS: { [x: string]: BuildableStructureConstant | undefined } = {
     r: STRUCTURE_ROAD,
     e: STRUCTURE_EXTENSION,
     c: STRUCTURE_CONTAINER,
@@ -71,7 +56,7 @@ export class StructurePatterns {
     F: STRUCTURE_FACTORY,
     N: STRUCTURE_NUKER,
     " ": undefined
-  }
+  };
 }
 
 // CONTROLLER_STRUCTURES: {

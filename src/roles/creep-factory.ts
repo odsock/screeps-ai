@@ -15,6 +15,9 @@ import { Upgrader } from "./upgrader";
 import { Worker } from "./worker";
 import { StoreMinder } from "./store-minder";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class CreepFactory {
   /** Instantiate role class for creep based on memory value. */
   public static getCreep(creep: Creep): CreepWrapper {

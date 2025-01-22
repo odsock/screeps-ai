@@ -12,6 +12,9 @@ import { RoadPlan as RoadPlanner } from "./road-plan";
 import { StructurePlanPosition } from "./structure-plan";
 import { SourcePlan } from "./source-plan";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class Planner {
   private readonly targetControl: TargetControl;
   public constructor() {

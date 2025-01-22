@@ -5,6 +5,9 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { Task } from "./task";
 import { CreepWrapper } from "roles/creep-wrapper";
 
+import { profile } from "../../../screeps-typescript-profiler";
+
+@profile
 export class SupplyCreepTask extends Task {
   public readonly priority: number;
   public readonly override?: boolean;

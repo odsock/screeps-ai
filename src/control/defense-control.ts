@@ -5,6 +5,9 @@ import { Guard } from "roles/guard";
 import { RoomWrapper } from "structures/room-wrapper";
 import { TargetControl } from "./target-control";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class DefenseControl {
   private readonly targetControl: TargetControl;
   public constructor() {

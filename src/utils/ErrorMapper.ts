@@ -1,6 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 import { SourceMapConsumer } from "source-map";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class ErrorMapper {
   // Cache consumer
   private static _consumer?: SourceMapConsumer;

@@ -15,6 +15,9 @@ StructureContainer
 5 at all levels
 */
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class SourcePlan {
   public static run(roomw: RoomWrapper): void {
     const rcl = roomw.controller?.level ?? 0;

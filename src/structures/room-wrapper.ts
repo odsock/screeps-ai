@@ -8,6 +8,9 @@ import { CreepUtils } from "creep-utils";
 import { SpawnUtils } from "control/spawn-utils";
 import { RoomType, TargetControl } from "control/target-control";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class RoomWrapper extends Room {
   private targetControl: TargetControl;
 

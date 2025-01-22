@@ -4,6 +4,9 @@ import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { StructurePlanPosition } from "./structure-plan";
 import { CreepUtils } from "creep-utils";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class RoadPlan {
   private readonly roomw: RoomWrapper;
   private readonly costMatrixUtils: CostMatrixUtils;

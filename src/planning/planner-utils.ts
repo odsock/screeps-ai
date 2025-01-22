@@ -4,6 +4,9 @@ import { CreepUtils } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { MemoryUtils } from "./memory-utils";
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class PlannerUtils {
   public static findSiteForPattern(
     pattern: string[],

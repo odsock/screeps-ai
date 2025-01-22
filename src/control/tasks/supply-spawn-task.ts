@@ -6,6 +6,9 @@ import { Hauler } from "roles/hauler";
 import { CostMatrixUtils } from "utils/cost-matrix-utils";
 import { CreepWrapper } from "roles/creep-wrapper";
 
+import { profile } from "../../../screeps-typescript-profiler";
+
+@profile
 export class SupplySpawnTask extends Task {
   public readonly priority: number;
   public readonly override?: boolean;

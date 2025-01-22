@@ -4,6 +4,9 @@ import { Hauler } from "roles/hauler";
 import { Task } from "./task";
 import { CreepWrapper } from "roles/creep-wrapper";
 
+import { profile } from "../../../screeps-typescript-profiler";
+
+@profile
 export class CleanupTask extends Task {
   public readonly priority: number;
   public readonly targetId: Id<Resource | Tombstone | Ruin>;

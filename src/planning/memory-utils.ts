@@ -131,6 +131,7 @@ declare global {
       INFO: LogLevel;
       WARN: LogLevel;
       ERROR: LogLevel;
+      Profiler: Profiler;
     }
   }
 }
@@ -140,6 +141,9 @@ interface CacheValue {
   expires: number;
 }
 
+import { profile } from "../../screeps-typescript-profiler";
+
+@profile
 export class MemoryUtils {
   public static unpackRoomPosition(positionString: string): RoomPosition {
     if (!positionString) throw new Error("Position string is empty or undefined");
