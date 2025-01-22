@@ -13,27 +13,44 @@ import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class Stats {
-  public static record(type: StatType, value: number): void {
-    const key = StatType[type];
+  private readonly STATS_ROOMS_KEY = "STATS_ROOMS";
+
+  public record(roomName: string, type: StatType, value: number): void {
+    const key = `StatType[type]_${roomName}`;
     const previousValue: number = MemoryUtils.getCache(key) ?? 0;
     MemoryUtils.setCache(key, previousValue + value, -1);
+    this.updateStatsRooms(roomName);
   }
 
-  public static showStats(): void {
+  private updateStatsRooms(roomName: string) {
+    const statsRooms: string[] = MemoryUtils.getCache(this.STATS_ROOMS_KEY) ?? [];
+    if (!statsRooms.includes(roomName)) {
+      statsRooms.push(roomName);
+    }
+    MemoryUtils.setCache(this.STATS_ROOMS_KEY, statsRooms, -1);
+  }
+
+  public showStats(): void {
     const startTick: number = MemoryUtils.getCache(SockPuppetConstants.START_TICK) ?? Game.time;
     const statsPeriod = Game.time - startTick;
 
-    const efficiency = Stats.calcEnergyEfficiency();
+    const statsRooms: string[] = MemoryUtils.getCache(this.STATS_ROOMS_KEY) ?? [];
+    statsRooms.forEach(roomName => {
+      const efficiency = this.calcEnergyEfficiency(roomName);
+      const cpuAverage = Stats.calcCpuAverage(statsPeriod);
+      console.log(
+        `efficiency ${(efficiency * 100).toFixed(2)}% CPU ${cpuAverage.toFixed(4)} over last ${statsPeriod} ticks`
+      );
+    });
+
     const cpuAverage = Stats.calcCpuAverage(statsPeriod);
-    console.log(
-      `efficiency ${(efficiency * 100).toFixed(2)}% CPU ${cpuAverage.toFixed(4)} over last ${statsPeriod} ticks`
-    );
+    console.log(`CPU ${cpuAverage.toFixed(4)} over last ${statsPeriod} ticks`);
   }
 
-  private static calcEnergyEfficiency() {
+  private calcEnergyEfficiency(roomName: string) {
     const stats: Record<string, number> = {};
     for (const key in StatType) {
-      stats[key] = MemoryUtils.getCache(key) ?? 0;
+      stats[key] = MemoryUtils.getCache(`${key}_${roomName}`) ?? 0;
     }
 
     console.log(

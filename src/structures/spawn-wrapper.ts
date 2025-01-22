@@ -59,9 +59,8 @@ export class SpawnWrapper extends StructureSpawn {
     if (result === ERR_INVALID_ARGS) {
       console.log(`Invalid spawn: ${memory.role} ${CreepUtils.creepBodyToString(body)}`);
     } else if (result === OK) {
-      // TODO clear this memory when spawn is complete
       Memory.spawns[this.name].spawning = { name, body, memory };
-      Stats.record(StatType.SPAWN_STAT, SpawnUtils.calcBodyCost(body));
+      new Stats().record(this.room.name, StatType.SPAWN_STAT, SpawnUtils.calcBodyCost(body));
       if (memory.replacing) {
         Game.creeps[memory.replacing].memory.retiring = true;
       }

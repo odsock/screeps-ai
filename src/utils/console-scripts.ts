@@ -2,7 +2,6 @@ import { Watchable } from "creep-utils";
 import { isBoolean } from "lodash";
 import { RoadPlan } from "planning/road-plan";
 import { CostMatrixUtils } from "./cost-matrix-utils";
-import { Stats } from "planning/stats";
 import { MemoryUtils } from "planning/memory-utils";
 
 global.spotCreeps = (...creeps: Creep[]) => {
@@ -60,7 +59,6 @@ global.drawRoadPlan = (origin: RoomPosition, goal: RoomPosition, range: number):
   room.visual.poly(path.path);
 };
 
-global.Stats = Stats;
 global.MemoryUtils = MemoryUtils;
 
 global.DEBUG = 0;

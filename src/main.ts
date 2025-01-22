@@ -46,7 +46,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   // must be last thing in loop to keep cpu calc accurate
-  Stats.showStats();
+  new Stats().showStats();
 });
 
 function recordUsername() {

@@ -49,6 +49,7 @@ export abstract class CreepWrapper {
   protected targetControl: TargetControl;
   protected costMatrixUtils: CostMatrixUtils;
   public readonly store: StoreDefinition;
+  private readonly stats = new Stats();
 
   public constructor(private readonly creep: Creep) {
     this.targetControl = TargetControl.getInstance();
@@ -515,7 +516,7 @@ export abstract class CreepWrapper {
   public harvest(target: Source): ScreepsReturnCode {
     const result = this.creep.harvest(target);
     if (result === OK) {
-      Stats.record(StatType.HARVEST_ENERGY_STAT, this.harvestAmount);
+      this.stats.record(this.room.name, StatType.HARVEST_ENERGY_STAT, this.harvestAmount);
     }
     return result;
   }
@@ -523,7 +524,7 @@ export abstract class CreepWrapper {
   public repair(target: Structure): ScreepsReturnCode {
     const result = this.creep.repair(target);
     if (result === OK) {
-      Stats.record(StatType.REPAIR_STAT, this.repairCost);
+      this.stats.record(this.room.name, StatType.REPAIR_STAT, this.repairCost);
     }
     return result;
   }
@@ -543,7 +544,7 @@ export abstract class CreepWrapper {
   public build(site: ConstructionSite<BuildableStructureConstant>): ScreepsReturnCode {
     const result = this.creep.build(site);
     if (result === OK) {
-      Stats.record(StatType.BUILD_STAT, this.buildCost);
+      this.stats.record(this.room.name, StatType.BUILD_STAT, this.buildCost);
     }
     return result;
   }
@@ -559,7 +560,7 @@ export abstract class CreepWrapper {
   public upgradeController(controller: StructureController): ScreepsReturnCode {
     const result = this.creep.upgradeController(controller);
     if (result === OK) {
-      Stats.record(StatType.UPGRADE_STAT, this.getActiveBodyparts(WORK));
+      this.stats.record(this.room.name, StatType.UPGRADE_STAT, this.getActiveBodyparts(WORK));
     }
     return result;
   }
