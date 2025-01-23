@@ -455,8 +455,8 @@ export class RoomWrapper extends Room {
 
   public hasSpawnEnergyBuffer() {
     return (
-      (this.energyAvailable === this.energyCapacityAvailable && this.storage?.store.getUsedCapacity(RESOURCE_ENERGY)) ??
-      (0 >= this.energyCapacityAvailable || !this.storage)
+      this.energyAvailable === this.energyCapacityAvailable &&
+      ((this.storage?.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) >= this.energyCapacityAvailable || !this.storage)
     );
   }
 }
