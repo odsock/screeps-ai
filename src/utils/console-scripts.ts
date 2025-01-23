@@ -3,6 +3,7 @@ import { isBoolean } from "lodash";
 import { RoadPlan } from "planning/road-plan";
 import { CostMatrixUtils } from "./cost-matrix-utils";
 import { MemoryUtils } from "planning/memory-utils";
+import { RoomWrapper } from "structures/room-wrapper";
 
 global.spotCreeps = (...creeps: Creep[]) => {
   creeps.forEach(c => (c.memory.draw = true));
@@ -57,6 +58,10 @@ global.drawRoadPlan = (origin: RoomPosition, goal: RoomPosition, range: number):
   const room = Game.rooms[origin.roomName];
   const path = new RoadPlan(room).planRoad(origin, goal, range);
   room.visual.poly(path.path);
+};
+
+global.getRoomWrapper = (roomName: string): RoomWrapper => {
+  return RoomWrapper.getInstance(roomName);
 };
 
 global.MemoryUtils = MemoryUtils;

@@ -4,6 +4,7 @@ import { Stats } from "./stats";
 import { SpawnUtils } from "control/spawn-utils";
 import { profile } from "../../screeps-typescript-profiler";
 import { LogLevel } from "creep-utils";
+import { RoomWrapper } from "structures/room-wrapper";
 
 declare global {
   interface RoomMemory {
@@ -133,6 +134,7 @@ declare global {
       WARN: LogLevel;
       ERROR: LogLevel;
       Profiler: Profiler;
+      getRoomWrapper: (roomName: string) => RoomWrapper;
     }
   }
 }
