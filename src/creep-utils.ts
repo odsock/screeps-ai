@@ -45,7 +45,7 @@ export class CreepUtils {
     watchable: Watchable,
     message: string,
     result: ScreepsReturnCode | undefined = undefined,
-    logLevel: LogLevel = LogLevel.INFO
+    logLevel: LogLevel = LogLevel.DEBUG
   ): void {
     if (logLevel >= global.LOG_LEVEL && watchable.memory.watched === true) {
       if (result !== undefined) {

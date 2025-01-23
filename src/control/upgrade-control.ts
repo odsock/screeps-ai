@@ -1,6 +1,6 @@
 import { CreepRole } from "config/creep-types";
 import { SockPuppetConstants } from "config/sockpuppet-constants";
-import { CreepUtils } from "creep-utils";
+import { CreepUtils, LogLevel } from "creep-utils";
 import { SpawnQueue } from "planning/spawn-queue";
 import { Upgrader } from "roles/upgrader";
 import { RoomWrapper } from "structures/room-wrapper";
@@ -29,7 +29,7 @@ export class UpgradeControl {
       roomw.controller?.ticksToDowngrade > 1000 &&
       roomw.getInactiveStructures().length === 0
     ) {
-      CreepUtils.consoleLogIfWatched(roomw, `skipping upgraders during construction`);
+      CreepUtils.consoleLogIfWatched(roomw, `skipping upgraders during construction`, undefined, LogLevel.DEBUG);
       return;
     }
 
@@ -51,7 +51,9 @@ export class UpgradeControl {
       upgraderWorkPartsActive = roomw.getActiveParts(Upgrader.ROLE, WORK);
       CreepUtils.consoleLogIfWatched(
         roomw,
-        `upgraders: ${upgraderCount}/${upgradePositionCount} positions, ${upgraderWorkPartsActive}/${upgraderWorkPartsNeeded} parts`
+        `upgraders: ${upgraderCount}/${upgradePositionCount} positions, ${upgraderWorkPartsActive}/${upgraderWorkPartsNeeded} parts`,
+        undefined,
+        LogLevel.DEBUG
       );
     }
 
@@ -77,7 +79,7 @@ export class UpgradeControl {
       const oldestCreep = CreepUtils.findOldestCreep(upgraders.filter(creep => !creep.memory.retiring));
       const ticksToSpawn = SpawnUtils.calcSpawnTime(Upgrader.BODY_PROFILE, roomw);
       if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToSpawn + 50) {
-        CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${Upgrader.ROLE}`);
+        CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${Upgrader.ROLE}`, undefined, LogLevel.DEBUG);
         spawnQueue.push({
           bodyProfile: CreepBodyUtils.buildBodyProfile(Upgrader.BODY_PROFILE, upgraderWorkPartsNeeded, WORK),
           max: true,
