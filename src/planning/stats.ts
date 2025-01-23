@@ -48,7 +48,7 @@ export class Stats {
     });
 
     const cpuAverage = Stats.calcCpuAverage(statsPeriod);
-    console.log(`CPU ${cpuAverage.toFixed(4)} over last ${statsPeriod} ticks`);
+    console.log(`CPU ${Game.cpu.getUsed()} - ${cpuAverage.toFixed(4)} over last ${statsPeriod} ticks`);
   }
 
   private calcEnergyEfficiency(stats: Record<string, number>) {
