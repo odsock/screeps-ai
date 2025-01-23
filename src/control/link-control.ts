@@ -27,12 +27,12 @@ export class LinkControl {
       // move energy out of source links if they are full
       sourceLinks.forEach(sourceLink => {
         if (sourceLink.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-          if (controllerLink && controllerLink.store.getFreeCapacity(RESOURCE_ENERGY) > LINK_CAPACITY / 2) {
-            const result = sourceLink.transferEnergy(controllerLink);
-            CreepUtils.consoleLogIfWatched(roomw, `links: transferring to controller`, result);
-          } else if (storageLink) {
+          if (storageLink && !roomw.hasSpawnEnergyBuffer()) {
             const result = sourceLink.transferEnergy(storageLink);
             CreepUtils.consoleLogIfWatched(roomw, `links: transferring to storage`, result);
+          } else if (controllerLink && controllerLink.store.getFreeCapacity(RESOURCE_ENERGY) > LINK_CAPACITY / 2) {
+            const result = sourceLink.transferEnergy(controllerLink);
+            CreepUtils.consoleLogIfWatched(roomw, `links: transferring to controller`, result);
           }
         }
       });
