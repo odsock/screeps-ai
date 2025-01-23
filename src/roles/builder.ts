@@ -102,31 +102,13 @@ export class Builder extends CreepWrapper {
     }
   }
 
-  private findBuildCenterPos() {
-    let centerStructure: Structure | undefined = this.roomw.spawns[0];
-    if (!centerStructure) {
-      centerStructure = this.roomw.controller;
-    }
-    let centerPos: RoomPosition;
-    if (centerStructure) {
-      centerPos = centerStructure.pos;
-    } else {
-      centerPos = new RoomPosition(
-        SockPuppetConstants.ROOM_SIZE / 2,
-        SockPuppetConstants.ROOM_SIZE / 2,
-        this.room.name
-      );
-    }
-    return centerPos;
-  }
-
   private getConstructionSite(): ConstructionSite<BuildableStructureConstant> | undefined {
     const siteId = this.memory.constructionSiteId;
     let site = Game.getObjectById(siteId as Id<ConstructionSite>);
     if (site) {
       return site;
     } else {
-      const centerPos = this.findBuildCenterPos();
+      const centerPos = this.room.findBuildCenterPos();
       const sites = this.roomw.find(FIND_MY_CONSTRUCTION_SITES);
       const groupedSites = _.groupBy(sites, aSite => aSite.structureType);
       const siteType = SockPuppetConstants.CONSTRUCTION_PRIORITY.find(

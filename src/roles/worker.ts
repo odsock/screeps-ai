@@ -85,7 +85,7 @@ export class Worker extends CreepWrapper {
 
   // TODO dry this up with builder code
   private doBuildJob(): void {
-    const centerPos = this.findBuildCenterPos();
+    const centerPos = this.room.findBuildCenterPos();
     const site = this.chooseConstructionSite(centerPos);
 
     if (site) {
@@ -135,24 +135,6 @@ export class Worker extends CreepWrapper {
       }
     }
     return site;
-  }
-
-  private findBuildCenterPos() {
-    let centerStructure: Structure | undefined = this.roomw.spawns[0];
-    if (!centerStructure) {
-      centerStructure = this.roomw.controller;
-    }
-    let centerPos: RoomPosition;
-    if (centerStructure) {
-      centerPos = centerStructure.pos;
-    } else {
-      centerPos = new RoomPosition(
-        SockPuppetConstants.ROOM_SIZE / 2,
-        SockPuppetConstants.ROOM_SIZE / 2,
-        this.room.name
-      );
-    }
-    return centerPos;
   }
 
   private doRepairJob(): void {

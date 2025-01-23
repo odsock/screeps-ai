@@ -32,7 +32,7 @@ export class CreepUtils {
         sumY += pos.y;
         roomName = pos.roomName;
       });
-    return new RoomPosition(sumX / targets.length, sumY / targets.length, roomName);
+    return new RoomPosition(Math.round(sumX / targets.length), Math.round(sumY / targets.length), roomName);
   }
 
   public static log(logLevel: LogLevel, message: string): void {

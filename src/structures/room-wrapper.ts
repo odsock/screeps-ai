@@ -465,4 +465,19 @@ export class RoomWrapper extends Room {
     );
     return spawnFull && (!hasStorage || hasBuffer);
   }
+
+  public findBuildCenterPos() {
+    let centerStructure: Structure | undefined = this.spawns[0];
+    if (!centerStructure) {
+      centerStructure = this.controller;
+    }
+    let centerPos: RoomPosition;
+    if (centerStructure) {
+      centerPos = centerStructure.pos;
+    } else {
+      const halfRoomSize = Math.round(SockPuppetConstants.ROOM_SIZE / 2);
+      centerPos = new RoomPosition(halfRoomSize, halfRoomSize, this.room.name);
+    }
+    return centerPos;
+  }
 }

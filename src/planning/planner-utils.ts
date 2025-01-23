@@ -172,7 +172,7 @@ export class PlannerUtils {
       y += structure.pos.y;
       count++;
     }
-    const centerPos = new RoomPosition(x / count, y / count, this.room.name);
+    const centerPos = new RoomPosition(Math.round(x / count), Math.round(y / count), this.room.name);
     return centerPos;
   }
 
