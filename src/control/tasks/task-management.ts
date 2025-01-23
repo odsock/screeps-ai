@@ -1,4 +1,4 @@
-import { CreepUtils } from "creep-utils";
+import { CreepUtils, LogLevel } from "creep-utils";
 import { CreepWrapper } from "roles/creep-wrapper";
 import { Task } from "./task";
 
@@ -43,7 +43,7 @@ export class TaskManagement {
         haulers[0].room
       );
     } else {
-      CreepUtils.consoleLogIfWatched(haulers[0].room, `no free haulers`);
+      CreepUtils.consoleLogIfWatched(haulers[0].room, `no free haulers`, undefined, LogLevel.DEBUG);
     }
 
     // bump low priority tasks for higher priority tasks with override flag set
@@ -57,7 +57,12 @@ export class TaskManagement {
     unassignedTasks
       .filter(task => task.override)
       .forEach(task => {
-        CreepUtils.consoleLogIfWatched(busyHaulers[0].room, `override task: ${task.toString()}`);
+        CreepUtils.consoleLogIfWatched(
+          busyHaulers[0].room,
+          `override task: ${task.toString()}`,
+          undefined,
+          LogLevel.DEBUG
+        );
         const haulerToBump = busyHaulersSorted.find(h => (h.getTask()?.priority ?? 0) <= task.priority);
         if (haulerToBump) {
           const oldTask = haulerToBump.getTask();
@@ -65,7 +70,9 @@ export class TaskManagement {
             haulerToBump.room,
             `${haulerToBump.name}: bumping ${String(oldTask?.type)} pri ${String(oldTask?.priority)} with ${
               task.type
-            } pri ${task.priority}`
+            } pri ${task.priority}`,
+            undefined,
+            LogLevel.DEBUG
           );
           haulerToBump.assignTask(task);
         }
@@ -96,7 +103,7 @@ export class TaskManagement {
         );
         busyHaulers.push(closestHauler);
       } else {
-        CreepUtils.consoleLogIfWatched(room, `no acceptable haulers for task: ${task.type}`);
+        CreepUtils.consoleLogIfWatched(room, `no acceptable haulers for task: ${task.type}`, undefined, LogLevel.DEBUG);
         unassignedTasks.push(task);
       }
     });
@@ -114,18 +121,27 @@ export class TaskManagement {
       haulers[0].room,
       `tasks requested (${tasks.length}): ${tasks
         .map(task => task.type + ":" + String(task.priority) + ":" + String(task.pos.x) + "," + String(task.pos.y))
-        .join(", ")}`
+        .join(", ")}`,
+      undefined,
+      LogLevel.DEBUG
     );
     CreepUtils.consoleLogIfWatched(
       haulers[0].room,
       `tasks to assign (${tasksByPriority.length}): ${tasksByPriority
         .map(task => task.type + ":" + String(task.priority) + ":" + String(task.pos.x) + "," + String(task.pos.y))
-        .join(", ")}`
+        .join(", ")}`,
+      undefined,
+      LogLevel.DEBUG
     );
     const tasksBeingWorked = haulers
       .map(h => `${h.name}:${h.memory.task?.type ?? ""}:${h.memory.task?.priority ?? ""}`)
       .join(", ");
-    CreepUtils.consoleLogIfWatched(haulers[0].room, `tasks assigned: ${tasksBeingWorked}`);
-    CreepUtils.consoleLogIfWatched(haulers[0].room, `${busyHaulers.length}/${freeHaulers.length} busy/free`);
+    CreepUtils.consoleLogIfWatched(haulers[0].room, `tasks assigned: ${tasksBeingWorked}`, undefined, LogLevel.DEBUG);
+    CreepUtils.consoleLogIfWatched(
+      haulers[0].room,
+      `${busyHaulers.length}/${freeHaulers.length} busy/free`,
+      undefined,
+      LogLevel.DEBUG
+    );
   }
 }
