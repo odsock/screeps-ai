@@ -7,36 +7,33 @@ import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class PlannerUtils {
-  public constructor(private readonly room: Room) {}
+  private readonly cacheKey: string;
+
+  public constructor(private readonly room: Room) {
+    this.cacheKey = `PLANNER_${room.name}`;
+  }
 
   public findSiteForPattern(
     pattern: string[],
     nearPosition: RoomPosition,
     ignoreStructures = false // ignore existing structures to avoid blocking self by partially built sites
   ): StructurePlanPosition[] | undefined {
-    console.log(`finding pattern site in ${nearPosition.roomName}`);
+    const patternHash = this.getPatternHash(pattern);
+    console.log(`finding pattern site in ${nearPosition.roomName}: hash: ${patternHash}`);
     const structurePlan = StructurePlan.parseStructurePlan(pattern, this.room);
     const patternWidth = structurePlan.getWidth();
     const patternHeight = structurePlan.getHeight();
     const searchWidth = SockPuppetConstants.ROOM_SIZE - 1 - patternWidth;
     const searchHeight = SockPuppetConstants.ROOM_SIZE - 1 - patternHeight;
-
-    // search whole room
-    let closestSite: { x: number; y: number } | undefined;
-    let shortestRange: number = SockPuppetConstants.MAX_DISTANCE;
-    for (let x = 1; x < searchWidth; x++) {
-      for (let y = 1; y < searchHeight; y++) {
-        const range = nearPosition.getRangeTo(
-          new RoomPosition(x + patternWidth / 2, y + patternHeight / 2, nearPosition.roomName)
-        );
-        if (range >= shortestRange) {
-          continue;
-        } else if (structurePlan.translate(x, y, ignoreStructures)) {
-          shortestRange = range;
-          closestSite = { x, y };
-        }
-      }
-    }
+    const searchPositions = this.generateSearchPositions(patternHash, searchWidth, searchHeight);
+    const closestSite = this.findClosestSiteForStructurePlan(
+      searchPositions,
+      structurePlan,
+      ignoreStructures,
+      nearPosition,
+      patternWidth,
+      patternHeight
+    );
 
     // return best site found
     if (closestSite) {
@@ -48,6 +45,60 @@ export class PlannerUtils {
     return undefined;
   }
 
+  private getPatternHash(pattern: string[]): number {
+    const patternJoined = pattern.join("");
+    let hash = 0;
+    if (patternJoined.length === 0) return hash;
+    for (let i = 0; i < patternJoined.length; i++) {
+      const char = patternJoined.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+  }
+
+  private findClosestSiteForStructurePlan(
+    searchPositions: { x: number; y: number }[],
+    structurePlan: StructurePlan,
+    ignoreStructures: boolean,
+    nearPosition: RoomPosition,
+    patternWidth: number,
+    patternHeight: number
+  ) {
+    return _.min(
+      searchPositions.filter(searchPosition =>
+        structurePlan.translate(searchPosition.x, searchPosition.y, ignoreStructures)
+      ),
+      searchPosition => {
+        return nearPosition.getRangeTo(
+          new RoomPosition(
+            Math.round(searchPosition.x + patternWidth / 2),
+            Math.round(searchPosition.y + patternHeight / 2),
+            nearPosition.roomName
+          )
+        );
+      }
+    );
+  }
+
+  private generateSearchPositions(
+    searchWidth: number,
+    searchHeight: number,
+    patternHash: number
+  ): { x: number; y: number }[] {
+    const searchPositions: { x: number; y: number }[] =
+      MemoryUtils.getCache(`${this.cacheKey}_searchPositions_${patternHash}`) ?? [];
+    if (searchPositions.length !== 0) {
+      return searchPositions;
+    }
+    for (let x = 1; x < searchWidth; x++) {
+      for (let y = 1; y < searchHeight; y++) {
+        searchPositions.push({ x, y });
+      }
+    }
+    return searchPositions;
+  }
+
   public findMidpoint(positions: RoomPosition[]): RoomPosition {
     const pointSum = positions.reduce(
       (midpoint: { x: number; y: number }, pos) => {
@@ -57,7 +108,11 @@ export class PlannerUtils {
       },
       { x: 0, y: 0 }
     );
-    return new RoomPosition(pointSum.x / positions.length, pointSum.y / positions.length, positions[0].roomName);
+    return new RoomPosition(
+      Math.round(pointSum.x / positions.length),
+      Math.round(pointSum.y / positions.length),
+      positions[0].roomName
+    );
   }
 
   /*

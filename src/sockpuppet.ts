@@ -27,7 +27,7 @@ export class Sockpuppet {
     this.runCreeps();
 
     if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
-      if ((Game.cpu.bucket ?? 9999) > 1000) {
+      if ((Game.cpu.bucket ?? 9999) > 2000) {
         new Planner().run();
       } else {
         CreepUtils.log(LogLevel.INFO, `skipping planning due to CPU`);

@@ -39,6 +39,7 @@ export class StructurePlan {
     }
   }
 
+  /** Factory method to create StructurePlan instance from pattern string */
   public static parseStructurePlan(pattern: string[], room: Room): StructurePlan {
     const structurePattern: StructurePatternPosition[] = [];
     for (let i = 0; i < pattern.length; i++) {

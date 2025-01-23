@@ -83,17 +83,6 @@ export class CreepUtils {
     }, 0);
   }
 
-  private static findCentroid = (
-    centroid: { x: number; y: number },
-    pos: RoomPosition,
-    index: number,
-    set: RoomPosition[]
-  ): { x: number; y: number } => {
-    centroid.x += pos.x / set.length;
-    centroid.y += pos.y / set.length;
-    return centroid;
-  };
-
   /**
    * Get list of store contents sorted by amount
    */
