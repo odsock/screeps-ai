@@ -454,9 +454,10 @@ export class RoomWrapper extends Room {
   }
 
   public hasSpawnEnergyBuffer() {
-    return (
+    const hasBuffer =
       this.energyAvailable === this.energyCapacityAvailable &&
-      ((this.storage?.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) >= this.energyCapacityAvailable || !this.storage)
-    );
+      ((this.storage?.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) >= this.energyCapacityAvailable || !this.storage);
+    CreepUtils.consoleLogIfWatched(this, `has spawn buffer: ${hasBuffer}`, undefined, LogLevel.DEBUG);
+    return hasBuffer;
   }
 }
