@@ -452,4 +452,11 @@ export class RoomWrapper extends Room {
             OBSTACLE_OBJECT_TYPES.some(type => type === item.constructionSite?.structureType))
       );
   }
+
+  public hasSpawnEnergyBuffer() {
+    return (
+      (this.energyAvailable === this.energyCapacityAvailable && this.storage?.store.getUsedCapacity(RESOURCE_ENERGY)) ??
+      (0 >= this.energyCapacityAvailable || !this.storage)
+    );
+  }
 }

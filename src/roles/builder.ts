@@ -75,9 +75,11 @@ export class Builder extends CreepWrapper {
           CreepUtils.consoleLogIfWatched(this, `moving to site`);
           this.moveTo(site, { visualizePathStyle: { stroke: "#ffffff" } });
         }
-      } else {
+      } else if (this.roomw.hasSpawnEnergyBuffer()) {
         CreepUtils.consoleLogIfWatched(this, `going to harvest`);
         this.harvestByPriority();
+      } else {
+        CreepUtils.consoleLogIfWatched(this, `waiting for energy storage spawn buffer`);
       }
     }
   }
