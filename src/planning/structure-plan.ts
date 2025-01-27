@@ -12,6 +12,7 @@ export interface StructurePlanPosition {
 }
 
 import { profile } from "../../screeps-typescript-profiler";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 
 @profile
 export class StructurePlan {
@@ -21,6 +22,10 @@ export class StructurePlan {
 
   public constructor(room: Room | RoomWrapper | string) {
     this.roomw = RoomWrapper.getInstance(room);
+    //init the plan matrix
+    for (let i = 0; i < SockPuppetConstants.ROOM_SIZE; i++) {
+      this.plan[i] = [];
+    }
   }
 
   /** Sets pattern for all pattern functions */
@@ -104,13 +109,17 @@ export class StructurePlan {
     const x = pos.x;
     const y = pos.y;
     for (const patternPosition of this.pattern) {
+      const planX = this.plan[patternPosition.xOffset + x];
+      if (!planX) {
+        this.plan[patternPosition.xOffset + x] = [];
+      }
       this.plan[patternPosition.xOffset + x][patternPosition.yOffset + y] = patternPosition.structure;
     }
   }
 
   private checkPosition(pos: RoomPosition, ignoreStructures = false): boolean {
     // don't plan the same position twice
-    if (this.plan[pos.x][pos.y]) {
+    if (this.plan[pos.x] && this.plan[pos.x][pos.y]) {
       return false;
     }
     const lookAtResult = this.roomw.lookAt(pos.x, pos.y);
