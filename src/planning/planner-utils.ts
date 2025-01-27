@@ -4,13 +4,12 @@ import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "./memory-utils";
 
 import { profile } from "../../screeps-typescript-profiler";
-import { RoomWrapper } from "structures/room-wrapper";
 
 @profile
 export class PlannerUtils {
-  private readonly room: RoomWrapper;
-  public constructor(room: Room | string) {
-    this.room = RoomWrapper.getInstance(room);
+  private readonly room: Room;
+  public constructor(room: Room) {
+    this.room = room;
   }
 
   public findSiteForPattern(

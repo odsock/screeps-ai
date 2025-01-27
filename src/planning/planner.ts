@@ -129,7 +129,7 @@ export class Planner {
   }
 
   private addPatternToPlan(roomPlan: StructurePlan, centerPoint: RoomPosition, pattern: string[], cacheKey: string) {
-    const plannerUtils = new PlannerUtils(centerPoint.roomName);
+    const plannerUtils = new PlannerUtils(Game.rooms[centerPoint.roomName]);
     roomPlan.setPattern(pattern);
     const patternPosition = plannerUtils.findSiteForPattern(roomPlan, centerPoint, cacheKey, true);
     if (patternPosition) {
