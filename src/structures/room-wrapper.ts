@@ -20,7 +20,7 @@ export class RoomWrapper extends Room {
    * @param roomArg Name of room, or a Room object
    * @returns Instance of RoomWrapper for the room, from cache if possible.
    */
-  public static getInstance(roomArg: string | Room): RoomWrapper {
+  public static getInstance(roomArg: string | Room | RoomWrapper): RoomWrapper {
     const name = roomArg instanceof Room ? roomArg.name : roomArg;
     const instance = MemoryUtils.getCache<RoomWrapper>(`${name}_RoomWrapper`);
     if (instance) {

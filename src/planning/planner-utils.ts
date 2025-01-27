@@ -4,99 +4,61 @@ import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "./memory-utils";
 
 import { profile } from "../../screeps-typescript-profiler";
+import { RoomWrapper } from "structures/room-wrapper";
 
 @profile
 export class PlannerUtils {
-  private readonly cacheKey: string;
-
-  public constructor(private readonly room: Room) {
-    this.cacheKey = `PLANNER_${room.name}`;
+  private readonly room: RoomWrapper;
+  public constructor(room: Room | string) {
+    this.room = RoomWrapper.getInstance(room);
   }
 
   public findSiteForPattern(
-    pattern: string[],
+    roomPlan: StructurePlan,
     nearPosition: RoomPosition,
-    ignoreStructures = false // ignore existing structures to avoid blocking self by partially built sites
-  ): StructurePlanPosition[] | undefined {
-    const patternHash = this.getPatternHash(pattern);
-    console.log(`finding pattern site in ${nearPosition.roomName}: hash: ${patternHash}`);
-    const structurePlan = StructurePlan.parseStructurePlan(pattern, this.room);
-    const patternWidth = structurePlan.getWidth();
-    const patternHeight = structurePlan.getHeight();
+    cacheKey: string,
+    ignoreStructures: boolean
+  ): RoomPosition | undefined {
+    console.log(`finding pattern site in ${nearPosition.roomName}`);
+    const patternWidth = roomPlan.getPatternWidth();
+    const patternHeight = roomPlan.getPatternHeight();
     const searchWidth = SockPuppetConstants.ROOM_SIZE - 1 - patternWidth;
     const searchHeight = SockPuppetConstants.ROOM_SIZE - 1 - patternHeight;
-    const searchPositions = this.generateSearchPositions(patternHash, searchWidth, searchHeight);
-    const closestSite = this.findClosestSiteForStructurePlan(
-      searchPositions,
-      structurePlan,
-      ignoreStructures,
-      nearPosition,
-      patternWidth,
-      patternHeight
-    );
-
-    // return best site found
-    if (closestSite) {
-      structurePlan.translate(closestSite.x, closestSite.y, ignoreStructures);
-      console.log(`closest site: ${closestSite.x},${closestSite.y}`);
-      return structurePlan.getPlan();
+    const searchStartPos =
+      MemoryUtils.getCachedPosition(`${cacheKey}_searchStartPos`) ?? new RoomPosition(1, 1, nearPosition.roomName);
+    let bestPos = MemoryUtils.getCachedPosition(`${cacheKey}_bestPos`);
+    let minRange = SockPuppetConstants.MAX_DISTANCE;
+    if (bestPos) {
+      minRange = this.getRangeToPatternCenterAtPos(nearPosition, bestPos, patternWidth, patternHeight);
     }
-    console.log(`No site for pattern found.`);
-    return undefined;
+    for (let x = searchStartPos.x; x < searchWidth; x++) {
+      for (let y = searchStartPos.y; y < searchHeight; y++) {
+        const searchPosition = new RoomPosition(x, y, nearPosition.roomName);
+        MemoryUtils.setCachedPosition(`${cacheKey}_searchStartPos`, searchPosition, -1);
+        const range = this.getRangeToPatternCenterAtPos(nearPosition, searchPosition, patternWidth, patternHeight);
+        if (range < minRange && roomPlan.checkPatternAtPos(x, y, ignoreStructures)) {
+          minRange = range;
+          bestPos = searchPosition;
+          MemoryUtils.setCachedPosition(`${cacheKey}_bestPos`, bestPos, -1);
+        }
+      }
+    }
+    return bestPos;
   }
 
-  private getPatternHash(pattern: string[]): number {
-    const patternJoined = pattern.join("");
-    let hash = 0;
-    if (patternJoined.length === 0) return hash;
-    for (let i = 0; i < patternJoined.length; i++) {
-      const char = patternJoined.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash |= 0; // Convert to 32bit integer
-    }
-    return hash;
-  }
-
-  private findClosestSiteForStructurePlan(
-    searchPositions: { x: number; y: number }[],
-    structurePlan: StructurePlan,
-    ignoreStructures: boolean,
+  private getRangeToPatternCenterAtPos(
     nearPosition: RoomPosition,
+    searchPosition: RoomPosition,
     patternWidth: number,
     patternHeight: number
   ) {
-    return _.min(
-      searchPositions.filter(searchPosition =>
-        structurePlan.translate(searchPosition.x, searchPosition.y, ignoreStructures)
-      ),
-      searchPosition => {
-        return nearPosition.getRangeTo(
-          new RoomPosition(
-            Math.round(searchPosition.x + patternWidth / 2),
-            Math.round(searchPosition.y + patternHeight / 2),
-            nearPosition.roomName
-          )
-        );
-      }
+    return nearPosition.getRangeTo(
+      new RoomPosition(
+        Math.round(searchPosition.x + patternWidth / 2),
+        Math.round(searchPosition.y + patternHeight / 2),
+        nearPosition.roomName
+      )
     );
-  }
-
-  private generateSearchPositions(
-    searchWidth: number,
-    searchHeight: number,
-    patternHash: number
-  ): { x: number; y: number }[] {
-    const searchPositions: { x: number; y: number }[] =
-      MemoryUtils.getCache(`${this.cacheKey}_searchPositions_${patternHash}`) ?? [];
-    if (searchPositions.length !== 0) {
-      return searchPositions;
-    }
-    for (let x = 1; x < searchWidth; x++) {
-      for (let y = 1; y < searchHeight; y++) {
-        searchPositions.push({ x, y });
-      }
-    }
-    return searchPositions;
   }
 
   public findMidpoint(positions: RoomPosition[]): RoomPosition {
@@ -190,6 +152,7 @@ export class PlannerUtils {
     return ret;
   }
 
+  /** Place all structures in plan */
   public placeStructurePlan({
     planPositions,
     skipRoads = false
@@ -200,18 +163,17 @@ export class PlannerUtils {
     if (!planPositions) {
       CreepUtils.consoleLogIfWatched(this.room, `failed to place plan`);
       return ERR_NOT_FOUND;
-    } else {
-      for (const planPosition of planPositions) {
-        if (skipRoads && planPosition.structure === STRUCTURE_ROAD) {
-          continue;
-        }
+    }
+    for (const planPosition of planPositions) {
+      if (skipRoads && planPosition.structure === STRUCTURE_ROAD) {
+        continue;
+      }
 
-        if (!this.placed(planPosition) && this.haveRclForStructure(planPosition)) {
-          const result = this.room.createConstructionSite(planPosition.pos, planPosition.structure);
-          CreepUtils.consoleLogIfWatched(this.room, `place construction ${JSON.stringify(planPosition)}`, result);
-          if (result !== OK) {
-            return result;
-          }
+      if (!this.placed(planPosition) && this.haveRclForStructure(planPosition)) {
+        const result = this.room.createConstructionSite(planPosition.pos, planPosition.structure);
+        CreepUtils.consoleLogIfWatched(this.room, `place construction ${JSON.stringify(planPosition)}`, result);
+        if (result !== OK) {
+          return result;
         }
       }
     }
@@ -219,7 +181,8 @@ export class PlannerUtils {
   }
 
   /**
-   * calling lookAt is cheaper than failing when already placed
+   * Look at position for structure or construction site matching plan
+   * Note: calling lookAt is cheaper than failing when already placed
    */
   private placed(planPosition: StructurePlanPosition): boolean {
     const placed = this.room

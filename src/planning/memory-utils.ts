@@ -204,6 +204,19 @@ export class MemoryUtils {
     return value.item as T;
   }
 
+  public static getCachedPosition(key: string): RoomPosition | undefined {
+    const value = this.getCache<string>(key);
+    if (value) {
+      return this.unpackRoomPosition(value);
+    }
+    return undefined;
+  }
+
+  public static setCachedPosition(key: string, item: RoomPosition, ttl = 1): void {
+    const value = this.packRoomPosition(item);
+    this.setCache<string>(key, value, ttl);
+  }
+
   public static hasCache(key: string): boolean {
     return global.cache.has(key);
   }

@@ -4,11 +4,10 @@ import { TargetControl } from "control/target-control";
 import { CreepUtils, LogLevel } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { ControllerPlan } from "./controller-plan";
-import { ExtensionPlan as ExtensionPlanner } from "./extension-plan";
 import { MemoryUtils } from "./memory-utils";
 import { PlannerUtils } from "./planner-utils";
 import { RoadPlan as RoadPlanner } from "./road-plan";
-import { StructurePlanPosition } from "./structure-plan";
+import { StructurePlan, StructurePlanPosition } from "./structure-plan";
 import { SourcePlan } from "./source-plan";
 import { profile } from "../../screeps-typescript-profiler";
 
@@ -38,50 +37,40 @@ export class Planner {
       const IGNORE_ROADS = true;
       if (roomw.controller?.level === 1) {
         this.createColonyPlan(roomw);
-        this.updateColonyStructures(roomw, IGNORE_ROADS);
+        // this.updateColonyStructures(roomw, IGNORE_ROADS);
       } else if (roomw.controller?.level === 2) {
         this.createColonyPlan(roomw);
-        this.updateColonyStructures(roomw, IGNORE_ROADS);
+        // this.updateColonyStructures(roomw, IGNORE_ROADS);
         new SourcePlan(roomw).run();
         new ControllerPlan(roomw).run();
-        this.planRoads(roomw);
+        // this.planRoads(roomw);
       } else if (roomw.controller?.level >= 3) {
         this.createColonyPlan(roomw);
-        this.updateColonyStructures(roomw);
+        // this.updateColonyStructures(roomw);
         new SourcePlan(roomw).run();
         new ControllerPlan(roomw).run();
-        this.planRoads(roomw);
+        // this.planRoads(roomw);
       }
     }
   }
 
   private createColonyPlan(roomw: RoomWrapper): StructurePlanPosition[] {
+    if (!roomw.controller) throw new Error("Planning colony in room without controller");
     const plannerUtils = new PlannerUtils(roomw);
     const cacheKey = `${roomw.name}_plan`;
-    const planRcl = MemoryUtils.getCache<number>(`${cacheKey}_rcl`) ?? 0;
     let plan = MemoryUtils.getCache<StructurePlanPosition[]>(cacheKey);
-    CreepUtils.consoleLogIfWatched(roomw, `planning: cached plan ${cacheKey}: ${!!plan}`);
-    if (roomw.controller && (!plan || planRcl < roomw.controller.level)) {
-      CreepUtils.consoleLogIfWatched(roomw, `no colony plan found, generating plan`);
-      const controllerPos = roomw.controller.pos;
-      const sourcePositions = roomw.sources.map(source => source.pos);
-      const depositPositions = roomw.deposits.map(deposit => deposit.pos);
-      const centerPoint = plannerUtils.findMidpoint([controllerPos, ...sourcePositions, ...depositPositions]);
-      roomw.memory.centerPoint = MemoryUtils.packRoomPosition(centerPoint);
+    if (!plan) {
+      CreepUtils.consoleLogIfWatched(roomw, `planning: no cached plan for ${cacheKey}`);
+      const centerPoint = this.findRoomCenterPoint(roomw);
 
-      // find the best full colony placement
-      plan = plannerUtils.findSiteForPattern(StructurePatterns.FULL_COLONY, centerPoint, true);
-      if (plan) {
-        roomw.memory.colonyType = SockPuppetConstants.COLONY_TYPE_FULL;
-      } else {
-        plan = plannerUtils.findSiteForPattern(StructurePatterns.SPAWN_GROUP, centerPoint, true);
-        if (plan) {
-          roomw.memory.colonyType = SockPuppetConstants.COLONY_TYPE_GROUP;
-          const extensionPlan = this.planAvailableExtensionsByGroup(roomw);
-          if (extensionPlan) {
-            plan.push(...extensionPlan);
-          }
-        }
+      // try full colony first
+      if (!roomw.memory.colonyType || roomw.memory.colonyType === SockPuppetConstants.COLONY_TYPE_FULL) {
+        plan = this.createFullColonyPlan(roomw, centerPoint, cacheKey);
+      }
+
+      // try groups colony next
+      if (!plan || roomw.memory.colonyType === SockPuppetConstants.COLONY_TYPE_GROUP) {
+        plan = this.createGroupColonyPlan(roomw, centerPoint, cacheKey);
       }
     }
 
@@ -91,14 +80,100 @@ export class Planner {
       roomw.visual.clear();
       plannerUtils.drawPlan(plan);
       roomw.planVisual = roomw.visual.export();
-
-      // cache plan forever
-      MemoryUtils.setCache(cacheKey, plan, -1);
-      MemoryUtils.setCache(`${cacheKey}_rcl`, roomw.controller?.level, -1);
       return plan;
     }
     console.log(`DEBUG: no plan for ${roomw.name}`);
     return [];
+  }
+
+  private createGroupColonyPlan(
+    roomw: RoomWrapper,
+    centerPoint: RoomPosition,
+    cacheKey: string
+  ): StructurePlanPosition[] | undefined {
+    const roomPlan = new StructurePlan(roomw);
+    let planOkSoFar = this.addPatternToPlan(
+      roomPlan,
+      centerPoint,
+      StructurePatterns.SPAWN_GROUP,
+      `${cacheKey}_spawnGroupSearch`
+    );
+    if (!planOkSoFar) {
+      return [];
+    }
+
+    const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][SockPuppetConstants.MAX_RCL];
+    for (let i = 0; planOkSoFar && i < maxExtensions; i += 5) {
+      planOkSoFar = this.addPatternToPlan(
+        roomPlan,
+        centerPoint,
+        StructurePatterns.EXTENSION_GROUP,
+        `${cacheKey}_extensionGroupSearch`
+      );
+    }
+    if (planOkSoFar) {
+      planOkSoFar = this.addPatternToPlan(
+        roomPlan,
+        centerPoint,
+        StructurePatterns.LAB_GROUP,
+        `${cacheKey}_labGroupSearch`
+      );
+    }
+
+    if (planOkSoFar) {
+      const plan = roomPlan.getPlan();
+      MemoryUtils.setCache(cacheKey, plan, -1);
+      return plan;
+    }
+    return undefined;
+  }
+
+  private addPatternToPlan(roomPlan: StructurePlan, centerPoint: RoomPosition, pattern: string[], cacheKey: string) {
+    const plannerUtils = new PlannerUtils(centerPoint.roomName);
+    roomPlan.setPattern(pattern);
+    const patternPosition = plannerUtils.findSiteForPattern(roomPlan, centerPoint, cacheKey, true);
+    if (patternPosition) {
+      roomPlan.mergePatternAtPos(patternPosition);
+      return true;
+    }
+    return false;
+  }
+
+  private createFullColonyPlan(
+    roomw: RoomWrapper,
+    centerPoint: RoomPosition,
+    cacheKey: string
+  ): StructurePlanPosition[] | undefined {
+    const plannerUtils = new PlannerUtils(roomw);
+    const fullColonyPlan = new StructurePlan(roomw).setPattern(StructurePatterns.FULL_COLONY);
+    const site = plannerUtils.findSiteForPattern(fullColonyPlan, centerPoint, `${cacheKey}_fullColonySearch`, true);
+    if (site) {
+      roomw.memory.colonyType = SockPuppetConstants.COLONY_TYPE_FULL;
+      fullColonyPlan.mergePatternAtPos(site);
+      const plan = fullColonyPlan.getPlan();
+      MemoryUtils.setCache(cacheKey, plan, -1);
+      return plan;
+    } else {
+      roomw.memory.colonyType = SockPuppetConstants.COLONY_TYPE_GROUP;
+      return undefined;
+    }
+  }
+
+  /** Finds central point of important features in a room. Uses value from room memory if possible. */
+  private findRoomCenterPoint(roomw: RoomWrapper) {
+    if (roomw.memory.centerPoint) {
+      return MemoryUtils.unpackRoomPosition(roomw.memory.centerPoint);
+    }
+    const importantRoomPositions: RoomPosition[] = [];
+    if (roomw.controller) {
+      importantRoomPositions.push(roomw.controller.pos);
+    }
+    importantRoomPositions.push(...roomw.sources.map(source => source.pos));
+    importantRoomPositions.push(...roomw.deposits.map(deposit => deposit.pos));
+    const plannerUtils = new PlannerUtils(roomw);
+    const centerPoint = plannerUtils.findMidpoint(importantRoomPositions);
+    roomw.memory.centerPoint = MemoryUtils.packRoomPosition(centerPoint);
+    return centerPoint;
   }
 
   private updateColonyStructures(roomw: RoomWrapper, skipRoads = false): ScreepsReturnCode {
@@ -162,22 +237,11 @@ export class Planner {
       CreepUtils.log(LogLevel.DEBUG, `controller road plan empty`);
     }
 
-    return [...containerRoadPlan, ...controllerRoadPlan];
-  }
-
-  public planAvailableExtensionsByGroup(roomw: RoomWrapper): StructurePlanPosition[] | undefined {
-    // place available extensions
-    const extensionPlanner = new ExtensionPlanner(roomw);
-    const extensionPlan = extensionPlanner.planExtensionGroup();
-    if (!extensionPlan) {
-      return undefined;
-    }
-
     // place roads to all extensions
     const roadPlanner = new RoadPlanner(roomw);
     const extensionRoadPlan = roadPlanner.placeRoadSpawnToExtensions();
 
-    return [...extensionPlan, ...extensionRoadPlan];
+    return [...containerRoadPlan, ...controllerRoadPlan, ...extensionRoadPlan];
   }
 
   private planTowers(roomw: RoomWrapper): ScreepsReturnCode {
