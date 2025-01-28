@@ -34,6 +34,14 @@ export class StructurePlan {
     return this;
   }
 
+  public setPlanPosition(pos: RoomPosition, structureType: BuildableStructureConstant) {
+    this.plan[pos.x][pos.y] = structureType;
+  }
+
+  public getPlanPosition(pos: RoomPosition): BuildableStructureConstant | undefined {
+    return this.plan[pos.x][pos.y];
+  }
+
   /** Print pattern offset positions and structure types to console */
   public printPattern(): void {
     for (const i of this.pattern) {
@@ -117,9 +125,9 @@ export class StructurePlan {
     }
   }
 
-  private checkPosition(pos: RoomPosition, ignoreStructures = false): boolean {
+  public checkPosition(pos: RoomPosition, ignoreStructures = false): boolean {
     // don't plan the same position twice
-    if (this.plan[pos.x] && this.plan[pos.x][pos.y]) {
+    if (this.plan[pos.x][pos.y]) {
       return false;
     }
     const lookAtResult = this.roomw.lookAt(pos.x, pos.y);
