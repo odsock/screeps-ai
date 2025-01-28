@@ -13,6 +13,8 @@ import { profile } from "../../screeps-typescript-profiler";
 @profile
 export class ReconControl {
   private readonly targetControl: TargetControl;
+  private readonly plannerUtils = PlannerUtils.getInstance();
+
   public constructor() {
     this.targetControl = TargetControl.getInstance();
   }
@@ -135,8 +137,7 @@ export class ReconControl {
   }
 
   private findHarvestPositions(source: Source, room: RoomWrapper) {
-    const plannerUtils = new PlannerUtils(source.room);
-    return plannerUtils
+    return this.plannerUtils
       .getPositionSpiral(source.pos, 1)
       .filter(pos => room.isEnterable(pos))
       .map(pos => MemoryUtils.packRoomPosition(pos));

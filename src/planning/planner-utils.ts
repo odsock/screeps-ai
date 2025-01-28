@@ -2,14 +2,14 @@ import { SockPuppetConstants } from "../config/sockpuppet-constants";
 import { StructurePlan, StructurePlanPosition } from "planning/structure-plan";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "./memory-utils";
-
 import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class PlannerUtils {
-  private readonly room: Room;
-  public constructor(room: Room) {
-    this.room = room;
+  private static instance: PlannerUtils | undefined;
+  public static getInstance() {
+    this.instance = this.instance ?? new PlannerUtils();
+    return this.instance;
   }
 
   public findSiteForPattern(
@@ -110,14 +110,14 @@ export class PlannerUtils {
     return line;
   }
 
-  public findColonyCenter(): RoomPosition {
-    const myStructures: Structure[] = this.room.find(FIND_MY_STRUCTURES, {
+  public findColonyCenter(room: Room): RoomPosition {
+    const myStructures: Structure[] = room.find(FIND_MY_STRUCTURES, {
       filter: s =>
         s.structureType !== STRUCTURE_EXTENSION &&
         s.structureType !== STRUCTURE_SPAWN &&
         s.structureType !== STRUCTURE_CONTROLLER
     });
-    const myRoadsAndContainers: Structure[] = this.room.find(FIND_STRUCTURES, {
+    const myRoadsAndContainers: Structure[] = room.find(FIND_STRUCTURES, {
       filter: s =>
         s.structureType === STRUCTURE_CONTAINER ||
         s.structureType === STRUCTURE_ROAD ||
@@ -133,17 +133,17 @@ export class PlannerUtils {
       y += structure.pos.y;
       count++;
     }
-    const centerPos = new RoomPosition(Math.round(x / count), Math.round(y / count), this.room.name);
+    const centerPos = new RoomPosition(Math.round(x / count), Math.round(y / count), room.name);
     return centerPos;
   }
 
-  public placeTowerAtCenterOfColony(): ScreepsReturnCode {
-    const centerPos = this.findColonyCenter();
+  public placeTowerAtCenterOfColony(room: Room): ScreepsReturnCode {
+    const centerPos = this.findColonyCenter(room);
     const line = this.getPositionSpiral(centerPos, 10);
 
     let ret: ScreepsReturnCode = ERR_NOT_FOUND;
     for (const pos of line) {
-      ret = this.room.createConstructionSite(pos, STRUCTURE_TOWER);
+      ret = room.createConstructionSite(pos, STRUCTURE_TOWER);
       if (ret === OK) {
         break;
       }
@@ -153,24 +153,16 @@ export class PlannerUtils {
 
   /** Place all structures in plan */
   public placeStructurePlan({
-    planPositions,
-    skipRoads = false
+    room,
+    planPositions
   }: {
+    room: Room;
     planPositions: StructurePlanPosition[];
-    skipRoads?: boolean;
   }): ScreepsReturnCode {
-    if (!planPositions) {
-      CreepUtils.consoleLogIfWatched(this.room, `failed to place plan`);
-      return ERR_NOT_FOUND;
-    }
     for (const planPosition of planPositions) {
-      if (skipRoads && planPosition.structure === STRUCTURE_ROAD) {
-        continue;
-      }
-
-      if (!this.placed(planPosition) && this.haveRclForStructure(planPosition)) {
-        const result = this.room.createConstructionSite(planPosition.pos, planPosition.structure);
-        CreepUtils.consoleLogIfWatched(this.room, `place construction ${JSON.stringify(planPosition)}`, result);
+      if (!this.placed(room, planPosition) && this.haveRclForStructure(room, planPosition)) {
+        const result = room.createConstructionSite(planPosition.pos, planPosition.structure);
+        CreepUtils.consoleLogIfWatched(room, `place construction ${JSON.stringify(planPosition)}`, result);
         if (result !== OK) {
           return result;
         }
@@ -183,8 +175,8 @@ export class PlannerUtils {
    * Look at position for structure or construction site matching plan
    * Note: calling lookAt is cheaper than failing when already placed
    */
-  private placed(planPosition: StructurePlanPosition): boolean {
-    const placed = this.room
+  private placed(room: Room, planPosition: StructurePlanPosition): boolean {
+    const placed = room
       .lookAt(planPosition.pos)
       .some(
         item =>
@@ -197,18 +189,18 @@ export class PlannerUtils {
   /**
    *  check RCL yourself before attempting create construction site
    */
-  private haveRclForStructure(planPosition: StructurePlanPosition): boolean {
-    const structureCount = this.room.find(FIND_STRUCTURES, {
+  private haveRclForStructure(room: Room, planPosition: StructurePlanPosition): boolean {
+    const structureCount = room.find(FIND_STRUCTURES, {
       filter: s => s.structureType === planPosition.structure
     }).length;
-    const haveRcl = CONTROLLER_STRUCTURES[planPosition.structure][this.room.controller?.level ?? 0] > structureCount;
+    const haveRcl = CONTROLLER_STRUCTURES[planPosition.structure][room.controller?.level ?? 0] > structureCount;
     return haveRcl;
   }
 
   /**
    * draw circles for incomplete parts of plan
    */
-  public drawPlan(plan: StructurePlanPosition[]): void {
+  public drawPlan(room: Room, plan: StructurePlanPosition[]): void {
     if (plan) {
       plan
         .filter(
@@ -222,7 +214,7 @@ export class PlannerUtils {
               )
         )
         .forEach(planPos => {
-          this.room.visual.circle(planPos.pos);
+          room.visual.circle(planPos.pos);
         });
     }
   }
@@ -300,5 +292,21 @@ export class PlannerUtils {
       };
     }
     return undefined;
+  }
+
+  /** Finds position without terrain walls, sources, deposits, or controller */
+  public findAvailableAdjacentPosition(room: Room, centerPos: RoomPosition): RoomPosition | undefined {
+    const lookResult = room.lookAtArea(centerPos.y - 1, centerPos.x - 1, centerPos.y + 1, centerPos.x + 1);
+    const positions = this.getPositionSpiral(centerPos, 1);
+    return positions.find(
+      pos =>
+        lookResult[pos.x][pos.y].filter(
+          l =>
+            l.type === LOOK_DEPOSITS ||
+            l.type === LOOK_SOURCES ||
+            (l.type === LOOK_TERRAIN && l.terrain === "wall") ||
+            (l.type === LOOK_STRUCTURES && l.structure?.structureType === "controller")
+        ).length === 0
+    );
   }
 }

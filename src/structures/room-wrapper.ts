@@ -13,7 +13,7 @@ import { profile } from "../../screeps-typescript-profiler";
 @profile
 export class RoomWrapper extends Room {
   private targetControl: TargetControl;
-  private readonly plannerUtils = new PlannerUtils(this.room);
+  private readonly plannerUtils = PlannerUtils.getInstance();
 
   /**
    * Manages singleton RoomWrappers for all rooms this tick.

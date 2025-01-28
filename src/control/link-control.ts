@@ -11,6 +11,8 @@ import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class LinkControl {
+  private readonly plannerUtils = PlannerUtils.getInstance();
+
   public run(): void {
     for (const roomName in Game.rooms) {
       const roomw = RoomWrapper.getInstance(roomName);
@@ -49,8 +51,7 @@ export class LinkControl {
     if (linkId) {
       return Game.getObjectById(linkId) ?? undefined;
     } else if (roomw.storage) {
-      const plannerUtils = new PlannerUtils(roomw);
-      const link = plannerUtils.findAdjacentStructure<StructureLink>(roomw.storage.pos, STRUCTURE_LINK);
+      const link = this.plannerUtils.findAdjacentStructure<StructureLink>(roomw.storage.pos, STRUCTURE_LINK);
       if (link) {
         roomw.memory.storage = {
           ...roomw.memory.storage,
