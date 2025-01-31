@@ -57,6 +57,22 @@ export class StructurePatterns {
     N: STRUCTURE_NUKER,
     " ": undefined
   };
+
+  public static readonly COLORS: { [x: string]: string } = {
+    road: "#808080", // Gray, representing basic infrastructure (roads)
+    extension: "#228B22", // Forest green, symbolizing expansion and growth
+    container: "#FFD700", // Gold, representing storage and valuable containment
+    spawn: "#FF4500", // Orange-red, representing energy and creation
+    storage: "#4682B4", // Steel blue, symbolizing security and resource storage
+    lab: "#8A2BE2", // Blue violet, representing science, research, and innovation
+    link: "#D2691E", // Chocolate, symbolizing connections and communication
+    terminal: "#1E90FF", // Dodger blue, representing central processing and connectivity
+    tower: "#DC143C", // Crimson red, signaling defense and power
+    observer: "#32CD32", // Lime green, reflecting surveillance and observation
+    power_spawn: "#FF1493", // Deep pink, symbolizing power generation
+    factory: "#A9A9A9", // Dark gray, indicating industrial production
+    nuker: "#8B0000" // Dark red, evoking the power and danger of a nuclear weapon
+  };
 }
 
 // CONTROLLER_STRUCTURES: {

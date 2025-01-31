@@ -128,6 +128,7 @@ declare global {
       drawRoadPlan: (origin: RoomPosition, goal: RoomPosition, range: number) => void;
       Stats: Stats;
       MemoryUtils: MemoryUtils;
+      printRoomPlan: (roomName: string) => void;
       SpawnUtils: SpawnUtils;
       DEBUG: LogLevel;
       INFO: LogLevel;

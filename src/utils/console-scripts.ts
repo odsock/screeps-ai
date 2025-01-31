@@ -4,6 +4,7 @@ import { RoadPlan } from "planning/road-plan";
 import { CostMatrixUtils } from "./cost-matrix-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
+import { StructurePlanPosition } from "planning/structure-plan";
 
 global.spotCreeps = (...creeps: Creep[]) => {
   creeps.forEach(c => (c.memory.draw = true));
@@ -62,6 +63,16 @@ global.drawRoadPlan = (origin: RoomPosition, goal: RoomPosition, range: number):
 
 global.getRoomWrapper = (roomName: string): RoomWrapper => {
   return RoomWrapper.getInstance(roomName);
+};
+
+global.printRoomPlan = (roomName: string): void => {
+  const plan = MemoryUtils.getCache<StructurePlanPosition[]>(`${roomName}_plan`);
+  let planPrint = `Room Plan: ${roomName}`;
+  plan?.forEach(planPos => {
+    const pos = MemoryUtils.packRoomPosition(planPos.pos);
+    planPrint = planPrint.concat(`\n${pos}: ${planPos.structure}`);
+  });
+  console.log(planPrint);
 };
 
 global.MemoryUtils = MemoryUtils;
