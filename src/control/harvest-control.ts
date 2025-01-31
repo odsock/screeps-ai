@@ -5,15 +5,14 @@ import { Hauler } from "roles/hauler";
 import { RoomWrapper } from "structures/room-wrapper";
 import { SpawnUtils } from "./spawn-utils";
 import { TargetControl } from "./target-control";
-
 import { profile } from "../../screeps-typescript-profiler";
+import { PlannerUtils } from "planning/planner-utils";
+import { MemoryUtils } from "planning/memory-utils";
 
 @profile
 export class HarvestControl {
-  private readonly targetControl: TargetControl;
-  public constructor() {
-    this.targetControl = TargetControl.getInstance();
-  }
+  private readonly targetControl = TargetControl.getInstance();
+  private readonly plannerUtils = PlannerUtils.getInstance();
 
   public run(): void {
     for (const roomName in Game.rooms) {
@@ -23,6 +22,8 @@ export class HarvestControl {
         this.requestSpawns(roomw);
         // TODO this won't scale for two claimed rooms, need to have home mapped for target config
         this.requestRemoteHarvesters(roomw);
+        this.checkControllerMemory(roomw);
+        this.checkSourceMemory(roomw);
       }
     }
   }
@@ -191,5 +192,78 @@ export class HarvestControl {
         }
       });
     return spawning;
+  }
+
+  private checkControllerMemory(roomw: RoomWrapper): void {
+    const controller = roomw.controller;
+    if (!controller || !roomw.memory.controller) {
+      return;
+    }
+    let containerInfo = roomw.memory.controller.container;
+    let containerPos = undefined;
+    if (containerInfo && this.plannerUtils.validateStructureInfo(containerInfo) === OK) {
+      containerPos = MemoryUtils.unpackRoomPosition(containerInfo.pos);
+    } else {
+      containerInfo = undefined;
+      const findResult = this.plannerUtils.findAdjacentStructure<StructureContainer>(
+        controller.pos,
+        STRUCTURE_CONTAINER
+      );
+      if (findResult) {
+        containerPos = findResult.pos;
+        containerInfo = {
+          id: findResult.id,
+          pos: MemoryUtils.packRoomPosition(findResult.pos),
+          type: STRUCTURE_CONTAINER
+        };
+        roomw.memory.controller.container = containerInfo;
+      }
+    }
+
+    const linkInfo = roomw.memory.controller.link;
+    if ((!linkInfo || this.plannerUtils.validateStructureInfo(linkInfo) !== OK) && containerPos) {
+      const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+      if (findResult) {
+        roomw.memory.controller.link = {
+          id: findResult.id,
+          pos: MemoryUtils.packRoomPosition(findResult.pos),
+          type: STRUCTURE_LINK
+        };
+      }
+    }
+  }
+
+  private checkSourceMemory(roomw: RoomWrapper): void {
+    for (const source of roomw.sources) {
+      let containerInfo = roomw.memory.sources[source.id].container;
+      let containerPos = undefined;
+      if (containerInfo && this.plannerUtils.validateStructureInfo(containerInfo) === OK) {
+        containerPos = MemoryUtils.unpackRoomPosition(containerInfo.pos);
+      } else {
+        containerInfo = undefined;
+        const findResult = this.plannerUtils.findAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
+        if (findResult) {
+          containerPos = findResult.pos;
+          containerInfo = {
+            id: findResult.id,
+            pos: MemoryUtils.packRoomPosition(findResult.pos),
+            type: STRUCTURE_CONTAINER
+          };
+          roomw.memory.sources[source.id].container = containerInfo;
+        }
+      }
+
+      const linkInfo = roomw.memory.sources[source.id].link;
+      if ((!linkInfo || this.plannerUtils.validateStructureInfo(linkInfo) !== OK) && containerPos) {
+        const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+        if (findResult) {
+          roomw.memory.sources[source.id].link = {
+            id: findResult.id,
+            pos: MemoryUtils.packRoomPosition(findResult.pos),
+            type: STRUCTURE_LINK
+          };
+        }
+      }
+    }
   }
 }
