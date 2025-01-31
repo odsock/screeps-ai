@@ -97,14 +97,14 @@ export class StructurePlan {
   }
 
   /** Check structure pattern against room and plan at position */
-  public checkPatternAtPos(x: number, y: number, ignoreStructures = false): boolean {
+  public checkPatternAtPos(x: number, y: number): boolean {
     for (const patternPosition of this.pattern) {
       // use room.getPositionAt() because position may be out of range, and it returns null instead of throwing
       const newPos = this.roomw.getPositionAt(patternPosition.xOffset + x, patternPosition.yOffset + y);
       if (!newPos) {
         return false;
       }
-      const positionOk = this.checkPosition(newPos, ignoreStructures);
+      const positionOk = this.checkPosition(newPos, patternPosition.structure);
       if (!positionOk) {
         return false;
       }
@@ -117,17 +117,17 @@ export class StructurePlan {
     const x = pos.x;
     const y = pos.y;
     for (const patternPosition of this.pattern) {
-      const planX = this.plan[patternPosition.xOffset + x];
-      if (!planX) {
-        this.plan[patternPosition.xOffset + x] = [];
-      }
       this.plan[patternPosition.xOffset + x][patternPosition.yOffset + y] = patternPosition.structure;
     }
   }
 
-  public checkPosition(pos: RoomPosition, ignoreStructures = false): boolean {
-    // don't plan the same position twice
+  /** Look at room position to predict valid construction site */
+  public checkPosition(pos: RoomPosition, structureType: BuildableStructureConstant): boolean {
+    // don't plan the same position twice, but allow road overlap
     if (this.plan[pos.x][pos.y]) {
+      if (this.plan[pos.x][pos.y] === STRUCTURE_ROAD && structureType === STRUCTURE_ROAD) {
+        return true;
+      }
       return false;
     }
     const lookAtResult = this.roomw.lookAt(pos.x, pos.y);
@@ -137,19 +137,6 @@ export class StructurePlan {
     }
     if (lookAtResult.some(o => o.type === LOOK_TERRAIN && o.terrain === "wall")) {
       return false;
-    }
-
-    // can be blocked by non-road structure or construction site
-    if (!ignoreStructures) {
-      if (
-        lookAtResult.some(
-          o =>
-            (o.type === LOOK_STRUCTURES && o.structure?.structureType !== STRUCTURE_ROAD) ||
-            (o.type === LOOK_CONSTRUCTION_SITES && o.constructionSite?.structureType !== STRUCTURE_ROAD)
-        )
-      ) {
-        return false;
-      }
     }
     return true;
   }

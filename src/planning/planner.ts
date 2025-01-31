@@ -31,7 +31,7 @@ export class Planner {
       }
 
       if (plan) {
-        this.updateColonyStructures(roomw, plan);
+        // this.updateColonyStructures(roomw, plan);
         this.drawPlan(roomw, plan);
       }
     });
@@ -70,7 +70,13 @@ export class Planner {
     }
     CreepUtils.consoleLogIfWatched(roomw, `planning: no cached plan for colony ${roomw.name}`);
 
-    const structurePlan = this.planContainersAndLinks(roomw);
+    // add first spawn to plan if it exists to handle first room
+    const initialPlan = new StructurePlan(roomw);
+    if (roomw.spawns[0].pos) {
+      initialPlan.setPlanPosition(roomw.spawns[0].pos, STRUCTURE_SPAWN);
+    }
+
+    const structurePlan = this.planContainersAndLinks(roomw, initialPlan);
     if (!structurePlan) {
       return [];
     }
@@ -118,13 +124,15 @@ export class Planner {
       StructurePatterns.SPAWN_GROUP,
       `${cacheKey}_spawnGroupSearch`
     );
+
     const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][SockPuppetConstants.MAX_RCL];
+    const extensionCenterPoint = roomw.spawns[0]?.pos ? roomw.spawns[0].pos : centerPoint;
     for (let i = 0; planOk && i < maxExtensions; i += 5) {
       planOk = this.addPatternToPlan(
         plan,
-        centerPoint,
+        extensionCenterPoint,
         StructurePatterns.EXTENSION_GROUP,
-        `${cacheKey}_extensionGroupSearch`
+        `${cacheKey}_extensionGroupSearch_${i}`
       );
     }
     if (planOk) {
@@ -135,7 +143,7 @@ export class Planner {
 
   private addPatternToPlan(roomPlan: StructurePlan, centerPoint: RoomPosition, pattern: string[], cacheKey: string) {
     roomPlan.setPattern(pattern);
-    const patternPosition = this.plannerUtils.findSiteForPattern(roomPlan, centerPoint, cacheKey, true);
+    const patternPosition = this.plannerUtils.findSiteForPattern(roomPlan, centerPoint, cacheKey);
     if (patternPosition) {
       roomPlan.mergePatternAtPos(patternPosition);
       return true;
@@ -150,12 +158,7 @@ export class Planner {
     cacheKey: string
   ): StructurePlanPosition[] | undefined {
     const fullColonyPlan = new StructurePlan(roomw).setPattern(StructurePatterns.FULL_COLONY);
-    const site = this.plannerUtils.findSiteForPattern(
-      fullColonyPlan,
-      centerPoint,
-      `${cacheKey}_fullColonySearch`,
-      true
-    );
+    const site = this.plannerUtils.findSiteForPattern(fullColonyPlan, centerPoint, `${cacheKey}_fullColonySearch`);
     if (site) {
       roomw.memory.colonyType = SockPuppetConstants.COLONY_TYPE_FULL;
       fullColonyPlan.mergePatternAtPos(site);
@@ -252,34 +255,148 @@ export class Planner {
     return OK;
   }
 
-  private planContainersAndLinks(roomw: RoomWrapper): StructurePlan | undefined {
-    const plan = new StructurePlan(roomw);
+  private planContainersAndLinks(
+    roomw: RoomWrapper,
+    plan: StructurePlan = new StructurePlan(roomw)
+  ): StructurePlan | undefined {
     for (const source of roomw.sources) {
-      if (!this.planContainerAndLinkAtPosition(roomw, plan, source.pos)) {
-        return undefined;
+      let sourceContainerPosition = this.findExistingSourceContainer(roomw, source);
+      if (!sourceContainerPosition) {
+        sourceContainerPosition = this.planContainerPosition(roomw, plan, source.pos);
+      }
+      if (sourceContainerPosition) {
+        plan.setPlanPosition(sourceContainerPosition, STRUCTURE_CONTAINER);
+        let sourceLinkPosition = this.findExistingSourceLink(roomw, source, sourceContainerPosition);
+        if (!sourceLinkPosition) {
+          sourceLinkPosition = this.planLinkPosition(roomw, plan, sourceContainerPosition);
+        }
+        if (sourceLinkPosition) {
+          plan.setPlanPosition(sourceLinkPosition, STRUCTURE_LINK);
+        }
       }
     }
+
     if (roomw.controller) {
-      if (!this.planContainerAndLinkAtPosition(roomw, plan, roomw.controller.pos)) {
-        return undefined;
+      let controllerContainerPosition = this.findExistingControllerContainer(roomw.controller);
+      if (!controllerContainerPosition) {
+        controllerContainerPosition = this.planContainerPosition(roomw, plan, roomw.controller.pos);
+      }
+      if (controllerContainerPosition) {
+        plan.setPlanPosition(controllerContainerPosition, STRUCTURE_CONTAINER);
+        let controllerLinkPosition = this.findExistingControllerLink(roomw.controller, controllerContainerPosition);
+        if (!controllerLinkPosition) {
+          controllerLinkPosition = this.planLinkPosition(roomw, plan, controllerContainerPosition);
+        }
+        if (controllerLinkPosition) {
+          plan.setPlanPosition(controllerLinkPosition, STRUCTURE_LINK);
+        }
       }
     }
+
     return plan;
   }
 
-  private planContainerAndLinkAtPosition(roomw: RoomWrapper, plan: StructurePlan, position: RoomPosition): boolean {
-    const availableContainerPosition = this.plannerUtils.findAvailableAdjacentPosition(roomw, position);
-    if (availableContainerPosition) {
-      plan.setPlanPosition(availableContainerPosition, STRUCTURE_CONTAINER);
-      const availableLinkPosition = this.plannerUtils.findAvailableAdjacentPosition(roomw, availableContainerPosition);
-      if (availableLinkPosition) {
-        plan.setPlanPosition(availableLinkPosition, STRUCTURE_LINK);
-      } else {
-        return false;
-      }
-    } else {
-      return false;
+  private planContainerPosition(
+    roomw: RoomWrapper,
+    plan: StructurePlan,
+    position: RoomPosition
+  ): RoomPosition | undefined {
+    const AVOID_BOTTLENECK = true;
+    const availableContainerPosition = this.plannerUtils.findAvailableAdjacentPosition(
+      roomw,
+      position,
+      AVOID_BOTTLENECK
+    );
+    return availableContainerPosition;
+  }
+
+  private planLinkPosition(roomw: RoomWrapper, plan: StructurePlan, position: RoomPosition): RoomPosition | undefined {
+    const AVOID_BOTTLENECK = true;
+    const availableLinkPosition = this.plannerUtils.findAvailableAdjacentPosition(roomw, position, AVOID_BOTTLENECK);
+    return availableLinkPosition;
+  }
+
+  private findExistingSourceContainer(roomw: RoomWrapper, source: Source): RoomPosition | undefined {
+    const info = roomw.memory.sources[source.id].container;
+    if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
+      return MemoryUtils.unpackRoomPosition(info.pos);
     }
-    return true;
+    const findResult = this.plannerUtils.findAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
+    if (findResult) {
+      roomw.memory.sources[source.id].container = {
+        id: findResult.id,
+        pos: MemoryUtils.packRoomPosition(findResult.pos),
+        type: STRUCTURE_CONTAINER
+      };
+      return findResult.pos;
+    }
+    return undefined;
+  }
+
+  private findExistingSourceLink(
+    roomw: RoomWrapper,
+    source: Source,
+    containerPos: RoomPosition
+  ): RoomPosition | undefined {
+    const info = roomw.memory.sources[source.id].link;
+    if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
+      return MemoryUtils.unpackRoomPosition(info.pos);
+    }
+    const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+    if (findResult) {
+      roomw.memory.sources[source.id].link = {
+        id: findResult.id,
+        pos: MemoryUtils.packRoomPosition(findResult.pos),
+        type: STRUCTURE_LINK
+      };
+      return findResult.pos;
+    }
+    return undefined;
+  }
+
+  private findExistingControllerContainer(controller: StructureController): RoomPosition | undefined {
+    const roomName = controller.room.name;
+    const info = Memory.rooms[roomName].controller?.container;
+    if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
+      return MemoryUtils.unpackRoomPosition(info.pos);
+    }
+    if (Memory.rooms[roomName].controller) {
+      const findResult = this.plannerUtils.findAdjacentStructure<StructureContainer>(
+        controller.pos,
+        STRUCTURE_CONTAINER
+      );
+      if (findResult) {
+        Memory.rooms[roomName].controller.container = {
+          id: findResult.id,
+          pos: MemoryUtils.packRoomPosition(findResult.pos),
+          type: STRUCTURE_CONTAINER
+        };
+        return findResult.pos;
+      }
+    }
+    return undefined;
+  }
+
+  private findExistingControllerLink(
+    controller: StructureController,
+    containerPos: RoomPosition
+  ): RoomPosition | undefined {
+    if (!controller.room.memory.controller) {
+      return undefined;
+    }
+    const info = controller.room.memory.controller?.link;
+    if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
+      return MemoryUtils.unpackRoomPosition(info.pos);
+    }
+    const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+    if (findResult && controller.room.memory.controller) {
+      controller.room.memory.controller.link = {
+        id: findResult.id,
+        pos: MemoryUtils.packRoomPosition(findResult.pos),
+        type: STRUCTURE_LINK
+      };
+      return findResult.pos;
+    }
+    return undefined;
   }
 }

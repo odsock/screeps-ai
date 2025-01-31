@@ -3,6 +3,8 @@ import { StructurePlan, StructurePlanPosition } from "planning/structure-plan";
 import { CreepUtils } from "creep-utils";
 import { MemoryUtils } from "./memory-utils";
 import { profile } from "../../screeps-typescript-profiler";
+import { StructurePatterns } from "config/structure-patterns";
+import { RoomWrapper } from "structures/room-wrapper";
 
 @profile
 export class PlannerUtils {
@@ -15,8 +17,7 @@ export class PlannerUtils {
   public findSiteForPattern(
     roomPlan: StructurePlan,
     nearPosition: RoomPosition,
-    cacheKey: string,
-    ignoreStructures: boolean
+    cacheKey: string
   ): RoomPosition | undefined {
     console.log(`finding pattern site in ${nearPosition.roomName}`);
     const patternWidth = roomPlan.getPatternWidth();
@@ -35,7 +36,7 @@ export class PlannerUtils {
         const searchPosition = new RoomPosition(x, y, nearPosition.roomName);
         MemoryUtils.setCachedPosition(`${cacheKey}_searchStartPos`, searchPosition, -1);
         const range = this.getRangeToPatternCenterAtPos(nearPosition, searchPosition, patternWidth, patternHeight);
-        if (range < minRange && roomPlan.checkPatternAtPos(x, y, ignoreStructures)) {
+        if (range < minRange && roomPlan.checkPatternAtPos(x, y)) {
           minRange = range;
           bestPos = searchPosition;
           MemoryUtils.setCachedPosition(`${cacheKey}_bestPos`, bestPos, -1);
@@ -198,27 +199,33 @@ export class PlannerUtils {
   }
 
   /**
-   * draw circles for incomplete parts of plan
+   * draw circles for plan positions
    */
   public drawPlan(room: Room, plan: StructurePlanPosition[]): void {
     if (plan) {
-      plan
-        .filter(
-          planPos =>
-            !planPos.pos
-              .look()
-              .some(
-                item =>
-                  item.structure?.structureType === planPos.structure ||
-                  item.constructionSite?.structureType === planPos.structure
-              )
-        )
-        .forEach(planPos => {
-          room.visual.circle(planPos.pos);
-        });
+      plan.forEach(planPos => {
+        const color = StructurePatterns.COLORS[planPos.structure];
+        if (
+          planPos.pos.look().some(item => {
+            if (item.structure?.structureType === STRUCTURE_CONTAINER) {
+              console.log(`item: ${planPos.pos} ${item.structure.structureType} === ${planPos.structure}`);
+            }
+            return (
+              item.structure?.structureType === planPos.structure ||
+              item.constructionSite?.structureType === planPos.structure
+            );
+          })
+        ) {
+          room.visual.circle(planPos.pos, { fill: color, opacity: 0.8, radius: 0.2 });
+        } else {
+          room.visual.circle(planPos.pos, { fill: color, opacity: 0.8, radius: 0.5 });
+        }
+      });
     }
   }
 
+  /** Validates memory of structure information */
+  // TODO call this somewhere
   public validateStructureInfo<T extends Structure>(info: StructureInfo<T>): ScreepsReturnCode {
     // check for valid container id
     if (info.id && Game.getObjectById(info.id)) {
@@ -295,12 +302,16 @@ export class PlannerUtils {
   }
 
   /** Finds position without terrain walls, sources, deposits, or controller */
-  public findAvailableAdjacentPosition(room: Room, centerPos: RoomPosition): RoomPosition | undefined {
-    const lookResult = room.lookAtArea(centerPos.y - 1, centerPos.x - 1, centerPos.y + 1, centerPos.x + 1);
-    const positions = this.getPositionSpiral(centerPos, 1);
-    return positions.find(
+  public findAvailableAdjacentPosition(
+    roomw: RoomWrapper,
+    centerPos: RoomPosition,
+    avoidBottleneck = true
+  ): RoomPosition | undefined {
+    const lookResult = roomw.lookAtArea(centerPos.y - 1, centerPos.x - 1, centerPos.y + 1, centerPos.x + 1);
+    const positions = this.getPositionSpiral(centerPos, 1).filter(
       pos =>
-        lookResult[pos.x][pos.y].filter(
+        !pos.isEqualTo(centerPos) &&
+        lookResult[pos.y][pos.x].filter(
           l =>
             l.type === LOOK_DEPOSITS ||
             l.type === LOOK_SOURCES ||
@@ -308,5 +319,86 @@ export class PlannerUtils {
             (l.type === LOOK_STRUCTURES && l.structure?.structureType === "controller")
         ).length === 0
     );
+    if (avoidBottleneck) {
+      // add 1 point adjustment for closer position
+      const closestToFirstSpawn = roomw.spawns[0].pos.findClosestByPath(positions);
+      return _.max(
+        positions,
+        pos =>
+          this.evaluateBottleneck(roomw, pos) + (!!closestToFirstSpawn && pos.isEqualTo(closestToFirstSpawn) ? 1 : 0)
+      );
+    }
+    return positions[0];
+  }
+
+  /** Calculates narrowest gap between walls around position */
+  public evaluateBottleneck(room: Room, pos: RoomPosition): number {
+    const terrain = room.getTerrain();
+    let minGap = 9999;
+    // east west
+    let gap = this.getGapSize(terrain, pos, 1, 0);
+    if (gap < minGap) {
+      minGap = gap;
+    }
+    // north south
+    gap = this.getGapSize(terrain, pos, 0, 1);
+    if (gap < minGap) {
+      minGap = gap;
+    }
+    // southwest northeast
+    gap = this.getGapSize(terrain, pos, 1, 1);
+    if (gap < minGap) {
+      minGap = gap;
+    }
+    // northwest southeast
+    gap = this.getGapSize(terrain, pos, 1, -1);
+    if (gap < minGap) {
+      minGap = gap;
+    }
+    CreepUtils.consoleLogIfWatched(room, `bottleneck size for ${pos}: ${minGap}`);
+    return minGap;
+  }
+
+  /** Calculate gap size on one axis from position */
+  private getGapSize(terrain: RoomTerrain, pos: RoomPosition, xDirection: number, yDirection: number): number {
+    const SEARCH_DISTANCE = 5;
+    let gap = 1;
+    let leftWallFlag = false;
+    let rightWallFlag = false;
+    for (let i = 1; i < SEARCH_DISTANCE; i++) {
+      const xLeft = pos.x - i * xDirection;
+      const yDown = pos.y - i * yDirection;
+      const ROOM_SIZE = SockPuppetConstants.ROOM_SIZE;
+      if (
+        !leftWallFlag &&
+        xLeft < ROOM_SIZE &&
+        xLeft > 0 &&
+        yDown < ROOM_SIZE &&
+        yDown > 0 &&
+        terrain.get(xLeft, yDown) !== TERRAIN_MASK_WALL
+      ) {
+        gap += 1;
+      } else {
+        leftWallFlag = true;
+      }
+      const xRight = pos.x + i * xDirection;
+      const yUp = pos.y + i * yDirection;
+      if (
+        !rightWallFlag &&
+        xRight < ROOM_SIZE &&
+        xRight > 0 &&
+        yUp < ROOM_SIZE &&
+        yUp > 0 &&
+        terrain.get(xRight, yUp) !== TERRAIN_MASK_WALL
+      ) {
+        gap += 1;
+      } else {
+        rightWallFlag = true;
+      }
+      if (leftWallFlag && rightWallFlag) {
+        break;
+      }
+    }
+    return gap < SEARCH_DISTANCE ? gap : SEARCH_DISTANCE;
   }
 }
