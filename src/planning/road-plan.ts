@@ -76,16 +76,21 @@ export class RoadPlan {
       filter: s => s.structureType === STRUCTURE_EXTENSION
     });
     const spawns = this.room.find(FIND_MY_SPAWNS);
+    const plan = [];
     for (const spawn of spawns) {
       for (const extension of extensions) {
         const path = this.planRoad(spawn.pos, extension.pos, 1);
         if (!path.incomplete) {
-          return path.path.map(pos => {
-            return { pos, structure: STRUCTURE_ROAD };
-          });
+          plan.push(
+            ...path.path.map(pos => {
+              return { pos, structure: STRUCTURE_ROAD };
+            })
+          );
+        } else {
+          return [];
         }
       }
     }
-    return [];
+    return plan;
   }
 }
