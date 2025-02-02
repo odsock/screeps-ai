@@ -9,7 +9,7 @@ import { RoomWrapper } from "structures/room-wrapper";
 @profile
 export class PlannerUtils {
   private static instance: PlannerUtils | undefined;
-  public static getInstance() {
+  public static getInstance(): PlannerUtils {
     this.instance = this.instance ?? new PlannerUtils();
     return this.instance;
   }
@@ -62,7 +62,7 @@ export class PlannerUtils {
     searchPosition: RoomPosition,
     patternWidth: number,
     patternHeight: number
-  ) {
+  ): number {
     return nearPosition.getRangeTo(
       new RoomPosition(
         Math.round(searchPosition.x + patternWidth / 2),
