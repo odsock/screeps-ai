@@ -11,168 +11,160 @@ import { profile } from "../../screeps-typescript-profiler";
 
 @profile
 export class Planner {
-  private readonly targetControl: TargetControl;
+  private readonly targetControl = TargetControl.getInstance();
   private readonly plannerUtils = PlannerUtils.getInstance();
-  public constructor() {
-    this.targetControl = TargetControl.getInstance();
+
+  private structurePlan: StructurePlan;
+  private planPositions: StructurePlanPosition[] = [];
+  private readonly cacheKey: string;
+  private sourceContainerPositions: RoomPosition[] = [];
+  private controllerContainerPosition: RoomPosition | undefined;
+
+  public constructor(private readonly roomw: RoomWrapper) {
+    this.cacheKey = `${this.roomw.name}_plan`;
+    this.structurePlan = new StructurePlan(roomw);
   }
 
   public run(): void {
-    // plan each room we can see
-    _.forEach(Game.rooms, room => {
-      const roomw = RoomWrapper.getInstance(room.name);
-      console.log(`${roomw.name}: running planning`);
-
-      let plan: StructurePlanPosition[] | undefined;
-      if (this.targetControl.remoteHarvestRooms.includes(room.name)) {
-        plan = this.planRemoteHarvestRoom(roomw);
-      } else if (roomw.controller?.my) {
-        plan = this.planColony(roomw);
+    this.planPositions = this.getCachedPlan();
+    if (this.planPositions.length === 0) {
+      if (this.targetControl.remoteHarvestRooms.includes(this.roomw.name)) {
+        if (
+          this.planSourceContainersAndLinks() &&
+          this.planControllerContainerAndLink() &&
+          this.planRoads()
+        ) {
+          this.planPositions = this.structurePlan.getPlan();
+        }
+      } else if (this.roomw.controller?.my && this.planColony() && this.planRoads()) {
+        this.planPositions = this.structurePlan.getPlan();
       }
+    }
 
-      if (plan) {
-        // this.updateColonyStructures(roomw, plan);
-        this.drawPlan(roomw, plan);
-      }
-    });
+    if (this.planPositions.length > 0) {
+      this.setCachedPlan();
+      // this.updateColonyStructures(roomw, plan);
+      this.drawPlan(this.planPositions);
+    }
   }
 
-  private drawPlan(roomw: RoomWrapper, plan: StructurePlanPosition[]) {
-    roomw.visual.clear();
-    this.plannerUtils.drawPlan(roomw, plan);
-    roomw.planVisual = roomw.visual.export();
+  private setCachedPlan(): void {
+    CreepUtils.consoleLogIfWatched(this.roomw, `planning: caching plan for ${this.roomw.name}`);
+    MemoryUtils.setCache(this.cacheKey, this.planPositions, -1);
   }
 
-  private planRemoteHarvestRoom(roomw: RoomWrapper): StructurePlanPosition[] {
-    const cacheKey = `${roomw.name}_plan`;
-    const cachedPlan = MemoryUtils.getCache<StructurePlanPosition[]>(cacheKey);
+  private getCachedPlan(): StructurePlanPosition[] {
+    const cachedPlan = MemoryUtils.getCache<StructurePlanPosition[]>(this.cacheKey);
     if (cachedPlan) {
+      CreepUtils.consoleLogIfWatched(
+        this.roomw,
+        `planning: found cached plan for ${this.roomw.name}`
+      );
       return cachedPlan;
     }
-    CreepUtils.consoleLogIfWatched(roomw, `planning: no cached plan for remote ${roomw.name}`);
-
-    let plan: StructurePlanPosition[] = [];
-    const sourcePlan = this.planContainersAndLinks(roomw);
-    if (sourcePlan) {
-      plan = sourcePlan.getPlan();
-    }
-    MemoryUtils.setCache(cacheKey, plan, -1);
-    return plan;
+    CreepUtils.consoleLogIfWatched(this.roomw, `planning: no cached plan for ${this.roomw.name}`);
+    return [];
   }
 
-  private planColony(roomw: RoomWrapper): StructurePlanPosition[] {
-    if (!roomw.controller) throw new Error(`Planning colony in room without controller: ${roomw.name}`);
+  private drawPlan(plan: StructurePlanPosition[]): void {
+    this.roomw.visual.clear();
+    this.plannerUtils.drawPlan(this.roomw, plan);
+    this.roomw.planVisual = this.roomw.visual.export();
+  }
 
-    const cacheKey = `${roomw.name}_plan`;
-    const cachedPlan = MemoryUtils.getCache<StructurePlanPosition[]>(cacheKey);
-    if (cachedPlan) {
-      return cachedPlan;
-    }
-    CreepUtils.consoleLogIfWatched(roomw, `planning: no cached plan for colony ${roomw.name}`);
-
+  private planColony(): boolean {
+    if (!this.roomw.controller)
+      throw new Error(`Planning colony in room without controller: ${this.roomw.name}`);
     // add first spawn to plan if it exists to handle first room
-    const initialPlan = new StructurePlan(roomw);
-    if (roomw.spawns[0].pos) {
-      initialPlan.setPlanPosition(roomw.spawns[0].pos, STRUCTURE_SPAWN);
+    if (this.roomw.spawns[0].pos) {
+      this.structurePlan.setPlanPosition(this.roomw.spawns[0].pos, STRUCTURE_SPAWN);
     }
 
-    const structurePlan = this.planContainersAndLinks(roomw, initialPlan);
-    if (!structurePlan) {
-      return [];
-    }
-    if (!this.createColonyPlan(roomw, structurePlan, cacheKey)) {
-      return [];
+    let placedColony = false;
+    placedColony = this.planSourceContainersAndLinks() && this.planControllerContainerAndLink();
+    if (!placedColony) {
+      return false;
     }
 
-    const planPositions = structurePlan.getPlan();
-    MemoryUtils.setCache(cacheKey, planPositions, -1);
-    console.log(`DEBUG: have a plan for ${roomw.name}`);
-    return planPositions;
-  }
-
-  private createColonyPlan(roomw: RoomWrapper, plan: StructurePlan, cacheKey: string): boolean {
-    if (!roomw.controller) throw new Error("Planning colony in room without controller");
-
-    const centerPoint = this.findRoomCenterPoint(roomw);
+    const centerPoint = this.findRoomCenterPoint(this.roomw);
 
     // try full colony first
-    if (!roomw.memory.colonyType || roomw.memory.colonyType === SockPuppetConstants.COLONY_TYPE_FULL) {
-      if (this.createFullColonyPlan(roomw, plan, centerPoint, cacheKey)) {
-        return true;
-      }
+    if (
+      !this.roomw.memory.colonyType ||
+      this.roomw.memory.colonyType === SockPuppetConstants.COLONY_TYPE_FULL
+    ) {
+      placedColony = this.createFullColonyPlan(centerPoint);
     }
 
     // try groups colony next
-    if (roomw.memory.colonyType === SockPuppetConstants.COLONY_TYPE_GROUP) {
-      if (this.createGroupColonyPlan(roomw, plan, centerPoint, cacheKey)) {
-        return true;
-      }
+    if (!placedColony && this.roomw.memory.colonyType === SockPuppetConstants.COLONY_TYPE_GROUP) {
+      placedColony = this.createGroupColonyPlan(centerPoint);
     }
-
-    return false;
+    return placedColony;
   }
 
-  private createGroupColonyPlan(
-    roomw: RoomWrapper,
-    plan: StructurePlan,
-    centerPoint: RoomPosition,
-    cacheKey: string
-  ): boolean {
+  private createFullColonyPlan(centerPoint: RoomPosition): boolean {
+    const fullColonyPlan = this.structurePlan.setPattern(StructurePatterns.FULL_COLONY);
+    const site = this.plannerUtils.findSiteForPattern(
+      fullColonyPlan,
+      centerPoint,
+      `${this.cacheKey}_fullColonySearch`
+    );
+    if (site) {
+      this.roomw.memory.colonyType = SockPuppetConstants.COLONY_TYPE_FULL;
+      fullColonyPlan.mergePatternAtPos(site);
+      return true;
+    } else {
+      this.roomw.memory.colonyType = SockPuppetConstants.COLONY_TYPE_GROUP;
+      return false;
+    }
+  }
+
+  private createGroupColonyPlan(centerPoint: RoomPosition): boolean {
     let planOk = this.addPatternToPlan(
-      plan,
       centerPoint,
       StructurePatterns.SPAWN_GROUP,
-      `${cacheKey}_spawnGroupSearch`
+      `${this.cacheKey}_spawnGroupSearch`
     );
-
     const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][SockPuppetConstants.MAX_RCL];
-    const extensionCenterPoint = roomw.spawns[0]?.pos ? roomw.spawns[0].pos : centerPoint;
+    const extensionCenterPoint = this.roomw.spawns[0]?.pos ? this.roomw.spawns[0].pos : centerPoint;
     for (let i = 0; planOk && i < maxExtensions; i += 5) {
       planOk = this.addPatternToPlan(
-        plan,
         extensionCenterPoint,
         StructurePatterns.EXTENSION_GROUP,
-        `${cacheKey}_extensionGroupSearch_${i}`
+        `${this.cacheKey}_extensionGroupSearch_${i}`
       );
     }
     if (planOk) {
-      planOk = this.addPatternToPlan(plan, centerPoint, StructurePatterns.LAB_GROUP, `${cacheKey}_labGroupSearch`);
+      planOk = this.addPatternToPlan(
+        centerPoint,
+        StructurePatterns.LAB_GROUP,
+        `${this.cacheKey}_labGroupSearch`
+      );
     }
     return planOk;
   }
 
-  private addPatternToPlan(roomPlan: StructurePlan, centerPoint: RoomPosition, pattern: string[], cacheKey: string) {
-    roomPlan.setPattern(pattern);
-    const patternPosition = this.plannerUtils.findSiteForPattern(roomPlan, centerPoint, cacheKey);
+  private addPatternToPlan(
+    centerPoint: RoomPosition,
+    pattern: string[],
+    cacheKey: string
+  ): boolean {
+    this.structurePlan.setPattern(pattern);
+    const patternPosition = this.plannerUtils.findSiteForPattern(
+      this.structurePlan,
+      centerPoint,
+      cacheKey
+    );
     if (patternPosition) {
-      roomPlan.mergePatternAtPos(patternPosition);
+      this.structurePlan.mergePatternAtPos(patternPosition);
       return true;
     }
     return false;
   }
 
-  private createFullColonyPlan(
-    roomw: RoomWrapper,
-    plan: StructurePlan,
-    centerPoint: RoomPosition,
-    cacheKey: string
-  ): StructurePlanPosition[] | undefined {
-    const fullColonyPlan = new StructurePlan(roomw).setPattern(StructurePatterns.FULL_COLONY);
-    const site = this.plannerUtils.findSiteForPattern(fullColonyPlan, centerPoint, `${cacheKey}_fullColonySearch`);
-    if (site) {
-      roomw.memory.colonyType = SockPuppetConstants.COLONY_TYPE_FULL;
-      fullColonyPlan.mergePatternAtPos(site);
-      const plan = fullColonyPlan.getPlan();
-      MemoryUtils.setCache(cacheKey, plan, -1);
-      return plan;
-    } else {
-      roomw.memory.colonyType = SockPuppetConstants.COLONY_TYPE_GROUP;
-      return undefined;
-    }
-  }
-
   /** Finds central point of important features in a room. Uses value from room memory if possible. */
-  private findRoomCenterPoint(roomw: RoomWrapper) {
+  private findRoomCenterPoint(roomw: RoomWrapper): RoomPosition {
     if (roomw.memory.centerPoint) {
       return MemoryUtils.unpackRoomPosition(roomw.memory.centerPoint);
     }
@@ -187,7 +179,10 @@ export class Planner {
     return centerPoint;
   }
 
-  private updateColonyStructures(roomw: RoomWrapper, planPositions: StructurePlanPosition[]): ScreepsReturnCode {
+  private updateColonyStructures(
+    roomw: RoomWrapper,
+    planPositions: StructurePlanPosition[]
+  ): ScreepsReturnCode {
     // mark misplaced structures for dismantling
     this.createDismantleQueue(roomw, planPositions);
 
@@ -205,13 +200,17 @@ export class Planner {
     const lastSpawn = roomw.find(FIND_MY_SPAWNS).length === 1;
     const dismantleQueue: Structure<StructureConstant>[] = [];
     planPositions.forEach(planPos => {
-      const wrongStructure = roomw.lookForAt(LOOK_STRUCTURES, planPos).find(s => s.structureType !== planPos.structure);
+      const wrongStructure = roomw
+        .lookForAt(LOOK_STRUCTURES, planPos)
+        .find(s => s.structureType !== planPos.structure);
       if (wrongStructure) {
         // a couple of exceptions (don't dismantle own last spawn dummy)
         if (lastSpawn && wrongStructure.structureType === STRUCTURE_SPAWN) {
           return;
         }
-        console.log(`DISMANTLE ${String(wrongStructure.structureType)} at ${String(wrongStructure.pos)}`);
+        console.log(
+          `DISMANTLE ${String(wrongStructure.structureType)} at ${String(wrongStructure.pos)}`
+        );
         dismantleQueue.push(wrongStructure);
       }
     });
@@ -225,25 +224,44 @@ export class Planner {
     roomw.dismantleVisual = roomw.visual.export();
   }
 
-  private planRoads(roomw: RoomWrapper): StructurePlanPosition[] {
-    // place road from source containers to controller containers
-    const roadPlan = new RoadPlanner(roomw);
-    const containerRoadPlan = roadPlan.placeRoadSourceContainersToControllerContainers();
-    if (containerRoadPlan.length === 0) {
-      CreepUtils.log(LogLevel.DEBUG, `container road plan empty`);
+  private planRoads(): boolean {
+    if (!this.controllerContainerPosition) {
+      return false;
     }
+    const roadPlanner = new RoadPlanner(this.roomw);
 
-    // place road from controller to spawn
-    const controllerRoadPlan = roadPlan.placeRoadControllerToSpawn();
-    if (controllerRoadPlan.length === 0) {
-      CreepUtils.log(LogLevel.DEBUG, `controller road plan empty`);
+    // plan road from source containers to controller containers
+    const roadPositions = roadPlanner.planRoadSourceContainersToControllerContainers(
+      this.sourceContainerPositions,
+      this.controllerContainerPosition
+    );
+    if (roadPositions.length === 0) {
+      CreepUtils.log(LogLevel.DEBUG, `container road plan incomplete`);
+      return false;
     }
+    roadPositions.forEach(pos => this.structurePlan.setPlanPosition(pos.pos, pos.structure));
 
-    // place roads to all extensions
-    const roadPlanner = new RoadPlanner(roomw);
-    const extensionRoadPlan = roadPlanner.placeRoadSpawnToExtensions();
+    // plan road from controller to spawn
+    const controllerRoadPositions = roadPlanner.planRoadControllerToSpawn();
+    if (controllerRoadPositions.length === 0) {
+      CreepUtils.log(LogLevel.DEBUG, `controller road plan incomplete`);
+      return false;
+    }
+    controllerRoadPositions.forEach(pos =>
+      this.structurePlan.setPlanPosition(pos.pos, pos.structure)
+    );
 
-    return [...containerRoadPlan, ...controllerRoadPlan, ...extensionRoadPlan];
+    // plan roads to all extensions
+    const extensionRoadPositions = roadPlanner.planRoadSpawnToExtensions();
+    if (extensionRoadPositions.length === 0) {
+      CreepUtils.log(LogLevel.DEBUG, `extensions road plan incomplete`);
+      return false;
+    }
+    extensionRoadPositions.forEach(pos =>
+      this.structurePlan.setPlanPosition(pos.pos, pos.structure)
+    );
+
+    return true;
   }
 
   private planTowers(roomw: RoomWrapper): ScreepsReturnCode {
@@ -255,75 +273,88 @@ export class Planner {
     return OK;
   }
 
-  private planContainersAndLinks(
-    roomw: RoomWrapper,
-    plan: StructurePlan = new StructurePlan(roomw)
-  ): StructurePlan | undefined {
-    for (const source of roomw.sources) {
-      let sourceContainerPosition = this.findExistingSourceContainer(roomw, source);
-      if (!sourceContainerPosition) {
-        sourceContainerPosition = this.planContainerPosition(roomw, plan, source.pos);
+  private planControllerContainerAndLink(): boolean {
+    if (this.roomw.controller) {
+      this.controllerContainerPosition = this.findExistingControllerContainer(
+        this.roomw.controller
+      );
+      if (!this.controllerContainerPosition) {
+        this.controllerContainerPosition = this.planContainerPosition(this.roomw.controller.pos);
       }
-      if (sourceContainerPosition) {
-        plan.setPlanPosition(sourceContainerPosition, STRUCTURE_CONTAINER);
-        let sourceLinkPosition = this.findExistingSourceLink(roomw, source, sourceContainerPosition);
-        if (!sourceLinkPosition) {
-          sourceLinkPosition = this.planLinkPosition(roomw, plan, sourceContainerPosition);
-        }
-        if (sourceLinkPosition) {
-          plan.setPlanPosition(sourceLinkPosition, STRUCTURE_LINK);
-        }
-      }
-    }
-
-    if (roomw.controller) {
-      let controllerContainerPosition = this.findExistingControllerContainer(roomw.controller);
-      if (!controllerContainerPosition) {
-        controllerContainerPosition = this.planContainerPosition(roomw, plan, roomw.controller.pos);
-      }
-      if (controllerContainerPosition) {
-        plan.setPlanPosition(controllerContainerPosition, STRUCTURE_CONTAINER);
-        let controllerLinkPosition = this.findExistingControllerLink(roomw.controller, controllerContainerPosition);
+      if (this.controllerContainerPosition) {
+        this.structurePlan.setPlanPosition(this.controllerContainerPosition, STRUCTURE_CONTAINER);
+        let controllerLinkPosition = this.findExistingControllerLink(
+          this.roomw.controller,
+          this.controllerContainerPosition
+        );
         if (!controllerLinkPosition) {
-          controllerLinkPosition = this.planLinkPosition(roomw, plan, controllerContainerPosition);
+          controllerLinkPosition = this.planLinkPosition(this.controllerContainerPosition);
         }
         if (controllerLinkPosition) {
-          plan.setPlanPosition(controllerLinkPosition, STRUCTURE_LINK);
+          this.structurePlan.setPlanPosition(controllerLinkPosition, STRUCTURE_LINK);
+          return true;
         }
       }
     }
-
-    return plan;
+    return false;
   }
 
-  private planContainerPosition(
-    roomw: RoomWrapper,
-    plan: StructurePlan,
-    position: RoomPosition
-  ): RoomPosition | undefined {
+  private planSourceContainersAndLinks(): boolean {
+    for (const source of this.roomw.sources) {
+      let sourceContainerPosition = this.findExistingSourceContainer(source);
+      if (!sourceContainerPosition) {
+        sourceContainerPosition = this.planContainerPosition(source.pos);
+      }
+      if (sourceContainerPosition) {
+        this.sourceContainerPositions.push(sourceContainerPosition);
+        this.structurePlan.setPlanPosition(sourceContainerPosition, STRUCTURE_CONTAINER);
+        let sourceLinkPosition = this.findExistingSourceLink(source, sourceContainerPosition);
+        if (!sourceLinkPosition) {
+          sourceLinkPosition = this.planLinkPosition(sourceContainerPosition);
+        }
+        if (sourceLinkPosition) {
+          this.structurePlan.setPlanPosition(sourceLinkPosition, STRUCTURE_LINK);
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private planContainerPosition(position: RoomPosition): RoomPosition | undefined {
     const AVOID_BOTTLENECK = true;
     const availableContainerPosition = this.plannerUtils.findAvailableAdjacentPosition(
-      roomw,
+      this.roomw,
       position,
       AVOID_BOTTLENECK
     );
     return availableContainerPosition;
   }
 
-  private planLinkPosition(roomw: RoomWrapper, plan: StructurePlan, position: RoomPosition): RoomPosition | undefined {
+  private planLinkPosition(position: RoomPosition): RoomPosition | undefined {
     const AVOID_BOTTLENECK = true;
-    const availableLinkPosition = this.plannerUtils.findAvailableAdjacentPosition(roomw, position, AVOID_BOTTLENECK);
+    const availableLinkPosition = this.plannerUtils.findAvailableAdjacentPosition(
+      this.roomw,
+      position,
+      AVOID_BOTTLENECK
+    );
     return availableLinkPosition;
   }
 
-  private findExistingSourceContainer(roomw: RoomWrapper, source: Source): RoomPosition | undefined {
-    const info = roomw.memory.sources[source.id].container;
+  private findExistingSourceContainer(source: Source): RoomPosition | undefined {
+    const info = this.roomw.memory.sources[source.id].container;
     if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
       return MemoryUtils.unpackRoomPosition(info.pos);
     }
-    const findResult = this.plannerUtils.findAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
+    const findResult = this.plannerUtils.findAdjacentStructure<StructureContainer>(
+      source.pos,
+      STRUCTURE_CONTAINER
+    );
     if (findResult) {
-      roomw.memory.sources[source.id].container = {
+      this.roomw.memory.sources[source.id].container = {
         id: findResult.id,
         pos: MemoryUtils.packRoomPosition(findResult.pos),
         type: STRUCTURE_CONTAINER
@@ -334,17 +365,19 @@ export class Planner {
   }
 
   private findExistingSourceLink(
-    roomw: RoomWrapper,
     source: Source,
     containerPos: RoomPosition
   ): RoomPosition | undefined {
-    const info = roomw.memory.sources[source.id].link;
+    const info = this.roomw.memory.sources[source.id].link;
     if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
       return MemoryUtils.unpackRoomPosition(info.pos);
     }
-    const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+    const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(
+      containerPos,
+      STRUCTURE_LINK
+    );
     if (findResult) {
-      roomw.memory.sources[source.id].link = {
+      this.roomw.memory.sources[source.id].link = {
         id: findResult.id,
         pos: MemoryUtils.packRoomPosition(findResult.pos),
         type: STRUCTURE_LINK
@@ -354,7 +387,9 @@ export class Planner {
     return undefined;
   }
 
-  private findExistingControllerContainer(controller: StructureController): RoomPosition | undefined {
+  private findExistingControllerContainer(
+    controller: StructureController
+  ): RoomPosition | undefined {
     const roomName = controller.room.name;
     const info = Memory.rooms[roomName].controller?.container;
     if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
@@ -388,7 +423,10 @@ export class Planner {
     if (info && this.plannerUtils.validateStructureInfo(info) === OK) {
       return MemoryUtils.unpackRoomPosition(info.pos);
     }
-    const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+    const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(
+      containerPos,
+      STRUCTURE_LINK
+    );
     if (findResult && controller.room.memory.controller) {
       controller.room.memory.controller.link = {
         id: findResult.id,

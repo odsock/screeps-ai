@@ -24,13 +24,9 @@ export class Sockpuppet {
     this.runControl();
     this.runRooms();
     this.runCreeps();
-
-    if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
-      new Planner().run();
-    }
   }
 
-  private runRooms() {
+  private runRooms(): void {
     _.filter(Game.rooms, room => room.controller?.my).forEach(room => {
       const roomw = RoomWrapper.getInstance(room);
 
@@ -50,10 +46,15 @@ export class Sockpuppet {
 
       // spawn new creeps
       new SpawnControl(roomw).run();
+
+      // plan room structures
+      if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
+        new Planner(roomw).run();
+      }
     });
   }
 
-  private runControl() {
+  private runControl(): void {
     new ReconControl().run();
     new DefenseControl().run();
     new AttackControl().run();

@@ -15,41 +15,41 @@ export class RoadPlan {
     this.costMatrixUtils = CostMatrixUtils.getInstance();
   }
 
-  public placeRoadSourceContainersToControllerContainers(): StructurePlanPosition[] {
-    CreepUtils.log(LogLevel.DEBUG, "road planning: placeRoadSourceContainersToControllerContainers");
-    const controllerContainers = this.roomw.controllerContainers;
-    if (controllerContainers.length <= 0) {
-      CreepUtils.log(LogLevel.DEBUG, "road planning: no controller containers");
-      return [];
-    }
-
-    const sourceContainers = this.roomw.sourceContainers;
-    if (sourceContainers.length <= 0) {
-      CreepUtils.log(LogLevel.DEBUG, "road planning: no source containers");
-      return [];
-    }
-
+  public planRoadSourceContainersToControllerContainers(
+    sourceContainerPositions: RoomPosition[],
+    controllerContainerPosition: RoomPosition
+  ): StructurePlanPosition[] {
+    CreepUtils.log(LogLevel.DEBUG, "road planning: sources to controller");
+    const plan = [];
     // get a path and place road for each pair of containers
-    const plan: StructurePlanPosition[] = [];
-    for (const sourceContainer of sourceContainers) {
-      for (const controllerContainer of controllerContainers) {
-        const path: PathFinderPath = this.planRoad(sourceContainer.pos, controllerContainer.pos, 1);
-        if (!path.incomplete) {
-          plan.push(...this.placeRoadOnPath(path));
-        }
+    for (const sourceContainerPosition of sourceContainerPositions) {
+      const path: PathFinderPath = this.planRoad(
+        sourceContainerPosition,
+        controllerContainerPosition,
+        1
+      );
+      if (!path.incomplete) {
+        plan.push(
+          ...path.path.map(pos => {
+            return { pos, structure: STRUCTURE_ROAD };
+          })
+        );
+      } else {
+        return [];
       }
     }
-    CreepUtils.log(LogLevel.DEBUG, `road planning: roads to build: ${plan.join(",")}`);
     return plan;
   }
 
-  public placeRoadControllerToSpawn(): StructurePlanPosition[] {
+  public planRoadControllerToSpawn(): StructurePlanPosition[] {
     if (this.room.controller) {
       const spawns = this.room.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
         const path = this.planRoad(spawns[0].pos, this.room.controller.pos, 2);
         if (!path.incomplete) {
-          return this.placeRoadOnPath(path);
+          return path.path.map(pos => {
+            return { pos, structure: STRUCTURE_ROAD };
+          });
         }
       }
     }
@@ -63,47 +63,29 @@ export class RoadPlan {
       { swampCost: 2, plainCost: 2, roomCallback: this.costMatrixUtils.roadPlanningRoomCallback }
     );
     if (path.incomplete) {
-      CreepUtils.log(LogLevel.DEBUG, `road planing: incomplete: ${String(origin)} -> ${String(goal)}`);
+      CreepUtils.log(
+        LogLevel.DEBUG,
+        `road planing: incomplete: ${String(origin)} -> ${String(goal)}`
+      );
     }
     return path;
   }
 
-  public placeRoadSpawnToExtensions(): StructurePlanPosition[] {
-    const extensions = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_EXTENSION });
+  public planRoadSpawnToExtensions(): StructurePlanPosition[] {
+    const extensions = this.room.find(FIND_MY_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_EXTENSION
+    });
     const spawns = this.room.find(FIND_MY_SPAWNS);
     for (const spawn of spawns) {
       for (const extension of extensions) {
         const path = this.planRoad(spawn.pos, extension.pos, 1);
         if (!path.incomplete) {
-          const roadPlanPositions = this.placeRoadOnPath(path);
-          return roadPlanPositions;
+          return path.path.map(pos => {
+            return { pos, structure: STRUCTURE_ROAD };
+          });
         }
       }
     }
     return [];
-  }
-
-  private checkForRoadAtPos(pos: RoomPosition): boolean {
-    return (
-      pos.look().filter(item => {
-        const isRoad = item.structure?.structureType === STRUCTURE_ROAD;
-        const isRoadSite = item.constructionSite?.structureType === STRUCTURE_ROAD;
-        return isRoad || isRoadSite;
-      }).length > 0
-    );
-  }
-
-  private placeRoadOnPath(path: PathFinderPath): StructurePlanPosition[] {
-    const planPositions: StructurePlanPosition[] = [];
-    for (const pos of path.path) {
-      const hasRoad = this.checkForRoadAtPos(pos);
-      if (!hasRoad) {
-        const result = this.room.createConstructionSite(pos, STRUCTURE_ROAD);
-        if (result === OK) {
-          planPositions.push({ pos, structure: STRUCTURE_ROAD });
-        }
-      }
-    }
-    return planPositions;
   }
 }
