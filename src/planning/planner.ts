@@ -80,15 +80,14 @@ export class Planner {
       this.structurePlan.setPlanPosition(this.roomw.spawns[0].pos, STRUCTURE_SPAWN);
     }
 
-    let placedColony = false;
-    placedColony = this.planSourceContainersAndLinks() && this.planControllerContainerAndLink();
-    if (!placedColony) {
+    if (!this.planSourceContainersAndLinks() || !this.planControllerContainerAndLink()) {
       return false;
     }
 
     const centerPoint = this.findRoomCenterPoint(this.roomw);
 
     // try full colony first
+    let placedColony = false;
     if (
       !this.roomw.memory.colonyType ||
       this.roomw.memory.colonyType === SockPuppetConstants.COLONY_TYPE_FULL
@@ -104,6 +103,10 @@ export class Planner {
   }
 
   private createFullColonyPlan(centerPoint: RoomPosition): boolean {
+    CreepUtils.consoleLogIfWatched(
+      this.roomw,
+      `planning: attempting full colony plan ${this.roomw.name}`
+    );
     const fullColonyPlan = this.structurePlan.setPattern(StructurePatterns.FULL_COLONY);
     const site = this.plannerUtils.findSiteForPattern(
       fullColonyPlan,
@@ -121,6 +124,10 @@ export class Planner {
   }
 
   private createGroupColonyPlan(centerPoint: RoomPosition): boolean {
+    CreepUtils.consoleLogIfWatched(
+      this.roomw,
+      `planning: attempting group colony plan ${this.roomw.name}`
+    );
     let planOk = this.addPatternToPlan(
       centerPoint,
       StructurePatterns.SPAWN_GROUP,
