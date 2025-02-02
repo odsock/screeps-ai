@@ -25,17 +25,28 @@ export class PlannerUtils {
     const searchWidth = SockPuppetConstants.ROOM_SIZE - 1 - patternWidth;
     const searchHeight = SockPuppetConstants.ROOM_SIZE - 1 - patternHeight;
     const searchStartPos =
-      MemoryUtils.getCachedPosition(`${cacheKey}_searchStartPos`) ?? new RoomPosition(1, 1, nearPosition.roomName);
+      MemoryUtils.getCachedPosition(`${cacheKey}_searchStartPos`) ??
+      new RoomPosition(1, 1, nearPosition.roomName);
     let bestPos = MemoryUtils.getCachedPosition(`${cacheKey}_bestPos`);
     let minRange = SockPuppetConstants.MAX_DISTANCE;
     if (bestPos) {
-      minRange = this.getRangeToPatternCenterAtPos(nearPosition, bestPos, patternWidth, patternHeight);
+      minRange = this.getRangeToPatternCenterAtPos(
+        nearPosition,
+        bestPos,
+        patternWidth,
+        patternHeight
+      );
     }
     for (let x = searchStartPos.x; x < searchWidth; x++) {
       for (let y = searchStartPos.y; y < searchHeight; y++) {
         const searchPosition = new RoomPosition(x, y, nearPosition.roomName);
         MemoryUtils.setCachedPosition(`${cacheKey}_searchStartPos`, searchPosition, -1);
-        const range = this.getRangeToPatternCenterAtPos(nearPosition, searchPosition, patternWidth, patternHeight);
+        const range = this.getRangeToPatternCenterAtPos(
+          nearPosition,
+          searchPosition,
+          patternWidth,
+          patternHeight
+        );
         if (range < minRange && roomPlan.checkPatternAtPos(x, y)) {
           minRange = range;
           bestPos = searchPosition;
@@ -163,7 +174,11 @@ export class PlannerUtils {
     for (const planPosition of planPositions) {
       if (!this.placed(room, planPosition) && this.haveRclForStructure(room, planPosition)) {
         const result = room.createConstructionSite(planPosition.pos, planPosition.structure);
-        CreepUtils.consoleLogIfWatched(room, `place construction ${JSON.stringify(planPosition)}`, result);
+        CreepUtils.consoleLogIfWatched(
+          room,
+          `place construction ${JSON.stringify(planPosition)}`,
+          result
+        );
         if (result !== OK) {
           return result;
         }
@@ -194,7 +209,8 @@ export class PlannerUtils {
     const structureCount = room.find(FIND_STRUCTURES, {
       filter: s => s.structureType === planPosition.structure
     }).length;
-    const haveRcl = CONTROLLER_STRUCTURES[planPosition.structure][room.controller?.level ?? 0] > structureCount;
+    const haveRcl =
+      CONTROLLER_STRUCTURES[planPosition.structure][room.controller?.level ?? 0] > structureCount;
     return haveRcl;
   }
 
@@ -207,9 +223,6 @@ export class PlannerUtils {
         const color = StructurePatterns.COLORS[planPos.structure];
         if (
           planPos.pos.look().some(item => {
-            if (item.structure?.structureType === STRUCTURE_CONTAINER) {
-              console.log(`item: ${planPos.pos} ${item.structure.structureType} === ${planPos.structure}`);
-            }
             return (
               item.structure?.structureType === planPos.structure ||
               item.constructionSite?.structureType === planPos.structure
@@ -307,7 +320,12 @@ export class PlannerUtils {
     centerPos: RoomPosition,
     avoidBottleneck = true
   ): RoomPosition | undefined {
-    const lookResult = roomw.lookAtArea(centerPos.y - 1, centerPos.x - 1, centerPos.y + 1, centerPos.x + 1);
+    const lookResult = roomw.lookAtArea(
+      centerPos.y - 1,
+      centerPos.x - 1,
+      centerPos.y + 1,
+      centerPos.x + 1
+    );
     const positions = this.getPositionSpiral(centerPos, 1).filter(
       pos =>
         !pos.isEqualTo(centerPos) &&
@@ -325,7 +343,8 @@ export class PlannerUtils {
       return _.max(
         positions,
         pos =>
-          this.evaluateBottleneck(roomw, pos) + (!!closestToFirstSpawn && pos.isEqualTo(closestToFirstSpawn) ? 1 : 0)
+          this.evaluateBottleneck(roomw, pos) +
+          (!!closestToFirstSpawn && pos.isEqualTo(closestToFirstSpawn) ? 1 : 0)
       );
     }
     return positions[0];
@@ -360,7 +379,12 @@ export class PlannerUtils {
   }
 
   /** Calculate gap size on one axis from position */
-  private getGapSize(terrain: RoomTerrain, pos: RoomPosition, xDirection: number, yDirection: number): number {
+  private getGapSize(
+    terrain: RoomTerrain,
+    pos: RoomPosition,
+    xDirection: number,
+    yDirection: number
+  ): number {
     const SEARCH_DISTANCE = 5;
     let gap = 1;
     let leftWallFlag = false;
