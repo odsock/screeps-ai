@@ -34,7 +34,7 @@ export class StructurePlan {
     return this;
   }
 
-  public setPlanPosition(pos: RoomPosition, structureType: BuildableStructureConstant) {
+  public setPlanPosition(pos: RoomPosition, structureType: BuildableStructureConstant): void {
     this.plan[pos.x][pos.y] = structureType;
   }
 
@@ -77,7 +77,10 @@ export class StructurePlan {
       for (let j = 0; j < this.plan[i].length; j++) {
         const structure = this.plan[i][j];
         if (structure) {
-          planPositions.push({ pos: new RoomPosition(i, j, this.roomw.name), structure: structure });
+          planPositions.push({
+            pos: new RoomPosition(i, j, this.roomw.name),
+            structure: structure
+          });
         }
       }
     }
@@ -100,7 +103,10 @@ export class StructurePlan {
   public checkPatternAtPos(x: number, y: number): boolean {
     for (const patternPosition of this.pattern) {
       // use room.getPositionAt() because position may be out of range, and it returns null instead of throwing
-      const newPos = this.roomw.getPositionAt(patternPosition.xOffset + x, patternPosition.yOffset + y);
+      const newPos = this.roomw.getPositionAt(
+        patternPosition.xOffset + x,
+        patternPosition.yOffset + y
+      );
       if (!newPos) {
         return false;
       }
@@ -113,11 +119,12 @@ export class StructurePlan {
   }
 
   /** Apply structure pattern to plan at position */
-  public mergePatternAtPos(pos: RoomPosition) {
+  public mergePatternAtPos(pos: RoomPosition): void {
     const x = pos.x;
     const y = pos.y;
     for (const patternPosition of this.pattern) {
-      this.plan[patternPosition.xOffset + x][patternPosition.yOffset + y] = patternPosition.structure;
+      this.plan[patternPosition.xOffset + x][patternPosition.yOffset + y] =
+        patternPosition.structure;
     }
   }
 
@@ -132,7 +139,11 @@ export class StructurePlan {
     }
     const lookAtResult = this.roomw.lookAt(pos.x, pos.y);
     // can be blocked by wall, deposit, source
-    if (lookAtResult.some(o => [LOOK_DEPOSITS, LOOK_SOURCES].some(lookConstant => lookConstant === o.type))) {
+    if (
+      lookAtResult.some(o =>
+        [LOOK_DEPOSITS, LOOK_SOURCES].some(lookConstant => lookConstant === o.type)
+      )
+    ) {
       return false;
     }
     if (lookAtResult.some(o => o.type === LOOK_TERRAIN && o.terrain === "wall")) {
