@@ -5,6 +5,7 @@ import { StructurePlanPosition } from "./structure-plan";
 import { CreepUtils, LogLevel } from "creep-utils";
 
 import { profile } from "../../screeps-typescript-profiler";
+import { MemoryUtils } from "./memory-utils";
 
 @profile
 export class RoadPlan {
@@ -34,6 +35,7 @@ export class RoadPlan {
             return { pos, structure: STRUCTURE_ROAD };
           })
         );
+        this.cachePath(path);
       } else {
         return [];
       }
@@ -47,6 +49,7 @@ export class RoadPlan {
       if (spawns.length > 0) {
         const path = this.planRoad(spawns[0].pos, this.room.controller.pos, 2);
         if (!path.incomplete) {
+          this.cachePath(path);
           return path.path.map(pos => {
             return { pos, structure: STRUCTURE_ROAD };
           });
@@ -54,6 +57,24 @@ export class RoadPlan {
       }
     }
     return [];
+  }
+
+  private cachePath(path: PathFinderPath): void {
+    if (path.path.length === 0) {
+      CreepUtils.log(LogLevel.ERROR, `empty path passed to caching: ${JSON.stringify(path)}`);
+      return;
+    }
+    const start = path.path[0];
+    const end = path.path[path.path.length - 1];
+    const packedStart = MemoryUtils.packRoomPosition(start);
+    const packedEnd = MemoryUtils.packRoomPosition(end);
+    const cacheKeyTo = `${this.roomw.name}_path_${packedStart}_to_${packedEnd}`;
+    const cacheKeyFrom = `${this.roomw.name}_path_${packedEnd}_to_${packedStart}`;
+    MemoryUtils.setCache(cacheKeyTo, path.path, -1);
+    MemoryUtils.setCache(cacheKeyFrom, path.path.reverse(), -1);
+    const roomPaths = MemoryUtils.getCache<string[]>(`${this.roomw.name}_paths`) ?? [];
+    roomPaths.push(cacheKeyTo);
+    MemoryUtils.setCache(`${this.roomw.name}_paths`, [...new Set(roomPaths)], -1); // cache uniqueified list of path keys
   }
 
   public planRoad(origin: RoomPosition, goal: RoomPosition, range = 0): PathFinderPath {
@@ -81,6 +102,7 @@ export class RoadPlan {
       for (const extension of extensions) {
         const path = this.planRoad(spawn.pos, extension.pos, 1);
         if (!path.incomplete) {
+          this.cachePath(path);
           plan.push(
             ...path.path.map(pos => {
               return { pos, structure: STRUCTURE_ROAD };
