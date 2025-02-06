@@ -32,12 +32,20 @@ export class CreepUtils {
         sumY += pos.y;
         roomName = pos.roomName;
       });
-    return new RoomPosition(Math.round(sumX / targets.length), Math.round(sumY / targets.length), roomName);
+    return new RoomPosition(
+      Math.round(sumX / targets.length),
+      Math.round(sumY / targets.length),
+      roomName
+    );
   }
 
   public static log(logLevel: LogLevel, message: string): void {
     if (this.LOG_LEVEL_ORDER[logLevel] >= this.LOG_LEVEL_ORDER[global.LOG_LEVEL]) {
-      console.log(`${logLevel.toString()}: ${message}`);
+      let color = "#809fff";
+      if (logLevel === LogLevel.ERROR) {
+        color = "#FF0000";
+      }
+      console.log(`<font color="${color}">${logLevel.toString()}: ${message}</font>`);
     }
   }
 
