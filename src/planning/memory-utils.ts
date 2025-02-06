@@ -180,7 +180,7 @@ export class MemoryUtils {
     }
   }
 
-  private static initCache() {
+  private static initCache(): void {
     global.cache = new Map<string, CacheValue>();
   }
 
