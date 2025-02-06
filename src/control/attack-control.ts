@@ -47,7 +47,10 @@ export class AttackControl {
       this.setRallyRoom(attackFlag);
       const spawningRaidersCount = this.getSpawningRaidersCount(roomName);
       let raidersStillNeeded = raidSize - raidersAssignedCount - spawningRaidersCount;
-      CreepUtils.log(LogLevel.DEBUG, `${roomName}: attack: raiders still needed: ${raidersStillNeeded}`);
+      CreepUtils.log(
+        LogLevel.DEBUG,
+        `${roomName}: attack: raiders still needed: ${raidersStillNeeded}`
+      );
       if (raidersStillNeeded > 0 && freeRaiders.length > 0) {
         // TODO assign closest raider
         const reassignSlice = freeRaiders.splice(0, raidersStillNeeded);
@@ -60,7 +63,7 @@ export class AttackControl {
     }
   }
 
-  private setRallyRoom(attackFlag: Flag) {
+  private setRallyRoom(attackFlag: Flag): void {
     const rallyRoom =
       attackFlag.memory.rallyRoom ??
       this.travelUtils.findClosestRoom(
@@ -73,20 +76,21 @@ export class AttackControl {
     }
   }
 
-  private getSpawningRaidersCount(roomName: string) {
-    return SpawnUtils.getSpawnInfo(info => info.memory.role === CreepRole.RAIDER && info.memory.targetRoom === roomName)
-      .length;
+  private getSpawningRaidersCount(roomName: string): number {
+    return SpawnUtils.getSpawnInfo(
+      info => info.memory.role === CreepRole.RAIDER && info.memory.targetRoom === roomName
+    ).length;
   }
 
-  private getRaidSize(attackFlag: Flag) {
+  private getRaidSize(attackFlag: Flag): number {
     return attackFlag.secondaryColor.valueOf() ?? 0;
   }
 
-  private getRaidersAssignedCount(raiders: Creep[], roomName: string) {
+  private getRaidersAssignedCount(raiders: Creep[], roomName: string): number {
     return raiders.filter(raider => raider.memory.targetRoom === roomName).length;
   }
 
-  private increaseRaidSize(attackFlag: Flag) {
+  private increaseRaidSize(attackFlag: Flag): void {
     if (attackFlag.secondaryColor < 10) {
       attackFlag.secondaryColor += 1;
     }
@@ -114,7 +118,7 @@ export class AttackControl {
   }
 
   /** Room needs attack if recon shows creeps or structures */
-  private roomNeedsAttack(roomName: string) {
+  private roomNeedsAttack(roomName: string): boolean | undefined {
     const roomDefense = Memory.rooms[roomName].defense;
     return roomDefense && (roomDefense.creeps.length > 0 || roomDefense.structures.length > 0);
   }
