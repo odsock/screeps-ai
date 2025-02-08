@@ -35,7 +35,10 @@ export class CostMatrixUtils {
    * Avoid harvest positions and creeps.
    * Not cached.
    */
-  public avoidHarvestPositionsAndCreepsCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix | void => {
+  public avoidHarvestPositionsAndCreepsCostCallback = (
+    roomName: string,
+    costMatrix: CostMatrix
+  ): CostMatrix | void => {
     const updatedCostMatrix = this.avoidHarvestPositionsCostCallback(roomName, costMatrix);
     if (!updatedCostMatrix) {
       return;
@@ -53,7 +56,10 @@ export class CostMatrixUtils {
    * Avoid harvest positions.
    * Cached.
    */
-  public avoidHarvestPositionsCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix | void => {
+  public avoidHarvestPositionsCostCallback = (
+    roomName: string,
+    costMatrix: CostMatrix
+  ): CostMatrix | void => {
     const cacheKey = `${roomName}_avoidHarvestPositions`;
     const cachedCostMatrix = this.getCostMatrixFromCache(cacheKey);
     if (cachedCostMatrix) {
@@ -148,7 +154,10 @@ export class CostMatrixUtils {
   /**
    * Creep movement prefering roads>plains>swamps, avoiding unwalkable areas.
    */
-  public creepMovementCostCallback = (roomName: string, costMatrix: CostMatrix): CostMatrix | void => {
+  public creepMovementCostCallback = (
+    roomName: string,
+    costMatrix: CostMatrix
+  ): CostMatrix | void => {
     const room = Game.rooms[roomName];
     if (!room || this.targetControl.isForbiddenRoom(roomName)) {
       return;
@@ -175,31 +184,24 @@ export class CostMatrixUtils {
     if (!room || this.targetControl.isForbiddenRoom(roomName)) {
       return false;
     }
-    const costMatrix = this.avoidHarvestPositionsCostCallback(roomName, new PathFinder.CostMatrix());
+    const costMatrix = this.avoidHarvestPositionsCostCallback(
+      roomName,
+      new PathFinder.CostMatrix()
+    );
     if (!costMatrix) {
       return false;
     }
 
-    // plan roads around future structures
+    // plan roads around planned structures
     const plan = MemoryUtils.getCache<StructurePlanPosition[]>(`${roomName}_plan`);
     if (plan) {
-      plan?.forEach(pos => {
+      plan.forEach(pos => {
         if (pos.structure === STRUCTURE_ROAD) {
           costMatrix.set(pos.pos.x, pos.pos.y, 1);
         } else if (pos.structure !== STRUCTURE_RAMPART) {
           costMatrix.set(pos.pos.x, pos.pos.y, 0xff);
         }
       });
-    }
-
-    const structures = room.find(FIND_STRUCTURES);
-    const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
-    for (const structure of [...structures, ...constructionSites]) {
-      if (structure.structureType === STRUCTURE_ROAD) {
-        costMatrix.set(structure.pos.x, structure.pos.y, 1);
-      } else if (structure.structureType !== STRUCTURE_RAMPART || !structure.my) {
-        costMatrix.set(structure.pos.x, structure.pos.y, 0xff);
-      }
     }
 
     return costMatrix;
