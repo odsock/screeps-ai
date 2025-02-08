@@ -14,6 +14,7 @@ import { CreepFactory } from "roles/creep-factory";
 import { RoomWrapper } from "structures/room-wrapper";
 import { TowerWrapper } from "structures/tower-wrapper";
 import { profile } from "../screeps-typescript-profiler";
+import { CreepUtils, LogLevel } from "creep-utils";
 
 @profile
 export class Sockpuppet {
@@ -30,18 +31,6 @@ export class Sockpuppet {
     _.filter(Game.rooms, room => room.controller?.my).forEach(room => {
       const roomw = RoomWrapper.getInstance(room);
 
-      // draw colony poc
-      const planVisual = roomw.planVisual;
-      if (planVisual) {
-        roomw.visual.import(planVisual);
-      }
-
-      // draw dismantle queue
-      const dismantleVisual = roomw.dismantleVisual;
-      if (dismantleVisual) {
-        roomw.visual.import(dismantleVisual);
-      }
-
       this.runTowers(roomw);
 
       // spawn new creeps
@@ -50,6 +39,20 @@ export class Sockpuppet {
       // plan room structures
       if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
         new Planner(roomw).run();
+      }
+
+      // draw colony poc
+      const planVisual = roomw.planVisual;
+      if (planVisual) {
+        CreepUtils.log(LogLevel.DEBUG, `found cached plan visual`);
+        roomw.visual.import(planVisual);
+      }
+
+      // draw dismantle queue
+      const dismantleVisual = roomw.dismantleVisual;
+      if (dismantleVisual) {
+        CreepUtils.log(LogLevel.DEBUG, `found cached dismantle visual`);
+        roomw.visual.import(dismantleVisual);
       }
     });
   }
