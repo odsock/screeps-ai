@@ -29,7 +29,7 @@ export class RoadPlan {
         controllerContainerPosition,
         1
       );
-      if (!path.incomplete) {
+      if (!path.incomplete && path.path.length !== 0) {
         plan.push(
           ...path.path.map(pos => {
             return { pos, structure: STRUCTURE_ROAD };
@@ -48,7 +48,7 @@ export class RoadPlan {
       const spawns = this.room.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
         const path = this.planRoad(spawns[0].pos, this.room.controller.pos, 2);
-        if (!path.incomplete) {
+        if (!path.incomplete && path.path.length !== 0) {
           this.cachePath(path);
           return path.path.map(pos => {
             return { pos, structure: STRUCTURE_ROAD };
@@ -60,10 +60,6 @@ export class RoadPlan {
   }
 
   private cachePath(path: PathFinderPath): void {
-    if (path.path.length === 0) {
-      CreepUtils.log(LogLevel.ERROR, `empty path passed to caching: ${JSON.stringify(path)}`);
-      return;
-    }
     const start = path.path[0];
     const end = path.path[path.path.length - 1];
     const packedStart = MemoryUtils.packRoomPosition(start);
@@ -102,12 +98,14 @@ export class RoadPlan {
       for (const extension of extensions) {
         const path = this.planRoad(spawn.pos, extension.pos, 1);
         if (!path.incomplete) {
-          this.cachePath(path);
-          plan.push(
-            ...path.path.map(pos => {
-              return { pos, structure: STRUCTURE_ROAD };
-            })
-          );
+          if (path.path.length !== 0) {
+            this.cachePath(path);
+            plan.push(
+              ...path.path.map(pos => {
+                return { pos, structure: STRUCTURE_ROAD };
+              })
+            );
+          }
         } else {
           return [];
         }
