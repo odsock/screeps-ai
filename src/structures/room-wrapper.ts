@@ -84,7 +84,10 @@ export class RoomWrapper extends Room {
   }
 
   public hasLinks(): boolean {
-    return this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_LINK }).length > 0;
+    return (
+      this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_LINK })
+        .length > 0
+    );
   }
 
   /** get hostile structures other than controller */
@@ -99,8 +102,9 @@ export class RoomWrapper extends Room {
 
   public get hasArmedTowers(): boolean {
     return (
-      this.hostileStructures.filter(s => s.structureType === STRUCTURE_TOWER && s.store.energy >= TOWER_ENERGY_COST)
-        .length > 0
+      this.hostileStructures.filter(
+        s => s.structureType === STRUCTURE_TOWER && s.store.energy >= TOWER_ENERGY_COST
+      ).length > 0
     );
   }
 
@@ -151,7 +155,9 @@ export class RoomWrapper extends Room {
 
   // TODO cache this as IDs and invalidate it on new construction somehow
   public get extensions(): StructureExtension[] {
-    return this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_EXTENSION });
+    return this.room.find(FIND_MY_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_EXTENSION
+    });
   }
 
   public get spawnStorage(): (StructureExtension | StructureSpawn)[] {
@@ -190,7 +196,7 @@ export class RoomWrapper extends Room {
    * Sets cached string export of colony plan visual.
    */
   public set planVisual(visual: string) {
-    MemoryUtils.setCache(`${this.room.name}_planVisual`, visual, SockPuppetConstants.PLANNING_INTERVAL);
+    MemoryUtils.setCache(`${this.room.name}_planVisual`, visual, -1);
   }
 
   /**
@@ -208,7 +214,7 @@ export class RoomWrapper extends Room {
    * Sets cached string export of demolition plan visual.
    */
   public set dismantleVisual(visual: string) {
-    MemoryUtils.setCache(`${this.room.name}_dismantleVisual`, visual, SockPuppetConstants.PLANNING_INTERVAL);
+    MemoryUtils.setCache(`${this.room.name}_dismantleVisual`, visual, -1);
   }
 
   /**
@@ -220,7 +226,9 @@ export class RoomWrapper extends Room {
 
   /** get harvest positions for source */
   public getHarvestPositions(sourceId: Id<Source>): RoomPosition[] {
-    return this.memory.sources[sourceId].harvestPositions.map(pos => MemoryUtils.unpackRoomPosition(pos));
+    return this.memory.sources[sourceId].harvestPositions.map(pos =>
+      MemoryUtils.unpackRoomPosition(pos)
+    );
   }
 
   public get harvestPositionCount(): number {
@@ -272,7 +280,9 @@ export class RoomWrapper extends Room {
 
     const upgradePositions = this.plannerUtils
       .getPositionSpiral(target, range)
-      .filter(pos => !avoidPositions.find(avoidPos => avoidPos.isEqualTo(pos)) && this.isEnterable(pos));
+      .filter(
+        pos => !avoidPositions.find(avoidPos => avoidPos.isEqualTo(pos)) && this.isEnterable(pos)
+      );
 
     MemoryUtils.setCache(cacheKey, upgradePositions, 100);
     return upgradePositions;
@@ -306,7 +316,9 @@ export class RoomWrapper extends Room {
   }
 
   public get repairSites(): AnyStructure[] {
-    return this.room.find(FIND_STRUCTURES, { filter: structure => structure.hits < structure.hitsMax });
+    return this.room.find(FIND_STRUCTURES, {
+      filter: structure => structure.hits < structure.hitsMax
+    });
   }
 
   public get sourceContainers(): StructureContainer[] {
@@ -367,7 +379,8 @@ export class RoomWrapper extends Room {
   public findWeakestWall(): StructureWall | StructureRampart | undefined {
     const wallsToRepair = this.room.find<StructureWall | StructureRampart>(FIND_STRUCTURES, {
       filter: structure =>
-        (structure.structureType === STRUCTURE_WALL && structure.hits < SockPuppetConstants.MAX_HITS_WALL) ||
+        (structure.structureType === STRUCTURE_WALL &&
+          structure.hits < SockPuppetConstants.MAX_HITS_WALL) ||
         (structure.structureType === STRUCTURE_RAMPART &&
           structure.hits < SockPuppetConstants.MAX_HITS_WALL &&
           !this.dismantleQueue.find(dismantle => dismantle.id === structure.id))
@@ -430,7 +443,9 @@ export class RoomWrapper extends Room {
     const rcl = this.room.controller?.level;
     if (rcl) {
       const max = CONTROLLER_STRUCTURES[structureConstant][rcl];
-      const built = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === structureConstant }).length;
+      const built = this.room.find(FIND_MY_STRUCTURES, {
+        filter: s => s.structureType === structureConstant
+      }).length;
       const placed = this.room.find(FIND_MY_CONSTRUCTION_SITES, {
         filter: s => s.structureType === structureConstant
       }).length;
@@ -456,7 +471,9 @@ export class RoomWrapper extends Room {
   public hasSpawnEnergyBuffer(): boolean {
     const spawnFull = this.getEnergyAvailable() === this.getEnergyCapacityAvailable();
     const hasStorage = !!this.storage;
-    const hasBuffer = (this.storage?.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) >= this.getEnergyCapacityAvailable();
+    const hasBuffer =
+      (this.storage?.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) >=
+      this.getEnergyCapacityAvailable();
     CreepUtils.consoleLogIfWatched(
       this,
       `spawnfull: ${spawnFull}, hasstorage: ${hasStorage}, buffer: ${hasBuffer}`,
