@@ -423,7 +423,7 @@ export class RoomWrapper extends Room {
     return this.find(FIND_MY_STRUCTURES, { filter: s => !s.isActive() });
   }
 
-  public findCommonAdjacentPositions(pos: RoomPosition, pos1: RoomPosition) {
+  public findCommonAdjacentPositions(pos: RoomPosition, pos1: RoomPosition): RoomPosition[] {
     const adjacentPositions = this.plannerUtils.getPositionSpiral(pos, 1);
     const commonAdjacentPositions = adjacentPositions.filter(
       p => !p.isEqualTo(pos) && !p.isEqualTo(pos1) && p.isNearTo(pos1)
@@ -483,7 +483,7 @@ export class RoomWrapper extends Room {
     return spawnFull && (!hasStorage || hasBuffer);
   }
 
-  public findBuildCenterPos() {
+  public findBuildCenterPos(): RoomPosition {
     let centerStructure: Structure | undefined = this.spawns[0];
     if (!centerStructure) {
       centerStructure = this.controller;
