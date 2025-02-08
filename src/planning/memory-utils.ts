@@ -230,4 +230,16 @@ export class MemoryUtils {
   private static isExpired(expires: number): boolean {
     return expires === -1 ? false : expires <= Game.time;
   }
+
+  public static checkExpired(key: string): boolean {
+    if (!global.cache) {
+      MemoryUtils.initCache();
+    }
+
+    const value = global.cache.get(key);
+    if (value && this.isExpired(value.expires)) {
+      return true;
+    }
+    return false;
+  }
 }
