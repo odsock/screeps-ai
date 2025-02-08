@@ -1,3 +1,4 @@
+import "core-js/actual/array/to-sorted";
 import { Sockpuppet } from "sockpuppet";
 import { ErrorMapper } from "utils/ErrorMapper";
 import { Logger } from "./logger";
