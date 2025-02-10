@@ -234,13 +234,23 @@ export class Planner {
 
   private createDismantleQueue(): void {
     const lastSpawn = this.roomw.find(FIND_MY_SPAWNS).length === 1;
-    const dismantleQueue = this.roomw.find(FIND_STRUCTURES, {
-      filter: s =>
-        s.structureType !== STRUCTURE_CONTROLLER &&
-        this.structurePlan.getPlanPosition(s.pos) !== s.structureType &&
-        !(s.structureType === STRUCTURE_SPAWN && lastSpawn)
+    const overlapStructures: Structure[] = [];
+    const misplacedStructures: Structure[] = [];
+    this.roomw.find(FIND_STRUCTURES).forEach(s => {
+      if (
+        s.structureType === STRUCTURE_CONTROLLER ||
+        (s.structureType === STRUCTURE_SPAWN && lastSpawn)
+      ) {
+        return;
+      }
+      const plannedStructureType = this.structurePlan.getPlanPosition(s.pos);
+      if (!plannedStructureType) {
+        misplacedStructures.push(s);
+      } else if (plannedStructureType !== s.structureType) {
+        overlapStructures.push(s);
+      }
     });
-    this.roomw.dismantleQueue = dismantleQueue;
+    this.roomw.dismantleQueue = [...overlapStructures, ...misplacedStructures];
   }
 
   private drawDismantleQueue(): void {
