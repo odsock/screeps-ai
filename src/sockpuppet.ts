@@ -37,7 +37,8 @@ export class Sockpuppet {
       new SpawnControl(roomw).run();
 
       // plan room structures
-      if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
+      // TODO temp skip planning main room
+      if (roomw.name != "E19N55" && Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
         new Planner(roomw).run();
       }
 

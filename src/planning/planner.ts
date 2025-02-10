@@ -5,7 +5,7 @@ import { CreepUtils, LogLevel } from "creep-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { MemoryUtils } from "./memory-utils";
 import { PlannerUtils } from "./planner-utils";
-import { RoadPlan as RoadPlanner } from "./road-plan";
+import { RoadPlan } from "./road-plan";
 import { StructurePlan, StructurePlanPosition } from "./structure-plan";
 import { profile } from "../../screeps-typescript-profiler";
 
@@ -14,10 +14,10 @@ export class Planner {
   private readonly targetControl = TargetControl.getInstance();
   private readonly plannerUtils = PlannerUtils.getInstance();
 
-  private structurePlan: StructurePlan;
+  private readonly structurePlan: StructurePlan;
   private planPositions: StructurePlanPosition[] = [];
   private readonly cacheKey: string;
-  private sourceContainerPositions: RoomPosition[] = [];
+  private readonly sourceContainerPositions: RoomPosition[] = [];
   private controllerContainerPosition: RoomPosition | undefined;
 
   public constructor(private readonly roomw: RoomWrapper) {
@@ -43,9 +43,22 @@ export class Planner {
 
     if (this.planPositions.length > 0) {
       this.setCachedPlan();
-      // this.updateColonyStructures(roomw, plan);
-      this.drawPlan(this.planPositions);
+      if (this.planRoads()) {
+        this.setCachedPlan();
+        this.updateColonyStructures();
+        this.drawPlan(this.planPositions);
+      } else {
+        this.removeCachedPlan();
+      }
     }
+  }
+
+  private removeCachedPlan(): void {
+    CreepUtils.consoleLogIfWatched(
+      this.roomw,
+      `planning: removing bad plan for ${this.roomw.name}`
+    );
+    MemoryUtils.deleteCache(this.cacheKey);
   }
 
   private setCachedPlan(): void {
@@ -70,6 +83,7 @@ export class Planner {
     this.roomw.visual.clear();
     this.plannerUtils.drawPlan(this.roomw, plan);
     this.roomw.planVisual = this.roomw.visual.export();
+    this.roomw.visual.clear();
   }
 
   private planColony(): boolean {
@@ -84,7 +98,7 @@ export class Planner {
       return false;
     }
 
-    const centerPoint = this.findRoomCenterPoint(this.roomw);
+    const centerPoint = this.findRoomCenterPoint();
 
     // try full colony first
     let placedColony = false;
@@ -171,43 +185,58 @@ export class Planner {
   }
 
   /** Finds central point of important features in a room. Uses value from room memory if possible. */
-  private findRoomCenterPoint(roomw: RoomWrapper): RoomPosition {
-    if (roomw.memory.centerPoint) {
-      return MemoryUtils.unpackRoomPosition(roomw.memory.centerPoint);
+  private findRoomCenterPoint(): RoomPosition {
+    if (this.roomw.memory.centerPoint) {
+      return MemoryUtils.unpackRoomPosition(this.roomw.memory.centerPoint);
     }
     const importantRoomPositions: RoomPosition[] = [];
-    if (roomw.controller) {
-      importantRoomPositions.push(roomw.controller.pos);
+    if (this.roomw.controller) {
+      importantRoomPositions.push(this.roomw.controller.pos);
     }
-    importantRoomPositions.push(...roomw.sources.map(source => source.pos));
-    importantRoomPositions.push(...roomw.deposits.map(deposit => deposit.pos));
+    importantRoomPositions.push(...this.roomw.sources.map(source => source.pos));
+    importantRoomPositions.push(...this.roomw.deposits.map(deposit => deposit.pos));
     const centerPoint = this.plannerUtils.findMidpoint(importantRoomPositions);
-    roomw.memory.centerPoint = MemoryUtils.packRoomPosition(centerPoint);
+    this.roomw.memory.centerPoint = MemoryUtils.packRoomPosition(centerPoint);
     return centerPoint;
   }
 
-  private updateColonyStructures(
-    roomw: RoomWrapper,
-    planPositions: StructurePlanPosition[]
-  ): ScreepsReturnCode {
+  private updateColonyStructures(): ScreepsReturnCode {
     // mark misplaced structures for dismantling
-    this.createDismantleQueue(roomw, planPositions);
+    this.createDismantleQueue();
+    this.drawDismantleQueue();
+
+    // sort positions by range to focal point of room
+    const centerPoint = this.findRoomCenterPoint();
+    this.planPositions = this.planPositions.toSorted(
+      (a, b) => centerPoint.getRangeTo(a) - centerPoint.getRangeTo(b)
+    );
 
     // try to construct any missing structures
-    const result = this.plannerUtils.placeStructurePlan({
-      room: roomw,
-      planPositions
-    });
-    console.log(`place colony result ${result}`);
+    // only create all roads above RCL 6 to avoid wasting energy
+    const skipRoads = (this.roomw.controller?.level ?? 0) > 6;
+    let result = this.plannerUtils.placeStructurePlan(this.roomw, this.planPositions, skipRoads);
+    CreepUtils.consoleLogIfWatched(this.roomw, `place colony`, result);
+
+    // construct roads in named paths
+    if (skipRoads && result === OK) {
+      const roomPaths = MemoryUtils.getCache<string[]>(`${this.roomw.name}_paths`) ?? [];
+      roomPaths.forEach(pathKey => {
+        const path = MemoryUtils.getCache<RoomPosition[]>(pathKey) ?? [];
+        const pathPlan = path.map(pos => {
+          return { pos, structure: STRUCTURE_ROAD };
+        });
+        result = this.plannerUtils.placeStructurePlan(this.roomw, pathPlan);
+      });
+    }
 
     return result;
   }
 
-  private createDismantleQueue(roomw: RoomWrapper, planPositions: StructurePlanPosition[]): void {
-    const lastSpawn = roomw.find(FIND_MY_SPAWNS).length === 1;
+  private createDismantleQueue(): void {
+    const lastSpawn = this.roomw.find(FIND_MY_SPAWNS).length === 1;
     const dismantleQueue: Structure<StructureConstant>[] = [];
-    planPositions.forEach(planPos => {
-      const wrongStructure = roomw
+    this.planPositions.forEach(planPos => {
+      const wrongStructure = this.roomw
         .lookForAt(LOOK_STRUCTURES, planPos)
         .find(s => s.structureType !== planPos.structure);
       if (wrongStructure) {
@@ -221,21 +250,28 @@ export class Planner {
         dismantleQueue.push(wrongStructure);
       }
     });
-    roomw.dismantleQueue = dismantleQueue;
+    this.roomw.dismantleQueue = dismantleQueue;
+  }
 
-    // draw dismantle queue
-    roomw.visual.clear();
-    roomw.dismantleQueue.forEach(structure => {
-      roomw.visual.circle(structure.pos, { fill: "#FF0000" });
+  private drawDismantleQueue(): void {
+    this.roomw.visual.clear();
+    this.roomw.dismantleQueue.forEach(structure => {
+      this.roomw.visual.circle(structure.pos, {
+        fill: "#00000000",
+        opacity: 0.8,
+        radius: 0.5,
+        stroke: "#FF0000"
+      });
     });
-    roomw.dismantleVisual = roomw.visual.export();
+    this.roomw.dismantleVisual = this.roomw.visual.export();
+    this.roomw.visual.clear();
   }
 
   private planRoads(): boolean {
     if (!this.controllerContainerPosition) {
       return false;
     }
-    const roadPlanner = new RoadPlanner(this.roomw);
+    const roadPlanner = new RoadPlan(this.roomw);
 
     // plan road from source containers to controller containers
     const roadPositions = roadPlanner.planRoadSourceContainersToControllerContainers(
@@ -243,7 +279,12 @@ export class Planner {
       this.controllerContainerPosition
     );
     if (roadPositions.length === 0) {
-      CreepUtils.log(LogLevel.DEBUG, `container road plan incomplete`);
+      CreepUtils.consoleLogIfWatched(
+        this.roomw,
+        `container road plan incomplete`,
+        undefined,
+        LogLevel.DEBUG
+      );
       return false;
     }
     roadPositions.forEach(pos => this.structurePlan.setPlanPosition(pos.pos, pos.structure));
@@ -251,7 +292,12 @@ export class Planner {
     // plan road from controller to spawn
     const controllerRoadPositions = roadPlanner.planRoadControllerToSpawn();
     if (controllerRoadPositions.length === 0) {
-      CreepUtils.log(LogLevel.DEBUG, `controller road plan incomplete`);
+      CreepUtils.consoleLogIfWatched(
+        this.roomw,
+        `controller road plan incomplete`,
+        undefined,
+        LogLevel.DEBUG
+      );
       return false;
     }
     controllerRoadPositions.forEach(pos =>
@@ -261,7 +307,12 @@ export class Planner {
     // plan roads to all extensions
     const extensionRoadPositions = roadPlanner.planRoadSpawnToExtensions();
     if (extensionRoadPositions.length === 0) {
-      CreepUtils.log(LogLevel.DEBUG, `extensions road plan incomplete`);
+      CreepUtils.consoleLogIfWatched(
+        this.roomw,
+        `extensions road plan incomplete`,
+        undefined,
+        LogLevel.DEBUG
+      );
       return false;
     }
     extensionRoadPositions.forEach(pos =>

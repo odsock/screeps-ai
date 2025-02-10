@@ -181,6 +181,18 @@ export class RoomWrapper extends Room {
     MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, -1);
   }
 
+  public dismantleQueueIncludes(structure: Structure | RoomPosition): boolean {
+    let structures: Structure[] = [];
+    if (structure instanceof Structure) {
+      structures.push(structure);
+    } else if (structure instanceof RoomPosition) {
+      structures = this.lookForAt(LOOK_STRUCTURES, structure);
+    }
+    return this.dismantleQueue.some(dismantleStructure =>
+      structures.some(structure => structure.id === dismantleStructure.id)
+    );
+  }
+
   /**
    * Cached string export of colony plan visual.
    */
@@ -363,7 +375,7 @@ export class RoomWrapper extends Room {
         structure.structureType !== STRUCTURE_ROAD &&
         structure.structureType !== STRUCTURE_WALL &&
         structure.structureType !== STRUCTURE_RAMPART &&
-        !this.dismantleQueue.find(dismantle => dismantle.id === structure.id)
+        !this.dismantleQueue.some(dismantle => dismantle.id === structure.id)
     });
   }
 
@@ -372,7 +384,7 @@ export class RoomWrapper extends Room {
       filter: structure =>
         structure.hits < structure.hitsMax &&
         structure.structureType === STRUCTURE_ROAD &&
-        !this.dismantleQueue.find(dismantle => dismantle.id === structure.id)
+        !this.dismantleQueue.some(dismantle => dismantle.id === structure.id)
     });
   }
 
@@ -383,7 +395,7 @@ export class RoomWrapper extends Room {
           structure.hits < SockPuppetConstants.MAX_HITS_WALL) ||
         (structure.structureType === STRUCTURE_RAMPART &&
           structure.hits < SockPuppetConstants.MAX_HITS_WALL &&
-          !this.dismantleQueue.find(dismantle => dismantle.id === structure.id))
+          !this.dismantleQueue.some(dismantle => dismantle.id === structure.id))
     });
 
     if (wallsToRepair.length > 0) {
@@ -400,7 +412,7 @@ export class RoomWrapper extends Room {
       filter: structure =>
         structure.structureType === STRUCTURE_RAMPART &&
         structure.hits < SockPuppetConstants.MAX_HITS_WALL &&
-        !this.dismantleQueue.find(dismantle => dismantle.id === structure.id)
+        !this.dismantleQueue.some(dismantle => dismantle.id === structure.id)
     });
 
     if (wallsToRepair.length > 0) {

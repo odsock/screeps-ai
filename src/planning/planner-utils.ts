@@ -19,7 +19,6 @@ export class PlannerUtils {
     nearPosition: RoomPosition,
     cacheKey: string
   ): RoomPosition | undefined {
-    console.log(`finding pattern site in ${nearPosition.roomName}`);
     const patternWidth = roomPlan.getPatternWidth();
     const patternHeight = roomPlan.getPatternHeight();
     const searchWidth = SockPuppetConstants.ROOM_SIZE - 1 - patternWidth;
@@ -164,18 +163,21 @@ export class PlannerUtils {
   }
 
   /** Place all structures in plan */
-  public placeStructurePlan({
-    room,
-    planPositions
-  }: {
-    room: Room;
-    planPositions: StructurePlanPosition[];
-  }): ScreepsReturnCode {
+  public placeStructurePlan(
+    roomw: RoomWrapper,
+    planPositions: StructurePlanPosition[],
+    SKIP_ROADS = false
+  ): ScreepsReturnCode {
     for (const planPosition of planPositions) {
-      if (!this.placed(room, planPosition) && this.haveRclForStructure(room, planPosition)) {
-        const result = room.createConstructionSite(planPosition.pos, planPosition.structure);
+      if (
+        (SKIP_ROADS || planPosition.structure !== STRUCTURE_ROAD) &&
+        !this.placed(roomw, planPosition) &&
+        this.haveRclForStructure(roomw, planPosition) &&
+        !roomw.dismantleQueueIncludes(planPosition.pos)
+      ) {
+        const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
         CreepUtils.consoleLogIfWatched(
-          room,
+          roomw,
           `place construction ${JSON.stringify(planPosition)}`,
           result
         );
@@ -231,7 +233,13 @@ export class PlannerUtils {
         ) {
           room.visual.circle(planPos.pos, { fill: color, opacity: 0.8, radius: 0.2 });
         } else {
-          room.visual.circle(planPos.pos, { fill: color, opacity: 0.8, radius: 0.5 });
+          room.visual.circle(planPos.pos, {
+            fill: "#00000000",
+            stroke: color,
+            lineStyle: "dashed",
+            opacity: 0.8,
+            radius: 0.5
+          });
         }
       });
     }
