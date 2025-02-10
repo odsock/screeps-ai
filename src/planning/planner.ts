@@ -236,6 +236,7 @@ export class Planner {
     const lastSpawn = this.roomw.find(FIND_MY_SPAWNS).length === 1;
     const dismantleQueue = this.roomw.find(FIND_STRUCTURES, {
       filter: s =>
+        s.structureType !== STRUCTURE_CONTROLLER &&
         this.structurePlan.getPlanPosition(s.pos) !== s.structureType &&
         !(s.structureType === STRUCTURE_SPAWN && lastSpawn)
     });
