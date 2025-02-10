@@ -172,8 +172,7 @@ export class PlannerUtils {
       if (
         (SKIP_ROADS || planPosition.structure !== STRUCTURE_ROAD) &&
         !this.placed(roomw, planPosition) &&
-        this.haveRclForStructure(roomw, planPosition) &&
-        !roomw.dismantleQueueIncludes(planPosition.pos)
+        this.haveRclForStructure(roomw, planPosition)
       ) {
         const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
         CreepUtils.consoleLogIfWatched(
@@ -181,7 +180,12 @@ export class PlannerUtils {
           `place construction ${JSON.stringify(planPosition)}`,
           result
         );
-        if (result !== OK) {
+        if (
+          result !== OK &&
+          !roomw
+            .lookForAt(LOOK_STRUCTURES, planPosition.pos)
+            .some(s => roomw.dismantleQueueIncludes(s))
+        ) {
           return result;
         }
       }
@@ -382,7 +386,6 @@ export class PlannerUtils {
     if (gap < minGap) {
       minGap = gap;
     }
-    CreepUtils.consoleLogIfWatched(room, `bottleneck size for ${pos}: ${minGap}`);
     return minGap;
   }
 
