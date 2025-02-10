@@ -69,7 +69,7 @@ export class TowerWrapper extends StructureTower {
     const damagedOwnedStructureInRange = this.roomw
       .find(FIND_MY_STRUCTURES, {
         filter: s =>
-          !this.roomw.dismantleQueue.some(ds => ds.id === s.id) &&
+          !this.roomw.dismantleQueueIncludes(s) &&
           s.hitsMax - s.hits >= TOWER_POWER_REPAIR
       })
       .find(s => this.pos.inRangeTo(s.pos.x, s.pos.y, SockPuppetConstants.TOWER_MAX_REPAIR_RANGE));
@@ -80,7 +80,7 @@ export class TowerWrapper extends StructureTower {
     const damagedStructureInRange = this.roomw
       .find(FIND_STRUCTURES, {
         filter: s =>
-          !this.roomw.dismantleQueue.some(ds => ds.id === s.id) &&
+          !this.roomw.dismantleQueueIncludes(s) &&
           s.hitsMax - s.hits >= TOWER_POWER_REPAIR &&
           ((s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART) ||
             (s.structureType === STRUCTURE_WALL && s.hits < SockPuppetConstants.MAX_HITS_WALL) ||

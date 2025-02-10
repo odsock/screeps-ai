@@ -375,7 +375,7 @@ export class RoomWrapper extends Room {
         structure.structureType !== STRUCTURE_ROAD &&
         structure.structureType !== STRUCTURE_WALL &&
         structure.structureType !== STRUCTURE_RAMPART &&
-        !this.dismantleQueue.some(dismantle => dismantle.id === structure.id)
+        !this.dismantleQueueIncludes(structure)
     });
   }
 
@@ -384,7 +384,7 @@ export class RoomWrapper extends Room {
       filter: structure =>
         structure.hits < structure.hitsMax &&
         structure.structureType === STRUCTURE_ROAD &&
-        !this.dismantleQueue.some(dismantle => dismantle.id === structure.id)
+        !this.dismantleQueueIncludes(structure)
     });
   }
 
@@ -395,7 +395,7 @@ export class RoomWrapper extends Room {
           structure.hits < SockPuppetConstants.MAX_HITS_WALL) ||
         (structure.structureType === STRUCTURE_RAMPART &&
           structure.hits < SockPuppetConstants.MAX_HITS_WALL &&
-          !this.dismantleQueue.some(dismantle => dismantle.id === structure.id))
+          !this.dismantleQueueIncludes(structure))
     });
 
     if (wallsToRepair.length > 0) {
@@ -412,7 +412,7 @@ export class RoomWrapper extends Room {
       filter: structure =>
         structure.structureType === STRUCTURE_RAMPART &&
         structure.hits < SockPuppetConstants.MAX_HITS_WALL &&
-        !this.dismantleQueue.some(dismantle => dismantle.id === structure.id)
+        !this.dismantleQueueIncludes(structure)
     });
 
     if (wallsToRepair.length > 0) {
