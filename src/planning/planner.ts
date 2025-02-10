@@ -234,21 +234,10 @@ export class Planner {
 
   private createDismantleQueue(): void {
     const lastSpawn = this.roomw.find(FIND_MY_SPAWNS).length === 1;
-    const dismantleQueue: Structure<StructureConstant>[] = [];
-    this.planPositions.forEach(planPos => {
-      const wrongStructure = this.roomw
-        .lookForAt(LOOK_STRUCTURES, planPos)
-        .find(s => s.structureType !== planPos.structure);
-      if (wrongStructure) {
-        // a couple of exceptions (don't dismantle own last spawn dummy)
-        if (lastSpawn && wrongStructure.structureType === STRUCTURE_SPAWN) {
-          return;
-        }
-        console.log(
-          `DISMANTLE ${String(wrongStructure.structureType)} at ${String(wrongStructure.pos)}`
-        );
-        dismantleQueue.push(wrongStructure);
-      }
+    const dismantleQueue = this.roomw.find(FIND_STRUCTURES, {
+      filter: s =>
+        this.structurePlan.getPlanPosition(s.pos) !== s.structureType &&
+        !(s.structureType === STRUCTURE_SPAWN && lastSpawn)
     });
     this.roomw.dismantleQueue = dismantleQueue;
   }
