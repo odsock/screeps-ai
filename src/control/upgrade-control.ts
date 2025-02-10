@@ -26,10 +26,14 @@ export class UpgradeControl {
     if (
       roomw.find(FIND_MY_CONSTRUCTION_SITES).length > 0 &&
       roomw.controller &&
-      roomw.controller?.ticksToDowngrade > 1000 &&
-      roomw.getInactiveStructures().length === 0
+      roomw.controller?.ticksToDowngrade > 1000
     ) {
-      CreepUtils.consoleLogIfWatched(roomw, `skipping upgraders during construction`, undefined, LogLevel.DEBUG);
+      CreepUtils.consoleLogIfWatched(
+        roomw,
+        `skipping upgraders during construction`,
+        undefined,
+        LogLevel.DEBUG
+      );
       return;
     }
 
@@ -47,7 +51,10 @@ export class UpgradeControl {
     // don't spawn more than one upgrader at level 1
     // don't calc required upgraders if we have none
     if (upgraderCount > 0 && rcl > 1) {
-      upgradePositionCount = Math.min(SockPuppetConstants.MAX_UPGRADERS, roomw.getUpgradePositions().length);
+      upgradePositionCount = Math.min(
+        SockPuppetConstants.MAX_UPGRADERS,
+        roomw.getUpgradePositions().length
+      );
       upgraderWorkPartsActive = roomw.getActiveParts(Upgrader.ROLE, WORK);
       CreepUtils.consoleLogIfWatched(
         roomw,
@@ -75,13 +82,27 @@ export class UpgradeControl {
     }
 
     // replace upgrader older than ticks-to-spawn-replacement if at or below needed level
-    if (upgraderCount <= upgradePositionCount && upgraderWorkPartsActive <= upgraderWorkPartsNeeded) {
-      const oldestCreep = CreepUtils.findOldestCreep(upgraders.filter(creep => !creep.memory.retiring));
+    if (
+      upgraderCount <= upgradePositionCount &&
+      upgraderWorkPartsActive <= upgraderWorkPartsNeeded
+    ) {
+      const oldestCreep = CreepUtils.findOldestCreep(
+        upgraders.filter(creep => !creep.memory.retiring)
+      );
       const ticksToSpawn = SpawnUtils.calcSpawnTime(Upgrader.BODY_PROFILE, roomw);
       if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToSpawn + 50) {
-        CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${Upgrader.ROLE}`, undefined, LogLevel.DEBUG);
+        CreepUtils.consoleLogIfWatched(
+          roomw,
+          `spawning replacement ${Upgrader.ROLE}`,
+          undefined,
+          LogLevel.DEBUG
+        );
         spawnQueue.push({
-          bodyProfile: CreepBodyUtils.buildBodyProfile(Upgrader.BODY_PROFILE, upgraderWorkPartsNeeded, WORK),
+          bodyProfile: CreepBodyUtils.buildBodyProfile(
+            Upgrader.BODY_PROFILE,
+            upgraderWorkPartsNeeded,
+            WORK
+          ),
           max: true,
           memory: {
             role: Upgrader.ROLE,

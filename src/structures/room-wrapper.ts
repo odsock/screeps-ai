@@ -181,16 +181,8 @@ export class RoomWrapper extends Room {
     MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, -1);
   }
 
-  public dismantleQueueIncludes(structure: Structure | RoomPosition): boolean {
-    let structures: Structure[] = [];
-    if (structure instanceof Structure) {
-      structures.push(structure);
-    } else if (structure instanceof RoomPosition) {
-      structures = this.lookForAt(LOOK_STRUCTURES, structure);
-    }
-    return this.dismantleQueue.some(dismantleStructure =>
-      structures.some(structure => structure.id === dismantleStructure.id)
-    );
+  public dismantleQueueIncludes(structure: Structure): boolean {
+    return this.dismantleQueue.some(d => d.id === structure.id);
   }
 
   /**
@@ -227,6 +219,18 @@ export class RoomWrapper extends Room {
    */
   public set dismantleVisual(visual: string) {
     MemoryUtils.setCache(`${this.room.name}_dismantleVisual`, visual, -1);
+  }
+
+  /** Draw roomvisual of dismantle queue */
+  public drawDismantleQueue(): void {
+    this.dismantleQueue.forEach(structure => {
+      this.visual.circle(structure.pos, {
+        fill: "#00000000",
+        opacity: 0.8,
+        radius: 0.5,
+        stroke: "#FF0000"
+      });
+    });
   }
 
   /**
@@ -429,10 +433,6 @@ export class RoomWrapper extends Room {
     const creeps = this.find(FIND_MY_CREEPS, { filter: c => c.memory.role === type });
     const spawningCount = SpawnUtils.getSpawningPartsForType(this, type, part);
     return CreepUtils.countParts(part, ...creeps) + spawningCount;
-  }
-
-  public getInactiveStructures(): Structure[] {
-    return this.find(FIND_MY_STRUCTURES, { filter: s => !s.isActive() });
   }
 
   public findCommonAdjacentPositions(pos: RoomPosition, pos1: RoomPosition): RoomPosition[] {
