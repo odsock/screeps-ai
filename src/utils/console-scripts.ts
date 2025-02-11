@@ -1,34 +1,33 @@
 import { LogLevel, Watchable } from "creep-utils";
 import { isBoolean } from "lodash";
-import { RoadPlan } from "planning/road-plan";
 import { CostMatrixUtils } from "./cost-matrix-utils";
 import { MemoryUtils } from "planning/memory-utils";
 import { RoomWrapper } from "structures/room-wrapper";
 import { StructurePlanPosition } from "planning/structure-plan";
 
-global.spotCreeps = (...creeps: Creep[]) => {
+global.spotCreeps = (...creeps: Creep[]): void => {
   creeps.forEach(c => (c.memory.draw = true));
 };
 
-global.unspotCreeps = (...creeps: Creep[]) => {
+global.unspotCreeps = (...creeps: Creep[]): void => {
   creeps.forEach(c => (c.memory.draw = false));
 };
 
-global.watch = (key: string) => {
+global.watch = (key: string): void => {
   const watchable: Watchable = getWatchable(key);
   if (watchable) {
     watchable.memory.watched = true;
   }
 };
 
-global.unwatch = (key: string) => {
+global.unwatch = (key: string): void => {
   const watchable: Watchable = getWatchable(key);
   if (watchable) {
     watchable.memory.watched = false;
   }
 };
 
-function getWatchable(key: string) {
+function getWatchable(key: string): Watchable {
   let watchable: Watchable;
   if (Game.rooms[key]) {
     watchable = Game.rooms[key];
@@ -53,12 +52,6 @@ global.drawCostMatrix = (roomName: string): void => {
       }
     }
   }
-};
-
-global.drawRoadPlan = (origin: RoomPosition, goal: RoomPosition, range: number): void => {
-  const room = Game.rooms[origin.roomName];
-  const path = new RoadPlan(room).planRoad(origin, goal, range);
-  room.visual.poly(path.path);
 };
 
 global.getRoomWrapper = (roomName: string): RoomWrapper => {

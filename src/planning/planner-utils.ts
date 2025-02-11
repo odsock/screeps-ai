@@ -162,17 +162,24 @@ export class PlannerUtils {
     return ret;
   }
 
-  /** Place all structures in plan */
+  /**
+   * Place all structures in plan
+   * Don't attempt to place structures above RCL level.
+   * Don't place structures that are already there, or under construction.
+   * Don't place structures on walls (like roads)
+   */
   public placeStructurePlan(
     roomw: RoomWrapper,
     planPositions: StructurePlanPosition[],
     SKIP_ROADS = false
   ): ScreepsReturnCode {
     for (const planPosition of planPositions) {
+      const lookResult = roomw.lookAt(planPosition.pos);
       if (
-        (SKIP_ROADS || planPosition.structure !== STRUCTURE_ROAD) &&
-        !this.placed(roomw, planPosition) &&
-        this.haveRclForStructure(roomw, planPosition)
+        (planPosition.structure !== STRUCTURE_ROAD || !SKIP_ROADS) &&
+        this.haveRclForStructure(roomw, planPosition) &&
+        !this.placed(lookResult, planPosition.structure) &&
+        !lookResult.some(s => s.structure?.structureType === STRUCTURE_WALL)
       ) {
         const result = roomw.createConstructionSite(planPosition.pos, planPosition.structure);
         CreepUtils.consoleLogIfWatched(
@@ -197,14 +204,12 @@ export class PlannerUtils {
    * Look at position for structure or construction site matching plan
    * Note: calling lookAt is cheaper than failing when already placed
    */
-  private placed(room: Room, planPosition: StructurePlanPosition): boolean {
-    const placed = room
-      .lookAt(planPosition.pos)
-      .some(
-        item =>
-          item.structure?.structureType === planPosition.structure ||
-          item.constructionSite?.structureType === planPosition.structure
-      );
+  private placed(lookResult: LookAtResult[], structureType: BuildableStructureConstant): boolean {
+    const placed = lookResult.some(
+      item =>
+        item.structure?.structureType === structureType ||
+        item.constructionSite?.structureType === structureType
+    );
     return placed;
   }
 

@@ -23,9 +23,22 @@ export class StructurePlan {
   public constructor(room: Room | RoomWrapper | string) {
     this.roomw = RoomWrapper.getInstance(room);
     //init the plan matrix
+    this.init();
+  }
+
+  private init(): void {
     for (let i = 0; i < SockPuppetConstants.ROOM_SIZE; i++) {
       this.plan[i] = [];
     }
+  }
+
+  public clear(): void {
+    this.pattern = [];
+    this.init();
+  }
+
+  public setPlan(planPositions: StructurePlanPosition[]): void {
+    planPositions.forEach(p => this.setPlanPosition(p.pos, p.structure));
   }
 
   /** Sets pattern for all pattern functions */

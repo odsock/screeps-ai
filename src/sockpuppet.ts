@@ -37,22 +37,19 @@ export class Sockpuppet {
       new SpawnControl(roomw).run();
 
       // plan room structures
-      // TODO temp skip planning main room
-      if (roomw.name != "E19N55" && Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
+      if (Game.time % SockPuppetConstants.PLANNING_INTERVAL === 0) {
         new Planner(roomw).run();
       }
 
       // draw colony poc
       const planVisual = roomw.planVisual;
       if (planVisual) {
-        CreepUtils.log(LogLevel.DEBUG, `found cached plan visual`);
         roomw.visual.import(planVisual);
       }
 
       // draw dismantle queue
       const dismantleVisual = roomw.dismantleVisual;
       if (dismantleVisual) {
-        CreepUtils.log(LogLevel.DEBUG, `found cached dismantle visual`);
         roomw.visual.import(dismantleVisual);
       }
     });
