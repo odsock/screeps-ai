@@ -850,7 +850,7 @@ export abstract class CreepWrapper {
     }
 
     // repair roads
-    const road = this.roomw.findClosestDamagedRoad(this.pos);
+    const road = this.roomw.findClosestDamagedRoad(this.pos, 0.5);
     if (road) {
       return road;
     }

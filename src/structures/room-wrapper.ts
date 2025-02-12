@@ -383,10 +383,10 @@ export class RoomWrapper extends Room {
     });
   }
 
-  public findClosestDamagedRoad(pos: RoomPosition): StructureRoad | null {
+  public findClosestDamagedRoad(pos: RoomPosition, damageRatio = 1): StructureRoad | null {
     return pos.findClosestByRange<StructureRoad>(FIND_STRUCTURES, {
       filter: structure =>
-        structure.hits < structure.hitsMax &&
+        structure.hits < structure.hitsMax * damageRatio &&
         structure.structureType === STRUCTURE_ROAD &&
         !this.dismantleQueueIncludes(structure)
     });
