@@ -392,6 +392,7 @@ export class RoomWrapper extends Room {
     });
   }
 
+  /** Finds wall with fewest hits left that is not on dismantle queue */
   public findWeakestWall(): StructureWall | StructureRampart | undefined {
     const wallsToRepair = this.room.find<StructureWall | StructureRampart>(FIND_STRUCTURES, {
       filter: structure =>

@@ -107,7 +107,10 @@ export abstract class CreepWrapper {
 
   public abstract run(): void;
 
-  public moveTo(target: RoomObject | RoomPosition | CreepWrapper, moveOpts?: MoveToOpts): ScreepsReturnCode {
+  public moveTo(
+    target: RoomObject | RoomPosition | CreepWrapper,
+    moveOpts?: MoveToOpts
+  ): ScreepsReturnCode {
     const stuckFlag = this.clearPathIfStuck();
     const visualizePathStyle: PolyStyle = { stroke: "#00FF00" };
     if (stuckFlag) {
@@ -237,13 +240,18 @@ export abstract class CreepWrapper {
   }
 
   protected findClosestTombstoneWithEnergy(): Tombstone | null {
-    return this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
+    return this.pos.findClosestByPath(FIND_TOMBSTONES, {
+      filter: t => t.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+    });
   }
 
   /** find closest container with at least a minimum amount of energy */
   protected findClosestContainerWithEnergy(min = 0): StructureContainer | null {
     const container = this.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 0 && s.store.energy > min
+      filter: s =>
+        s.structureType === STRUCTURE_CONTAINER &&
+        s.store.getUsedCapacity() > 0 &&
+        s.store.energy > min
     });
     return container as StructureContainer;
   }
@@ -251,7 +259,8 @@ export abstract class CreepWrapper {
   /** find closest link with at least a minimum amount of energy */
   protected findClosestLinkWithEnergy(min = 0): StructureLink | null {
     const container = this.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_LINK && s.store.getUsedCapacity(RESOURCE_ENERGY) > min
+      filter: s =>
+        s.structureType === STRUCTURE_LINK && s.store.getUsedCapacity(RESOURCE_ENERGY) > min
     });
     return container as StructureLink;
   }
@@ -289,7 +298,9 @@ export abstract class CreepWrapper {
   }
 
   protected findClosestRuinsWithEnergy(): Ruin | null {
-    return this.pos.findClosestByPath(FIND_RUINS, { filter: r => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
+    return this.pos.findClosestByPath(FIND_RUINS, {
+      filter: r => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+    });
   }
 
   protected findClosestEnergyDrop(): Resource<RESOURCE_ENERGY> | null {
@@ -315,7 +326,10 @@ export abstract class CreepWrapper {
   protected findClosestTowerNotFull(): StructureTower | null {
     return this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: structure => {
-        return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+        return (
+          structure.structureType === STRUCTURE_TOWER &&
+          structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+        );
       }
     });
   }
@@ -327,7 +341,8 @@ export abstract class CreepWrapper {
     const extensions: (StructureExtension | StructureSpawn)[] = this.roomw.find<StructureExtension>(
       FIND_MY_STRUCTURES,
       {
-        filter: s => s.structureType === STRUCTURE_EXTENSION && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+        filter: s =>
+          s.structureType === STRUCTURE_EXTENSION && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
       }
     );
     const spawnStorage = spawns.concat(extensions);
@@ -351,7 +366,9 @@ export abstract class CreepWrapper {
     if (tombs.length > 0) {
       withdrawResult = this.withdraw(tombs[0], RESOURCE_ENERGY);
     } else {
-      const ruins = this.pos.findInRange(FIND_RUINS, 1, { filter: r => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
+      const ruins = this.pos.findInRange(FIND_RUINS, 1, {
+        filter: r => r.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+      });
       if (ruins.length > 0) {
         withdrawResult = this.withdraw(ruins[0], RESOURCE_ENERGY);
       }
@@ -451,8 +468,15 @@ export abstract class CreepWrapper {
 
       const inactiveSource = this.findClosestEnergySource();
       if (inactiveSource && !this.pos.isNearTo(inactiveSource)) {
-        result = this.moveTo(inactiveSource, { range: 1, visualizePathStyle: { stroke: "#ffaa00" } });
-        CreepUtils.consoleLogIfWatched(this, `moving to inactive source: ${String(inactiveSource?.pos)}`, result);
+        result = this.moveTo(inactiveSource, {
+          range: 1,
+          visualizePathStyle: { stroke: "#ffaa00" }
+        });
+        CreepUtils.consoleLogIfWatched(
+          this,
+          `moving to inactive source: ${String(inactiveSource?.pos)}`,
+          result
+        );
         return result;
       }
     }
@@ -466,7 +490,10 @@ export abstract class CreepWrapper {
     const containersNotFull = this.roomw.controllerContainers.filter(
       container => container.store.getFreeCapacity() > 0
     );
-    CreepUtils.consoleLogIfWatched(this, `controller containers not full: ${containersNotFull.length}`);
+    CreepUtils.consoleLogIfWatched(
+      this,
+      `controller containers not full: ${containersNotFull.length}`
+    );
     return this.pos.findClosestByPath(containersNotFull) ?? undefined;
   }
 
@@ -503,7 +530,10 @@ export abstract class CreepWrapper {
     if (!this.withdrawing || force) {
       // only withdraw remaining capacity if also picking up drop this tick
       const targetAmount = target.store.getUsedCapacity(type) ?? 0;
-      const withdrawAmount = Math.min(targetAmount, this.store.getFreeCapacity() - this.pickingUpAmount);
+      const withdrawAmount = Math.min(
+        targetAmount,
+        this.store.getFreeCapacity() - this.pickingUpAmount
+      );
       const result = this.creep.withdraw(target, type, withdrawAmount);
       if (result === OK) {
         this.withdrawing = true;
@@ -640,7 +670,11 @@ export abstract class CreepWrapper {
         range: 1,
         visualizePathStyle: { stroke: "#ff0000" }
       });
-      CreepUtils.consoleLogIfWatched(this, `move to ${typeof target}: ${String(target.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(
+        this,
+        `move to ${typeof target}: ${String(target.pos)}`,
+        result
+      );
     }
     return result;
   }
@@ -702,7 +736,10 @@ export abstract class CreepWrapper {
       CreepUtils.consoleLogIfWatched(this, `can't find exit to room: ${roomName}`);
       return ERR_NO_PATH;
     }
-    CreepUtils.consoleLogIfWatched(this, `exit position: ${String(exitPos)}, current pos: ${String(this.pos)}`);
+    CreepUtils.consoleLogIfWatched(
+      this,
+      `exit position: ${String(exitPos)}, current pos: ${String(this.pos)}`
+    );
 
     const path = this.pos.findPathTo(exitPos, { maxOps: 5000 });
     CreepUtils.consoleLogIfWatched(this, `path found: ${JSON.stringify(path)}`);
@@ -724,24 +761,41 @@ export abstract class CreepWrapper {
 
     if (
       (this.roomw.controller.owner && this.roomw.controller.owner.username !== Memory.username) ||
-      (this.roomw.controller.reservation && this.roomw.controller.reservation.username !== Memory.username)
+      (this.roomw.controller.reservation &&
+        this.roomw.controller.reservation.username !== Memory.username)
     ) {
       // go to controller and attack it
       let result: ScreepsReturnCode = this.creep.attackController(this.roomw.controller);
-      CreepUtils.consoleLogIfWatched(this, `attacking controller: ${String(this.roomw.controller.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(
+        this,
+        `attacking controller: ${String(this.roomw.controller.pos)}`,
+        result
+      );
       if (result === ERR_NOT_IN_RANGE) {
         result = this.moveTo(this.roomw.controller);
-        CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, result);
+        CreepUtils.consoleLogIfWatched(
+          this,
+          `moving to controller: ${String(this.roomw.controller.pos)}`,
+          result
+        );
       }
       return result;
     }
 
     // go to controller and claim it
     let result: ScreepsReturnCode = this.creep.claimController(this.roomw.controller);
-    CreepUtils.consoleLogIfWatched(this, `claiming controller: ${String(this.roomw.controller.pos)}`, result);
+    CreepUtils.consoleLogIfWatched(
+      this,
+      `claiming controller: ${String(this.roomw.controller.pos)}`,
+      result
+    );
     if (result === ERR_NOT_IN_RANGE) {
       result = this.moveTo(this.roomw.controller);
-      CreepUtils.consoleLogIfWatched(this, `moving to controller: ${String(this.roomw.controller.pos)}`, result);
+      CreepUtils.consoleLogIfWatched(
+        this,
+        `moving to controller: ${String(this.roomw.controller.pos)}`,
+        result
+      );
     }
     return result;
   }
@@ -826,7 +880,9 @@ export abstract class CreepWrapper {
     return result;
   }
 
-  protected moveToAndDismantle(structure: Structure<StructureConstant> | undefined): ScreepsReturnCode {
+  protected moveToAndDismantle(
+    structure: Structure<StructureConstant> | undefined
+  ): ScreepsReturnCode {
     if (!structure) {
       return ERR_NOT_FOUND;
     }
@@ -842,7 +898,9 @@ export abstract class CreepWrapper {
   }
 
   protected moveOffTheRoad(): ScreepsReturnCode {
-    const onRoad = this.pos.lookFor(LOOK_STRUCTURES).some(item => item.structureType === STRUCTURE_ROAD);
+    const onRoad = this.pos
+      .lookFor(LOOK_STRUCTURES)
+      .some(item => item.structureType === STRUCTURE_ROAD);
     if (!onRoad) {
       return OK;
     }
@@ -869,10 +927,15 @@ export abstract class CreepWrapper {
   public findRoomStorage(): StructureWithStorage | Creep | undefined {
     CreepUtils.consoleLogIfWatched(
       this,
-      `room storage: ${String(this.roomw.storage)} ${String(this.roomw.storage?.store.getFreeCapacity())}`
+      `room storage: ${String(this.roomw.storage)} ${String(
+        this.roomw.storage?.store.getFreeCapacity()
+      )}`
     );
     if (this.roomw.storage && this.roomw.storage.store.getFreeCapacity() > 0) {
-      CreepUtils.consoleLogIfWatched(this, `room storage: ${String(this.roomw.storage.store.getFreeCapacity())}`);
+      CreepUtils.consoleLogIfWatched(
+        this,
+        `room storage: ${String(this.roomw.storage.store.getFreeCapacity())}`
+      );
       return this.roomw.storage;
     }
 
@@ -927,7 +990,11 @@ export abstract class CreepWrapper {
       return transferResult;
     } else {
       const moveResult = this.moveTo(target);
-      CreepUtils.consoleLogIfWatched(this, `moving to ${String(target)} at ${String(target.pos)}`, moveResult);
+      CreepUtils.consoleLogIfWatched(
+        this,
+        `moving to ${String(target)} at ${String(target.pos)}`,
+        moveResult
+      );
       if (moveResult === OK) {
         return ERR_NOT_IN_RANGE;
       }
@@ -1018,5 +1085,29 @@ export abstract class CreepWrapper {
     delete this.memory.task;
     this.memory.working = false;
     this.memory.idleZone = undefined;
+  }
+
+  /**
+   * Dismantle work flow
+   * Dismantles the target structure. Stops if full, returns to work after depositing in storage.
+   */
+  protected doDismantleJob(target: Structure): ScreepsReturnCode {
+    this.updateJob("dismantle?");
+    this.startWorkingInRange(target.pos, 1);
+    this.startWorkingIfEmpty();
+    this.stopWorkingIfFull();
+
+    if (this.memory.working) {
+      const result = this.moveToAndDismantle(target);
+      CreepUtils.consoleLogIfWatched(this, `dismantle result`, result);
+      return result;
+    } else {
+      const storage = this.findRoomStorage();
+      if (storage) {
+        const result = this.moveToAndTransfer(storage);
+        return result;
+      }
+      return ERR_FULL;
+    }
   }
 }

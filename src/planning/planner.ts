@@ -203,6 +203,10 @@ export class Planner {
   }
 
   private updateColonyStructures(): ScreepsReturnCode {
+    // TODO remove this temporary testing check
+    if (this.roomw.name === "E19N55") {
+      return OK;
+    }
     // mark misplaced structures for dismantling
     this.createDismantleQueue();
     this.drawDismantleQueue();

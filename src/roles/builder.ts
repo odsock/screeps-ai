@@ -39,6 +39,12 @@ export class Builder extends CreepWrapper {
       }
     }
 
+    const dismantleTarget = this.findDismantleTarget();
+    if (dismantleTarget) {
+      this.doDismantleJob(dismantleTarget);
+      return;
+    }
+
     CreepUtils.consoleLogIfWatched(this, "no work left. this is the end.");
     const target = this.roomw.storage ?? this.roomw.spawns[0];
     const result = this.moveTo(target.pos, { range: 1 });
@@ -64,9 +70,17 @@ export class Builder extends CreepWrapper {
       if (this.memory.working) {
         // don't block a source while working
         const closestEnergySource = this.findClosestActiveEnergySource();
-        if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource) && this.pos.inRangeTo(site.pos, 3)) {
+        if (
+          closestEnergySource?.pos &&
+          this.pos.isNearTo(closestEnergySource) &&
+          this.pos.inRangeTo(site.pos, 3)
+        ) {
           CreepUtils.consoleLogIfWatched(this, `moving away from source`);
-          const path = PathFinder.search(this.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
+          const path = PathFinder.search(
+            this.pos,
+            { pos: closestEnergySource.pos, range: 2 },
+            { flee: true }
+          );
           this.moveByPath(path.path);
           return;
         }
@@ -127,7 +141,10 @@ export class Builder extends CreepWrapper {
         }
       }
       if (site) {
-        CreepUtils.consoleLogIfWatched(this, `center pos: ${String(centerPos)}, found site: ${String(site)}`);
+        CreepUtils.consoleLogIfWatched(
+          this,
+          `center pos: ${String(centerPos)}, found site: ${String(site)}`
+        );
         return site;
       }
     }

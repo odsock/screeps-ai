@@ -54,24 +54,4 @@ export class Fixer extends CreepWrapper {
       return OK;
     }
   }
-
-  private doDismantleJob(target: Structure): ScreepsReturnCode {
-    this.updateJob("dismantle?");
-    this.startWorkingInRange(target.pos, 1);
-    this.startWorkingIfEmpty();
-    this.stopWorkingIfFull();
-
-    if (this.memory.working) {
-      const result = this.moveToAndDismantle(target);
-      CreepUtils.consoleLogIfWatched(this, `dismantle result`, result);
-      return result;
-    } else {
-      const storage = this.findRoomStorage();
-      if (storage) {
-        const result = this.moveToAndTransfer(storage);
-        return result;
-      }
-      return ERR_FULL;
-    }
-  }
 }
