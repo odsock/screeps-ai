@@ -1,7 +1,6 @@
 import "core-js/actual/array/to-sorted";
 import { Sockpuppet } from "sockpuppet";
 import { ErrorMapper } from "utils/ErrorMapper";
-import { Logger } from "./logger";
 import { SockPuppetConstants } from "./config/sockpuppet-constants";
 import "./utils/console-scripts.js";
 import { MemoryUtils } from "planning/memory-utils";
@@ -40,9 +39,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   global.sockpuppet.run();
 
-  const logger = new Logger();
-  logger.run();
-
   if (Game.shard.name === "shard3" && Game.cpu.bucket >= PIXEL_CPU_COST) {
     Game.cpu.generatePixel();
   }
@@ -51,7 +47,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   new Stats().showStats();
 });
 
-function recordUsername() {
+function recordUsername(): void {
   if (!Memory.username) {
     const spawn = _.find(Game.spawns, () => true);
     if (spawn) {
@@ -61,7 +57,7 @@ function recordUsername() {
 }
 
 // Automatically delete memory of missing creeps
-function cleanupDeadCreepMemory() {
+function cleanupDeadCreepMemory(): void {
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name];

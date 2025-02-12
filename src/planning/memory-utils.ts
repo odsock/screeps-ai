@@ -20,15 +20,10 @@ declare global {
     storage?: StorageInfo;
     reconTick: number;
     centerPoint?: string;
-    remoteHarvest?: { [roomName: string]: RemoteHarvest };
     owner?: string;
     colonyType?: string;
   }
 
-  interface RemoteHarvest {
-    importersNeeded: number;
-    spawnCapacity: number;
-  }
   interface StorageInfo {
     link?: StructureInfo<StructureLink>;
   }
