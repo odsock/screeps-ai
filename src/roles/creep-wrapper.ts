@@ -46,14 +46,12 @@ export abstract class CreepWrapper {
   private pickingUp = false;
   private withdrawing = false;
   private pickingUpAmount = 0;
-  protected targetControl: TargetControl;
-  protected costMatrixUtils: CostMatrixUtils;
+  protected targetControl = TargetControl.getInstance();
+  protected costMatrixUtils = CostMatrixUtils.getInstance();
   public readonly store: StoreDefinition;
   private readonly stats = new Stats();
 
   public constructor(private readonly creep: Creep) {
-    this.targetControl = TargetControl.getInstance();
-    this.costMatrixUtils = CostMatrixUtils.getInstance();
     this.store = creep.store;
   }
 
@@ -99,6 +97,10 @@ export abstract class CreepWrapper {
 
   public get hitsMax(): number {
     return this.creep.hitsMax;
+  }
+
+  public get ticksToLive(): number | undefined {
+    return this.creep.ticksToLive;
   }
 
   public getActiveBodyparts(type: BodyPartConstant): number {
