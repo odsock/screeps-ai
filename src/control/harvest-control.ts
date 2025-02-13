@@ -29,10 +29,16 @@ export class HarvestControl {
   }
 
   // TODO add dropped and tomb to this?
-  private energyInRoom(roomw: RoomWrapper) {
+  private energyInRoom(roomw: RoomWrapper): number {
     const storageEnergy = roomw.storage?.store.energy ?? 0;
-    const sourceContainerEnergy = roomw.sourceContainers.reduce<number>((sum, c) => (sum += c.store.energy), 0);
-    const controllerContainerEnergy = roomw.controllerContainers.reduce<number>((sum, c) => (sum += c.store.energy), 0);
+    const sourceContainerEnergy = roomw.sourceContainers.reduce<number>(
+      (sum, c) => (sum += c.store.energy),
+      0
+    );
+    const controllerContainerEnergy = roomw.controllerContainers.reduce<number>(
+      (sum, c) => (sum += c.store.energy),
+      0
+    );
     return storageEnergy + sourceContainerEnergy + controllerContainerEnergy;
   }
 
@@ -40,9 +46,11 @@ export class HarvestControl {
    * manage harvester population
    * should have enough to drain sources at regen time, and fit in harvest positions
    * */
-  private requestSpawns(roomw: RoomWrapper) {
+  private requestSpawns(roomw: RoomWrapper): void {
     const spawnQueue = SpawnQueue.getInstance(roomw);
-    const harvesters = roomw.find(FIND_MY_CREEPS, { filter: c => c.memory.role === Harvester.ROLE });
+    const harvesters = roomw.find(FIND_MY_CREEPS, {
+      filter: c => c.memory.role === Harvester.ROLE
+    });
 
     // emergency harvester
     if (
@@ -84,9 +92,16 @@ export class HarvestControl {
         undefined,
         LogLevel.DEBUG
       );
-      const bodyProfile = roomw.memory.sources[sourceId].link ? Harvester.BODY_PROFILE_LINK : Harvester.BODY_PROFILE;
+      const bodyProfile = roomw.memory.sources[sourceId].link
+        ? Harvester.BODY_PROFILE_LINK
+        : Harvester.BODY_PROFILE;
       if (creepCount < positionsForSource && partCount < partsNeeded) {
-        CreepUtils.consoleLogIfWatched(roomw, `spawning ${Harvester.ROLE}`, undefined, LogLevel.DEBUG);
+        CreepUtils.consoleLogIfWatched(
+          roomw,
+          `spawning ${Harvester.ROLE}`,
+          undefined,
+          LogLevel.DEBUG
+        );
         const spawnRequest = {
           bodyProfile,
           max: true,
@@ -106,7 +121,12 @@ export class HarvestControl {
           activeHarvestersOnSource.filter(creep => !creep.memory.retiring)
         );
         if (oldestCreep?.ticksToLive && oldestCreep.ticksToLive <= ticksToSpawn + 50) {
-          CreepUtils.consoleLogIfWatched(roomw, `spawning replacement ${Harvester.ROLE}`, undefined, LogLevel.DEBUG);
+          CreepUtils.consoleLogIfWatched(
+            roomw,
+            `spawning replacement ${Harvester.ROLE}`,
+            undefined,
+            LogLevel.DEBUG
+          );
           spawnQueue.push({
             bodyProfile,
             max: true,
@@ -122,7 +142,7 @@ export class HarvestControl {
     }
   }
 
-  private requestRemoteHarvesters(roomw: RoomWrapper) {
+  private requestRemoteHarvesters(roomw: RoomWrapper): void {
     const spawnQueue = SpawnQueue.getInstance(roomw);
 
     const remoteHarvestRooms = this.targetControl.remoteHarvestRooms;
@@ -138,7 +158,9 @@ export class HarvestControl {
       const spawningHarvesters = this.getSpawningHarvestersForTarget(roomw, targetRoom);
 
       for (const sourceId in Memory.rooms[targetRoom]?.sources) {
-        const hasMinder = [...spawningHarvesters, ...harvesters].some(h => h.memory.source === sourceId);
+        const hasMinder = [...spawningHarvesters, ...harvesters].some(
+          h => h.memory.source === sourceId
+        );
         if (!hasMinder) {
           CreepUtils.consoleLogIfWatched(
             roomw,
@@ -222,7 +244,10 @@ export class HarvestControl {
 
     const linkInfo = roomw.memory.controller.link;
     if ((!linkInfo || this.plannerUtils.validateStructureInfo(linkInfo) !== OK) && containerPos) {
-      const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+      const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(
+        containerPos,
+        STRUCTURE_LINK
+      );
       if (findResult) {
         roomw.memory.controller.link = {
           id: findResult.id,
@@ -241,7 +266,10 @@ export class HarvestControl {
         containerPos = MemoryUtils.unpackRoomPosition(containerInfo.pos);
       } else {
         containerInfo = undefined;
-        const findResult = this.plannerUtils.findAdjacentStructure<StructureContainer>(source.pos, STRUCTURE_CONTAINER);
+        const findResult = this.plannerUtils.findAdjacentStructure<StructureContainer>(
+          source.pos,
+          STRUCTURE_CONTAINER
+        );
         if (findResult) {
           containerPos = findResult.pos;
           containerInfo = {
@@ -255,7 +283,10 @@ export class HarvestControl {
 
       const linkInfo = roomw.memory.sources[source.id].link;
       if ((!linkInfo || this.plannerUtils.validateStructureInfo(linkInfo) !== OK) && containerPos) {
-        const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(containerPos, STRUCTURE_LINK);
+        const findResult = this.plannerUtils.findAdjacentStructure<StructureLink>(
+          containerPos,
+          STRUCTURE_LINK
+        );
         if (findResult) {
           roomw.memory.sources[source.id].link = {
             id: findResult.id,
