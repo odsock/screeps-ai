@@ -257,13 +257,13 @@ export class Planner {
       }
     });
     CreepUtils.consoleLogIfWatched(this.roomw, `planning: updating dismantle queue`);
-    this.roomw.dismantleQueue = [...overlapStructures, ...misplacedStructures];
+    this.roomw.setDismantleQueue([...overlapStructures, ...misplacedStructures]);
   }
 
   private drawDismantleQueue(): void {
     CreepUtils.consoleLogIfWatched(this.roomw, `planning: creating dismantle queue visual`);
     this.roomw.visual.clear();
-    this.roomw.dismantleQueue.forEach(structure => {
+    this.roomw.getDismantleQueue().forEach(structure => {
       this.roomw.visual.circle(structure.pos, {
         fill: "#00000000",
         opacity: 0.8,

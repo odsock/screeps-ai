@@ -167,7 +167,7 @@ export class RoomWrapper extends Room {
   /**
    * Structures marked for demolition.
    */
-  public get dismantleQueue(): Structure[] {
+  public getDismantleQueue(): Structure[] {
     let queue = MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueue`);
     if (!queue) {
       return [];
@@ -177,12 +177,16 @@ export class RoomWrapper extends Room {
     return queue;
   }
 
-  public set dismantleQueue(queue: Structure[]) {
+  public setDismantleQueue(queue: Structure[]): void {
     MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, -1);
   }
 
   public dismantleQueueIncludes(structure: Structure): boolean {
-    return this.dismantleQueue.some(d => d.id === structure.id);
+    return this.getDismantleQueue().some(d => d.id === structure.id);
+  }
+
+  public getDismantleTarget(): Structure<StructureConstant> {
+    return this.getDismantleQueue()[0];
   }
 
   /**
@@ -223,7 +227,7 @@ export class RoomWrapper extends Room {
 
   /** Draw roomvisual of dismantle queue */
   public drawDismantleQueue(): void {
-    this.dismantleQueue.forEach(structure => {
+    this.getDismantleQueue().forEach(structure => {
       this.visual.circle(structure.pos, {
         fill: "#00000000",
         opacity: 0.8,

@@ -352,11 +352,7 @@ export abstract class CreepWrapper {
   }
 
   protected findDismantleTarget(): Structure | undefined {
-    const dismantleQueue = this.roomw.dismantleQueue;
-    if (dismantleQueue.length > 0) {
-      return dismantleQueue[0];
-    }
-    return undefined;
+    return this.roomw.getDismantleTarget();
   }
 
   protected withdrawAdjacentRuinOrTombEnergy(): ScreepsReturnCode {
