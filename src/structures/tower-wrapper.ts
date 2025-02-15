@@ -66,27 +66,18 @@ export class TowerWrapper extends StructureTower {
 
   /** repair structures within optimal range, and when damaged enough to avoid waste */
   private repairStructures(): ScreepsReturnCode {
-    const damagedOwnedStructureInRange = this.roomw
-      .find(FIND_MY_STRUCTURES, {
-        filter: s =>
-          s.hitsMax - s.hits >= TOWER_POWER_REPAIR && !this.roomw.dismantleQueueIncludes(s)
-      })
-      .find(s => this.pos.inRangeTo(s.pos.x, s.pos.y, SockPuppetConstants.TOWER_MAX_REPAIR_RANGE));
-    if (damagedOwnedStructureInRange) {
-      return this.repair(damagedOwnedStructureInRange);
-    }
-
     const damagedStructureInRange = this.roomw
-      .find(FIND_STRUCTURES, {
-        filter: s =>
+      .find(FIND_STRUCTURES)
+      .find(
+        s =>
           s.hitsMax - s.hits >= TOWER_POWER_REPAIR &&
           ((s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART) ||
             (s.structureType === STRUCTURE_WALL && s.hits < SockPuppetConstants.MAX_HITS_WALL) ||
             (s.structureType === STRUCTURE_RAMPART &&
               s.hits < SockPuppetConstants.MAX_HITS_WALL)) &&
+          this.pos.inRangeTo(s.pos.x, s.pos.y, SockPuppetConstants.TOWER_MAX_REPAIR_RANGE) &&
           !this.roomw.dismantleQueueIncludes(s)
-      })
-      .find(s => this.pos.inRangeTo(s.pos.x, s.pos.y, SockPuppetConstants.TOWER_MAX_REPAIR_RANGE));
+      );
     if (damagedStructureInRange) {
       return this.repair(damagedStructureInRange);
     }
