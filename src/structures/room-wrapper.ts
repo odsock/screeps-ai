@@ -168,25 +168,26 @@ export class RoomWrapper extends Room {
    * Structures marked for demolition.
    */
   public getDismantleQueue(): Structure[] {
-    let queue = MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueue`);
-    if (!queue) {
-      return [];
-    }
-    queue = queue.filter(structure => !!Game.getObjectById(structure.id));
-    MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, -1);
-    return queue;
+    return MemoryUtils.getCache<Structure[]>(`${this.room.name}_dismantleQueueList`) ?? [];
   }
 
   public setDismantleQueue(queue: Structure[]): void {
-    MemoryUtils.setCache(`${this.room.name}_dismantleQueue`, queue, -1);
+    MemoryUtils.setCache(`${this.room.name}_dismantleQueueList`, queue, -1);
+    const dismantleQueue: Record<string, Structure> = {};
+    queue.forEach(s => (dismantleQueue[s.id] = s));
+    MemoryUtils.setCache(`${this.room.name}_dismantleQueueRecord`, dismantleQueue, -1);
   }
 
   public dismantleQueueIncludes(structure: Structure): boolean {
-    return this.getDismantleQueue().some(d => d.id === structure.id);
+    const queue =
+      MemoryUtils.getCache<Record<string, Structure>>(`${this.room.name}_dismantleQueueRecord`) ??
+      {};
+    return !!queue[structure.id];
   }
 
-  public getDismantleTarget(): Structure<StructureConstant> {
-    return this.getDismantleQueue()[0];
+  public getDismantleTarget(pos: RoomPosition): Structure | undefined {
+    const queue = this.getDismantleQueue();
+    return pos.findClosestByPath(queue) ?? undefined;
   }
 
   /**
