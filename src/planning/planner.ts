@@ -525,11 +525,11 @@ export class Planner {
     if (!this.roomw.controller) {
       return false;
     }
-    const spawns = this.roomw.find(FIND_MY_SPAWNS);
-    if (spawns.length === 0) {
-      return false;
-    }
-    const path = this.planRoad(spawns[0].pos, this.roomw.controller.pos, 2);
+    const spawns = this.structurePlan
+      .getPlan()
+      .filter(planPos => planPos.structure === STRUCTURE_SPAWN)
+      .map(planPos => planPos.pos);
+    const path = this.planRoad(spawns[0], this.roomw.controller.pos, 2);
     if (!path.incomplete && path.path.length !== 0) {
       path.path.forEach(pos => this.structurePlan.setPlanPosition(pos, STRUCTURE_ROAD));
       this.setCachedPlan();
