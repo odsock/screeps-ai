@@ -539,13 +539,17 @@ export class Planner {
   }
 
   private planRoadSpawnToExtensions(): boolean {
-    const extensions = this.roomw.find(FIND_MY_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_EXTENSION
-    });
-    const spawns = this.roomw.find(FIND_MY_SPAWNS);
+    const extensions = this.structurePlan
+      .getPlan()
+      .filter(planPos => planPos.structure === STRUCTURE_EXTENSION)
+      .map(planPos => planPos.pos);
+    const spawns = this.structurePlan
+      .getPlan()
+      .filter(planPos => planPos.structure === STRUCTURE_SPAWN)
+      .map(planPos => planPos.pos);
     for (const spawn of spawns) {
       for (const extension of extensions) {
-        const path = this.planRoad(spawn.pos, extension.pos, 1);
+        const path = this.planRoad(spawn, extension, 1);
         if (!path.incomplete && path.path.length !== 0) {
           path.path.forEach(pos => this.structurePlan.setPlanPosition(pos, STRUCTURE_ROAD));
           this.setCachedPlan();
