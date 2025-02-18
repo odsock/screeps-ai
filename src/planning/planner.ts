@@ -550,11 +550,12 @@ export class Planner {
     for (const spawn of spawns) {
       for (const extension of extensions) {
         const path = this.planRoad(spawn, extension, 1);
-        if (!path.incomplete && path.path.length !== 0) {
+        if (path.incomplete) {
+          return false;
+        }
+        if (path.path.length !== 0) {
           path.path.forEach(pos => this.structurePlan.setPlanPosition(pos, STRUCTURE_ROAD));
           this.setCachedPlan();
-        } else {
-          return false;
         }
       }
     }
