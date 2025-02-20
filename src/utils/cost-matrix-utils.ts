@@ -4,6 +4,7 @@ import { RoomWrapper } from "structures/room-wrapper";
 
 import { profile } from "../../screeps-typescript-profiler";
 import { StructurePlanPosition } from "planning/structure-plan";
+import { CreepUtils, LogLevel } from "creep-utils";
 
 @profile
 export class CostMatrixUtils {
@@ -194,7 +195,9 @@ export class CostMatrixUtils {
 
     // plan roads around planned structures
     const plan = MemoryUtils.getCache<StructurePlanPosition[]>(`${roomName}_plan`);
-    if (plan) {
+    if (!plan) {
+      CreepUtils.log(LogLevel.ERROR, `attempting road planning with no plan`);
+    } else {
       plan.forEach(pos => {
         if (pos.structure === STRUCTURE_ROAD) {
           costMatrix.set(pos.pos.x, pos.pos.y, 1);
