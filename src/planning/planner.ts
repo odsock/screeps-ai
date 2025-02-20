@@ -203,8 +203,7 @@ export class Planner {
   }
 
   private updateColonyStructures(): ScreepsReturnCode {
-    // TODO remove this temporary testing check
-    if (this.roomw.name === "E19N55") {
+    if (Game.flags[`${this.roomw.name}_no_placement`]) {
       return OK;
     }
     // mark misplaced structures for dismantling
@@ -238,14 +237,22 @@ export class Planner {
     return result;
   }
 
+  /**
+   * Dismantle queue includes structures not in plan, except last spawn, towers, walls, and ramparts unless flagged.
+   */
   private createDismantleQueue(): void {
     const lastSpawn = this.roomw.find(FIND_MY_SPAWNS).length === 1;
+    const dismantleFlags = _.filter(Game.flags, flag =>
+      flag.name.startsWith(`${this.roomw.name}_dismantle`)
+    ).map(flag => flag.pos);
     const overlapStructures: Structure[] = [];
     const misplacedStructures: Structure[] = [];
     this.roomw.find(FIND_STRUCTURES).forEach(s => {
       if (
         s.structureType === STRUCTURE_CONTROLLER ||
-        (s.structureType === STRUCTURE_SPAWN && lastSpawn)
+        (s.structureType === STRUCTURE_SPAWN && lastSpawn) ||
+        ([STRUCTURE_WALL, STRUCTURE_RAMPART, STRUCTURE_TOWER].some(t => t === s.structureType) &&
+          !dismantleFlags.some(f => f.isEqualTo(s.pos)))
       ) {
         return;
       }
@@ -276,6 +283,9 @@ export class Planner {
   }
 
   private planRoads(): boolean {
+    // cache current plan for use by costmatrix
+    this.setCachedPlan();
+
     // plan road from source containers to controller containers
     let planOk = this.planRoadSourceContainersToControllerContainers();
     if (!planOk) {
@@ -525,11 +535,13 @@ export class Planner {
     if (!this.roomw.controller) {
       return false;
     }
-    const spawns = this.structurePlan
+    const spawn = this.structurePlan
       .getPlan()
-      .filter(planPos => planPos.structure === STRUCTURE_SPAWN)
-      .map(planPos => planPos.pos);
-    const path = this.planRoad(spawns[0], this.roomw.controller.pos, 2);
+      .find(planPos => planPos.structure === STRUCTURE_SPAWN);
+    if (!spawn) {
+      return false;
+    }
+    const path = this.planRoad(spawn.pos, this.roomw.controller.pos, 2);
     if (!path.incomplete && path.path.length !== 0) {
       path.path.forEach(pos => this.structurePlan.setPlanPosition(pos, STRUCTURE_ROAD));
       this.setCachedPlan();
