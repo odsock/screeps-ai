@@ -97,9 +97,10 @@ export class Harvester extends Minder {
       CreepUtils.consoleLogIfWatched(this, `repair container`, result);
       return result;
     } else if (source) {
-      const constructionSiteId = Memory.rooms[source.room.name]?.sources[source.id]?.container?.constructionSiteId;
+      const constructionSiteId =
+        Memory.rooms[source.room.name]?.sources[source.id]?.container?.constructionSiteId;
       if (constructionSiteId) {
-        const site = Game.getObjectById<ConstructionSite<BuildableStructureConstant>>(constructionSiteId);
+        const site = Game.getObjectById(constructionSiteId);
         if (site) {
           if (this.store.energy < this.buildAmount) {
             return ERR_NOT_ENOUGH_ENERGY;
@@ -209,17 +210,23 @@ export class Harvester extends Minder {
   }
 
   /** set id's for minder and container if not already claimed */
-  private claimContainerAtSource(sourceInfo: SourceInfo) {
+  private claimContainerAtSource(sourceInfo: SourceInfo): StructureContainer | undefined {
     if (
       sourceInfo.container?.id &&
       (!sourceInfo.minderId ||
         sourceInfo.minderId === this.id ||
-        MemoryUtils.unpackRoomPosition(sourceInfo.container?.pos ?? "0,0").isEqualTo(this.pos.x, this.pos.y))
+        MemoryUtils.unpackRoomPosition(sourceInfo.container?.pos ?? "0,0").isEqualTo(
+          this.pos.x,
+          this.pos.y
+        ))
     ) {
       const container = Game.getObjectById(sourceInfo.container.id);
       if (container) {
         sourceInfo.minderId = this.id;
-        CreepUtils.consoleLogIfWatched(this, `claimed source container: ${sourceInfo.container.id}`);
+        CreepUtils.consoleLogIfWatched(
+          this,
+          `claimed source container: ${sourceInfo.container.id}`
+        );
         return container;
       }
       CreepUtils.consoleLogIfWatched(this, `container id invalid`);
