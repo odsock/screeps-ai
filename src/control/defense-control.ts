@@ -22,7 +22,11 @@ export class DefenseControl {
     // assign or spawn a guard for each unguarded room with hostiles
     for (const roomName in Memory.rooms) {
       const roomMemory = Memory.rooms[roomName];
-      if (!roomMemory.defense || !this.isDefendedRoom(roomName) || !this.roomNeedsDefense(roomName)) {
+      if (
+        !roomMemory.defense ||
+        !this.isDefendedRoom(roomName) ||
+        !this.roomNeedsDefense(roomName)
+      ) {
         continue;
       }
 
@@ -37,6 +41,11 @@ export class DefenseControl {
           this.spawnGuardForRoom(roomName);
         }
       }
+
+      const roomDefense = Memory.rooms[roomName].defense;
+      if (roomDefense && roomDefense.creeps.length > guardsAssigned.length + spawningGuards) {
+        this.spawnRangedGuardForRoom(roomName);
+      }
     }
   }
 
@@ -50,7 +59,17 @@ export class DefenseControl {
     }
   }
 
-  private isDefendedRoom(roomName: string) {
+  private spawnRangedGuardForRoom(roomName: string): void {
+    const availableSpawns = _.filter(Game.spawns, spawn => !spawn.spawning);
+    const spawnsInRoom = availableSpawns.filter(spawn => spawn.room.name === roomName);
+    // TODO use cosest spawn
+    const spawn = spawnsInRoom[0] ?? availableSpawns[0];
+    if (spawn) {
+      this.spawnRangedGuard(spawn, roomName);
+    }
+  }
+
+  private isDefendedRoom(roomName: string): boolean {
     return (
       Memory.rooms[roomName].owner === Memory.username ||
       this.targetControl.remoteHarvestRooms.includes(roomName) ||
@@ -58,16 +77,18 @@ export class DefenseControl {
     );
   }
 
-  private roomNeedsDefense(roomName: string) {
+  private roomNeedsDefense(roomName: string): boolean | undefined {
     const roomDefense = Memory.rooms[roomName].defense;
     return roomDefense && (roomDefense.creeps.length > 0 || roomDefense.structures.length > 0);
   }
 
-  private getSpawningGuardCount(roomName: string) {
+  private getSpawningGuardCount(roomName: string): number {
     return _.filter(
       Game.spawns,
       s =>
-        s.spawning && s.memory.spawning?.memory.role === Guard.ROLE && s.memory.spawning.memory.targetRoom === roomName
+        s.spawning &&
+        s.memory.spawning?.memory.role === Guard.ROLE &&
+        s.memory.spawning.memory.targetRoom === roomName
     ).length;
   }
 
@@ -83,6 +104,32 @@ export class DefenseControl {
     let bodyProfile = Guard.BODY_PROFILE;
     if (guardSeedCost > spawnCapacity) {
       bodyProfile = Guard.BODY_PROFILE_SMALL;
+    }
+
+    spawnQueue.push({
+      bodyProfile,
+      max: hostileCreepsInRoom,
+      memory: {
+        role: Guard.ROLE,
+        targetRoom: roomName
+      },
+      sort: true,
+      priority: 250
+    });
+  }
+
+  private spawnRangedGuard(spawn: StructureSpawn, roomName: string): void {
+    const spawnQueue = SpawnQueue.getInstance(spawn.room);
+
+    // spawn with what is available now if creeps in room
+    // request max size if hostile structure only (probably an invader core, so we can wait)
+    const hostileCreepsInRoom = spawn.room.memory.defense?.creeps.length === 0;
+
+    const spawnCapacity = spawn.room.energyCapacityAvailable;
+    const guardSeedCost = SpawnUtils.calcBodyCost(Guard.BODY_PROFILE.seed);
+    let bodyProfile = Guard.BODY_PROFILE_RANGED;
+    if (guardSeedCost > spawnCapacity) {
+      bodyProfile = Guard.BODY_PROFILE_RANGED_SMALL;
     }
 
     spawnQueue.push({
@@ -151,7 +198,8 @@ export class DefenseControl {
       const bodyPartsNeeded = Math.ceil(damageDiff / 100);
       const toughPartsNeeded = Math.floor(bodyPartsNeeded / 2);
       const movePartsNeeded = Math.ceil(bodyPartsNeeded / 2);
-      const armorCost = toughPartsNeeded * BODYPART_COST.tough + movePartsNeeded * BODYPART_COST.move;
+      const armorCost =
+        toughPartsNeeded * BODYPART_COST.tough + movePartsNeeded * BODYPART_COST.move;
 
       // calc how many attack parts to add to kill first
       const attackPowerNeeded = hostileHits / guardSurvivalTime;

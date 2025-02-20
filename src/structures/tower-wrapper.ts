@@ -51,7 +51,7 @@ export class TowerWrapper extends StructureTower {
     // list hostiles in close range, by number of heal parts
     const hostileCreeps = this.room
       .find(FIND_HOSTILE_CREEPS)
-      .filter(creep => this.pos.getRangeTo(creep.pos) < SockPuppetConstants.TOWER_MAX_ATTACK_RANGE)
+      // .filter(creep => this.pos.getRangeTo(creep.pos) < SockPuppetConstants.TOWER_MAX_ATTACK_RANGE)
       .sort((a, b) => {
         const aHealParts = a.getActiveBodyparts(HEAL);
         const bHealParts = b.getActiveBodyparts(HEAL);
@@ -59,7 +59,7 @@ export class TowerWrapper extends StructureTower {
           // when equal number of heal parts sort by range
           return this.pos.getRangeTo(a.pos) < this.pos.getRangeTo(b.pos) ? 1 : -1;
         }
-        return aHealParts > bHealParts ? 1 : -1;
+        return bHealParts - aHealParts;
       });
     return hostileCreeps[0];
   }
