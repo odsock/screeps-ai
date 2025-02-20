@@ -10,6 +10,7 @@ export class SockPuppetConstants {
 
   public static readonly WALL_MAINT_RCL = 8;
   public static readonly MAX_HITS_WALL = 7000000;
+  public static readonly WALL_MAINT_TRIGGER = 0.8;
 
   public static readonly TOWER_MAX_REPAIR_RANGE = TOWER_OPTIMAL_RANGE;
   public static readonly TOWER_MAX_ATTACK_RANGE = TOWER_OPTIMAL_RANGE * 3;

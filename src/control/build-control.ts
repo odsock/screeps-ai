@@ -21,7 +21,7 @@ export class BuildControl {
     }
   }
 
-  private requestSpawns(roomw: RoomWrapper) {
+  private requestSpawns(roomw: RoomWrapper): void {
     const spawnQueue = SpawnQueue.getInstance(roomw);
     const spawnUtils = new SpawnUtils();
 
@@ -43,12 +43,16 @@ export class BuildControl {
     const wallsBelowMax = !buildingWalls
       ? 0
       : roomw.find(FIND_STRUCTURES, {
-          filter: s => s.structureType === STRUCTURE_WALL && s.hits < SockPuppetConstants.MAX_HITS_WALL
+          filter: s =>
+            s.structureType === STRUCTURE_WALL &&
+            s.hits < SockPuppetConstants.MAX_HITS_WALL * SockPuppetConstants.WALL_MAINT_TRIGGER
         }).length;
     const rampartsBelowMax = !buildingWalls
       ? 0
       : roomw.find(FIND_MY_STRUCTURES, {
-          filter: s => s.structureType === STRUCTURE_RAMPART && s.hits < SockPuppetConstants.MAX_HITS_WALL
+          filter: s =>
+            s.structureType === STRUCTURE_RAMPART &&
+            s.hits < SockPuppetConstants.MAX_HITS_WALL * SockPuppetConstants.WALL_MAINT_TRIGGER
         }).length;
     if (conSiteCount > 0 || wallsBelowMax > 0 || rampartsBelowMax > 0) {
       const builderCount = spawnUtils.getCreepCountForRole(roomw, CreepRole.BUILDER);
