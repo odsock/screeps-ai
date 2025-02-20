@@ -51,19 +51,43 @@ export class HaulerControl {
   private createCleanupTasks(roomw: RoomWrapper): CleanupTask[] {
     const tasks: CleanupTask[] = [];
     roomw
-      .find(FIND_DROPPED_RESOURCES, { filter: d => d.amount > SockPuppetConstants.TASK_CLEANUP_THRESHOLD })
+      .find(FIND_DROPPED_RESOURCES, {
+        filter: d => d.amount > SockPuppetConstants.TASK_CLEANUP_THRESHOLD
+      })
       .forEach(d =>
-        tasks.push(new CleanupTask({ pos: d.pos, targetId: d.id, priority: SockPuppetConstants.TASK_CLEANUP_PRIORITY }))
+        tasks.push(
+          new CleanupTask({
+            pos: d.pos,
+            targetId: d.id,
+            priority: SockPuppetConstants.TASK_CLEANUP_PRIORITY
+          })
+        )
       );
     roomw
-      .find(FIND_TOMBSTONES, { filter: t => t.store.getUsedCapacity() > SockPuppetConstants.TASK_CLEANUP_THRESHOLD })
+      .find(FIND_TOMBSTONES, {
+        filter: t => t.store.getUsedCapacity() > SockPuppetConstants.TASK_CLEANUP_THRESHOLD
+      })
       .forEach(t =>
-        tasks.push(new CleanupTask({ pos: t.pos, targetId: t.id, priority: SockPuppetConstants.TASK_CLEANUP_PRIORITY }))
+        tasks.push(
+          new CleanupTask({
+            pos: t.pos,
+            targetId: t.id,
+            priority: SockPuppetConstants.TASK_CLEANUP_PRIORITY
+          })
+        )
       );
     roomw
-      .find(FIND_RUINS, { filter: r => r.store.getUsedCapacity() > SockPuppetConstants.TASK_CLEANUP_THRESHOLD })
+      .find(FIND_RUINS, {
+        filter: r => r.store.getUsedCapacity() > SockPuppetConstants.TASK_CLEANUP_THRESHOLD
+      })
       .forEach(r =>
-        tasks.push(new CleanupTask({ pos: r.pos, targetId: r.id, priority: SockPuppetConstants.TASK_CLEANUP_PRIORITY }))
+        tasks.push(
+          new CleanupTask({
+            pos: r.pos,
+            targetId: r.id,
+            priority: SockPuppetConstants.TASK_CLEANUP_PRIORITY
+          })
+        )
       );
     return tasks;
   }
@@ -96,7 +120,8 @@ export class HaulerControl {
     return roomw.sourceContainers
       .filter(
         c =>
-          c.store.getUsedCapacity() > c.store.getCapacity() * SockPuppetConstants.TASK_UNLOAD_SOURCE_CONTAINER_THRESHOLD
+          c.store.getUsedCapacity() >
+          c.store.getCapacity() * SockPuppetConstants.TASK_UNLOAD_SOURCE_CONTAINER_THRESHOLD
       )
       .map(c => {
         return new UnloadTask({
@@ -130,7 +155,10 @@ export class HaulerControl {
   }
 
   /** supply spawn/extensions if any capacity in room */
-  private createSupplySpawnTasks(roomw: RoomWrapper, averageHaulerCapacity: number): SupplySpawnTask[] {
+  private createSupplySpawnTasks(
+    roomw: RoomWrapper,
+    averageHaulerCapacity: number
+  ): SupplySpawnTask[] {
     const spawns = roomw.spawns;
     const tasks: SupplySpawnTask[] = [];
     const capacityUsedRatio = roomw.getEnergyAvailable() / roomw.getEnergyCapacityAvailable();
@@ -172,7 +200,7 @@ export class HaulerControl {
   /** supply controller container if have upgraders and no links*/
   private createControllerSupplyTasks(roomw: RoomWrapper, averageHaulerCapacity: number): Task[] {
     const upgraders = roomw.creeps.filter(c => c.memory.role === CreepRole.UPGRADER);
-    if (upgraders.length === 0 || roomw.hasLinks()) {
+    if (upgraders.length === 0 || roomw.memory.controller?.link) {
       return [];
     }
     const containersBelowThreshold = roomw.controllerContainers.filter(
@@ -209,7 +237,10 @@ export class HaulerControl {
 
   private createHaulTasks(roomw: RoomWrapper): HaulTask[] {
     const creeps = roomw.find(FIND_MY_CREEPS, {
-      filter: creep => creep.memory.haulRequested && !creep.memory.haulerName && creep.memory.targetRoom === roomw.name
+      filter: creep =>
+        creep.memory.haulRequested &&
+        !creep.memory.haulerName &&
+        creep.memory.targetRoom === roomw.name
     });
     const upgraderTasks: HaulTask[] = creeps
       .filter(c => c.memory.role === CreepRole.UPGRADER)
@@ -238,7 +269,13 @@ export class HaulerControl {
     const harvesterTasks: HaulTask[] = creeps
       .filter(c => c.memory.role === CreepRole.HARVESTER)
       .map(c => {
-        return new HaulTask({ creepName: c.name, targetId: c.id, pos: c.pos, priority, override: true });
+        return new HaulTask({
+          creepName: c.name,
+          targetId: c.id,
+          pos: c.pos,
+          priority,
+          override: true
+        });
       });
     return [...upgraderTasks, ...harvesterTasks, ...storeMinderTasks];
   }
