@@ -10,11 +10,6 @@ declare global {
   interface RoomMemory {
     defense?: RoomDefense;
     sources: RoomSources;
-    spawns?: Id<StructureSpawn>[];
-    extensions?: Id<StructureExtension>[];
-    log: string[];
-    logCounts?: LogCounts;
-    construction: { [id: string]: ConstructionLog };
     watched?: boolean;
     controller?: ControllerInfo;
     storage?: StorageInfo;
@@ -22,6 +17,10 @@ declare global {
     centerPoint?: string;
     owner?: string;
     colonyType?: string;
+
+    construction: { [id: string]: ConstructionLog };
+    log: string[];
+    logCounts?: LogCounts;
   }
 
   interface StorageInfo {
@@ -131,6 +130,9 @@ declare global {
       ERROR: LogLevel;
       Profiler: Profiler;
       getRoomWrapper: (roomName: string) => RoomWrapper;
+      memory: Memory; // memory cache
+      Memory?: Memory; // built in memory
+      planRoadConsole: (origin: RoomPosition, goal: RoomPosition, range: number) => PathFinderPath;
     }
   }
 }

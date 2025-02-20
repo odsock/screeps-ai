@@ -16,6 +16,14 @@ MemoryUtils.setCache(SockPuppetConstants.START_TICK, Game.time, -1);
 
 recordUsername();
 
+// mem hack
+if (global.memory) {
+  delete global.Memory;
+  global.Memory = global.memory;
+} else {
+  global.memory = Memory;
+}
+
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
@@ -45,6 +53,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // must be last thing in loop to keep cpu calc accurate
   new Stats().showStats();
+  // write out memory from mem hack cache
+  RawMemory.set(JSON.stringify(Memory));
 });
 
 function recordUsername(): void {
