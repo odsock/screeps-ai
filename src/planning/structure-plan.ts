@@ -51,8 +51,17 @@ export class StructurePlan {
     this.plan[pos.x][pos.y] = structureType;
   }
 
-  public getPlanPosition(pos: RoomPosition): BuildableStructureConstant | undefined {
-    return this.plan[pos.x][pos.y];
+  public getPlanPosition(pos1: number, pos2: number): BuildableStructureConstant | undefined;
+  public getPlanPosition(pos1: RoomPosition): BuildableStructureConstant | undefined;
+  public getPlanPosition(
+    pos1: RoomPosition | number,
+    pos2 = 0
+  ): BuildableStructureConstant | undefined {
+    if (pos1 instanceof RoomPosition) {
+      return this.plan[pos1.x][pos1.y];
+    } else {
+      return this.plan[pos1][pos2];
+    }
   }
 
   /** Print pattern offset positions and structure types to console */
