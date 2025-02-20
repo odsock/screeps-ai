@@ -656,7 +656,7 @@ export abstract class CreepWrapper {
 
   protected moveToAndAttack(target: Creep | Structure): ScreepsReturnCode {
     let result: ScreepsReturnCode;
-    if (target.pos.isNearTo(this.pos)) {
+    if (target.pos.isNearTo(this.pos) && this.getActiveBodyparts(ATTACK) > 0) {
       result = this.creep.attack(target);
       CreepUtils.consoleLogIfWatched(this, `attack ${typeof target}`, result);
       if (result === OK) {
@@ -664,15 +664,18 @@ export abstract class CreepWrapper {
         this.creep.cancelOrder(HEAL);
       }
     } else {
-      result = this.moveTo(target, {
-        range: 1,
-        visualizePathStyle: { stroke: "#ff0000" }
-      });
-      CreepUtils.consoleLogIfWatched(
-        this,
-        `move to ${typeof target}: ${String(target.pos)}`,
-        result
-      );
+      result = this.creep.rangedAttack(target);
+      if (result === ERR_NOT_IN_RANGE) {
+        result = this.moveTo(target, {
+          range: 1,
+          visualizePathStyle: { stroke: "#ff0000" }
+        });
+        CreepUtils.consoleLogIfWatched(
+          this,
+          `move to ${typeof target}: ${String(target.pos)}`,
+          result
+        );
+      }
     }
     return result;
   }
