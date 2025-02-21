@@ -132,7 +132,6 @@ declare global {
       getRoomWrapper: (roomName: string) => RoomWrapper;
       memory: Memory; // memory cache
       Memory?: Memory; // built in memory
-      planRoadConsole: (origin: RoomPosition, goal: RoomPosition, range: number) => PathFinderPath;
     }
   }
 }
