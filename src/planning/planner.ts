@@ -602,4 +602,42 @@ export class Planner {
     }
     return path;
   }
+
+  private planWall(side: TOP | BOTTOM | LEFT | RIGHT): boolean {
+    this.findRoomEntrance(side);
+
+    return false;
+  }
+
+  private findRoomEntrance(side: TOP | BOTTOM | LEFT | RIGHT): number[][] {
+    const terrain = this.roomw.getTerrain();
+
+    const entrances = [];
+    let start = 0;
+    let end = 0;
+    for (let i = 0; i < SockPuppetConstants.ROOM_SIZE; i++) {
+      let terrainType;
+      if (side === TOP) {
+        terrainType = terrain.get(i, 0);
+      } else if (side === BOTTOM) {
+        terrainType = terrain.get(i, SockPuppetConstants.ROOM_SIZE - 1);
+      } else if (side === LEFT) {
+        terrainType = terrain.get(0, i);
+      } else {
+        terrainType = terrain.get(SockPuppetConstants.ROOM_SIZE - 1, i);
+      }
+      if (terrainType === 0) {
+        if (start === 0) {
+          start = i;
+        } else {
+          end = i;
+        }
+      } else if (start !== 0) {
+        entrances.push([start, end]);
+        start = 0;
+        end = 0;
+      }
+    }
+    return entrances;
+  }
 }
