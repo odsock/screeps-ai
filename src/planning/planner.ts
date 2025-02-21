@@ -603,13 +603,13 @@ export class Planner {
     return path;
   }
 
-  private planWall(side: TOP | BOTTOM | LEFT | RIGHT): boolean {
+  public planWall(side: TOP | BOTTOM | LEFT | RIGHT): boolean {
     this.findRoomEntrance(side);
 
     return false;
   }
 
-  private findRoomEntrance(side: TOP | BOTTOM | LEFT | RIGHT): number[][] {
+  public findRoomEntrance(side: TOP | BOTTOM | LEFT | RIGHT): number[][] {
     const terrain = this.roomw.getTerrain();
 
     const entrances = [];

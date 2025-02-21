@@ -14,7 +14,6 @@ import { CreepFactory } from "roles/creep-factory";
 import { RoomWrapper } from "structures/room-wrapper";
 import { TowerWrapper } from "structures/tower-wrapper";
 import { profile } from "../screeps-typescript-profiler";
-import { CreepUtils, LogLevel } from "creep-utils";
 
 @profile
 export class Sockpuppet {
@@ -22,9 +21,9 @@ export class Sockpuppet {
   public memory = {};
 
   public run(): void {
-    this.runControl();
-    this.runRooms();
-    this.runCreeps();
+    const planner = new Planner(RoomWrapper.getInstance("sim"));
+    const entrances = planner.planWall(LEFT);
+    console.log(JSON.stringify(entrances));
   }
 
   private runRooms(): void {
