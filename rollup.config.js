@@ -12,7 +12,7 @@ const Global = `var process = {
     npm_package_version: "${process.env.npm_package_version}"
   }
 }
-global.__PROFILER_ENABLED__ = true;`;
+global.__PROFILER_ENABLED__ = ${process.env.DEST === "sim" ? false : true};`;
 
 let cfg;
 const dest = process.env.DEST;
