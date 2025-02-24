@@ -16,43 +16,80 @@ import { Worker } from "./worker";
 import { StoreMinder } from "./store-minder";
 
 import { profile } from "../../screeps-typescript-profiler";
+import { MemoryUtils } from "planning/memory-utils";
 
 @profile
 export class CreepFactory {
-  /** Instantiate role class for creep based on memory value. */
+  /**
+   * Manages singleton CreepWrappers for all creeps this tick.
+   * @param creep A creep to wrap.
+   * @returns Instance of CreepWrapper for the creep, from cache if possible.
+   */
   public static getCreep(creep: Creep): CreepWrapper {
-    switch (creep.memory.role) {
-      case CreepRole.WORKER:
-        return new Worker(creep);
-      case CreepRole.HARVESTER:
-        return new Harvester(creep);
-      case CreepRole.UPGRADER:
-        return new Upgrader(creep);
-      case CreepRole.HAULER:
-        return new Hauler(creep);
-      case CreepRole.BUILDER:
-        return new Builder(creep);
-      case CreepRole.CLAIMER:
-        return new Claimer(creep);
-      case CreepRole.FIXER:
-        return new Fixer(creep);
-      case CreepRole.IMPORTER:
-        return new Importer(creep);
-      case CreepRole.GUARD:
-        return new Guard(creep);
-      case CreepRole.RAIDER:
-        return new Raider(creep);
-      case CreepRole.SCOUT:
-        return new Scout(creep);
-      case CreepRole.STORE_MINDER:
-        return new StoreMinder(creep);
+    const wrapperInstance = MemoryUtils.getCache<CreepWrapper>(`CreepWrapper_${creep.id}`);
+    if (wrapperInstance) {
+      return wrapperInstance;
+    } else {
+      let wrapper:
+        | Worker
+        | Harvester
+        | Upgrader
+        | Hauler
+        | Builder
+        | Claimer
+        | Fixer
+        | Importer
+        | Guard
+        | Raider
+        | Scout
+        | StoreMinder;
+      switch (creep.memory.role) {
+        case CreepRole.WORKER:
+          wrapper = new Worker(creep);
+          break;
+        case CreepRole.HARVESTER:
+          wrapper = new Harvester(creep);
+          break;
+        case CreepRole.UPGRADER:
+          wrapper = new Upgrader(creep);
+          break;
+        case CreepRole.HAULER:
+          wrapper = new Hauler(creep);
+          break;
+        case CreepRole.BUILDER:
+          wrapper = new Builder(creep);
+          break;
+        case CreepRole.CLAIMER:
+          wrapper = new Claimer(creep);
+          break;
+        case CreepRole.FIXER:
+          wrapper = new Fixer(creep);
+          break;
+        case CreepRole.IMPORTER:
+          wrapper = new Importer(creep);
+          break;
+        case CreepRole.GUARD:
+          wrapper = new Guard(creep);
+          break;
+        case CreepRole.RAIDER:
+          wrapper = new Raider(creep);
+          break;
+        case CreepRole.SCOUT:
+          wrapper = new Scout(creep);
+          break;
+        case CreepRole.STORE_MINDER:
+          wrapper = new StoreMinder(creep);
+          break;
 
-      default:
-        assertNever(creep.memory.role);
-    }
+        default:
+          assertNever(creep.memory.role);
+      }
+      MemoryUtils.setCache(`CreepWrapper_${creep.id}`, wrapper);
+      return wrapper;
 
-    function assertNever(x: never): never {
-      throw new Error("Missing role handler: " + JSON.stringify(x));
+      function assertNever(x: never): never {
+        throw new Error("Missing role handler: " + JSON.stringify(x));
+      }
     }
   }
 
