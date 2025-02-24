@@ -604,7 +604,27 @@ export class Planner {
   }
 
   public planWall(side: TOP | BOTTOM | LEFT | RIGHT): boolean {
-    this.findRoomEntrance(side);
+    const entrances = this.findRoomEntrance(side);
+    const costMatrixUtils = CostMatrixUtils.getInstance();
+    const wallPlan = entrances.map(entrance => {
+      const start = this.getPosAtEdge(entrance[0] - 1, side);
+      const end = this.getPosAtEdge(entrance[1] + 1, side);
+      const pathFinderPath = PathFinder.search(start, end, {
+        roomCallback: costMatrixUtils.wallPlanningRoomCallback
+      });
+      if (!pathFinderPath.incomplete && pathFinderPath.path.length !== 0) {
+        return [start, ...pathFinderPath.path];
+      } else {
+        return undefined;
+      }
+    });
+
+    wallPlan.forEach(plan => {
+      console.log(JSON.stringify(plan));
+      plan?.forEach(pos =>
+        this.roomw.visual.circle(pos.x, pos.y, { fill: "#ffffff", radius: 0.2 })
+      );
+    });
 
     return false;
   }
@@ -639,5 +659,19 @@ export class Planner {
       }
     }
     return entrances;
+  }
+
+  private getPosAtEdge(i: number, side: TOP | BOTTOM | LEFT | RIGHT): RoomPosition {
+    const maxCoord = SockPuppetConstants.ROOM_SIZE - 2;
+    switch (side) {
+      case TOP:
+        return new RoomPosition(i, 1, this.roomw.name);
+      case BOTTOM:
+        return new RoomPosition(i, maxCoord, this.roomw.name);
+      case LEFT:
+        return new RoomPosition(1, i, this.roomw.name);
+      case RIGHT:
+        return new RoomPosition(maxCoord, i, this.roomw.name);
+    }
   }
 }

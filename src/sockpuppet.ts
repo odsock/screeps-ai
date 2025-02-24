@@ -22,8 +22,7 @@ export class Sockpuppet {
 
   public run(): void {
     const planner = new Planner(RoomWrapper.getInstance("sim"));
-    const entrances = planner.planWall(LEFT);
-    console.log(JSON.stringify(entrances));
+    planner.planWall(LEFT);
   }
 
   private runRooms(): void {

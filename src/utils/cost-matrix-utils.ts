@@ -5,6 +5,7 @@ import { RoomWrapper } from "structures/room-wrapper";
 import { profile } from "../../screeps-typescript-profiler";
 import { StructurePlanPosition } from "planning/structure-plan";
 import { CreepUtils, LogLevel } from "creep-utils";
+import { SockPuppetConstants } from "config/sockpuppet-constants";
 
 @profile
 export class CostMatrixUtils {
@@ -239,5 +240,30 @@ export class CostMatrixUtils {
       return false;
     }
     return updatedCostMatrix;
+  };
+
+  public wallPlanningRoomCallback = (roomName: string): CostMatrix | boolean => {
+    const roomw = RoomWrapper.getInstance(roomName);
+    if (!roomw) {
+      return false;
+    }
+    const costMatrix = new PathFinder.CostMatrix();
+    const roomTerrain = roomw.getTerrain();
+    for (let i = 0; i < SockPuppetConstants.ROOM_SIZE; i++) {
+      for (let j = 0; j < SockPuppetConstants.ROOM_SIZE; j++) {
+        const terrain = roomTerrain.get(i, j);
+        let cost;
+        if (terrain === TERRAIN_MASK_WALL) {
+          cost = 1;
+        } else if (terrain === TERRAIN_MASK_SWAMP) {
+          cost = 10;
+        } else {
+          cost = 5;
+        }
+        costMatrix.set(i, j, cost);
+        costMatrix.
+      }
+    }
+    return costMatrix;
   };
 }
