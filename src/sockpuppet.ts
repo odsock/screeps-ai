@@ -12,9 +12,8 @@ import { UpgradeControl } from "control/upgrade-control";
 import { Planner } from "planning/planner";
 import { CreepFactory } from "roles/creep-factory";
 import { RoomWrapper } from "structures/room-wrapper";
-import { TowerWrapper } from "structures/tower-wrapper";
 import { profile } from "../screeps-typescript-profiler";
-import { CreepUtils, LogLevel } from "creep-utils";
+import { TowerControl } from "control/tower-control";
 
 @profile
 export class Sockpuppet {
@@ -30,8 +29,6 @@ export class Sockpuppet {
   private runRooms(): void {
     _.filter(Game.rooms, room => room.controller?.my).forEach(room => {
       const roomw = RoomWrapper.getInstance(room);
-
-      this.runTowers(roomw);
 
       // spawn new creeps
       new SpawnControl(roomw).run();
@@ -52,6 +49,8 @@ export class Sockpuppet {
       if (dismantleVisual) {
         roomw.visual.import(dismantleVisual);
       }
+
+      new TowerControl(roomw).run();
     });
   }
 
@@ -81,18 +80,6 @@ export class Sockpuppet {
           console.log(`ERROR: caught running creep ${creep.name}`, error);
         }
       }
-    }
-  }
-
-  public runTowers(room: Room): void {
-    const towers = room
-      .find<StructureTower>(FIND_MY_STRUCTURES, {
-        filter: s => s.structureType === STRUCTURE_TOWER
-      })
-      .map(t => new TowerWrapper(t));
-
-    for (const tower of towers) {
-      tower.run();
     }
   }
 }

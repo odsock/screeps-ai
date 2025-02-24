@@ -20,7 +20,11 @@ export class Worker extends CreepWrapper {
     // if target room, go there
     if (this.memory.targetRoom && this.pos.roomName !== this.memory.targetRoom) {
       const moveResult = this.moveTo(new RoomPosition(10, 10, this.memory.targetRoom));
-      CreepUtils.consoleLogIfWatched(this, `moving to target room ${this.memory.targetRoom}`, moveResult);
+      CreepUtils.consoleLogIfWatched(
+        this,
+        `moving to target room ${this.memory.targetRoom}`,
+        moveResult
+      );
       return;
     }
 
@@ -85,7 +89,7 @@ export class Worker extends CreepWrapper {
 
   // TODO dry this up with builder code
   private doBuildJob(): void {
-    const centerPos = this.room.findBuildCenterPos();
+    const centerPos = this.room.getColonyCenterPos();
     const site = this.chooseConstructionSite(centerPos);
 
     if (site) {
@@ -105,7 +109,11 @@ export class Worker extends CreepWrapper {
             costCallback: this.costMatrixUtils.avoidHarvestPositionsCostCallback
           });
         } else if (closestEnergySource?.pos && this.pos.isNearTo(closestEnergySource)) {
-          const path = PathFinder.search(this.pos, { pos: closestEnergySource.pos, range: 2 }, { flee: true });
+          const path = PathFinder.search(
+            this.pos,
+            { pos: closestEnergySource.pos, range: 2 },
+            { flee: true }
+          );
           this.moveByPath(path.path);
         }
       } else {

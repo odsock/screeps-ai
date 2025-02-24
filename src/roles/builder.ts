@@ -122,7 +122,7 @@ export class Builder extends CreepWrapper {
     if (site) {
       return site;
     } else {
-      const centerPos = this.room.findBuildCenterPos();
+      const centerPos = this.room.getColonyCenterPos();
       const sites = this.roomw.find(FIND_MY_CONSTRUCTION_SITES);
       const groupedSites = _.groupBy(sites, aSite => aSite.structureType);
       const siteType = SockPuppetConstants.CONSTRUCTION_PRIORITY.find(

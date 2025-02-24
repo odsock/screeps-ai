@@ -9,11 +9,13 @@ import { SpawnUtils } from "control/spawn-utils";
 import { RoomType, TargetControl } from "control/target-control";
 
 import { profile } from "../../screeps-typescript-profiler";
+import { TowerWrapper } from "./tower-wrapper";
 
 @profile
 export class RoomWrapper extends Room {
   private targetControl: TargetControl;
   private readonly plannerUtils = PlannerUtils.getInstance();
+  private colonyCenter: RoomPosition | undefined;
 
   /**
    * Manages singleton RoomWrappers for all rooms this tick.
@@ -330,10 +332,12 @@ export class RoomWrapper extends Room {
     return this.room.find(FIND_CONSTRUCTION_SITES);
   }
 
-  public get towers(): StructureTower[] {
-    return this.room.find(FIND_MY_STRUCTURES, {
-      filter: structure => structure.structureType === STRUCTURE_TOWER
-    });
+  public get towers(): TowerWrapper[] {
+    return this.room
+      .find(FIND_MY_STRUCTURES, {
+        filter: structure => structure.structureType === STRUCTURE_TOWER
+      })
+      .map(t => new TowerWrapper(t));
   }
 
   public get repairSites(): AnyStructure[] {
@@ -501,18 +505,24 @@ export class RoomWrapper extends Room {
     return spawnFull && (!hasStorage || hasBuffer);
   }
 
-  public findBuildCenterPos(): RoomPosition {
-    let centerStructure: Structure | undefined = this.spawns[0];
-    if (!centerStructure) {
-      centerStructure = this.controller;
-    }
-    let centerPos: RoomPosition;
-    if (centerStructure) {
-      centerPos = centerStructure.pos;
+  /**
+   * Gets focal point for colony structures. Uses cached position, or packed position from memory if set by planning.
+   * Otherwise, first spawn, controller, or center of room.
+   * @returns RoomPosition for colony focal point
+   */
+  public getColonyCenterPos(): RoomPosition {
+    if (this.colonyCenter) {
+      return this.colonyCenter;
+    } else if (this.memory.centerPoint) {
+      this.colonyCenter = MemoryUtils.unpackRoomPosition(this.memory.centerPoint);
+      return this.colonyCenter;
+    } else if (this.spawns[0]) {
+      return this.spawns[0].pos;
+    } else if (this.controller) {
+      return this.controller.pos;
     } else {
       const halfRoomSize = Math.round(SockPuppetConstants.ROOM_SIZE / 2);
-      centerPos = new RoomPosition(halfRoomSize, halfRoomSize, this.room.name);
+      return new RoomPosition(halfRoomSize, halfRoomSize, this.room.name);
     }
-    return centerPos;
   }
 }
