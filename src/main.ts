@@ -8,14 +8,6 @@ import { Stats } from "planning/stats";
 import * as Profiler from "../screeps-typescript-profiler";
 import { LogLevel } from "creep-utils";
 
-global.sockpuppet = new Sockpuppet();
-
-global.Profiler = Profiler.init();
-global.LOG_LEVEL = LogLevel.INFO;
-MemoryUtils.setCache(SockPuppetConstants.START_TICK, Game.time, -1);
-
-recordUsername();
-
 // mem hack
 if (global.memory) {
   delete global.Memory;
@@ -23,6 +15,14 @@ if (global.memory) {
 } else {
   global.memory = Memory;
 }
+
+global.sockpuppet = new Sockpuppet();
+
+global.Profiler = Profiler.init();
+global.LOG_LEVEL = LogLevel.INFO;
+MemoryUtils.setCache(SockPuppetConstants.START_TICK, Game.time, -1);
+
+recordUsername();
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
