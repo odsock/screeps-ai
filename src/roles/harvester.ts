@@ -235,13 +235,15 @@ export class Harvester extends Minder {
   }
 
   private getMySource(): Source | undefined {
-    if (this.mySource) {
-      return this.mySource;
-    }
-    if (!this.memory.source) {
+    if (!this.mySource && !this.memory.source) {
       CreepUtils.consoleLogIfWatched(this, `no source selected for harvest`);
       return undefined;
     }
-    return this.memory.source ? Game.getObjectById(this.memory.source) ?? undefined : undefined;
+    if (!this.mySource) {
+      this.mySource = this.memory.source
+        ? Game.getObjectById(this.memory.source) ?? undefined
+        : undefined;
+    }
+    return this.mySource;
   }
 }
