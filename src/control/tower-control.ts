@@ -40,6 +40,7 @@ export class TowerControl {
       .find(FIND_STRUCTURES)
       .find(
         s =>
+          s.structureType !== STRUCTURE_ROAD &&
           s.hitsMax - s.hits >= TOWER_POWER_REPAIR &&
           ((s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART) ||
             (s.structureType === STRUCTURE_WALL && s.hits < SockPuppetConstants.MAX_HITS_WALL) ||
@@ -57,8 +58,7 @@ export class TowerControl {
   private findHealTarget(): Creep | undefined {
     return (
       this.colonyCenter.findClosestByRange(FIND_MY_CREEPS, {
-        filter: creep =>
-          creep.hits < creep.hitsMax
+        filter: creep => creep.hits < creep.hitsMax
       }) ?? undefined
     );
   }
