@@ -20,8 +20,6 @@ export enum ExitState {
 }
 
 export abstract class Minder extends CreepWrapper {
-  private myHauler: Hauler | undefined;
-
   protected replaceCreep(creepName: string): void {
     const retiree = Game.creeps[creepName];
     if (retiree) {
@@ -104,18 +102,15 @@ export abstract class Minder extends CreepWrapper {
   }
 
   protected getHauler(): Hauler | undefined {
-    if (this.myHauler) {
-      return this.myHauler;
-    } else if (this.memory.haulerName) {
+    if (this.memory.haulerName) {
       const haulerCreep = Game.creeps[this.memory.haulerName];
       if (!haulerCreep) {
         CreepUtils.consoleLogIfWatched(this, `invalid hauler name`);
         delete this.memory.haulerName;
         return undefined;
       }
-      this.myHauler = new Hauler(haulerCreep);
       CreepUtils.consoleLogIfWatched(this, `have a hauler`);
-      return this.myHauler;
+      return new Hauler(haulerCreep);
     }
     CreepUtils.consoleLogIfWatched(this, `no hauler`);
     return undefined;
@@ -144,7 +139,11 @@ export abstract class Minder extends CreepWrapper {
     );
 
     // path length 1 means near target, or leaving room
-    if (!hauler.memory.exitState && haulerPathToTarget.length === 1 && hauler.room.name !== target.roomName) {
+    if (
+      !hauler.memory.exitState &&
+      haulerPathToTarget.length === 1 &&
+      hauler.room.name !== target.roomName
+    ) {
       hauler.memory.exitState = ExitState.AT_EDGE;
     }
 

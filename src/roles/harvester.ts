@@ -244,6 +244,8 @@ export class Harvester extends Minder {
       this.mySource = this.memory.source
         ? Game.getObjectById(this.memory.source) ?? undefined
         : undefined;
+    } else {
+      CreepUtils.consoleLogIfWatched(this, `source cached, no lookup needed`);
     }
     return this.mySource;
   }

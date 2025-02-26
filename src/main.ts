@@ -54,7 +54,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // must be last thing in loop to keep cpu calc accurate
   new Stats().showStats();
   // write out memory from mem hack cache
-  RawMemory.set(JSON.stringify(Memory));
+  RawMemory._parsed = Memory;
 });
 
 function recordUsername(): void {

@@ -77,7 +77,16 @@ export class Sockpuppet {
             creepw.roomw.visual.circle(creepw.pos.x, creepw.pos.y, { fill: "#FF0000" });
           }
         } catch (error) {
-          console.log(`ERROR: caught running creep ${creep.name}`, error);
+          if (error instanceof Error) {
+            console.log(
+              `ERROR: caught running creep ${creep.name}`,
+              error.name,
+              error.cause,
+              error.stack
+            );
+          } else {
+            console.log(`ERROR: caught running creep ${creep.name}`, error);
+          }
         }
       }
     }

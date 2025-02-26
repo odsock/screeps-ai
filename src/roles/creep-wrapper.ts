@@ -48,11 +48,24 @@ export abstract class CreepWrapper {
   private pickingUpAmount = 0;
   protected targetControl = TargetControl.getInstance();
   protected costMatrixUtils = CostMatrixUtils.getInstance();
-  public readonly store: StoreDefinition;
+
+  private creep: Creep;
   private readonly stats = new Stats();
 
-  public constructor(private readonly creep: Creep) {
-    this.store = creep.store;
+  public constructor(creep: Creep) {
+    this.creep = creep;
+  }
+
+  private init(): void {
+    this.pickingUp = false;
+    this.withdrawing = false;
+    this.pickingUpAmount = 0;
+  }
+
+  public setCreep(creep: Creep): this {
+    this.creep = creep;
+    this.init();
+    return this;
   }
 
   private getCreep(): Creep {
@@ -101,6 +114,10 @@ export abstract class CreepWrapper {
 
   public get ticksToLive(): number | undefined {
     return this.creep.ticksToLive;
+  }
+
+  public get store(): StoreDefinition {
+    return this.creep.store;
   }
 
   public getActiveBodyparts(type: BodyPartConstant): number {

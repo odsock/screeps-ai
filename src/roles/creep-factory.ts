@@ -26,23 +26,12 @@ export class CreepFactory {
    * @returns Instance of CreepWrapper for the creep, from cache if possible.
    */
   public static getCreep(creep: Creep): CreepWrapper {
-    const wrapperInstance = MemoryUtils.getCache<CreepWrapper>(`CreepWrapper_${creep.id}`);
-    if (wrapperInstance) {
-      return wrapperInstance;
+    let wrapper: CreepWrapper | undefined = MemoryUtils.getCache<CreepWrapper>(
+      `CreepWrapper_${creep.id}`
+    );
+    if (wrapper) {
+      wrapper.setCreep(creep);
     } else {
-      let wrapper:
-        | Worker
-        | Harvester
-        | Upgrader
-        | Hauler
-        | Builder
-        | Claimer
-        | Fixer
-        | Importer
-        | Guard
-        | Raider
-        | Scout
-        | StoreMinder;
       switch (creep.memory.role) {
         case CreepRole.WORKER:
           wrapper = new Worker(creep);
@@ -84,12 +73,12 @@ export class CreepFactory {
         default:
           assertNever(creep.memory.role);
       }
-      MemoryUtils.setCache(`CreepWrapper_${creep.id}`, wrapper);
-      return wrapper;
+    }
+    MemoryUtils.setCache(`CreepWrapper_${creep.id}`, wrapper, creep.ticksToLive);
+    return wrapper;
 
-      function assertNever(x: never): never {
-        throw new Error("Missing role handler: " + JSON.stringify(x));
-      }
+    function assertNever(x: never): never {
+      throw new Error("Missing role handler: " + JSON.stringify(x));
     }
   }
 
