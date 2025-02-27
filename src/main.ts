@@ -7,14 +7,7 @@ import { MemoryUtils } from "planning/memory-utils";
 import { Stats } from "planning/stats";
 import * as Profiler from "../screeps-typescript-profiler";
 import { LogLevel } from "creep-utils";
-
-// mem hack
-if (global.memory) {
-  delete global.Memory;
-  global.Memory = global.memory;
-} else {
-  global.memory = Memory;
-}
+import { MemoryHack } from "memory-hack";
 
 global.sockpuppet = new Sockpuppet();
 
@@ -27,6 +20,8 @@ recordUsername();
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
+  MemoryHack.runHack();
+
   // check version
   try {
     const version = process.env.npm_package_version;
@@ -53,8 +48,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // must be last thing in loop to keep cpu calc accurate
   new Stats().showStats();
-  // write out memory from mem hack cache
-  RawMemory._parsed = Memory;
 });
 
 function recordUsername(): void {
