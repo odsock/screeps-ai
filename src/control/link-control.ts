@@ -21,20 +21,24 @@ export class LinkControl {
       const storageLink = this.getStorageLink(roomw);
       CreepUtils.consoleLogIfWatched(
         roomw,
-        `links: source: ${sourceLinks.length}, controller: ${String(controllerLink?.id)}, storage: ${String(
-          storageLink?.id
-        )}`
+        `links: source: ${sourceLinks.length}, controller: ${String(
+          controllerLink?.id
+        )}, storage: ${String(storageLink?.id)}`
       );
 
       // move energy out of source links if they are full
       sourceLinks.forEach(sourceLink => {
         if (sourceLink.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-          if (storageLink && !roomw.hasSpawnEnergyBuffer()) {
-            const result = sourceLink.transferEnergy(storageLink);
-            CreepUtils.consoleLogIfWatched(roomw, `links: transferring to storage`, result);
-          } else if (controllerLink && controllerLink.store.getFreeCapacity(RESOURCE_ENERGY) > LINK_CAPACITY / 2) {
+          if (
+            controllerLink &&
+            controllerLink.store.getFreeCapacity(RESOURCE_ENERGY) > LINK_CAPACITY / 2 &&
+            roomw.hasSpawnEnergyBuffer()
+          ) {
             const result = sourceLink.transferEnergy(controllerLink);
             CreepUtils.consoleLogIfWatched(roomw, `links: transferring to controller`, result);
+          } else if (storageLink) {
+            const result = sourceLink.transferEnergy(storageLink);
+            CreepUtils.consoleLogIfWatched(roomw, `links: transferring to storage`, result);
           }
         }
       });
@@ -51,7 +55,10 @@ export class LinkControl {
     if (linkId) {
       return Game.getObjectById(linkId) ?? undefined;
     } else if (roomw.storage) {
-      const link = this.plannerUtils.findAdjacentStructure<StructureLink>(roomw.storage.pos, STRUCTURE_LINK);
+      const link = this.plannerUtils.findAdjacentStructure<StructureLink>(
+        roomw.storage.pos,
+        STRUCTURE_LINK
+      );
       if (link) {
         roomw.memory.storage = {
           ...roomw.memory.storage,
@@ -96,7 +103,9 @@ export class LinkControl {
       return;
     }
 
-    const storeMinders = roomw.find(FIND_MY_CREEPS, { filter: c => c.memory.role === StoreMinder.ROLE });
+    const storeMinders = roomw.find(FIND_MY_CREEPS, {
+      filter: c => c.memory.role === StoreMinder.ROLE
+    });
     const storeMindersSpawning = SpawnUtils.getSpawningCountForRole(roomw, StoreMinder.ROLE);
     if (
       storeMinders.length + storeMindersSpawning === 0 &&
