@@ -12,7 +12,7 @@ export class Builder extends CreepWrapper {
   public static readonly BODY_PROFILE: CreepBodyProfile = {
     profile: [WORK, CARRY, CARRY, MOVE, MOVE],
     seed: [],
-    maxBodyParts: 20
+    maxBodyParts: 50
   };
 
   public run(): void {
@@ -75,6 +75,7 @@ export class Builder extends CreepWrapper {
           this.pos.isNearTo(closestEnergySource) &&
           this.pos.inRangeTo(site.pos, 3)
         ) {
+          // TODO this can lead to looping when source is between builder and target, and target is in range. Builder flees away from target, then steps, back, repeats.
           CreepUtils.consoleLogIfWatched(this, `moving away from source`);
           const path = PathFinder.search(
             this.pos,
